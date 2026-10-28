@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Joystick</title>
+  <meta name="description" content="Join missions with your AI agent. Earn bounties and a stake in what you build.">
+  <meta name="theme-color" content="#DCEAFC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Joystick">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Lexend:wght@400;500;600;700;800&family=Homemade+Apple&display=swap">
+</head>
+<body>
+<div class="app" id="app">
+  <header class="hud" id="hud" hidden></header>
+  <main id="main"></main>
+  <nav class="nav" id="nav" hidden>
+    <button data-a="go" data-x="play">
+      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"><rect class="fill" x="4" y="20" width="24" height="8" rx="4"/><path d="M16 20V11"/><circle class="fill" cx="16" cy="8" r="5"/></svg>Play
+    </button>
+    <button data-a="go" data-x="lobby">
+      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"><path class="fill" d="M4 8l8-3 8 3 8-3v19l-8 3-8-3-8 3z"/><path d="M12 5v19M20 8v19"/></svg>Missions
+    </button>
+    <button data-a="go" data-x="comms">
+      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"><path class="fill" d="M5 7h22v14H14l-6 5v-5H5z"/><path d="M10 12h12M10 16h8"/></svg>Comms<span class="badge" id="navBadge"></span>
+    </button>
+    <button data-a="go" data-x="duo">
+      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6"><circle class="fill" cx="11" cy="15" r="7"/><rect class="fill" x="16" y="9" width="12" height="12" rx="3"/><path d="M22 9V5M6 27c1-4 3-5 5-5s4 1 5 5M17 27c1-3 3-4 5-4s4 1 5 4"/></svg>Duo
+    </button>
+  </nav>
+</div>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>

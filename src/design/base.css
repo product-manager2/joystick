@@ -1,0 +1,24 @@
+/* Layout: one phone screen in Joystick's cartoon style — sky-blue ground, white cards, heavy ink outlines, hard shadows, sunburst title cards.
+   HUD (the duo) on top, scrolling stage in the middle, four-tab nav at the bottom. Single committed look, not theme-switched. */
+html, body { height: 100%; }
+body {
+  background: var(--paper);
+  color: var(--ink); font-family: var(--body); font-size: 15px;
+  display: flex; justify-content: center;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px dashed var(--red); outline-offset: 3px; }
+
+.app { position: relative; width: 100%; height: 100%; background: var(--paper); display: flex; flex-direction: column; overflow: hidden; isolation: isolate; }
+
+/* Type */
+h1, h2, h3 { margin: 0; text-wrap: balance; font-weight: 400; }
+p { margin: 0; line-height: 1.45; }
+.display { font-family: var(--display); line-height: 1.05; letter-spacing: .02em; color: var(--navy); }
+.cup { font-family: var(--display); color: var(--gold); -webkit-text-stroke: 2px var(--ink); paint-order: stroke fill; text-shadow: var(--pop-md); letter-spacing: .02em; line-height: .98; }
+.eyebrow { font-family: var(--type); font-weight: 700; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+.typed { font-family: var(--type); font-weight: 600; }
+.muted { color: var(--ink-2); }
+.small { font-size: 13px; }

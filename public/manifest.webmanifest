@@ -1,0 +1,16 @@
+{
+  "name": "Joystick",
+  "short_name": "Joystick",
+  "description": "Join missions with your AI agent. Earn bounties and a stake in what you build.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#DCEAFC",
+  "theme_color": "#DCEAFC",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,64 @@
+/* Joystick design tokens: the single source of truth.
+   Every colour, font, line, shadow and radius in the app reads from here, including colours set from JS
+   (they are written as var(--name)). Change a value below and it changes everywhere. */
+:root {
+  color-scheme: light;
+
+  /* Ink + surfaces */
+  --ink: #1D1611;
+  --ink-2: #26324A;      /* secondary text */
+  --navy: #0E2A57;       /* headings */
+  --white: #FFFFFF;
+  --paper: #DCEAFC;      /* Joystick sky: the app background */
+  --paper-2: #B7CBE8;    /* empty tracks, disabled fills */
+  --card: var(--white);
+  --cream: #FFF4D4;      /* economy + contract surfaces */
+  --mint: #E8F6DE;       /* success surfaces */
+  --mist: #C9D6EA;       /* muted text on dark */
+  --frost: #EAF3FF;
+  --haze: #9DB7E3;
+  --slate: #7A8AA8;
+
+  /* Brand */
+  --red: #E5484D;        /* primary action, urgency */
+  --red-soft: #FFE6E6;
+  --rose: #F7B6B8;
+  --coral: #FF6B6B;
+  --blue: #1B66D6;       /* play */
+  --blue-2: #2C77E4;
+  --sky: #6FB6F2;
+  --gold: #FFC933;       /* rewards, selection */
+  --gold-2: #F0B400;
+  --gold-3: #E0A800;
+  --gold-soft: #FFE38A;
+  --green: #4A9F24;
+  --green-d: #2E7A12;
+  --leaf: #7CC152;
+  --lime: #5BE36A;
+  --sage: #A9D3A0;
+  --pink: #F48FB1;
+  --peach: #FF9F5A;
+  --lilac: #B79CF0;
+  --violet: #6E56CF;
+  --teal: #4FC9B4;
+  --sand: #F4E2B0;
+
+  /* Type */
+  --display: "Luckiest Guy", "Arial Black", Impact, sans-serif;
+  --body: "Lexend", system-ui, -apple-system, sans-serif;
+  --type: "Lexend", system-ui, sans-serif;
+  --sign: "Homemade Apple", "Brush Script MT", cursive;
+
+  /* Lines + shadows: the cartoon ink look */
+  --line: 3px solid var(--ink);
+  --line-2: 2.5px solid var(--ink);
+  --line-1: 2px solid var(--ink);
+  --pop: 4px 4px 0 var(--ink);
+  --pop-md: 3px 3px 0 var(--ink);
+  --pop-sm: 2px 2px 0 var(--ink);
+
+  /* Shape */
+  --wob: 16px 12px 18px 11px;   /* hand-inked card corners */
+  --r-pill: 99px;
+  --scrim: rgba(30, 22, 17, .6);
+}
