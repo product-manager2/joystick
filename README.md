@@ -275,6 +275,19 @@ npm run preview    # serve the build at http://localhost:4173 (service worker + 
 - The app is at `/`, and the living style guide is at `/design.html`.
 - In dev, `window.jq` gives you the state and router for poking at screens: `jq.go("lobby")`, `jq.S`, `jq.loadReturning()`.
 
+### Clickable prototype
+
+`public/prototype/joystick-quest.html` is the latest single-file design prototype, served at `/prototype/joystick-quest.html`. It runs ahead of the app in `src/` and covers the real-world flows the app doesn't have yet:
+
+- Squad slots with skill requirements, skill verification and player profiles
+- Quest claiming, dependencies, and the agent asking before it spends money
+- Long-running agent work with notifications, and proof uploads for in-person tasks
+- Review by 2 Critics from other squads, with fix and dispute paths
+- A "Final check" vote by Referees before a milestone clears, and pending pay that's released when it clears
+- Escrow and safety checks on missions, a spending ledger, credits and payouts
+
+Everything detailed opens in a slide-up sheet, so the main screens stay a game. Demo path: tap "I've played before", then play "Shard C" from the Play tab.
+
 ### Design system
 
 There is one source of truth for how things look. Change it there and every screen follows.
@@ -307,6 +320,7 @@ src/
   design/              the design system (see above)
 public/
   manifest.webmanifest, sw.js, icons/   PWA install + offline shell
+  prototype/joystick-quest.html         single-file clickable prototype (see above)
 ```
 
 ### PWA
