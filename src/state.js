@@ -7,7 +7,7 @@ export const S = {
   name: "", agentName: "Pip", roles: [],
   level: 4, xp: 640, xpMax: 1200, coins: 180, sync: 24, streak: 3,
   joined: {}, missionId: "glio", tab: "map", filter: "All",
-  learned: [], together: 0, stamped: 0, values: [],
+  learned: [], together: 0, shipped: 0, values: [],
   badges: [],
   thread: null,
   forge: null,

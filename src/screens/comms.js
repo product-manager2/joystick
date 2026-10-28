@@ -78,8 +78,6 @@ export function msgHTML(msg) {
     extra = msg.answered ? `<div class="small muted" style="margin-top:4px">→ ${esc(msg.answered)}</div>`
       : `<div class="call" style="margin-top:8px"><div class="opts">${spendOpts(q).map((o, i) => `<button data-a="spend" data-x="${q.id}" data-i="${i}">${o}</button>`).join("")}</div><div class="small muted">Auto-approve limit: $${S.spendCap} · <button class="info" data-a="acct" data-x="spendcap">change</button></div></div>`;
   }
-  if (msg.stamp) extra += msg.answered ? `<div class="small muted" style="margin-top:4px">→ ${esc(msg.answered)}</div>`
-    : `<div class="qbtns" style="margin-top:8px"><button class="btn sm red" data-a="stamp" data-x="${msg.stamp}" data-ok="1">Stamp it</button><button class="btn sm" data-a="stamp" data-x="${msg.stamp}" data-ok="">Not yet</button></div>`;
   if (msg.review) {
     const [q] = findQuest(msg.review), sq = !S.squad || S.squad === stratOf(q).squad ? stratOf(q).squad : `${S.squad} or ${stratOf(q).squad}`;
     const ST = { checking: ["Checking…", ""], ok: ["✓ Approved", "done"], changes: ["Changes", "call"], waiting: ["Waiting", ""], overruled: ["Overruled", ""] };
@@ -90,7 +88,7 @@ export function msgHTML(msg) {
   if (msg.proof) extra = msg.answered ? `<div class="small muted" style="margin-top:4px">→ Proof added</div>`
     : `<button class="btn sm red" data-a="proof" data-x="${msg.proof}" style="margin-top:8px">Add proof</button>`;
   if (msg.ideas) extra = `<div class="mini-roles" style="margin-top:8px">${msg.ideas.map(t => `<button data-a="newstrat" data-x="${esc(t)}">${esc(t)}</button>`).join("")}</div>`;
-  const wide = msg.form || msg.quest || msg.run || msg.split || msg.ideas || msg.review || msg.stamp || (msg.call && !msg.answered) || (msg.spend && !msg.answered) || (msg.fix && !msg.answered);
+  const wide = msg.form || msg.quest || msg.run || msg.split || msg.ideas || msg.review || (msg.call && !msg.answered) || (msg.spend && !msg.answered) || (msg.fix && !msg.answered);
   const atMe = !me && msg.text && S.name && msg.text.includes("@" + S.name);
   return `<div class="msg ${me ? "me" : ""} ${wide ? "wide" : ""} ${atMe ? "atme" : ""}">${av}<div class="bubble">${from}${msg.text ? `<div>${msg.html ? msg.text : esc(msg.text)}</div>` : ""}${extra}</div></div>`;
 }

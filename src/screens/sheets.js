@@ -90,7 +90,7 @@ export function reqSheet(q) {
       q.spend ? Row(`<span class="coin"></span>`, "Spend", `About $${q.spend} of GPU from the strategy budget. ${q.spend > S.spendCap ? "You'll be asked first." : "Under your auto-approve limit."}`) : "",
       q.safety ? Row("⚠", "Safety check", "Designs are screened for toxicity and dual-use before anyone sees them.") : "",
       q.after ? Row("🔒", "Order", `Starts after “${esc(short(findQuest(q.after)[0].title))}”`) : "",
-      Row("✓", "You stamp, then 2 Critics review", `${esc(S.agentName)}'s work comes to you first. Then 2 Critics from other squads must approve it.`),
+      Row("✓", "2 Critics review", `${esc(S.agentName)} ships under your name. 2 Critics from other squads must approve it.`),
     ])}`, esc(q.title), () => reqSheet(q));
 }
 export function verifySheet(k) {
@@ -129,7 +129,7 @@ export function disputeSheet(q) {
 }
 export function reviewInfo() {
   drill("How review works", Group([
-    Row("1", "You stamp it first", `${esc(S.agentName)}'s work never leaves the room without your OK`),
+    Row("1", "Your duo ships it", `${esc(S.agentName)} works on your authority, so its work counts as yours`),
     Row("2", "2 Critics from other squads", "Nobody reviews their own squad's work"),
     Row("3", "They re-run it", "Checked against the brief's “Done when” list"),
     Row("4", "Both approve, it counts", "Pay is held until the milestone is cleared"),

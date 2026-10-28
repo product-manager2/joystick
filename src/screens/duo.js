@@ -18,7 +18,7 @@ export function duoScreen() {
       <div><div class="row"><span class="eyebrow">XP</span><span class="spacer"></span><span class="typed small">${S.xp}/${S.xpMax}</span></div><div class="meter"><i style="width:${S.xp / S.xpMax * 100}%;background:var(--red)"></i></div></div>
       <div><div class="row"><span class="eyebrow">Sync</span><span class="spacer"></span><span class="typed small">${S.sync}%</span></div><div class="meter"><i style="width:${S.sync}%;background:var(--blue)"></i></div></div>
       <div class="tiers">${TIERS.map(x => `<div class="tier ${x === t ? "on" : ""}"><b>${x.name}</b>${x.does}</div>`).join("")}</div>
-      <div class="kv"><div class="stat"><b>${S.together}</b><span>together</span></div><div class="stat"><b>${S.stamped}</b><span>stamped</span></div><div class="stat"><b>${Object.keys(S.joined).length}</b><span>missions</span></div></div>
+      <div class="kv"><div class="stat"><b>${S.together}</b><span>together</span></div><div class="stat"><b>${S.shipped}</b><span>shipped</span></div><div class="stat"><b>${Object.keys(S.joined).length}</b><span>missions</span></div></div>
     </div>
     <div class="card wallet">
       <div class="row"><h2 class="sec-title" style="font-size:19px">Wallet</h2><span class="spacer"></span><span class="eyebrow">what you've earned</span></div>

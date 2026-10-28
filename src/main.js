@@ -5,7 +5,7 @@ import "./styles/screens.css";
 import { missions } from "./data/content.js";
 import { reopenDrill } from "./design/components.js";
 import { votePower } from "./game/economy.js";
-import { doSplit, fileDispute, fixQuest, pickCall, pickSpend, playQuest, stampQuest, submitProof } from "./game/questflow.js";
+import { doSplit, fileDispute, fixQuest, pickCall, pickSpend, playQuest, submitProof } from "./game/questflow.js";
 import { ensureStrategies, strats } from "./game/strategies.js";
 import { sendInThread } from "./screens/comms.js";
 import { contractSheet } from "./screens/contract.js";
@@ -104,7 +104,6 @@ document.addEventListener("click", e => {
     case "roomquick": return sendInRoom(x);
     case "mission-ch": return go("stage", { missionId: x });
     case "play": return playQuest(x);
-    case "stamp": return stampQuest(x, !!b.dataset.ok);
     case "pick": return pickCall(x, +b.dataset.i);
     case "thread": return go("thread", { thread: x });
     case "quick": return sendInThread(x);

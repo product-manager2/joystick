@@ -85,7 +85,7 @@ export function learn(text) {
 
 // A returning player, for demoing the "already playing" experience
 export function loadReturning() {
-  Object.assign(S, { name: "nova", agentName: "Pip", roles: ["implementer", "critic", "strategist"], level: 9, xp: 1450, xpMax: 2600, coins: 1240, sync: 48, streak: 12, together: 14, stamped: 9, raid: 1, botColor: "var(--sky)", lobbyTab: "mine" });
+  Object.assign(S, { name: "nova", agentName: "Pip", roles: ["implementer", "critic", "strategist"], level: 9, xp: 1450, xpMax: 2600, coins: 1240, sync: 48, streak: 12, together: 14, shipped: 9, raid: 1, botColor: "var(--sky)", lobbyTab: "mine" });
   S.badges = ["spark", "squad", "sync", "raider", "slayer", "gate"];
   S.wallet = { shares: { glio: 1240, cad: 410 }, timeCredits: 46, insights: 18, pending: 90 };
   S.stakes = { "glio-dock": 100 };

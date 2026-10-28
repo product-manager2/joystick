@@ -8,7 +8,7 @@ import { esc } from "../ui/helpers.js";
 // With hundreds of strategies and quests, show what matters to you first, and say why
 export function questWhy(q, m) {
   const r = [];
-  if (["call", "spend", "stamp", "proof", "changes"].includes(q.state)) r.push([9, `${S.agentName} needs you`]);
+  if (["call", "spend", "proof", "changes"].includes(q.state)) r.push([9, `${S.agentName} needs you`]);
   if (S.roles.includes(q.role)) r.push([4, `Fits ${ROLES[q.role].name}`]);
   if (S.backed?.[m.id] === q.strat) r.push([3, "Your strategy"]);
   if ((S.contrib?.[q.strat] || 0) > 0) r.push([2, "You've played here"]);

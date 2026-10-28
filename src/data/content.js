@@ -37,7 +37,7 @@ export const roleColor = k => SUITS[ROLES[k].suit].color;
 export const TIERS = [
   { name: "Sidekick", min: 0,  does: "Solo: S quests" },
   { name: "Partner",  min: 35, does: "Solo: S + M quests", unlock: "Now runs M quests solo" },
-  { name: "Proxy",    min: 70, does: "Runs L quests · you stamp", unlock: "Now runs L quests for you to stamp" },
+  { name: "Proxy",    min: 70, does: "Runs L quests for you", unlock: "Now runs L quests on your behalf" },
 ];
 export const SIZE = { S: { label: "S · ~15 min", need: 0 }, M: { label: "M · ~1 hr", need: 35 }, L: { label: "L · ~1 day", need: 70 } };
 
@@ -60,7 +60,7 @@ export const BADGES = {
   fire:    { name: "On Fire",      desc: "7-day streak",                   icon: '<path d="M16 6c1 4 6 6 6 11a6 6 0 0 1-12 0c0-3 2-4 3-6 1 2 2 2 3 1-1-2-1-4 0-6z"/>', rib: ["var(--red)", "var(--gold)"] },
   proxy:   { name: "Proxy",        desc: "Your agent hit 70% Sync",        icon: '<rect x="9" y="11" width="14" height="11" rx="3"/><path d="M16 11V7M13.5 16h.01M18.5 16h.01"/>', rib: ["var(--green)", "var(--blue)"] },
   squad:   { name: "Squad Up",     desc: "Signed your first contract",     icon: '<circle cx="12" cy="13" r="3"/><circle cx="20" cy="13" r="3"/><path d="M7 23c1-4 3-5 5-5s4 1 5 5M15 23c1-4 3-5 5-5s4 1 5 5"/>', rib: ["var(--pink)", "var(--green)"] },
-  mind:    { name: "Clean Stamp",  desc: "Stamped your agent's work first try",   icon: '<path d="M6 16s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6z"/><circle cx="16" cy="16" r="2.5"/>', rib: ["var(--violet)", "var(--gold)"] },
+  mind:    { name: "First Try",    desc: "Approved with no fixes needed",        icon: '<path d="M6 16s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6z"/><circle cx="16" cy="16" r="2.5"/>', rib: ["var(--violet)", "var(--gold)"] },
   trail:   { name: "Trailblazer",  desc: "Proposed a new strategy",        icon: '<path d="M8 24l6-12 4 6 2-3 4 9z"/><circle cx="21" cy="9" r="2"/>', rib: ["var(--gold)", "var(--blue)"] },
 };
 export function medal(id, size = 64, force = false) {

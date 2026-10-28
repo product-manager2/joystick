@@ -152,7 +152,7 @@ export const crewAv = x => `<span class="av">${x.bot ? bot(x.color) : face(x.col
 export function questStatus(q) {
   if (q.done) return `<span class="qstat done">✓ Cleared</span>`;
   if (q.parts) { const [, m] = findQuest(q.id); const d = q.parts.filter(id => m.quests.find(x => x.id === id).done).length; return `<span class="qstat">${d}/${q.parts.length} parts</span>`; }
-  if (needsYou(q)) return `<span class="qstat call">${{ call: "Your call", spend: "Approve $", stamp: "Stamp it", proof: "Add proof", changes: "Fix needed" }[q.state]}</span>`;
+  if (needsYou(q)) return `<span class="qstat call">${{ call: "Your call", spend: "Approve $", proof: "Add proof", changes: "Fix needed" }[q.state]}</span>`;
   if (q.state === "dispute") return `<span class="qstat review">Disputed</span>`;
   if (q.state === "work") return `<span class="qstat live">Working</span>`;
   if (q.state === "review") return `<span class="qstat review">In review</span>`;

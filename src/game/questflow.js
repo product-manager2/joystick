@@ -12,12 +12,12 @@ import { duoName, esc, findQuest, fmt, gain, learn, titleCard, toast } from "../
 
 // ===================== Playing a quest =====================
 // One Start button. You and your agent always play together: it does the legwork, you make the calls,
-// and nothing leaves the room until you stamp it. Then 2 Critics from other squads review it.
-// start → (spend OK?) → your call → agent works → you stamp → Critics → approved (or fix / dispute)
+// and it works on your authority, so what it ships goes out under your name. Then 2 Critics from other squads review it.
+// start → (spend OK?) → your call → agent works → Critics → approved (or fix / dispute)
 
 // What a quest is waiting on you for
-export const NEEDS = { call: q => q.call.q, spend: q => `Approve ~$${q.spend} of GPU time?`, stamp: q => `Stamp ${S.agentName}'s work: ${short(q.title)}`, proof: () => "Add proof to finish", changes: () => "A reviewer asked for changes" };
-export const NEED_BTN = { call: "Answer", spend: "Approve", stamp: "Review", proof: "Add proof", changes: "Fix" };
+export const NEEDS = { call: q => q.call.q, spend: q => `Approve ~$${q.spend} of GPU time?`, proof: () => "Add proof to finish", changes: () => "A reviewer asked for changes" };
+export const NEED_BTN = { call: "Answer", spend: "Approve", proof: "Add proof", changes: "Fix" };
 export const needsYou = q => !!NEEDS[q.state];
 
 export function playQuest(id) {
@@ -94,30 +94,7 @@ function afterCall(q, m) {
   q.state = long ? "work" : "run";
   const run = { agent: true, text: long ? `Running now, ${q.eta || "about an hour"}. You can leave, I'll ping you.` : "Got it.", run: q.id, phase: 2, p: 0 };
   postQ(q, m, run);
-  animate(run, 0, 1, long ? 4200 : 1300, long ? [`working: “${q.picked}”`, "checkpoint saved", "almost there", q.log[2]] : [`on it: “${q.picked}”`, q.log[2]], () => readyToStamp(q, m));
-}
-// Your agent's work comes back to you first. Your stamp is what sends it to review.
-function readyToStamp(q, m) {
-  q.state = "stamp";
-  postQ(q, m, { agent: true, text: "Done. Check it, then stamp it:", file: q.out || `${short(q.title)} · notes.md`, stamp: q.id });
-  notify(`${S.agentName} finished “${short(q.title)}”. Stamp it?`, q.id);
-}
-export function stampQuest(id, ok) {
-  const [q, m] = findQuest(id);
-  if (q.state !== "stamp") return;
-  q.feed.forEach(x => { if (x.stamp === id) x.answered = ok ? "Stamped ✓" : "Sent back"; });
-  if (!ok) {
-    q.redo = true; q.state = "run";
-    postQ(q, m, { me: true, text: `@${S.agentName} not yet. Tighten it up.` });
-    const run = { agent: true, text: "Fair. Redoing it.", run: q.id, phase: 4, p: 0 };
-    postQ(q, m, run);
-    return animate(run, 0, 1, 1500, ["re-reading the brief…", "tightened", q.log[2]], () => readyToStamp(q, m));
-  }
-  postQ(q, m, { me: true, text: "Stamped ✓" });
-  S.stamped = (S.stamped || 0) + 1;
-  if (!q.redo) award("mind");
-  q.state = "run";
-  submitQuest(q, m);
+  animate(run, 0, 1, long ? 4200 : 1300, long ? [`working: “${q.picked}”`, "checkpoint saved", "almost there", q.log[2]] : [`on it: “${q.picked}”`, q.log[2]], () => submitQuest(q, m, true));
 }
 export function submitProof(id) {
   const [q, m] = findQuest(id);
@@ -128,8 +105,9 @@ export function submitProof(id) {
 }
 
 // Work counts only once 2 Critics from other squads have checked it
-function submitQuest(q, m) {
+function submitQuest(q, m, fromAgent) {
   q.state = "review";
+  if (fromAgent) postQ(q, m, { agent: true, text: "Done. Submitted under your name:", file: q.out || `${short(q.title)} · notes.md` });
   q.rv = reviewersFor(q).map(n => ({ n, st: "checking" }));
   postQ(q, m, { agent: true, text: "Sent to 2 Critics from other squads:", review: q.id });
   const reject = q.reject && !q.reworked && !q.disputed;
@@ -156,7 +134,7 @@ export function fixQuest(id) {
   postQ(q, m, { me: true, text: `@${S.agentName} fix it` });
   const run = { agent: true, text: "Fixing now.", run: q.id, phase: 3, p: 0 };
   postQ(q, m, run);
-  animate(run, 0, 1, 1800, [`reading ${q.rv[0].n}'s notes…`, "re-running with the shared config", "fixed ✓"], () => readyToStamp(q, m));
+  animate(run, 0, 1, 1800, [`reading ${q.rv[0].n}'s notes…`, "re-running with the shared config", "fixed ✓"], () => submitQuest(q, m, true));
 }
 export function fileDispute(id) {
   const [q, m] = findQuest(id);
@@ -175,7 +153,8 @@ function approveQuest(q, m) {
   q.done = true; q.state = null; q.mine = false;
   const s = stratOf(q);
   const xp = Math.round(q.xp * (S.roles.includes(q.role) ? 2 : 1) * 1.5);
-  S.together++;
+  S.together++; S.shipped = (S.shipped || 0) + 1;
+  if (!q.reworked) award("mind");
   s.score += q.gain || 0;
   S.contrib = S.contrib || {};
   S.contrib[s.id] = (S.contrib[s.id] || 0) + (q.gain || 0);

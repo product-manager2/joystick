@@ -57,7 +57,7 @@ raise a need ─▶ it becomes a mission ─▶ strategies pitch theses ─▶ p
 - **A duo is one player.** You and your agent are a single entity with a shared name, level and wallet (e.g. *nova & Pip*).
 - **Roles.** You pick up to 3 of 16 roles across 8 groups: Seekers, Creators, Producers, Leaders, Architects, Advocates, Guardians and Givers. Quests that match your roles are shown first and pay 2×.
 - **Sync.** Your agent's sync grows as you play together. Higher sync lets the agent take on bigger work by itself.
-- **You always stamp the work.** There is one **Start** button. You can ask your agent to do a quest, but anything it produces comes back to you as *Review → Stamp it*. Your stamp is what counts.
+- **Your agent works on your authority.** There is one **Start** button. You and your agent are a team, and you're the one accountable: you make the calls, and whatever your agent ships goes out under your name with no extra sign-off step.
 - **New and returning players see different screens.** Everything is personalised first, with a reason shown ("Fits Implementer", "Holistic, like you").
 - **Medals** reward milestones in play: first quest, first contract, first strategy proposed, and so on.
 
@@ -154,7 +154,7 @@ Every backer can back a strategy with several signals. Each signal is converted 
 | --- | --- | --- | --- |
 | Demand | a +1 | 1 | Straight away (verified players only) |
 | Money | $1 | 1 | Straight away |
-| Time | 1 hour | 50 | When the work is **stamped**, not when pledged |
+| Time | 1 hour | 50 | When the work is **approved**, not when pledged |
 | Compute | 1 GPU-hour | 2 | When it is used |
 | Knowledge | 1 accepted insight | 200 | When a Critic accepts it |
 
@@ -166,7 +166,7 @@ $$c_{i,s} = r_i \sum_k w_k \, v_{i,s,k}$$
 
 - $v_{i,s,k}$ is how much of signal $k$ they gave.
 - $w_k$ is the credit rate from the table above.
-- $r_i \in [0, 1]$ is the backer's **trust weight**: verified identity, plus a history of stamped work.
+- $r_i \in [0, 1]$ is the backer's **trust weight**: verified identity, plus a history of approved work.
 
 Each strategy's raw quadratic score:
 
@@ -189,7 +189,7 @@ A $10,000 pool and four strategies:
 | A: one whale | 1 × $1,000 | 1,000 | 0 | **$0** |
 | B: broad crowd | 100 × $10 | 1,000 | 99,000 | **$5,041** |
 | C: people with the problem | 40 × $5 + 200 × (+1) | 400 | 83,377 | **$4,246** |
-| D: a few builders | 8 × 5 stamped hours | 2,000 | 14,000 | **$713** |
+| D: a few builders | 8 × 5 approved hours | 2,000 | 14,000 | **$713** |
 
 - **A and B raised the same amount**, but B's breadth earns all the match.
 - **C raised the least money**, yet 200 +1s from people who have the problem pull in almost half the pool. This is demand backing at work.
@@ -217,9 +217,9 @@ Players never see the formula. On a strategy card:
 
 ## 9. Safeguards
 
-- **Fake accounts.** One duo per verified person. New accounts start with a low trust weight, which grows with stamped work. This is what makes quadratic matching safe.
+- **Fake accounts.** One duo per verified person. New accounts start with a low trust weight, which grows with approved work. This is what makes quadratic matching safe.
 - **Collusion.** Match from backers who always back the same strategies together can be dampened (pairwise-bounded QF). This is planned for later, not the demo.
-- **Pledging without doing.** Time, compute and knowledge only count once delivered and stamped.
+- **Pledging without doing.** Time, compute and knowledge only count once delivered and approved.
 - **Spam +1s.** These are cheap but trust-weighted. Early +1s only earn a reward if the mission ships.
 - **Treasury drain.** Draws are paid in tranches, capped by $\kappa$, and approved by token holders.
 
@@ -242,7 +242,7 @@ Players never see the formula. On a strategy card:
 - **Two-layer ownership:** mission tokens for the problem, team stakes for the team you back, and the 5% commons fee.
 - **Demand:** "+1 Me too" on every mission; the treasury shows who funds it (sponsors, crowd, people who need it, revenue).
 - **Merge nudges:** the agent suggests teaming up when a squad's fundraise stalls. Squads vote; nothing is forced.
-- **One Start button.** The quest loop: spend approval → your call → your agent works → **you stamp it** → 2 Critics from other squads → approved, or fix / dispute. Sizes are S, M, L.
+- **One Start button.** The quest loop: spend approval → your call → your agent works under your name → 2 Critics from other squads → approved, or fix / dispute. Sizes are S, M, L.
 - Real-world flows: squads with skill slots, verified skills, connected tools, claims and dependencies, in-person quests with proof, notifications, and the Referees' **Final check** before a milestone clears.
 - Escrow and trust details, a spending ledger, pending pay released when a milestone clears, credits and payouts.
 - Creating a mission by chatting with your agent, with an escrow deposit before launch; Comms with DMs; Duo profile with wallet, stakes and medals.
@@ -313,7 +313,7 @@ src/
   game/strategies.js   theses: status, relations, quest gating (claims, dependencies)
   game/economy.js      fuel, mission tokens, team stakes, matching pools, ledger
   game/matching.js     quadratic matching with a cap, and the live "with match" estimate
-  game/questflow.js    the quest loop: start, spend, call, work, stamp, review, fix, dispute, approve
+  game/questflow.js    the quest loop: start, spend, call, work, review, fix, dispute, approve
   game/personalise.js  what fits you, and why (roles, values, squad)
   ui/                  chrome (HUD, bell, nav, router) and shared helpers
   screens/             home, onboarding, play, missions (graph map, treasury), quests (channel, thesis, room),
