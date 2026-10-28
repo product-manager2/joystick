@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "description": "Joystick: join missions with your AI agent, earn bounties and mission tokens. Mobile-first PWA demo.",
+  "license": "MIT",
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
