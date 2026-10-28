@@ -1,3 +1,4 @@
+import { TRUST } from "../data/world.js";
 import { GLYPHS, Q, ROLES, SPLIT, award, missions, roleColor } from "../data/content.js";
 import { color } from "../design/tokens.js";
 import { msgHTML } from "./comms.js";
@@ -51,7 +52,11 @@ export function forgeCard(kind) {
       <div class="band" style="background:var(--pink)"><div class="glyph"><svg viewBox="0 0 32 32">${GLYPHS.star}</svg></div><h3>${esc(f.title)}</h3></div>
       <div class="body"><p class="small">${esc(f.pitch)}</p><div class="eyebrow">${f.stages.length} milestones · ${f.rules.length} win rules · $${fmt(f.bounty)} bounty</div>
       <div class="row wrap" style="gap:4px">${f.roles.map(r => `<span class="rtag" style="background:${roleColor(r)}">${ROLES[r].name}</span>`).join("")}</div></div></div>
-      ${live ? `<button class="btn red block" data-a="f-launch">Launch</button>` : ""}</div>`;
+      <div class="dgroup" style="box-shadow:var(--pop-sm)">
+        <div class="drow"><span class="${f.funded ? "ok" : "no"}">${f.funded ? "✓" : "!"}</span><span><b>Escrow</b><span class="small muted" style="display:block">${f.funded ? `$${fmt(f.bounty)} locked. Paid out only as milestones clear.` : `Lock $${fmt(f.bounty)} so players know it's real.`}</span></span>${f.funded || !live ? "<span></span>" : `<button class="btn sm gold" data-a="f-fund">Deposit</button>`}</div>
+        <div class="drow"><span class="${f.funded ? "ok" : "muted"}">${f.funded ? "✓" : "○"}</span><span><b>Safety check</b><span class="small muted" style="display:block">${f.funded ? "Auto-check passed · no harm or dual-use flags" : "Runs after the deposit"}</span></span><span></span></div>
+      </div>
+      ${live ? `<button class="btn red block" data-a="f-launch" ${f.funded ? "" : "disabled"}>${f.funded ? "Launch" : "Deposit to launch"}</button>` : ""}</div>`;
   return "";
 }
 export function forgeSay(text, form, delay = 700) {
@@ -83,12 +88,12 @@ export function forgeText(text) {
   f.msgs.push({ me: true, text });
   if (f.step === 1) { f.title = text.slice(0, 60); return forgeSay(`“${f.title}”. Nice.`); }
   if (f.step === 2) { f.stages.splice(f.stages.length - 1, 0, text.slice(0, 40)); return forgeSay(`Added “${text}”.`); }
-  if (f.step === 3) { f.ruleOpts.push(text); f.rules.push(text); return forgeSay(`Added. Guardians will check it.`); }
+  if (f.step === 3) { f.ruleOpts.push(text); f.rules.push(text); return forgeSay(`Added. Referees will check it.`); }
   forgeSay("Got it.");
 }
 export function forgeLaunch() {
   const f = S.forge, id = "m" + Date.now();
-  const stages = f.stages.filter(s => s.trim()).map((s, i, a) => ({ name: s.trim(), goal: s.trim(), boss: i === a.length - 1 }));
+  const stages = f.stages.filter(s => s.trim()).map((s, i, a) => ({ name: s.trim(), goal: s.trim(), finish: i === a.length - 1, tracks: i === a.length - 1 ? ["Launch"] : ["Research", "Build"] }));
   missions.unshift({
     id, title: f.title || "Untitled mission", tag: "Product", glyph: "star", color: "var(--pink)",
     creator: "@" + (S.name || "you"), bounty: f.bounty, players: 1, squads: 1, pitch: f.pitch,
@@ -99,6 +104,7 @@ export function forgeLaunch() {
       Q(id + "c", `Kick off ${stages[0].name}`, "explorer", "M", 260, 20, ["researching…", "notes drafted", "posted to HQ ✓"], { q: "Where do we start?", opts: ["What exists already", "Talk to people first"] }),
     ],
   });
+  TRUST[id] = { who: "@" + (S.name || "you"), cred: "Mission creator", verified: ["Email"], funders: [["@" + (S.name || "you"), f.bounty]], record: "First mission", safety: "Auto-check passed", deliver: f.rules, fail: "Unspent escrow goes back to you. Approved work stays paid." };
   S.joined[id] = ["shaper", ...S.roles.filter(r => r !== "shaper")].slice(0, 3);
     award("founder");
   gain(200, 0, 3);

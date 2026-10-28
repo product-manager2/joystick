@@ -45,3 +45,25 @@ export function openSheet({ label, render, onClick, onClose, className = "" }) {
   document.getElementById("app").appendChild(scrim);
   return { close, draw };
 }
+
+// Drill-down: real-world detail opens in a sheet over the game, so the main screens stay simple.
+// Opening another drill-down swaps the content in place. again() redraws it after a change.
+let again = null;
+export const reopenDrill = () => again && again();
+export function drill(title, body, sub = "", redraw = null) {
+  again = redraw;
+  const inner = `<div class="grab"></div><div class="row"><div style="flex:1;min-width:0"><h2 class="display" style="font-size:22px;color:var(--navy)">${title}</h2>${sub ? `<div class="small muted ellip">${sub}</div>` : ""}</div><button class="sheet-x" data-a="dclose" aria-label="Close">✕</button></div>${body}`;
+  const old = document.querySelector(".dd");
+  if (old) { old.querySelector(".sheet").innerHTML = inner; return; }
+  const s = document.createElement("div");
+  s.className = "scrim dd";
+  s.innerHTML = `<div class="sheet" role="dialog" aria-label="${esc(title)}">${inner}</div>`;
+  s.addEventListener("click", e => { if (e.target === s) s.remove(); });
+  document.getElementById("app").appendChild(s);
+}
+export const closeDrill = () => document.querySelectorAll(".dd").forEach(x => x.remove());
+
+// Detail rows: icon, title, optional subline and an optional thing on the end (a value or a button)
+export const DetailRow = (icon, title, sub, end = "") => `<div class="drow"><span>${icon}</span><span style="min-width:0"><b>${title}</b>${sub ? `<span class="small muted" style="display:block">${sub}</span>` : ""}</span>${end || "<span></span>"}</div>`;
+export const DetailGroup = rows => `<div class="dgroup">${rows.join("")}</div>`;
+export const Tick = (ok, yes = "✓", no = "✗") => `<span class="${ok ? "ok" : "no"}">${ok ? yes : no}</span>`;

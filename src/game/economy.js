@@ -1,5 +1,5 @@
 import { ROLES } from "../data/content.js";
-import { color } from "../design/tokens.js";
+import { LEDGER } from "../data/world.js";
 import { strats } from "./strategies.js";
 import { S } from "../state.js";
 import { fmt } from "../ui/helpers.js";
@@ -22,7 +22,9 @@ export const FUEL0 = {
   reef:  { money: [6000, 8000],  time: [220, 260], know: [9, 10],  compute: [80, 200],    dryDays: 30, supply: 210000, more: [6, 40] },
   tutor: { money: [3000, 10000], time: [40, 200],  know: [3, 15],  compute: [50, 400],    dryDays: 12, supply: 90000,  more: [9, 77] },
 };
-export const ASK = { "glio-dock": [6000, 150, 2500], "glio-repurpose": [4000, 120, 200], "glio-gen": [5000, 100, 1500] };
+export const ASK = { "glio-dock": [6000, 150, 2500], "glio-repurpose": [4000, 120, 200], "glio-gen": [5000, 100, 1500], "glio-whole": [3500, 90, 100], "cad-rust": [40000, 600, 1000] };
+// Matching pool for each milestone round: the part of the treasury that matches backers quadratically
+export const POOL = { glio: 25000, cad: 8000, reef: 10000, tutor: 12000 };
 export function fuelOf(m) {
   if (!m.fuel) m.fuel = JSON.parse(JSON.stringify(FUEL0[m.id] || { money: [0, 2000], time: [0, 100], know: [0, 5], compute: [0, 100], dryDays: 30, supply: 10000, more: [0, 0] }));
   return m.fuel;
@@ -42,7 +44,7 @@ export function tokenCard(m) {
   return `<div class="tokcard">
     <div class="row"><span class="tokcoin">${tok(m).slice(1, 2)}</span><span style="flex:1;min-width:0"><b class="tokname">${tok(m)}</b><span class="small muted" style="display:block">${fmt(fuelOf(m).supply + mine)} minted · ${fmt(holders(m))} holders</span></span>
       ${mine ? `<span class="tokmine"><b>${fmt(mine)}</b><span>${ownPct(m).toFixed(2)}%</span></span>` : ""}</div>
-    <div class="tokgrid"><span><b>Vote</b>on where the treasury goes</span><span><b>Earn</b>from ${t.pays.slice(0, 2).join(", ").toLowerCase()}</span></div>
+    <div class="tokgrid"><span><b>Vote</b>on treasury draws and the final check</span><span><b>Earn</b>from the bounty and a 5% fee on ${t.pays.slice(0, 2).join(", ").toLowerCase()}</span></div>
     <div class="row" style="gap:8px"><button class="btn gold sm" style="flex:1" data-a="fuelit" data-x="${m.id}">Back it</button><span class="small muted" style="flex:1">$100 → <b>${fmt(Math.round(100 * mult(m) / 10))} ${tok(m)}</b></span></div>
   </div>`;
 }
@@ -66,13 +68,11 @@ export const tok = m => "$" + ((TOKEN[m.id] || {}).tick || m.id.slice(0, 4).toUp
 export const holders = m => Math.round(m.players * .62 + fuelOf(m).more[1]);
 export const ownPct = m => { const mine = S.wallet.shares[m.id] || 0; return mine ? (mine / (fuelOf(m).supply + mine) * 100) : 0; };
 export const tokFor = (m, parts) => Math.round(Object.entries(parts).reduce((a, [k, v]) => a + (v || 0) * RATE[k], 0) * mult(m) / 10);
-export const questFuel = q => ({ time: { S: 1, M: 4, Boss: 8 }[q.size] || 1, know: ["seekers", "guardians", "architects"].includes(ROLES[q.role].suit) ? 1 : 0, compute: /shard|dock|train|screen/i.test(q.title) ? 200 : 0 });
-// Funding rounds: your votes are weighted by your shares
+export const questFuel = q => ({ time: { S: 1, M: 4, L: 8 }[q.size] || 1, know: ["seekers", "guardians", "architects"].includes(ROLES[q.role].suit) ? 1 : 0, compute: /shard|dock|train|screen/i.test(q.title) ? 200 : 0 });
+// Your weight in mission votes (treasury draws, the final check) grows with the mission tokens you hold
 export const votePower = m => 1 + Math.floor((S.wallet.shares[m.id] || 0) / 200);
-export const myVotes = m => (S.votes[m.id] = S.votes[m.id] || {});
-export const votesLeft = m => 5 - Object.values(myVotes(m)).reduce((a, n) => a + n, 0);
-export function fundPct(m, s) {
-  const w = x => x.backers + (myVotes(m)[x.id] || 0) * votePower(m);
-  return Math.round(w(s) / strats(m).reduce((a, x) => a + w(x), 0) * 100);
-}
+// Team stakes: money you put straight into a strategy. They pay from that team's product, not the mission's.
+export const stakeOf = s => (S.stakes || {})[s.id] || 0;
 export const askOf = s => { const a = ASK[s.id] || [3000, 80, 300]; return { money: a[0], time: a[1], compute: a[2] }; };
+// Every spend from a mission's treasury, with a receipt
+export const ledgerOf = m => (m.ledger = m.ledger || (LEDGER[m.id] || []).map(([what, squad, amt, when]) => ({ what, squad, amt, when })));

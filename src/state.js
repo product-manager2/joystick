@@ -7,13 +7,14 @@ export const S = {
   name: "", agentName: "Pip", roles: [],
   level: 4, xp: 640, xpMax: 1200, coins: 180, sync: 24, streak: 3,
   joined: {}, missionId: "glio", tab: "map", filter: "All",
-  learned: [], together: 0, solo: 0,
+  learned: [], together: 0, stamped: 0, values: [],
   badges: [],
   thread: null,
   forge: null,
   pendingQuest: null,
   botColor: "var(--white)", raid: 0, from: null, styleOpen: false, home: "deck",
-  wallet: { shares: {}, timeCredits: 0, insights: 0 }, votes: {}, locked: {}, pledge: { time: 5, money: 25, compute: 20 }, showAll: {},
+  skills: [], tools: { "Shared drive": true, "GPU pool": true }, credits: [], notifs: [], spendCap: 25, kyc: false,
+  wallet: { shares: {}, timeCredits: 0, insights: 0, pending: 0 }, stakes: {}, voiced: {}, mergeSeen: {}, pledge: { time: 5, money: 25, compute: 20 }, showAll: {},
 };
 export const threads = [
   { id: "partner", kind: "agent", title: "", unread: 1, msgs: [] },

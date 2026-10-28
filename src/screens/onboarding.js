@@ -1,3 +1,4 @@
+import { VALUES } from "../data/world.js";
 import { ROLES, SUITS, medal, missions } from "../data/content.js";
 import { color } from "../design/tokens.js";
 import { playable, strats } from "../game/strategies.js";
@@ -19,7 +20,7 @@ export function onboard() {
       <div class="hero-stage">
         <span class="sticker s1"><span class="coin"></span>$250k bounty</span>
         <span class="sticker s2">+2 candidates</span>
-        <span class="sticker s3">GATE OPEN!</span>
+        <span class="sticker s3">CLEARED!</span>
         <span class="sticker s4 medal-st">${medal("slayer", 54, true)}</span>
         <div class="bubble hero-bubble">Ready, partner?</div>
         <div class="hero-duo"><span class="av bounce">${face(youColor, 2)}</span><span class="av bounce" style="animation-delay:.2s">${bot(S.botColor, true)}</span></div>
@@ -34,7 +35,7 @@ export function onboard() {
     ${startForm()}
       <a class="howto-link" href="#howto">How it works ↓</a>
     </div>
-    <div class="ticker" aria-hidden="true"><span>${"&nbsp;★&nbsp; Rosa & Dot cleared “Verify docking” +$25 &nbsp;★&nbsp; Fold Gang is 1 quest from the gate &nbsp;★&nbsp; Kenji & Byte joined Open CAD &nbsp;★&nbsp; @dr.amara added $10k to the bounty ".repeat(2)}</span></div>
+    <div class="ticker" aria-hidden="true"><span>${"&nbsp;★&nbsp; Rosa & Dot cleared “Verify docking” +$25 &nbsp;★&nbsp; Fold Gang is 1 quest from clearing a milestone &nbsp;★&nbsp; Kenji & Byte joined Open CAD &nbsp;★&nbsp; @dr.amara added $10k to the bounty ".repeat(2)}</span></div>
     <div class="howto-wrap">
       <div class="howto" id="howto">
         <div class="panel"><div class="card panel-card">
@@ -65,6 +66,8 @@ export function onboard() {
     return `<div class="onboard">
       <div><h1 class="display" style="font-size:30px">What are you great at?</h1><div class="eyebrow" style="margin-top:6px">Pick up to three</div></div>
       ${rolePicker(S.roles, "ob-role")}
+      <div><div class="eyebrow">And what should a solution be?</div>
+        <div class="chips wrap" style="margin-top:8px">${VALUES.map(v => `<button class="chip" data-a="value" data-x="${v}" aria-pressed="${S.values.includes(v)}">${v}</button>`).join("")}</div></div>
       <div class="sticky-cta">${dots}
       <button class="btn red block" data-a="ob-next" ${S.roles.length ? "" : "disabled"}>${S.roles.length ? `That's me · ${S.roles.length}/3` : "Tap 1 to 3"}</button></div>
     </div>`;

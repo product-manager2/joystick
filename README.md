@@ -235,22 +235,24 @@ Players never see the formula. On a strategy card:
 
 **In the demo now**
 
-- Onboarding for new and returning players, roles, and three home layouts.
-- Missions list with topic filters, mission page (map, strategies, treasury, brief), channel, strategy and quest rooms with briefs.
-- Mission tokens, fuel gauges, backing, the join contract and the wallet.
-- Creating a mission by chatting with your agent; Comms; Duo profile with medals.
+- Onboarding for new and returning players, roles, values, and three home layouts.
+- Missions list with topic filters; mission page with a **graph map** (parallel tracks converging on ◆ checkpoints), strategies, treasury and brief.
+- **Strategies as theses:** claim, ask, when, relations (feeds, needs, competes) and states (raising, awaiting OK, queued, merged).
+- **Matching rounds:** quadratic matching with a cap, a live "about $X with match" estimate when you back a thesis, and +1 voices.
+- **Two-layer ownership:** mission tokens for the problem, team stakes for the team you back, and the 5% commons fee.
+- **Demand:** "+1 Me too" on every mission; the treasury shows who funds it (sponsors, crowd, people who need it, revenue).
+- **Merge nudges:** the agent suggests teaming up when a squad's fundraise stalls. Squads vote; nothing is forced.
+- **One Start button.** The quest loop: spend approval → your call → your agent works → **you stamp it** → 2 Critics from other squads → approved, or fix / dispute. Sizes are S, M, L.
+- Real-world flows: squads with skill slots, verified skills, connected tools, claims and dependencies, in-person quests with proof, notifications, and the Referees' **Final check** before a milestone clears.
+- Escrow and trust details, a spending ledger, pending pay released when a milestone clears, credits and payouts.
+- Creating a mission by chatting with your agent, with an escrow deposit before launch; Comms with DMs; Duo profile with wallet, stakes and medals.
 - An installable PWA and a token-driven design system.
 
 **Next**
 
-1. **Graph map:** parallel tracks and ◆ checkpoints, replacing the linear map.
-2. **One Start button** with *Review → Stamp it*. This retires the three-button bar and the "Boss" naming (sizes become S, M, L).
-3. **Strategy as thesis:** a pitch card (claim, ask, when, relations) and the strategy states.
-4. **Matching rounds:** the live match estimate on strategy cards, replacing the funding-round vote buttons.
-5. **Two-layer tokens:** a team stake alongside the mission token, and the commons fee.
-6. **Needs:** +1s, pledges held until delivery, and needs that become missions.
-7. **Values tags** in onboarding and in For you.
-8. **Merge nudges** and queued strategies.
+1. **Needs as their own screen:** browse and raise needs, pledges held until delivery, and needs that become missions.
+2. **Treasury draws:** token-holder votes on each tranche.
+3. **Trust weights** in matching (new accounts count less until they've played).
 
 **Later:** a backend with real accounts, real treasuries and an on-chain token ledger, plus collusion-resistant matching.
 
@@ -277,16 +279,9 @@ npm run preview    # serve the build at http://localhost:4173 (service worker + 
 
 ### Clickable prototype
 
-`public/prototype/joystick-quest.html` is the latest single-file design prototype, served at `/prototype/joystick-quest.html`. It runs ahead of the app in `src/` and covers the real-world flows the app doesn't have yet:
+`public/prototype/joystick-quest.html` is the earlier single-file design prototype, served at `/prototype/joystick-quest.html`. Everything in it has been ported into the app in `src/`; it is kept for reference only, and new work goes into `src/`.
 
-- Squad slots with skill requirements, skill verification and player profiles
-- Quest claiming, dependencies, and the agent asking before it spends money
-- Long-running agent work with notifications, and proof uploads for in-person tasks
-- Review by 2 Critics from other squads, with fix and dispute paths
-- A "Final check" vote by Referees before a milestone clears, and pending pay that's released when it clears
-- Escrow and safety checks on missions, a spending ledger, credits and payouts
-
-Everything detailed opens in a slide-up sheet, so the main screens stay a game. Demo path: tap "I've played before", then play "Shard C" from the Play tab.
+Demo path in the app: tap "I've played before", then open "Shard C" from the Play tab and press **Start quest**.
 
 ### Design system
 
@@ -297,7 +292,7 @@ There is one source of truth for how things look. Change it there and every scre
 | Tokens | `src/design/tokens.css` | Every colour, font, line, shadow and radius as a CSS custom property |
 | Base | `src/design/base.css` | Reset, app frame, type styles (`.display`, `.eyebrow`, `.muted`) |
 | Components | `src/design/components.css` | Buttons, cards, chips, tabs, stats, meters, sheets, chat bubbles, nav |
-| Component markup | `src/design/components.js` | `Button`, `Chip`, `Tabs`, `Stats`, `Meter`, `openSheet`, … |
+| Component markup | `src/design/components.js` | `Button`, `Chip`, `Tabs`, `Stats`, `Meter`, `openSheet`, `drill`, `DetailRow`, `Tick`, … |
 | Screens | `src/styles/screens.css` | Layout specific to one screen |
 
 Rules:
@@ -313,14 +308,20 @@ Rules:
 src/
   main.js              boot, click/submit routing, service worker
   state.js             the single state object S
-  data/content.js      roles, missions, quests, medals: all mock content
-  game/                strategies, economy (fuel + mission tokens), personalisation
-  ui/                  chrome (HUD, nav, router) and shared helpers
-  screens/             one module per screen: home, onboarding, play, missions, quests, contract, comms, forge, duo
+  data/content.js      roles, missions (with parallel tracks), quests, medals: all mock content
+  data/world.js        people, quest requirements, tools, escrow + trust, ledger, demand, values, merge nudges
+  game/strategies.js   theses: status, relations, quest gating (claims, dependencies)
+  game/economy.js      fuel, mission tokens, team stakes, matching pools, ledger
+  game/matching.js     quadratic matching with a cap, and the live "with match" estimate
+  game/questflow.js    the quest loop: start, spend, call, work, stamp, review, fix, dispute, approve
+  game/personalise.js  what fits you, and why (roles, values, squad)
+  ui/                  chrome (HUD, bell, nav, router) and shared helpers
+  screens/             home, onboarding, play, missions (graph map, treasury), quests (channel, thesis, room),
+                       sheets (every drill-down), gate (Final check), contract, comms, forge, duo
   design/              the design system (see above)
 public/
   manifest.webmanifest, sw.js, icons/   PWA install + offline shell
-  prototype/joystick-quest.html         single-file clickable prototype (see above)
+  prototype/joystick-quest.html         earlier single-file prototype, kept for reference
 ```
 
 ### PWA

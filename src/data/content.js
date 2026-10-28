@@ -37,9 +37,9 @@ export const roleColor = k => SUITS[ROLES[k].suit].color;
 export const TIERS = [
   { name: "Sidekick", min: 0,  does: "Solo: S quests" },
   { name: "Partner",  min: 35, does: "Solo: S + M quests", unlock: "Now runs M quests solo" },
-  { name: "Proxy",    min: 70, does: "Solo: bosses + votes", unlock: "Now takes on bosses solo" },
+  { name: "Proxy",    min: 70, does: "Runs L quests · you stamp", unlock: "Now runs L quests for you to stamp" },
 ];
-export const SIZE = { S: { label: "S · ~15 min", need: 0 }, M: { label: "M · ~1 hr", need: 35 }, Boss: { label: "BOSS", need: 70 } };
+export const SIZE = { S: { label: "S · ~15 min", need: 0 }, M: { label: "M · ~1 hr", need: 35 }, L: { label: "L · ~1 day", need: 70 } };
 
 export const GLYPHS = {
   helix: '<path d="M9 4c0 8 14 8 14 16s-14 8-14 8M23 4c0 8-14 8-14 16s14 8 14 8M11 10h10M11 22h10" stroke="var(--ink)" stroke-width="2.8" fill="none" stroke-linecap="round"/>',
@@ -53,14 +53,14 @@ export const BADGES = {
   spark:   { name: "Spark",        desc: "Cleared your first quest",       icon: '<path d="M10 16.5l4 4 8-9" stroke-width="3"/>', rib: ["var(--blue)", "var(--green)"] },
   sync:    { name: "In Sync",      desc: "3 quests played together",       icon: '<circle cx="12.5" cy="16" r="5"/><circle cx="19.5" cy="16" r="5"/>', rib: ["var(--pink)", "var(--blue)"] },
   raider:  { name: "Raider",       desc: "Cleared a daily raid",           icon: '<path d="M11 24V8M11 9h10l-2.5 3.5L21 16H11"/>', rib: ["var(--red)", "var(--gold)"] },
-  slayer:  { name: "Giant Slayer", desc: "Took down a boss quest",         icon: '<path d="M16 7l2.6 5.4 5.9.8-4.3 4.1 1 5.8L16 20.3 10.8 23l1-5.8-4.3-4.1 5.9-.8z"/>', rib: ["var(--green-d)", "var(--gold)"] },
-  gate:    { name: "Gatebreaker",  desc: "Helped clear a milestone",           icon: '<path d="M9 24V12a7 7 0 0 1 14 0v12M9 24h14M16 13v6"/>', rib: ["var(--violet)", "var(--green)"] },
+  slayer:  { name: "Heavy Lifter", desc: "Cleared an L quest",         icon: '<path d="M16 7l2.6 5.4 5.9.8-4.3 4.1 1 5.8L16 20.3 10.8 23l1-5.8-4.3-4.1 5.9-.8z"/>', rib: ["var(--green-d)", "var(--gold)"] },
+  gate:    { name: "Finisher",     desc: "Helped clear a milestone",           icon: '<path d="M9 24V12a7 7 0 0 1 14 0v12M9 24h14M16 13v6"/>', rib: ["var(--violet)", "var(--green)"] },
   founder: { name: "Founder",      desc: "Launched a mission",             icon: '<path d="M16 6c4 3 5 8 3 13h-6c-2-5-1-10 3-13zM13 19l-3 4M19 19l3 4M16 12v2"/>', rib: ["var(--blue)", "var(--red)"] },
   owl:     { name: "Night Owl",    desc: "Found in a mystery crate",       icon: '<path d="M20 9a7.5 7.5 0 1 0 3 12 6 6 0 0 1-3-12z"/>', rib: ["var(--navy)", "var(--sky)"] },
   fire:    { name: "On Fire",      desc: "7-day streak",                   icon: '<path d="M16 6c1 4 6 6 6 11a6 6 0 0 1-12 0c0-3 2-4 3-6 1 2 2 2 3 1-1-2-1-4 0-6z"/>', rib: ["var(--red)", "var(--gold)"] },
   proxy:   { name: "Proxy",        desc: "Your agent hit 70% Sync",        icon: '<rect x="9" y="11" width="14" height="11" rx="3"/><path d="M16 11V7M13.5 16h.01M18.5 16h.01"/>', rib: ["var(--green)", "var(--blue)"] },
   squad:   { name: "Squad Up",     desc: "Signed your first contract",     icon: '<circle cx="12" cy="13" r="3"/><circle cx="20" cy="13" r="3"/><path d="M7 23c1-4 3-5 5-5s4 1 5 5M15 23c1-4 3-5 5-5s4 1 5 5"/>', rib: ["var(--pink)", "var(--green)"] },
-  mind:    { name: "Mind Reader",  desc: "Your agent guessed your call",   icon: '<path d="M6 16s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6z"/><circle cx="16" cy="16" r="2.5"/>', rib: ["var(--violet)", "var(--gold)"] },
+  mind:    { name: "Clean Stamp",  desc: "Stamped your agent's work first try",   icon: '<path d="M6 16s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6z"/><circle cx="16" cy="16" r="2.5"/>', rib: ["var(--violet)", "var(--gold)"] },
   trail:   { name: "Trailblazer",  desc: "Proposed a new strategy",        icon: '<path d="M8 24l6-12 4 6 2-3 4 9z"/><circle cx="21" cy="9" r="2"/>', rib: ["var(--gold)", "var(--blue)"] },
 };
 export function medal(id, size = 64, force = false) {
@@ -79,7 +79,7 @@ export function award(id) {
   S.badges.push(id);
   setTimeout(() => titleCard("New badge", BADGES[id].name + "!", BADGES[id].desc, null, 1800, `<div class="medal-pop">${medal(id, 120)}</div>`), 120);
 }
-export const SPLIT = [["Players, by XP", 70], ["Guardians", 15], ["Mission creator", 10], ["Community fund", 5]];
+export const SPLIT = [["Players, by XP", 70], ["Referees", 15], ["Mission creator", 10], ["Community fund", 5]];
 
 export function Q(id, title, role, size, xp, coins, log, call, extra = {}) {
   return { id, title, role, size, xp, coins, log, call, ...extra };
@@ -91,11 +91,11 @@ export const missions = [
     pitch: "Find a compound that kills glioblastoma cells and get it to a Phase 0 trial, fully open.",
     current: 2,
     stages: [
-      { name: "Recon", goal: "Map every open glioma dataset" },
-      { name: "Hypothesis", goal: "Rank the top 50 drug targets" },
+      { name: "Recon", goal: "Map every open glioma dataset", tracks: ["Datasets", "Literature"] },
+      { name: "Hypothesis", goal: "Rank the top 50 drug targets", tracks: ["Targets", "Pathways"] },
       { name: "Simulate", goal: "Screen 1M compounds in silico" },
-      { name: "Wet Lab", goal: "Validate the top 10 in a partner lab" },
-      { name: "Trial", goal: "File for a Phase 0 trial", boss: true },
+      { name: "Wet Lab", goal: "Validate the top 10 in a partner lab", tracks: ["Basel lab", "Tox panel", "Chemist review"] },
+      { name: "Trial", goal: "File for a Phase 0 trial", finish: true, tracks: ["Protocol", "Ethics board"] },
     ],
     rules: ["Top 10 compounds kill more than 60% of tumour cells in vitro", "3 independent Critics reproduce every result", "All data and code published open-access"],
     quests: [
@@ -108,7 +108,7 @@ export const missions = [
         { q: "Two chemists replied. Who do we bring in?", opts: ["Dr. Lin — brain-tumour pharmacology", "Dr. Rao — kinase inhibitors", "Invite both"] }),
       Q("g5", "Write this week's progress post", "campaigner", "S", 120, 10, ["pulling this week's numbers…", "draft ready", "posted to mission HQ ✓"],
         { q: "How should the post sound?", opts: ["Plain and factual", "Big and hopeful", "Charts first, few words"] }),
-      Q("g6", "Screen 1M compounds against EGFRvIII", "commander", "Boss", 1200, 150, ["you + 2 squadmates + 3 agents…", "docked 1,000,000 · 38 hits", "shortlist locked ✓"],
+      Q("g6", "Screen 1M compounds against EGFRvIII", "commander", "L", 1200, 150, ["you + 2 squadmates + 3 agents…", "docked 1,000,000 · 38 hits", "shortlist locked ✓"],
         { q: "38 hits. Which 10 go to the wet lab?", opts: ["Top 10 by docking score", "Top 10 by chemical diversity", "Let the chemist pick"] }, { needs: 3 }),
     ],
   },
@@ -118,11 +118,11 @@ export const missions = [
     pitch: "A free, browser-based parametric CAD tool that working mechanical engineers switch to.",
     current: 1,
     stages: [
-      { name: "Spec", goal: "Interview 100 engineers" },
-      { name: "Kernel", goal: "Ship a working geometry kernel" },
-      { name: "Sketcher", goal: "2D sketches with constraints" },
-      { name: "Beta", goal: "500 weekly active engineers" },
-      { name: "Switch", goal: "One firm drops SolidWorks", boss: true },
+      { name: "Spec", goal: "Interview 100 engineers", tracks: ["Interviews", "Teardowns"] },
+      { name: "Kernel", goal: "Ship a working geometry kernel", tracks: ["Geometry", "STEP import"] },
+      { name: "Sketcher", goal: "2D sketches with constraints", tracks: ["Sketch UI", "Constraint solver", "File import"] },
+      { name: "Beta", goal: "500 weekly active engineers", tracks: ["Onboarding", "Cloud sync"] },
+      { name: "Switch", goal: "One firm drops SolidWorks", finish: true, tracks: ["Pilot firm", "Migration tools"] },
     ],
     rules: ["500 engineers use it weekly for a month", "Opens 95% of STEP test files", "MIT licensed"],
     quests: [
@@ -134,7 +134,7 @@ export const missions = [
         { q: "Two fixes work. Which one ships?", opts: ["Tighter tolerance — safe, slower", "New intersection algorithm — fast, riskier"] }),
       Q("c4", "Interview 5 engineers about pain points", "explorer", "S", 140, 10, ["booking 5 calls…", "transcripts summarised", "top 3 pains posted ✓"],
         { q: "Which pain should the squad chase first?", opts: ["Licence cost", "Slow on big assemblies", "Bad Mac support"] }),
-      Q("c5", "Kernel passes the 1,000-shape test suite", "implementer", "Boss", 1000, 120, ["you + squad + 4 agents…", "961 / 1,000 passing", "1,000 / 1,000 ✓"],
+      Q("c5", "Kernel passes the 1,000-shape test suite", "implementer", "L", 1000, 120, ["you + squad + 4 agents…", "961 / 1,000 passing", "1,000 / 1,000 ✓"],
         { q: "39 shapes fail on one edge case. Ship anyway?", opts: ["No — fix all 39 first", "Ship, fix in Sketcher stage"] }, { needs: 3 }),
     ],
   },
@@ -144,11 +144,11 @@ export const missions = [
     pitch: "A live, open map of reef health from satellite imagery, updated weekly.",
     current: 3,
     stages: [
-      { name: "Imagery", goal: "Collect 10 years of tiles" },
-      { name: "Label", goal: "Label 50k reef patches" },
-      { name: "Model", goal: "Train a bleaching classifier" },
+      { name: "Imagery", goal: "Collect 10 years of tiles", tracks: ["Tiles", "Cloud masks"] },
+      { name: "Label", goal: "Label 50k reef patches", tracks: ["Volunteers", "AI pre-labels"] },
+      { name: "Model", goal: "Train a bleaching classifier", tracks: ["Classifier", "Eval set"] },
       { name: "Ground truth", goal: "Check against 200 dive sites" },
-      { name: "Live map", goal: "Weekly public map", boss: true },
+      { name: "Live map", goal: "Weekly public map", finish: true, tracks: ["Pipeline", "Public API"] },
     ],
     rules: ["Classifier is 90% accurate on dive-site data", "Map refreshes weekly for 3 months", "Free public API"],
     quests: [
@@ -167,9 +167,9 @@ export const missions = [
     current: 0,
     stages: [
       { name: "Curriculum", goal: "Map maths syllabi in 10 countries" },
-      { name: "Tutor v1", goal: "Offline tutor on a $50 phone" },
-      { name: "Pilot", goal: "Pilot with 20 schools" },
-      { name: "Scale", goal: "Reach 1M kids", boss: true },
+      { name: "Tutor v1", goal: "Offline tutor on a $50 phone", tracks: ["Lessons", "Offline packs", "Voice"] },
+      { name: "Pilot", goal: "Pilot with 20 schools", tracks: ["Schools", "Teacher training"] },
+      { name: "Scale", goal: "Reach 1M kids", finish: true, tracks: ["Telcos", "Ministries"] },
     ],
     rules: ["Pilot kids gain one grade level in 6 months", "Runs fully offline on a $50 Android phone", "Free forever"],
     quests: [

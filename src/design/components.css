@@ -55,7 +55,7 @@ textarea.inp { resize: vertical; min-height: 60px; }
 .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .role-grid.full .role[aria-pressed="false"] { opacity: .45; }
 .onboard > .sticky-cta { margin-top: auto; }
-.sticky-cta { position: sticky; bottom: 0; display: flex; flex-direction: column; gap: 10px; padding-block: 12px 4px; background: linear-gradient(transparent, var(--paper) 30%); }
+.sticky-cta { position: sticky; bottom: 0; z-index: 5; display: flex; flex-direction: column; gap: 10px; padding-block: 12px 4px; background: linear-gradient(transparent, var(--paper) 30%); }
 .role { text-align: left; border: var(--line-2); border-radius: 12px 10px 13px 9px; padding: 8px 10px; background: var(--card); display: grid; grid-template-columns: 30px 1fr; gap: 8px; align-items: center; }
 .role[aria-pressed="true"] { background: var(--navy); color: var(--white); }
 .role[aria-pressed="true"] .muted { color: var(--mist); }
@@ -133,3 +133,18 @@ textarea.inp { resize: vertical; min-height: 60px; }
 .sheet > .grab { margin: -2px auto 0; }
 .sheet-x { width: 36px; height: 36px; border: var(--line-2); border-radius: 50%; background: var(--card); font-weight: 800; display: grid; place-items: center; flex: none; }
 .quick.wrap { flex-wrap: wrap; padding-bottom: 2px; }
+
+/* Drill-downs: real-world detail lives in sheets, so the main screens stay a game */
+.dgroup { border: var(--line); border-radius: 14px; overflow: hidden; background: var(--card); box-shadow: var(--pop); display: flex; flex-direction: column; }
+.drow { display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; width: 100%; text-align: left; background: none; border: 0; border-top: 2px solid var(--paper-2); font-size: 14px; color: var(--ink); }
+.drow:first-child { border-top: 0; }
+.drow > :first-child { justify-self: center; font-weight: 800; }
+.drow .av { width: 30px; height: 30px; }
+.ok { color: var(--green-d); font-weight: 800; }
+.no { color: var(--red); font-weight: 800; }
+.info { background: none; border: 0; padding: 0; font: inherit; color: var(--blue); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.avbtn { background: none; border: 0; padding: 0; display: inline-flex; cursor: pointer; flex: none; }
+.kvrow { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 14px; padding-top: 8px; border-top: 2px dashed var(--paper-2); }
+.bell { position: relative; width: 38px; height: 38px; border: var(--line-2); border-radius: 12px; background: var(--card); display: grid; place-items: center; box-shadow: var(--pop-sm); flex: none; padding: 0; }
+.bell .unread { position: absolute; top: -9px; right: -9px; min-width: 20px; height: 20px; font-size: 10px; }
+.banner { background: var(--cream); padding: 12px 14px; display: flex; gap: 10px; align-items: center; }

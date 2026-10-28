@@ -85,18 +85,30 @@ export function learn(text) {
 
 // A returning player, for demoing the "already playing" experience
 export function loadReturning() {
-  Object.assign(S, { name: "nova", agentName: "Pip", roles: ["implementer", "critic", "strategist"], level: 9, xp: 1450, xpMax: 2600, coins: 1240, sync: 48, streak: 12, together: 14, solo: 6, raid: 1, botColor: "var(--sky)", lobbyTab: "mine" });
+  Object.assign(S, { name: "nova", agentName: "Pip", roles: ["implementer", "critic", "strategist"], level: 9, xp: 1450, xpMax: 2600, coins: 1240, sync: 48, streak: 12, together: 14, stamped: 9, raid: 1, botColor: "var(--sky)", lobbyTab: "mine" });
   S.badges = ["spark", "squad", "sync", "raider", "slayer", "gate"];
-  S.wallet = { shares: { glio: 1240, cad: 410 }, timeCredits: 46, insights: 18 };
+  S.wallet = { shares: { glio: 1240, cad: 410 }, timeCredits: 46, insights: 18, pending: 90 };
+  S.stakes = { "glio-dock": 100 };
+  S.values = ["Open science", "Holistic"];
+  S.squad = "Fold Gang";
+  S.skills = [["Python", "verified · GitHub"], ["Docking (Vina)", "verified · 4 quests"], ["Statistics", "self-reported"]];
+  S.tools = { "GitHub": true, "Shared drive": true, "GPU pool": true, "ORCID": false };
+  S.credits = [{ m: "glio", what: "Curate a 1M compound library", out: "zinc-1m.sdf" }, { m: "glio", what: "Verify docking results · batch 2", out: "review-batch-2.md" }, { m: "cad", what: "Fix tolerance on sketch arcs", out: "PR #61" }];
+  S.notifs = [
+    { text: "Pip needs your call: recruit a medicinal chemist", q: "g4", when: "6h ago" },
+    { text: "Mo claimed “Train a generator on known EGFR inhibitors”", q: "g9", when: "9h ago" },
+    { text: "Your review of “Verify docking · batch 2” was upheld", when: "1d ago", read: true },
+    { text: "Matching round closes in 2 days", when: "1d ago", read: true },
+  ];
   S.backed = { glio: "glio-dock" }; S.contrib = { "glio-dock": 2 };
   S.learned = ["Prefers open-source tools", "Docking engine → “Run both and compare”", "Likes plain, factual progress posts"];
   S.joined = { glio: ["implementer", "critic"], cad: ["implementer", "strategist"] };
   missions[0].unread = 4; missions[1].unread = 2;
   // Pip ran a quest overnight and is waiting on one call
   const [q, m] = findQuest("g4");
-  seedRoom(q).push({ me: true, text: "@Pip take this one for me" }, { agent: true, text: "On it.", run: "g4", phase: 1, p: 1, log: q.log[1] }, { agent: true, call: "g4", text: q.call.q });
+  seedRoom(q).push({ me: true, text: "@Pip let's go" }, { agent: true, text: "I'll do the prep. The real-world part is yours.", run: "g4", phase: 1, p: 1, log: q.log[1] }, { agent: true, call: "g4", text: q.call.q });
   q.state = "call"; q.mode = "together";
-  threads.splice(1, 0, { id: "sq-glio", kind: "squad", mission: "glio", title: "Your squad · Cure Glioblastoma", unread: 2, msgs: [{ who: "Rosa", color: "var(--pink)", text: "Boss tonight? Kenji's in." }, { who: "Dot", owner: "Rosa", color: "var(--pink)", bot: true, text: "GPUs reserved for 9pm." }] });
+  threads.splice(1, 0, { id: "sq-glio", kind: "squad", mission: "glio", title: "Your squad · Cure Glioblastoma", unread: 2, msgs: [{ who: "Rosa", color: "var(--pink)", text: "Shard C tonight? Kenji's in." }, { who: "Dot", owner: "Rosa", color: "var(--pink)", bot: true, text: "GPUs reserved for 9pm." }] });
   titleCard("Welcome back", "Day 12!", "Streak still alive", () => go("play"), 1400);
 }
 
