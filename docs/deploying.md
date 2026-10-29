@@ -4,7 +4,7 @@ The first cut uses a static frontend on Vercel and two backend processes on Fly:
 
 On 29 October 2026, the frontend was deployed to `https://joystick-indol.vercel.app` and the backend app `joystick-api` to `https://joystick-api.fly.dev`. The database is `joystick-db`, Fly Managed Postgres Basic with 10 GB storage in Singapore (`sin`). One API Machine and one worker Machine run in the same region; migrations and health checks passed. The Vercel production deployment is `dpl_FQDwQypSN8hxnbeVUR1Ew6tCvQpQ`, published through the authenticated CLI using a prebuilt artifact.
 
-That smoke test covered the earlier account-and-chat foundation. The first-cut game flow and new migrations require a fresh production check after deployment. See [verification details](running-the-foundation.md#verification) for the earlier result.
+That smoke test covered the earlier account-and-chat foundation. The first-cut branch has passed pull-request checks and a Vercel preview build, but has not yet been merged to `main` or deployed to production. The first-cut game flow and new migrations require a fresh production check after deployment. See [verification details](running-the-foundation.md#verification) for the earlier result.
 
 ## Domains and login
 
@@ -61,9 +61,9 @@ For the selected deployment, use `VITE_WS_ORIGIN=https://joystick-api.fly.dev` a
 
 ## Continuous integration and publishing
 
-`.github/workflows/verify-and-deploy.yml` runs for pull requests and pushes to `main`. It starts disposable PostgreSQL 17, applies every migration, checks types and both builds, runs server tests, then runs the Chromium browser tests with virtual passkeys. The browser suite starts local API and Vite processes, with no Anthropic credentials or worker process; it verifies saved app behavior without paid provider calls.
+`.github/workflows/verify-and-deploy.yml` runs for pull requests and pushes to `main`. It starts disposable PostgreSQL 17, applies every migration, checks types and both builds, runs server tests, then runs the Chromium browser tests with virtual passkeys. The browser suite starts local API and Vite processes with `HTTP_PROXY_MODE=vercel`, matching the production shared-proxy limit; it uses no Anthropic credentials or worker process, so these checks make no paid provider calls.
 
-After those checks pass on a push to `main`, the workflow deploys `joystick-api` to Fly with `--ha=false` to retain one Machine per process group. Main deployment jobs are serialized and cannot cancel a running release. Configure the repository secret `FLY_API_TOKEN` with an **app-scoped deploy token** for `joystick-api`; the deploy job fails with a clear message if the secret is absent. The token belongs in GitHub Actions secrets, never in source or a `VITE_` variable. Fly runtime secrets above remain configured on the Fly app. The release command migrates the production database as part of that deployment.
+After those checks pass on a push to `main`, the workflow deploys `joystick-api` to Fly with `--ha=false` to retain one Machine per process group. Main deployment jobs are serialized and cannot cancel a running release. The repository secret `FLY_API_TOKEN` was configured on 29 October 2026 with a 90-day **app-scoped deploy token** for `joystick-api`; rotate it before expiry in late January 2027. The deploy job fails with a clear message if the secret is absent. The token belongs in GitHub Actions secrets, never in source or a `VITE_` variable. Fly runtime secrets above remain configured on the Fly app. The release command migrates the production database as part of that deployment.
 
 The existing Vercel project should publish the frontend from its Git integration on `main`. Confirm its production branch is `main`, root directory is the repository root, and production environment has `VITE_WS_ORIGIN=https://joystick-api.fly.dev`; leave `VITE_API_ORIGIN` unset. Vercel publication is separate from the GitHub Fly job and may finish first. Preview deployments have no matching production RP ID or API Origin and should not be used to create accounts against production.
 

@@ -38,6 +38,7 @@ jobs:
       RP_ID: localhost
       COOKIE_SECURE: "false"
       GAME_TEST_CREDITS: "true"
+      HTTP_PROXY_MODE: vercel
       ANTHROPIC_API_KEY: ""
       ANTHROPIC_AGENT_ID: ""
       ANTHROPIC_WORKFLOW_AGENT_ID: ""

@@ -8,6 +8,7 @@ import { startAuthentication, startRegistration } from "@simplewebauthn/browser"
 import { connectRooms, loadRoom, onRoomsChanged, roomState, resetRooms, sendRoom } from "./room-chat.js";
 
 const ui = { busy: false, error: "", draft: null, editor: null, room: null, message: "", agentBusy: false, run: null, runData: null, preview: null, security: null, codes: null, onboard: null };
+let accountGeneration = 0;
 onRoomsChanged(() => { if (S.live && !ui.editor && !ui.preview && !ui.run && !ui.runHistory && !document.activeElement?.closest("form") && ["thread", "quest", "stage", "strategy", "mission"].includes(S.screen)) render(); });
 const current = () => missions.find(m => m.id === S.missionId) || missions[0];
 const stage = m => m?.stages?.find(x => x.id === S.stageId) || m?.stages?.[m.current];
@@ -24,6 +25,7 @@ const roomFor = (k, id) => live.snapshot?.threads?.find(t => t.kind === k && (k 
 const roomTitle = t => { if (t.kind === "agent") return S.agentName; if (t.kind === "dm") return t.peerName || t.title; const m=missions.find(x=>x.id===t.scopeId||x.stages.some(s=>s.id===t.scopeId)||x.strategies.some(p=>p.id===t.scopeId)||x.quests.some(q=>q.id===t.scopeId)); return t.kind==="mission"?m?.title||t.title:t.kind==="stage"?m?.stages.find(s=>s.id===t.scopeId)?.name||t.title:t.kind==="plan"?m?.strategies.find(p=>p.id===t.scopeId)?.name||t.title:m?.quests.find(q=>q.id===t.scopeId)?.title||t.title; };
 const taskTree = qs => { const ids=new Set(qs.map(q=>q.id)); const visit=(q,depth=0)=>`${row(`<span style="padding-left:${depth*16}px">${depth?"↳ ":""}${mono(ROLES[q.role]?q.role:"user",30)}</span>`,q.title,q.done?"Approved":q.state,"quest",q.id,q.done?"✓":"›")}${qs.filter(x=>x.parent===q.id).map(x=>visit(x,depth+1)).join("")}`; return qs.filter(q=>!q.parent||!ids.has(q.parent)).map(q=>visit(q)).join(""); };
 function resetAccountUI() {
+  accountGeneration++;
   resetRooms();
   for (const key of Object.keys(ui)) ui[key] = null;
   ui.busy = false; ui.error = ""; ui.message = "";
@@ -73,10 +75,11 @@ export function applySnapshot(snapshot) {
 let refreshPending = false;
 async function refreshGame() {
   if (!S.live || !live.user || ui.busy || refreshPending || document.visibilityState === "hidden") return;
+  const account = live.user, generation = accountGeneration;
   refreshPending = true;
   try {
     const snapshot = await api("/game");
-    if (!S.live || !live.user || ui.busy || snapshot.revision <= (live.snapshot?.revision || 0)) return;
+    if (!S.live || live.user !== account || accountGeneration !== generation || ui.busy || snapshot.revision <= (live.snapshot?.revision || 0)) return;
     live.snapshot = snapshot;
     applySnapshot(snapshot);
     const editing = ui.editor || ui.preview || ui.run || ui.runHistory || document.activeElement?.closest("form");
@@ -215,8 +218,10 @@ function runView() {
 }
 function runHistoryView() { return `<div class="screen">${button("← Back","run-history-close")}<h2 class="sec-title">Agent work history</h2><div class="list">${(ui.runHistory?.runs||[]).map(r=>row(botAv(),r.prompt||r.kind,`${r.kind} · ${r.status} · ${r.updatedAt||""}`,"run-open",r.id)).join("") || '<p class="small muted">No agent work yet. New drafts and runs will appear here.</p>'}</div>${ui.runHistory?.nextCursor?button("Older runs","run-history-more",ui.runHistory.nextCursor):""}${message()}</div>`; }
 async function pollRun(id) {
-  try { const data = await api(`/agent/runs/${id}`); if (ui.run !== id) return; ui.runData = data; render(); if (!['completed','failed','cancelled','uncertain'].includes(data.run.status)) setTimeout(() => pollRun(id), 1800); }
-  catch (error) { if (ui.run === id) { ui.error = error.message; render(); } }
+  const account = live.user, generation = accountGeneration;
+  if (!S.live || !account) return;
+  try { const data = await api(`/agent/runs/${id}`); if (ui.run !== id || live.user !== account || accountGeneration !== generation) return; ui.runData = data; render(); if (!['completed','failed','cancelled','uncertain'].includes(data.run.status)) setTimeout(() => pollRun(id), 1800); }
+  catch (error) { if (ui.run === id && live.user === account && accountGeneration === generation) { ui.error = error.message; render(); } }
 }
 async function startRun(kind, prompt, ids = {}) {
   try { ui.error=""; const {run} = await api("/agent/runs", {method:"POST",body:JSON.stringify({requestId:crypto.randomUUID(),kind,prompt,...ids})}); ui.editor=null; ui.run=run.id; ui.runData={run,drafts:[],artifacts:[],decisions:[]}; render(); pollRun(run.id); }
