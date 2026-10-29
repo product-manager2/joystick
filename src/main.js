@@ -4,6 +4,9 @@ import "./design/base.css";
 import "./design/components.css";
 import "./styles/screens.css";
 import "./styles/desktop.css";
+import "./live/style.css";
+import { bootAccount, loadGame, live } from "./live/game-client.js";
+import { applySnapshot, handleLiveClick, handleLiveSubmit, handleLiveInput, handleLiveFile } from "./live/game-ui.js";
 import { missions } from "./data/content.js";
 import { reopenDrill } from "./design/components.js";
 import { learnedSheet, lookSheet, styleSheet, walletSheet } from "./screens/profile.js";
@@ -34,6 +37,7 @@ document.addEventListener("scroll", e => {
   document.querySelectorAll("#howdots i").forEach((d, j) => d.classList.toggle("on", j === i));
 }, true);
 document.addEventListener("input", e => {
+  if (S.live && handleLiveInput(e)) return;
   const t = e.target, f = S.forge;
   if (t.id === "pname") S.name = t.value.trim();
   if (t.id === "aname") { S.agentName = t.value.trim() || "Pip"; document.querySelectorAll("[data-botname]").forEach(el => { el.textContent = S.agentName; }); }
@@ -41,7 +45,9 @@ document.addEventListener("input", e => {
   if (f && t.id === "fpitch") f.pitch = t.value;
   if (f && t.dataset.fs) f.stages[+t.dataset.fs] = t.value;
 });
+document.addEventListener("change", e => { if (S.live) handleLiveFile(e); });
 document.addEventListener("submit", e => {
+  if (S.live) { e.preventDefault(); handleLiveSubmit(e); return; }
   e.preventDefault();
   if (e.target.id === "stageBar") { const v = $("#stagesay").value.trim(); if (v) startSession(v); }
   if (e.target.id === "stratBar") { const v = $("#stratsay").value.trim(); if (v) startSession(v, `${strats(mission()).find(x => x.id === S.stratId).name}: ${v.replace(/@\S+\s*/, "").slice(0, 24)}`); }
@@ -49,7 +55,8 @@ document.addEventListener("submit", e => {
   if (e.target.id === "composer") { const v = $("#say").value.trim(); if (v) sendInThread(v); }
   if (e.target.id === "forgeComposer") { const v = $("#fsay").value.trim(); if (v) forgeText(v); }
 });
-document.addEventListener("click", e => {
+document.addEventListener("click", async e => {
+  if (S.live && await handleLiveClick(e)) return;
   const b = e.target.closest("[data-a]");
   if (!b || b.disabled || (b.closest(".scrim") && !b.closest(".dd")) || (b.closest(".titlecard") && b.dataset.a !== "onward")) return;
   // Actions inside a drill-down close it, unless they change something shown in it (data-keep)
@@ -161,9 +168,13 @@ document.addEventListener("click", e => {
   }
 });
 
-// Boot: build each mission's strategies, then draw the first screen
-missions.forEach(ensureStrategies);
-render();
+// The prototype's seeded state is never shown to an authenticated account.
+document.querySelector("#main").innerHTML = '<div class="live-loading" role="status">Opening Joystick…</div>';
+bootAccount(async () => {
+  const snapshot = await loadGame();
+  applySnapshot(snapshot);
+  render();
+}).catch(error => { document.querySelector("#main").textContent = error.message; });
 
 // Offline support for the installed app (production builds only, so dev reloads stay fresh)
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
@@ -171,4 +182,4 @@ if ("serviceWorker" in navigator && import.meta.env.PROD) {
 }
 
 // Dev-only console handle for testing screens: jq.go("lobby"), jq.S, …
-if (import.meta.env.DEV) window.jq = { S, go, render, missions, mission, loadReturning, contractSheet, fuelSheet, forgeStart, findQuest };
+if (import.meta.env.DEV) window.jq = { S, go, render, missions, mission, findQuest };

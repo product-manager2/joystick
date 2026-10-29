@@ -1,5 +1,5 @@
 // Joystick service worker: app shell offline, fonts cached, everything else network-first.
-const CACHE = "joystick-v20";
+const CACHE = "joystick-v22";
 const SHELL = ["/", "/manifest.webmanifest", "/icons/icon.svg", "/icons/icon-192.png"];
 
 self.addEventListener("install", e => {
@@ -12,6 +12,8 @@ self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
+  // Account data, WebSocket upgrades, and private files must never enter the shared app cache.
+  if (url.origin === location.origin && (url.pathname.startsWith("/api/") || url.pathname.startsWith("/auth/") || url.pathname.startsWith("/files/") || url.pathname === "/chat.html")) return;
   const isFont = url.host === "fonts.googleapis.com" || url.host === "fonts.gstatic.com";
   const isAsset = url.origin === location.origin && url.pathname.startsWith("/assets/");
   if (isFont || isAsset) {

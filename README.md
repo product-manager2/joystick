@@ -2,7 +2,7 @@
 
 **Change the world. Multiplayer.** Team up and take on the world's hardest problems, and earn the prize and a piece of what you build.
 
-A mobile-first PWA demo of [getjoystick.xyz](https://getjoystick.xyz). All data is mocked in the browser for now; the backend comes later.
+A mobile-first PWA with passkey accounts, persistent missions and tasks, shared rooms, saved submissions, independent reviews, and private agent chat. The first cut uses **test credits only**: balances, rewards, and payout actions are simulations with no cash value or ownership rights. See [game actions](docs/game-actions.md), [account access](docs/account-access.md), and [deployment](docs/deploying.md).
 
 **Contents**
 
@@ -127,7 +127,17 @@ Results from every plan count toward the stage goal, not just the leader's, and 
 
 ## 10. Status and roadmap
 
-**In the demo now**
+**First cut implemented**
+
+- Passkey signup and sign-in, passkey management, and one-use recovery codes. Email is an unverified identifier.
+- PostgreSQL-backed missions, stages, plans, tasks, claims, submissions, artifact history, and two independent member reviews of the same artifact version.
+- Persistent mission, stage, plan, task, and direct-message rooms with membership checks; private agent chat and an integration worker for hosted agents.
+- Saved profile, XP, notifications, and a test-credit journal. Test credits have no cash value, escrow, payout, or ownership rights.
+- A standalone Fastify API and worker on Fly, with a Vercel frontend. See [deployment](docs/deploying.md) for current rollout status.
+
+**Legacy prototype content and future policy**
+
+The older single-file prototype at `/prototype/joystick-quest.html` illustrates the broader product vision below. These examples and economics are not live account balances, verified skills, ownership, or payments.
 
 - Onboarding for new and returning players, roles, and a meet-your-agent step.
 - Missions list with topic filters; mission page with the stage map, plans, money and about.
@@ -147,7 +157,7 @@ Results from every plan count toward the stage goal, not just the leader's, and 
 2. **Trust weights** in the bonus (new accounts count less until they've played).
 3. **Team-up nudges** between squads.
 
-**Later:** a backend with real accounts, real mission funds and an on-chain record of who owns what, plus collusion-resistant matching.
+**Later:** real mission funds and payouts, an agreed ownership model, verified matching rounds, and collusion-resistant matching. The sample screens still contain illustrative missions and examples; they are separate from account-backed records.
 
 ## 11. Open questions
 
@@ -161,12 +171,15 @@ Results from every plan count toward the stage goal, not just the leader's, and 
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173 (also on your LAN, so you can open it on a phone)
+npm run db:migrate # requires local PostgreSQL configured in .env.local
+npm run api:dev    # API at http://localhost:3001
+npm run dev        # web app at http://localhost:5173
 npm run build      # production build in dist/
-npm run preview    # serve the build at http://localhost:4173 (service worker + install prompt work here)
+npm run preview    # serve the build at http://localhost:4173
 ```
 
-- The app is at `/`, and the living style guide is at `/design.html`.
+- The account-backed game is at `/`, private chat is at `/chat.html`, and the living style guide is at `/design.html`. Follow the [foundation guide](docs/running-the-foundation.md) for local database and agent setup.
+- With a disposable database and migrations applied, run `TEST_DATABASE_URL=... npm run test:server`. Run `npm run test:e2e` for Chromium browser checks with virtual passkeys; Playwright starts the local API and Vite. Install Chromium first with `npx playwright install chromium`. The browser tests create synthetic accounts and require `GAME_TEST_CREDITS=true`.
 - In dev, `window.jq` gives you the state and router for poking at screens: `jq.go("lobby")`, `jq.S`, `jq.loadReturning()`.
 
 ### Clickable prototype
