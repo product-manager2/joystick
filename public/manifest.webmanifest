@@ -1,7 +1,7 @@
 {
   "name": "Joystick",
   "short_name": "Joystick",
-  "description": "Change the world. Multiplayer. Join millions of players taking on the world's hardest problems.",
+  "description": "Change the world. Multiplayer. Team up and take on the world's hardest problems.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
