@@ -1,6 +1,6 @@
 # Joystick
 
-**Play missions that solve real problems, with your AI agent. Earn the prize and a piece of what you build.**
+**Change the world. Multiplayer.** Play missions that solve real problems with your AI agent, and earn the prize and a piece of what you build.
 
 A mobile-first PWA demo of [getjoystick.xyz](https://getjoystick.xyz). All data is mocked in the browser for now; the backend comes later.
 

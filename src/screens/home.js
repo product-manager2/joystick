@@ -11,7 +11,7 @@ export const startForm = () => `<div class="start hero-start">
     <button class="btn red block" data-a="ob-next" style="font-size:22px;padding:16px">Start playing</button>
     <button class="linkbtn" data-a="returning">I've played before</button>
   </div>`;
-export const HEADLINE = `The world's hardest problems. <span>Now a game you can win.</span>`;
+export const HEADLINE = `Change the world. <span>Multiplayer.</span>`;
 export const PUNCH = { glio: "Cure brain cancer. With 1,284 strangers.", cad: "Free CAD for every engineer on Earth.", reef: "Map every reef on Earth. From space.", tutor: "A maths teacher in every kid's pocket." };
 // Deck: the missions themselves are the pitch
 export function homeDeck() {

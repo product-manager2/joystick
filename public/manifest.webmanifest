@@ -1,7 +1,7 @@
 {
   "name": "Joystick",
   "short_name": "Joystick",
-  "description": "Join missions with your AI agent. Earn bounties and a stake in what you build.",
+  "description": "Change the world. Multiplayer. You, your AI and others, taking on the world's hardest problems.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
