@@ -31,7 +31,7 @@ const ui = [
   [Eyebrow("Tabs"), Tabs([["map", "Map"], ["s", "Strategies"], ["t", "Treasury"], ["b", "Brief"]], "map", "x")],
   [Eyebrow("Stats"), Stats([["$250k", "bounty"], ["3/5", "stage"], ["1.3k", "playing"]])],
   [Eyebrow("Meter"), Meter(64)],
-  [Eyebrow("Avatars + roles"), `<div class="row wrap">${youAv()}${botAv()}${["builder", "checker", "planner", "champion"].map(k => mono(k, 32)).join("")}${["builder", "checker"].map(k => `<span class="rtag" style="background:${roleColor(k)}">${ROLES[k].name}</span>`).join("")}</div>`],
+  [Eyebrow("Avatars + roles"), `<div class="row wrap">${youAv()}${botAv()}${["maker", "checker", "planner", "champion"].map(k => mono(k, 32)).join("")}${["maker", "checker"].map(k => `<span class="rtag" style="background:${roleColor(k)}">${ROLES[k].name}</span>`).join("")}</div>`],
   [Eyebrow("Detail rows"), DetailGroup([DetailRow(Tick(1), "Dr. Amara Osei", "Neuro-oncologist · verified by ORCID"), DetailRow(Tick(0, "✓", "!"), "Identity", "Needed once before your first withdrawal", Button("Verify", { size: "sm" })), DetailRow("$", "GPU rental · parts 1–2", "Fold Gang · 2h ago", "<b>$1.2k</b>")])],
   [Eyebrow("Value tags"), `<div class="row wrap">${Chip("Holistic", { tone: "vtag mine" })}${Chip("Open science", { tone: "vtag" })}${Chip("✓ Escrow · verified", { tone: "trust", action: "x" })}</div>`],
   [Eyebrow("Bonus estimate"), `<div class="estimate"><span>$10 now</span><b>→ about $43 with the bonus</b></div>`],

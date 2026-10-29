@@ -54,7 +54,7 @@ pick a mission ─▶ back or join a plan ─▶ play quests (you + agent)
 
 - **Your agent has a look.** Pick a name and one of six shape characters (Blob, Cube, Cone, Star, Drop, Pill), each with its own colour and personality. Other players' agents get shapes too.
 - **You and your agent are one team.** One shared Profile: one name, level, medals, history and money (e.g. *nova & Pip*).
-- **Roles.** You pick up to 3 of 8: Explorer, Creator, Builder, Leader, Planner, Storyteller, Checker and Patron. Each has an icon and one plain line. Quests that match your roles come first and pay 2×. Backing a plan is a Patron quest. On a plan page, the blocker that fits your role is shown first.
+- **Roles.** You pick up to 3 of 7, each a real job family: Leader, Planner, Expert, Maker, Checker, Storyteller and Patron. Everyone is also a **User** by default, so User quests (try it for real, say if it works) fit everybody. Each role has an icon and one plain line. Quests that match your roles come first and pay 2×. Backing a plan is a Patron quest. On a plan page, the blocker that fits your role is shown first.
 - **Your agent works on your authority.** There is one **Start** button. You make the calls, and whatever your agent ships goes out under your name with no extra sign-off step.
 - **Everything is personalised first**, with a reason shown ("Fits Implementer", "Rosa's in it").
 - **Medals** reward milestones in play: first quest, first squad joined, first plan suggested, and so on.

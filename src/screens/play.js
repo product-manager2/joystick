@@ -1,4 +1,4 @@
-import { SIZE, missions } from "../data/content.js";
+import { SIZE, missions, hasRole } from "../data/content.js";
 import { color } from "../design/tokens.js";
 import { questScore, questWhy, why } from "../game/personalise.js";
 import { NEEDS, NEED_BTN, needsYou } from "../game/questflow.js";
@@ -25,7 +25,7 @@ export function playScreen() {
   // One top quest from each mission you're in, then the best of the rest
   const pool = forYou.length ? forYou : open, firsts = joined.map(m => pool.find(x => x.m === m)).filter(Boolean);
   const list = [...firsts, ...pool.filter(x => !firsts.includes(x))].filter((x, i, a) => !x.q.back || a.findIndex(y => y.q.back) === i).slice(0, 4);
-  const best = missions.map(m => ({ m, n: m.quests.filter(q => playable(q) && S.roles.includes(q.role)).length })).sort((a, b) => b.n - a.n)[0];
+  const best = missions.map(m => ({ m, n: m.quests.filter(q => playable(q) && hasRole(q.role)).length })).sort((a, b) => b.n - a.n)[0];
   return `<div class="screen">
     ${calls.length ? `<div class="eyebrow" style="color:var(--red)">${esc(S.agentName)} needs you</div><div class="list">${calls.map(({ q, m }) => `
       <button class="card callrow" data-a="openq" data-x="${m.id}" data-q="${q.id}">${botAv()}<span style="min-width:0"><b>${esc(NEEDS[q.state](q))}</b><span class="small muted">${esc(q.title)}</span></span><span class="btn sm red">${NEED_BTN[q.state]}</span></button>`).join("")}</div>` : ""}

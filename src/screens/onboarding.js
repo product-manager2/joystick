@@ -1,4 +1,4 @@
-import { ROLES, medal, missions } from "../data/content.js";
+import { ROLES, medal, missions, hasRole } from "../data/content.js";
 import { color } from "../design/tokens.js";
 import { playable, strats } from "../game/strategies.js";
 import { homeDeck, startForm } from "./home.js";
@@ -19,7 +19,7 @@ export function onboard() {
   }
   if (S.ob === 3) {
     S.picks = S.picks || [];
-    const fit = m => m.quests.filter(q => playable(q) && S.roles.includes(q.role)).length;
+    const fit = m => m.quests.filter(q => playable(q) && hasRole(q.role)).length;
     const topics = ["All", ...new Set(missions.map(m => m.tag))];
     const topic = S.obTopic || "All";
     const list = missions.filter(m => topic === "All" || m.tag === topic).sort((a, b) => fit(b) - fit(a));
@@ -55,6 +55,6 @@ export function onboard() {
 }
 export const shapePicker = (keep = false) => `<div class="shapes">${Object.entries(SHAPES).map(([k, sh]) => `<button class="shape-pick" data-a="shape" data-x="${k}"${keep ? ' data-keep="1"' : ""} aria-pressed="${S.botShape === k}" aria-label="${sh.name}: ${sh.line}"><span class="av">${bot(k)}</span><b>${sh.name}</b></button>`).join("")}</div>`;
 export function rolePicker(selected, action, max = 3) {
-  return `<div class="role-grid ${selected.length >= max ? "full" : ""}">${Object.entries(ROLES).map(([k, r]) => `
+  return `<div class="role-grid ${selected.length >= max ? "full" : ""}">${Object.entries(ROLES).filter(([, r]) => !r.auto).map(([k, r]) => `
     <button class="role" data-a="${action}" data-x="${k}" aria-pressed="${selected.includes(k)}">${mono(k, 44)}<span><b>${r.name}</b><span class="muted">${r.does}</span></span></button>`).join("")}</div>`;
 }

@@ -9,10 +9,10 @@ import { backBtn, botAv, esc, fmt, gain, glyph, mission, titleCard } from "../ui
 
 // ===================== Forge: create a mission by chatting =====================
 export const FORGE_PRESETS = {
-  "Build a product": { title: "Open-source note app for doctors", pitch: "A fast, private note app that doctors actually prefer over their hospital system.", stages: ["Interview users", "Prototype", "Private beta", "1,000 doctors"], rules: ["1,000 doctors use it weekly", "Passes a security audit", "Code is open source", "Net Promoter Score above 50"], roles: ["leader", "explorer", "creator", "builder", "checker", "champion"] },
-  "Solve a science problem": { title: "Make insulin cost $5", pitch: "An open recipe and process to make insulin for $5 a vial.", stages: ["Literature map", "Process design", "Lab batch", "Regulatory path"], rules: ["Lab batch matches reference insulin", "Cost model under $5 per vial", "Protocol published openly", "Reproduced by 2 labs"], roles: ["explorer", "explorer", "builder", "checker", "patron"] },
-  "Help a community": { title: "Every food bank in Lagos online", pitch: "Food banks can list stock and families can find food in under a minute.", stages: ["Map food banks", "Simple app", "Pilot 10 banks", "Citywide"], rules: ["100 food banks listed", "Families find food in under 60 seconds", "Works on feature phones"], roles: ["explorer", "creator", "builder", "champion"] },
-  "Fix something for the planet": { title: "Find every methane leak in Texas", pitch: "Spot methane leaks from satellite data and get them fixed.", stages: ["Data", "Leak model", "Field checks", "Leaks fixed"], rules: ["Model finds 80% of known leaks", "50 leaks confirmed in the field", "Open public map"], roles: ["explorer", "builder", "builder", "champion"] },
+  "Build a product": { title: "Open-source note app for doctors", pitch: "A fast, private note app that doctors actually prefer over their hospital system.", stages: ["Interview users", "Prototype", "Private beta", "1,000 doctors"], rules: ["1,000 doctors use it weekly", "Passes a security audit", "Code is open source", "Net Promoter Score above 50"], roles: ["leader", "maker", "checker", "user", "champion"] },
+  "Solve a science problem": { title: "Make insulin cost $5", pitch: "An open recipe and process to make insulin for $5 a vial.", stages: ["Literature map", "Process design", "Lab batch", "Regulatory path"], rules: ["Lab batch matches reference insulin", "Cost model under $5 per vial", "Protocol published openly", "Reproduced by 2 labs"], roles: ["expert", "maker", "checker", "user", "patron"] },
+  "Help a community": { title: "Every food bank in Lagos online", pitch: "Food banks can list stock and families can find food in under a minute.", stages: ["Map food banks", "Simple app", "Pilot 10 banks", "Citywide"], rules: ["100 food banks listed", "Families find food in under 60 seconds", "Works on feature phones"], roles: ["expert", "maker", "user", "champion"] },
+  "Fix something for the planet": { title: "Find every methane leak in Texas", pitch: "Spot methane leaks from satellite data and get them fixed.", stages: ["Data", "Leak model", "Field checks", "Leaks fixed"], rules: ["Model finds 80% of known leaks", "50 leaks confirmed in the field", "Open public map"], roles: ["expert", "maker", "champion"] },
 };
 export function forgeStart() {
   S.forge = { step: 0, title: "", pitch: "", stages: [], rules: [], ruleOpts: [], roles: [], bounty: 5000, msgs: [
@@ -44,7 +44,7 @@ export function forgeCard(kind) {
   if (kind === "rules") return `<div class="form-card"><div class="mini-roles">${f.ruleOpts.map((r, i) => `<button data-a="f-rule" data-x="${i}" aria-pressed="${f.rules.includes(r)}" ${dis}>${esc(r)}</button>`).join("")}</div>
       ${live ? `<button class="btn sm red" data-a="f-next" ${f.rules.length ? "" : "disabled"}>These are the rules</button>` : ""}</div>`;
   if (kind === "team") return `<div class="form-card"><div class="eyebrow">Roles</div>
-      <div class="mini-roles">${Object.entries(ROLES).map(([k, r]) => `<button data-a="f-role" data-x="${k}" aria-pressed="${f.roles.includes(k)}" ${dis}>${r.name}</button>`).join("")}</div>
+      <div class="mini-roles">${Object.entries(ROLES).filter(([, r]) => !r.auto).map(([k, r]) => `<button data-a="f-role" data-x="${k}" aria-pressed="${f.roles.includes(k)}" ${dis}>${r.name}</button>`).join("")}</div>
       <div class="eyebrow">Bounty</div>
       <div class="amounts">${[1000, 5000, 25000, 100000].map(a => `<button data-a="f-amt" data-x="${a}" aria-pressed="${f.bounty === a}" ${dis}>$${fmt(a)}</button>`).join("")}</div>
       ${live ? `<button class="btn sm red" data-a="f-next">Ready</button>` : ""}</div>`;
@@ -101,7 +101,7 @@ export function forgeLaunch() {
     quests: [
       Q(id + "a", "Recruit the first squad", "champion", "S", 150, 10, ["posting to the lobby…", "6 duos interested", "first squad formed ✓"], { q: "Who do we invite first?", opts: ["Implementers", "Investigators", "Anyone keen"] }),
       Q(id + "b", `Split “${stages[0].name}” into quests`, "planner", "S", 150, 10, ["reading the stage…", "7 quests drafted", "quest board live ✓"], { q: "How big should quests be?", opts: ["Lots of small ones", "A few big ones"] }),
-      Q(id + "c", `Kick off ${stages[0].name}`, "explorer", "M", 260, 20, ["researching…", "notes drafted", "posted to HQ ✓"], { q: "Where do we start?", opts: ["What exists already", "Talk to people first"] }),
+      Q(id + "c", `Kick off ${stages[0].name}`, "expert", "M", 260, 20, ["researching…", "notes drafted", "posted to HQ ✓"], { q: "Where do we start?", opts: ["What exists already", "Talk to people first"] }),
     ],
   });
   TRUST[id] = { who: "@" + (S.name || "you"), cred: "Mission creator", verified: ["Email"], funders: [["@" + (S.name || "you"), f.bounty]], record: "First mission", safety: "Auto-check passed", deliver: f.rules, fail: "Unspent escrow goes back to you. Approved work stays paid." };

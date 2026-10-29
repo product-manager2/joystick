@@ -1,4 +1,4 @@
-import { ROLES, missions } from "../data/content.js";
+import { ROLES, missions, hasRole } from "../data/content.js";
 import { PEOPLE } from "../data/world.js";
 import { playable } from "../game/strategies.js";
 import { forgeCard } from "./forge.js";
@@ -44,7 +44,7 @@ export function commsScreen() {
 export function partnerSeed() {
   const p = thread("partner");
   if (p.msgs.length) return;
-  const sug = missions.flatMap(m => m.quests.filter(q => playable(q) && S.roles.includes(q.role)))[0];
+  const sug = missions.flatMap(m => m.quests.filter(q => playable(q) && hasRole(q.role)))[0];
   p.msgs.push({ agent: true, text: `Morning! Start here?`, quest: sug && sug.id });
 }
 export function msgHTML(msg) {
@@ -109,7 +109,7 @@ export function sendInThread(text) {
 export function agentReply(text) {
   const low = text.toLowerCase();
   if (low.includes("next")) {
-    const q = missions.flatMap(m => m.quests.filter(x => playable(x) && S.roles.includes(x.role)))[0] || missions[0].quests.find(playable);
+    const q = missions.flatMap(m => m.quests.filter(x => playable(x) && hasRole(x.role)))[0] || missions[0].quests.find(playable);
     return { agent: true, text: "This one. Squad needs it.", quest: q && q.id };
   }
   if (low.includes("learn")) {

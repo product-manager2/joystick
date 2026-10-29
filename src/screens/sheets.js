@@ -69,7 +69,7 @@ export function squadSheet(q) {
   const s = stratOf(q), humans = crewOf(q).filter(x => !x.bot).map(x => x.who);
   const n = Math.max(q.needs || 0, humans.length + 1, 3);
   const slots = [{ role: q.role, req: (q.skills || [])[0] || ROLES[q.role].does, who: "you" }, ...humans.map(h => ({ role: (PEOPLE[h] || {}).role || "patron", req: PEOPLE[h] ? PEOPLE[h].skills[0][0] : "", who: h }))];
-  const open = [["checker", `Verified ${(q.skills || ["review"])[0]} · not in ${s.squad}`], ["explorer", "Can read papers fast"], ["builder", (q.skills || ["Python"])[0]]];
+  const open = [["checker", `Verified ${(q.skills || ["review"])[0]} · not in ${s.squad}`], ["expert", "Can read papers fast"], ["maker", (q.skills || ["Python"])[0]]];
   for (let i = 0; slots.length < n; i++) slots.push({ role: open[i % 3][0], req: open[i % 3][1], who: null });
   const recs = Object.keys(PEOPLE).filter(p => !humans.includes(p)).sort((a, b) => PEOPLE[b].rep - PEOPLE[a].rep).slice(0, 3);
   const pav = p => `<button class="avbtn" data-a="person" data-x="${esc(p)}">${crewAv({ who: p, color: PEOPLE[p] ? PEOPLE[p].color : "var(--paper-2)" })}</button>`;

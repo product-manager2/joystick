@@ -1,5 +1,5 @@
 import { FINISHED } from "../data/history.js";
-import { ROLES, missions, roleColor } from "../data/content.js";
+import { ROLES, missions, roleColor, hasRole } from "../data/content.js";
 import { Button, Stats, Tabs } from "../design/components.js";
 import { color } from "../design/tokens.js";
 import { DEMAND } from "../data/world.js";
@@ -19,7 +19,7 @@ export function lobby() {
   const mine = missions.filter(m => S.joined[m.id]);
   const tab = mine.length ? (S.lobbyTab || "mine") : "explore";
   const tags = ["All", "Science", "Product", "Planet", "Education"];
-  const fitN = m => m.quests.filter(q => playable(q) && S.roles.includes(q.role)).length;
+  const fitN = m => m.quests.filter(q => playable(q) && hasRole(q.role)).length;
   const others = missions.filter(m => !S.joined[m.id] && (S.filter === "All" || m.tag === S.filter)).sort((a, b) => fitN(b) - fitN(a));
   const hot = Math.max(...missions.map(x => x.players));
   const mineCard = m => {

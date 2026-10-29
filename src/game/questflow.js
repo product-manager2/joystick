@@ -1,4 +1,4 @@
-import { award } from "../data/content.js";
+import { award, hasRole } from "../data/content.js";
 import { PEOPLE } from "../data/world.js";
 import { contribute, ledgerOf, questFuel } from "./economy.js";
 import { hasSkill } from "./personalise.js";
@@ -113,7 +113,7 @@ export function fixQuest(id) {
 function approveQuest(q, m) {
   q.done = true; q.state = null; q.mine = false;
   const s = stratOf(q);
-  const xp = Math.round(q.xp * (S.roles.includes(q.role) ? 2 : 1) * 1.5);
+  const xp = Math.round(q.xp * (hasRole(q.role) ? 2 : 1) * 1.5);
   S.together++; S.shipped = (S.shipped || 0) + 1;
   if (!q.reworked) award("mind");
   s.score += q.gain || 0;

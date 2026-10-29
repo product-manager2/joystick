@@ -1,4 +1,4 @@
-import { GLYPHS, Q, ROLES, SIZE, award, roleColor } from "../data/content.js";
+import { GLYPHS, Q, ROLES, SIZE, award, roleColor, hasRole } from "../data/content.js";
 import { BLOCKERS, PEOPLE } from "../data/world.js";
 import { Button, CloseButton, openSheet } from "../design/components.js";
 import { FUELS, askOf, contribute, fuelIcon, fuelOf, ownPct, stakeOf } from "../game/economy.js";
@@ -178,7 +178,7 @@ export function questItem(q, m) {
   const row = (x, cls = "") => `<button class="card qitem ${cls} ${x.done ? "done" : ""}" ${x.parts ? "disabled" : `data-a="quest" data-x="${x.id}"`}>
       ${mono(x.role, 36)}
       <span style="min-width:0"><b class="qt">${esc(x.title)}</b>
-        <span class="small muted" style="display:block">${x.parts ? `Split into ${parts.length} parts` : questSub(x, m)}${S.roles.includes(x.role) && !x.done && !x.parts ? ` · <b style="color:var(--green-d)">2×</b>` : ""}</span></span>
+        <span class="small muted" style="display:block">${x.parts ? `Split into ${parts.length} parts` : questSub(x, m)}${hasRole(x.role) && !x.done && !x.parts ? ` · <b style="color:var(--green-d)">2×</b>` : ""}</span></span>
       ${questStatus(x)}${!x.done && !x.parts && cls !== "part" && (playable(x) || x.state) ? `<span class="why-row">${why(questWhy(x, m))}</span>` : ""}</button>`;
   return q.parts ? `<div class="qtree">${row(q, "parent")}<div class="parts">${parts.map(p => row(p, "part")).join("")}</div></div>` : row(q);
 }
@@ -247,7 +247,7 @@ export function blockersOf(m, s, qs) {
   qs.filter(q => !q.done && lockedBy(q)).forEach(q => { const d = lockedBy(q); list.push([`“${short(q.title)}” waits on “${short(d.title)}”`, d.role, d]); });
   qs.filter(q => !q.back && playable(q) && !crewOf(q).length).slice(0, 2).forEach(q => list.push([`Nobody has picked up “${short(q.title)}” yet`, q.role, q]));
   if (!s.status && f.left > 0) list.push([`Needs $${fmt(f.left)} more to keep going`, "patron", qs.find(q => q.back)]);
-  return list.sort((a, b) => S.roles.includes(b[1]) - S.roles.includes(a[1]));
+  return list.sort((a, b) => hasRole(b[1]) - hasRole(a[1]));
 }
 export function strategyScreen() {
   const m = mission(), s = strats(m).find(x => x.id === S.stratId);
@@ -259,7 +259,7 @@ export function strategyScreen() {
   // How you can help: the 3 quests that suit you best. Backing is one of them; a waiting plan needs backing first.
   const top = rank(open.filter(playable)).sort((x, y) => s.status ? (y.back ? 1 : 0) - (x.back ? 1 : 0) : 0).slice(0, 3);
   const blocks = blockersOf(m, s, qs);
-  const blockRow = ([t, r, q]) => `<${q ? `button data-a="quest" data-x="${q.id}"` : "div"} class="blocker ${S.roles.includes(r) ? "mine" : ""}">${mono(r, 30)}<span style="min-width:0;flex:1"><b>${esc(t)}</b><span class="small muted" style="display:block">${S.roles.includes(r) ? `You're a ${ROLES[r].name}. This one's for you` : `Needs a ${ROLES[r].name}`}</span></span>${q ? `<span class="muted">›</span>` : ""}</${q ? "button" : "div"}>`;
+  const blockRow = ([t, r, q]) => `<${q ? `button data-a="quest" data-x="${q.id}"` : "div"} class="blocker ${hasRole(r) ? "mine" : ""}">${mono(r, 30)}<span style="min-width:0;flex:1"><b>${esc(t)}</b><span class="small muted" style="display:block">${ROLES[r].auto ? "Anyone who uses it can help" : hasRole(r) ? `You're a ${ROLES[r].name}. This one's for you` : `Needs a ${ROLES[r].name}`}</span></span>${q ? `<span class="muted">›</span>` : ""}</${q ? "button" : "div"}>`;
   return `<div class="chat">
     <div class="chat-head">${backBtn("back", "stage", "Back")}${stratBadge(s)}
       <div style="min-width:0;flex:1">${where("plan", [chName(m), `Stage ${m.current + 1}`])}<div class="room-title">${esc(s.name)}</div></div></div>
@@ -271,7 +271,7 @@ export function strategyScreen() {
         <div class="kvrow"><span>Quests</span><b>${done.length} done · ${open.length} open · ${locked.length} locked</b></div>
         <div class="kvrow"><span>Money</span><b>$${fmt(f.have)} of $${fmt(f.need)}</b></div>
         <div class="kvrow"><span>Squad</span><b>${esc(s.squad)} · ${PEOPLE[s.lead] ? `<button class="info" data-a="person" data-x="${esc(s.lead)}">${esc(s.lead)}</button>` : esc(s.lead)}</b></div>
-        ${blocks.length ? `<div class="eyebrow" style="margin-top:6px">${S.roles.includes(blocks[0][1]) ? `Stuck, and you can help` : "What's stopping it"}</div>
+        ${blocks.length ? `<div class="eyebrow" style="margin-top:6px">${hasRole(blocks[0][1]) ? `Stuck, and you can help` : "What's stopping it"}</div>
         ${blockRow(blocks[0])}
         ${blocks.length > 1 ? (S.showAll["b-" + s.id] ? blocks.slice(1).map(blockRow).join("") + `<button class="linkbtn" data-a="showall" data-x="b-${s.id}">Show less</button>` : `<button class="linkbtn" data-a="showall" data-x="b-${s.id}" style="align-self:flex-start">See ${blocks.length - 1} more ${blocks.length === 2 ? "blocker" : "blockers"} →</button>`) : ""}` : ""}
       </div>
@@ -397,7 +397,7 @@ export function launchStrategy(name) {
   strats(m).push(s);
   m.quests.push(
     Q(id + "a", `Write the brief: ${short(name)}`, "planner", "S", 160, 15, ["outlining the bet…", "risks listed", "brief posted ✓"], { q: "What's the first thing to test?", opts: ["Cheapest test", "Fastest test"] }, { strat: id, gain: 0, out: "strategy-brief.md" }),
-    Q(id + "b", `Run a small test of the idea`, "builder", "M", 300, 30, ["setting up the test…", "first results in", "results posted ✓"], { q: "Results are mixed. Keep going?", opts: ["Double down", "Tweak and re-run"] }, { strat: id, gain: 1, out: "test-results.csv" }),
+    Q(id + "b", `Run a small test of the idea`, "maker", "M", 300, 30, ["setting up the test…", "first results in", "results posted ✓"], { q: "Results are mixed. Keep going?", opts: ["Double down", "Tweak and re-run"] }, { strat: id, gain: 1, out: "test-results.csv" }),
     Q(id + "c", `Recruit 2 players to the plan`, "champion", "S", 150, 10, ["posting to the channel…", "4 interested", "2 joined ✓"], { q: "Who do we take?", opts: ["Specialists", "Fast movers"] }, { strat: id, gain: 0, out: "2 players joined" }),
   );
   S.backed = { ...(S.backed || {}), [m.id]: id };
@@ -408,7 +408,7 @@ export function launchStrategy(name) {
 export function stageAgentReply(m, text) {
   const low = text.toLowerCase();
   if (low.includes("next")) {
-    const q = m.quests.find(x => playable(x) && S.roles.includes(x.role)) || m.quests.find(playable);
+    const q = m.quests.find(x => playable(x) && hasRole(x.role)) || m.quests.find(playable);
     return q ? { agent: true, text: "This one fits you:", quest: q.id } : { agent: true, text: "Nothing open. We're close to the goal." };
   }
   if (low.includes("brief") && S.questId) {
@@ -480,9 +480,9 @@ export function stageCleared(m) {
       { id: p + "B", name: "Bold bet", squad: "Moonshots", lead: "Kenji", color: "var(--blue)", score: 0, backers: 25, need: 26, status: "proposed", raised: 400, bet: "Try the risky idea everyone kept talking about." },
     ];
     m.quests = [
-      Q(p + "a", `Gather everything known about “${goal}”`, "explorer", "S", 180, 15, ["searching 18k sources…", "brief drafted", "brief posted ✓"], { q: "Where should we dig first?", opts: ["Recent papers", "What other squads tried", "Talk to practitioners"] }, { strat: p + "A", gain: 1, out: "research-brief.md" }),
-      Q(p + "b", "Build the tooling this stage needs", "builder", "M", 320, 30, ["scaffolding…", "tests passing", "deployed ✓"], { q: "Build fast or build solid?", opts: ["Fast — we'll refactor later", "Solid — this will last"] }, { strat: p + "A", gain: 2, out: "tooling · PR" }),
-      Q(p + "c", "Prototype the risky idea", "creator", "M", 300, 30, ["sketching…", "prototype runs", "demo posted ✓"], { q: "It half works. Ship the demo?", opts: ["Ship it", "One more day"] }, { strat: p + "B", gain: 2, out: "prototype · demo" }),
+      Q(p + "a", `Gather everything known about “${goal}”`, "expert", "S", 180, 15, ["searching 18k sources…", "brief drafted", "brief posted ✓"], { q: "Where should we dig first?", opts: ["Recent papers", "What other squads tried", "Talk to practitioners"] }, { strat: p + "A", gain: 1, out: "research-brief.md" }),
+      Q(p + "b", "Build the tooling this stage needs", "maker", "M", 320, 30, ["scaffolding…", "tests passing", "deployed ✓"], { q: "Build fast or build solid?", opts: ["Fast — we'll refactor later", "Solid — this will last"] }, { strat: p + "A", gain: 2, out: "tooling · PR" }),
+      Q(p + "c", "Prototype the risky idea", "maker", "M", 300, 30, ["sketching…", "prototype runs", "demo posted ✓"], { q: "It half works. Ship the demo?", opts: ["Ship it", "One more day"] }, { strat: p + "B", gain: 2, out: "prototype · demo" }),
       Q(p + "d", "Stress-test the prototype", "checker", "S", 200, 20, ["running checks…", "2 issues found", "report posted ✓"], { q: "2 issues found. Block it?", opts: ["Block until fixed", "Ship with notes"] }, { strat: p + "B", gain: 1, out: "stress-test.md" }),
     ];
     m.sessions = [];

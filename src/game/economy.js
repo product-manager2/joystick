@@ -64,7 +64,7 @@ export const tok = m => "$" + ((TOKEN[m.id] || {}).tick || m.id.slice(0, 4).toUp
 export const holders = m => Math.round(m.players * .62 + fuelOf(m).more[1]);
 export const ownPct = m => { const mine = S.wallet.shares[m.id] || 0; return mine ? (mine / (fuelOf(m).supply + mine) * 100) : 0; };
 export const tokFor = (m, parts) => Math.round(Object.entries(parts).reduce((a, [k, v]) => a + (v || 0) * RATE[k], 0) * mult(m) / 10);
-export const questFuel = q => ({ time: { S: 1, M: 4, L: 8 }[q.size] || 1, know: ["explorer", "checker", "planner"].includes(q.role) ? 1 : 0, compute: /part \d|dock|train|screen/i.test(q.title) ? 200 : 0 });
+export const questFuel = q => ({ time: { S: 1, M: 4, L: 8 }[q.size] || 1, know: ["expert", "checker", "planner"].includes(q.role) ? 1 : 0, compute: /part \d|dock|train|screen/i.test(q.title) ? 200 : 0 });
 // Team stakes: money you put straight into a strategy. They pay from that team's product, not the mission's.
 export const stakeOf = s => (S.stakes || {})[s.id] || 0;
 export const askOf = s => { const a = ASK[s.id] || [3000, 80, 300]; return { money: a[0], time: a[1], compute: a[2] }; };

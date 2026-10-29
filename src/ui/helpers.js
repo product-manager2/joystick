@@ -92,7 +92,7 @@ export function learn(text) {
 
 // A returning player, for demoing the "already playing" experience
 export function loadReturning() {
-  Object.assign(S, { name: "nova", agentName: "Pip", roles: ["builder", "checker", "planner"], level: 9, xp: 1450, xpMax: 2600, coins: 1240, together: 14, shipped: 9, botShape: "cube", lobbyTab: "mine" });
+  Object.assign(S, { name: "nova", agentName: "Pip", roles: ["maker", "checker", "planner"], level: 9, xp: 1450, xpMax: 2600, coins: 1240, together: 14, shipped: 9, botShape: "cube", lobbyTab: "mine" });
   S.badges = ["spark", "squad", "sync", "slayer", "gate"];
   S.wallet = { shares: { glio: 1240, cad: 410 }, timeCredits: 46, insights: 18, pending: 90 };
   S.stakes = { "glio-dock": 100 };
@@ -109,7 +109,7 @@ export function loadReturning() {
   ];
   S.backed = { glio: "glio-dock" }; S.contrib = { "glio-dock": 2 };
   S.learned = ["Prefers open-source tools", "Docking engine → “Run both and compare”", "Likes plain, factual progress posts"];
-  S.joined = { glio: ["builder", "checker"], cad: ["builder", "planner"] };
+  S.joined = { glio: ["maker", "checker"], cad: ["maker", "planner"] };
   missions[0].unread = 4; missions[1].unread = 2;
   // Pip ran a quest overnight and is waiting on one call
   const [q, m] = findQuest("g4");
