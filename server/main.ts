@@ -9,6 +9,7 @@ const {app,chat} = await buildApp(pool,config);
 const listener = await pool.connect();
 await listener.query('LISTEN joystick_messages');
 await listener.query('LISTEN joystick_previews');
+await listener.query('LISTEN joystick_agent_activity');
 const listenerLost=()=>{app.log.error('PostgreSQL notification listener lost');process.exit(1);};
 listener.on('error',listenerLost);
 listener.on('end',listenerLost);
@@ -19,6 +20,7 @@ listener.on('notification',notification => {
     const data = JSON.parse(notification.payload ?? '{}');
     if (notification.channel === 'joystick_messages' && typeof data.messageId === 'string') await chat.broadcastSavedById(data.messageId);
     if (notification.channel === 'joystick_previews' && typeof data.roomId === 'string' && typeof data.messageId === 'string' && typeof data.text === 'string') await chat.broadcastPreview(data.roomId,data.messageId,data.text);
+    if (notification.channel === 'joystick_agent_activity' && typeof data.roomId === 'string') await chat.broadcastAgentActivity(data.roomId);
   } catch (error) { app.log.error(error); }
   });
 });

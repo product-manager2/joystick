@@ -48,6 +48,7 @@ export async function saveUserMessage(pool: Pool, userId: string, roomId: string
     const inserted = await client.query(`INSERT INTO messages(room_id,sequence,role,text,user_id,client_id,request_hash) VALUES($1,$2,'user',$3,$4,$5,$6) RETURNING id,room_id,sequence,role,text,user_id,client_id,provider_event_id,created_at`, [roomId,sequence.rows[0].sequence,cleaned,userId,clientId,hash]);
     inserted.rows[0].sender_name=(await client.query('SELECT name FROM users WHERE id=$1',[userId])).rows[0]?.name;
     await client.query(`INSERT INTO agent_dispatches(room_id,message_id,status) VALUES($1,$2,$3)`, [roomId,inserted.rows[0].id,available?'pending':'unavailable']);
+    await client.query("SELECT pg_notify('joystick_messages',$1)",[JSON.stringify({roomId,messageId:inserted.rows[0].id})]);
     return {message:publicMessage(inserted.rows[0]),created:true};
   });
 }
@@ -83,6 +84,19 @@ export function registerChatRoutes(app: FastifyInstance, pool: Pool, config: Con
     const {roomId} = request.params as {roomId:string};
     const raw = (request.query as {after?:string}).after ?? '0';
     return history(pool,user.id,roomId,Number(raw));
+  });
+  app.get('/api/v1/rooms/:roomId/agent-activity',async request=>{
+    const user=await requireUser(pool,request);
+    const {roomId}=request.params as {roomId:string};
+    if(!uuid(roomId))throw new ApiError(400,'invalid_input','Invalid room');
+    const access=await pool.query(`SELECT r.id FROM rooms r WHERE r.id=$1 AND r.kind='agent'
+      AND (SELECT count(*) FROM room_members WHERE room_id=r.id)=1
+      AND EXISTS(SELECT 1 FROM room_members WHERE room_id=r.id AND user_id=$2)`,[roomId,user.id]);
+    if(!access.rowCount)throw new ApiError(404,'room_not_found','Room not found');
+    const rows=await pool.query(`SELECT event_id,tool_name,input,result,state,created_at FROM private_agent_tool_receipts
+      WHERE room_id=$1 AND actor_id=$2 AND tool_name='execute_command'
+      ORDER BY created_at DESC,event_id DESC LIMIT 30`,[roomId,user.id]);
+    return {activities:rows.rows.map(row=>({id:row.event_id,command:typeof row.input?.command==='string'?row.input.command:'unknown',summary:row.state==='running'?'Working on it':typeof row.result?.summary==='string'?row.result.summary:row.state==='failed'?'Action failed':'Action completed',status:row.state,createdAt:new Date(row.created_at as string).toISOString(),...(row.state==='completed'&&row.result?.handoff?{handoff:row.result.handoff}:{})}))};
   });
   app.post('/api/v1/rooms/:roomId/read', async request => {
     const user=await requireUser(pool,request);
@@ -194,5 +208,13 @@ export function registerChatRoutes(app: FastifyInstance, pool: Pool, config: Con
       safeSend(subscriber.socket,{type:'message.delta',roomId,messageId,text});
     }
   }
-  return { broadcast, broadcastSavedById, broadcastPreview };
+  async function broadcastAgentActivity(roomId:string){
+    if(!uuid(roomId))return;
+    for(const subscriber of subscribers){
+      if(!subscriber.rooms.has(roomId))continue;
+      if(!await userForSessionHash(pool,subscriber.sessionHash)||!await roomAllowed(pool,subscriber.userId,roomId)){subscriber.rooms.delete(roomId);continue;}
+      safeSend(subscriber.socket,{type:'agent.activity',roomId});
+    }
+  }
+  return { broadcast, broadcastSavedById, broadcastPreview, broadcastAgentActivity };
 }

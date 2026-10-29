@@ -82,60 +82,76 @@ export async function getRunDetail(pool:Pool,userId:string,id:string){
   });
 }
 
+export async function createAgentRun(pool:Pool,config:Config,userId:string,body:AgentRunInput){
+  if(!body||!validId(body.requestId)||!AGENT_RUN_KINDS.includes(body.kind)||[body.missionId,body.planId,body.questId].some(v=>v!==undefined&&!validId(v))||typeof body.prompt!=='string'||!body.prompt.trim()||body.prompt.length>8000)throw new ApiError(400,'invalid_input','Invalid agent request');
+  if(!agentAvailable(config)||!config.anthropicWorkflowAgentId)throw new ApiError(503,'agent_unavailable','Mission work agent is not configured');
+  const missionId=body.missionId??null,planId=body.planId??null,questId=body.questId??null;
+  const normalized={kind:body.kind,missionId,planId,questId,prompt:body.prompt.trim()};
+  const digest=createHash('sha256').update(JSON.stringify(normalized)).digest('hex');
+  const existing=await pool.query('SELECT id,request_hash FROM agent_runs WHERE user_id=$1 AND request_id=$2',[userId,body.requestId]);
+  if(existing.rowCount){if(existing.rows[0].request_hash!==digest)throw new ApiError(409,'idempotency_conflict','Request ID was used for another run');return (await getRunDetail(pool,userId,existing.rows[0].id)).run;}
+  const scope=await runContext(pool,userId,body.kind,missionId,planId,questId);
+  const room=await pool.query("SELECT r.id FROM rooms r JOIN room_members m ON m.room_id=r.id WHERE r.kind='agent' AND m.user_id=$1 ORDER BY r.id LIMIT 1",[userId]);
+  const id=await admitAgentRun(pool,userId,body.requestId,digest,body.kind,scope,room.rows[0]?.id??null,normalized.prompt);
+  return (await getRunDetail(pool,userId,id)).run;
+}
+
+export async function listAgentRuns(pool:Pool,userId:string,q:{missionId?:string;questId?:string;cursor?:string;limit?:number}){
+  if((q.missionId!==undefined&&!validId(q.missionId))||(q.questId!==undefined&&!validId(q.questId))||(q.cursor!==undefined&&!validId(q.cursor)))throw new ApiError(400,'invalid_input','Invalid run filter');
+  const limit=q.limit??30;
+  if(!Number.isInteger(limit)||limit<1||limit>50)throw new ApiError(400,'invalid_input','Limit must be between 1 and 50');
+  const cursor=q.cursor??null;
+  if(cursor){const cursorRow=await ownerRun(pool,userId,cursor);await assertRunReadScope(pool,userId,cursorRow);}
+  const r=await pool.query(`SELECT r.* FROM agent_runs r WHERE r.user_id=$1 AND ($2::uuid IS NULL OR r.mission_id=$2) AND ($3::uuid IS NULL OR r.quest_id=$3) AND (r.mission_id IS NULL OR EXISTS(SELECT 1 FROM game_memberships m WHERE m.mission_id=r.mission_id AND m.user_id=$1)) AND ($4::uuid IS NULL OR (r.created_at,r.id)<(SELECT created_at,id FROM agent_runs WHERE id=$4 AND user_id=$1)) ORDER BY r.created_at DESC,r.id DESC LIMIT $5`,[userId,q.missionId??null,q.questId??null,cursor,limit+1]);
+  const page=r.rows.slice(0,limit) as RunRow[];
+  return {runs:page.map(publicRun),nextCursor:r.rows.length>limit?page.at(-1)?.id??null:null};
+}
+
+export async function decideAgentRun(pool:Pool,userId:string,id:string,body:{decisionId?:unknown;optionId?:unknown;requestId?:unknown}){
+  if(!validId(id)||!validId(body?.decisionId)||!validId(body?.requestId)||typeof body?.optionId!=='string'||body.optionId.length>80)throw new ApiError(400,'invalid_input','Invalid decision');
+  await transaction(pool,async db=>{
+    const run=await db.query('SELECT * FROM agent_runs WHERE id=$1 AND user_id=$2 FOR UPDATE',[id,userId]);
+    if(!run.rowCount)fail();
+    await assertRunReadScope(db,userId,run.rows[0] as RunRow);
+    const found=await db.query('SELECT id,options,selected_option_id FROM agent_run_decisions WHERE id=$1 AND run_id=$2 FOR UPDATE',[body.decisionId,id]);
+    if(!found.rowCount)fail();
+    const decision=found.rows[0] as {id:string;options:Array<{id:string}>;selected_option_id:string|null};
+    if(!Array.isArray(decision.options)||!decision.options.some(o=>o.id===body.optionId))throw new ApiError(400,'invalid_input','Unknown option');
+    if(decision.selected_option_id&&decision.selected_option_id!==body.optionId)throw new ApiError(409,'decision_conflict','Decision already answered');
+    if(!decision.selected_option_id){
+      if(!['needs_input','running'].includes(run.rows[0].status))throw new ApiError(409,'run_not_waiting','This run is no longer waiting for a decision');
+      await db.query('UPDATE agent_run_decisions SET selected_option_id=$2,selected_at=now() WHERE id=$1',[body.decisionId,body.optionId]);
+      await db.query("UPDATE agent_runs SET status='running',updated_at=now() WHERE id=$1 AND status='needs_input'",[id]);
+    }
+  });
+  return getRunDetail(pool,userId,id);
+}
+
+export async function cancelAgentRun(pool:Pool,userId:string,id:string,requestId:string){
+  if(!validId(id)||!validId(requestId))throw new ApiError(400,'invalid_input','Invalid cancellation');
+  const current=await ownerRun(pool,userId,id);
+  if(current.status==='starting')throw new ApiError(409,'run_starting','The agent is starting; try cancellation again shortly');
+  const updated=await pool.query(`UPDATE agent_runs SET status='cancelled',cancel_state=CASE WHEN provider_session_id IS NOT NULL THEN 'pending' ELSE NULL END,updated_at=now() WHERE id=$1 AND user_id=$2 AND status IN ('queued','running','needs_input','failed') RETURNING *`,[id,userId]);
+  const stopped=(updated.rows[0]??current) as RunRow;
+  return {id:stopped.id,status:stopped.status,updatedAt:stopped.updated_at};
+}
+
 export function registerAgentRunRoutes(app:FastifyInstance,pool:Pool,config:Config){
   app.post('/api/v1/agent/runs',async request=>{
     const user=await requireUser(pool,request), body=request.body as AgentRunInput|null;
-    if(!body||!validId(body.requestId)||!AGENT_RUN_KINDS.includes(body.kind)||[body.missionId,body.planId,body.questId].some(v=>v!==undefined&&!validId(v))||typeof body.prompt!=='string'||!body.prompt.trim()||body.prompt.length>8000)throw new ApiError(400,'invalid_input','Invalid agent request');
-    if(!agentAvailable(config)||!config.anthropicWorkflowAgentId)throw new ApiError(503,'agent_unavailable','Mission work agent is not configured');
-    const missionId=body.missionId??null,planId=body.planId??null,questId=body.questId??null;
-    const normalized={kind:body.kind,missionId,planId,questId,prompt:body.prompt.trim()};
-    const digest=createHash('sha256').update(JSON.stringify(normalized)).digest('hex');
-    const existing=await pool.query('SELECT id,request_hash FROM agent_runs WHERE user_id=$1 AND request_id=$2',[user.id,body.requestId]);
-    if(existing.rowCount){if(existing.rows[0].request_hash!==digest)throw new ApiError(409,'idempotency_conflict','Request ID was used for another run');return {run:(await getRunDetail(pool,user.id,existing.rows[0].id)).run};}
-    const scope=await runContext(pool,user.id,body.kind,missionId,planId,questId);
-    const room=await pool.query("SELECT r.id FROM rooms r JOIN room_members m ON m.room_id=r.id WHERE r.kind='agent' AND m.user_id=$1 ORDER BY r.id LIMIT 1",[user.id]);
-    const id=await admitAgentRun(pool,user.id,body.requestId,digest,body.kind,scope,room.rows[0]?.id??null,normalized.prompt);
-    return {run:(await getRunDetail(pool,user.id,id)).run};
+    return {run:await createAgentRun(pool,config,user.id,body!)};
   });
   app.get('/api/v1/agent/runs',async request=>{
     const user=await requireUser(pool,request),q=request.query as {missionId?:string;questId?:string;cursor?:string;limit?:string};
-    if((q.missionId!==undefined&&!validId(q.missionId))||(q.questId!==undefined&&!validId(q.questId))||(q.cursor!==undefined&&!validId(q.cursor)))throw new ApiError(400,'invalid_input','Invalid run filter');
-    const limit=q.limit===undefined?30:Number(q.limit);
-    if(!Number.isInteger(limit)||limit<1||limit>50)throw new ApiError(400,'invalid_input','Limit must be between 1 and 50');
-    const cursor=q.cursor??null;
-    if(cursor){const cursorRow=await ownerRun(pool,user.id,cursor);await assertRunReadScope(pool,user.id,cursorRow);}
-    const r=await pool.query(`SELECT r.* FROM agent_runs r WHERE r.user_id=$1 AND ($2::uuid IS NULL OR r.mission_id=$2) AND ($3::uuid IS NULL OR r.quest_id=$3) AND (r.mission_id IS NULL OR EXISTS(SELECT 1 FROM game_memberships m WHERE m.mission_id=r.mission_id AND m.user_id=$1)) AND ($4::uuid IS NULL OR (r.created_at,r.id)<(SELECT created_at,id FROM agent_runs WHERE id=$4 AND user_id=$1)) ORDER BY r.created_at DESC,r.id DESC LIMIT $5`,[user.id,q.missionId??null,q.questId??null,cursor,limit+1]);
-    const page=r.rows.slice(0,limit) as RunRow[];
-    return {runs:page.map(publicRun),nextCursor:r.rows.length>limit?page.at(-1)?.id??null:null};
+    return listAgentRuns(pool,user.id,{missionId:q.missionId,questId:q.questId,cursor:q.cursor,...(q.limit!==undefined?{limit:Number(q.limit)}:{})});
   });
   app.get('/api/v1/agent/runs/:id',async request=>getRunDetail(pool,(await requireUser(pool,request)).id,(request.params as {id:string}).id));
   app.post('/api/v1/agent/runs/:id/decisions',async request=>{
     const user=await requireUser(pool,request),id=(request.params as {id:string}).id,body=request.body as {decisionId?:string;optionId?:string;requestId?:string}|null;
-    if(!validId(id)||!validId(body?.decisionId)||!validId(body?.requestId)||typeof body?.optionId!=='string'||body.optionId.length>80)throw new ApiError(400,'invalid_input','Invalid decision');
-    await transaction(pool,async db=>{
-      const run=await db.query('SELECT * FROM agent_runs WHERE id=$1 AND user_id=$2 FOR UPDATE',[id,user.id]);
-      if(!run.rowCount)fail();
-      await assertRunReadScope(db,user.id,run.rows[0] as RunRow);
-      if(!['needs_input','running'].includes(run.rows[0].status))throw new ApiError(409,'run_not_waiting','This run is no longer waiting for a decision');
-      const found=await db.query('SELECT id,options,selected_option_id FROM agent_run_decisions WHERE id=$1 AND run_id=$2 FOR UPDATE',[body.decisionId,id]);
-      if(!found.rowCount)fail();
-      const decision=found.rows[0] as {id:string;options:Array<{id:string}>;selected_option_id:string|null};
-      if(!Array.isArray(decision.options)||!decision.options.some(o=>o.id===body.optionId))throw new ApiError(400,'invalid_input','Unknown option');
-      if(decision.selected_option_id&&decision.selected_option_id!==body.optionId)throw new ApiError(409,'decision_conflict','Decision already answered');
-      if(!decision.selected_option_id){
-        await db.query('UPDATE agent_run_decisions SET selected_option_id=$2,selected_at=now() WHERE id=$1',[body.decisionId,body.optionId]);
-        await db.query("UPDATE agent_runs SET status='running',updated_at=now() WHERE id=$1 AND status='needs_input'",[id]);
-      }
-    });
-    return getRunDetail(pool,user.id,id);
+    return decideAgentRun(pool,user.id,id,body!);
   });
   app.post('/api/v1/agent/runs/:id/cancel',async request=>{
     const user=await requireUser(pool,request),id=(request.params as {id:string}).id,body=request.body as {requestId?:string}|null;
-    if(!validId(id)||!validId(body?.requestId))throw new ApiError(400,'invalid_input','Invalid cancellation');
-    const current=await ownerRun(pool,user.id,id);
-    if(current.status==='starting')throw new ApiError(409,'run_starting','The agent is starting; try cancellation again shortly');
-    const updated=await pool.query(`UPDATE agent_runs SET status='cancelled',cancel_state=CASE WHEN provider_session_id IS NOT NULL THEN 'pending' ELSE NULL END,updated_at=now() WHERE id=$1 AND user_id=$2 AND status IN ('queued','running','needs_input','failed') RETURNING *`,[id,user.id]);
-    const stopped=(updated.rows[0]??current) as RunRow;
-    return {run:{id:stopped.id,status:stopped.status,updatedAt:stopped.updated_at}};
+    return {run:await cancelAgentRun(pool,user.id,id,body?.requestId??'')};
   });
 }
