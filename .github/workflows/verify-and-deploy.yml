@@ -56,6 +56,7 @@ jobs:
       - run: npm run db:migrate
       - run: npm run typecheck
       - run: npm run api:build
+      - run: docker build --tag joystick-api-ci .
       - run: npm run build
       - run: npm run test:server
       - run: npx playwright install --with-deps chromium
