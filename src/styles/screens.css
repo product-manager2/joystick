@@ -411,14 +411,6 @@
 .more-roles { border-style: dashed !important; }
 .contract .wins { font-size: 14px; }
 
-/* Full-bleed pages: cards and lists run edge to edge; loose text keeps a 16px gutter */
-.screen, .stage-list { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
-.screen > *, .stage-list > * { margin-inline: 16px; }
-:is(.screen, .stage-list) > :is(.card, .raid, .tabs, .list, .chips, .gmap, .dgroup) { margin-inline: 0; }
-:is(.screen, .stage-list) > .chips { padding-inline: 16px; }
-:is(.screen, .stage-list) > :is(.card, .raid, .tabs, .dgroup),
-:is(.screen, .stage-list) > .list > .card,
-:is(.screen, .stage-list) > .list > .qtree > .card { border-radius: 0; border-left: 0; border-right: 0; box-shadow: 0 4px 0 var(--ink); }
 .crate { color: var(--ink); }
 
 /* Quests: review, gating, needs */
