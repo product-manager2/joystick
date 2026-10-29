@@ -51,12 +51,15 @@ export function render() {
   const fullChat = FULL.includes(S.screen);
   // The mission page has its own header, so the HUD steps aside there
   $("#hud").hidden = !inGame || fullChat || ["mission", "recap"].includes(S.screen);
-  $("#nav").hidden = !inGame || fullChat;
+  $("#nav").hidden = !inGame;
+  // Full-screen views hide the bottom tabs on phones; on desktop the sidebar stays
+  $("#app").classList.toggle("full", fullChat);
   const views = { person: personScreen, onboard, play: playScreen, lobby, mission: missionScreen, stage: stageScreen, strategy: strategyScreen, quest: roomScreen, session: roomScreen, comms: commsScreen, thread: threadScreen, forge: forgeScreen, profile: profileScreen, gate: gateScreen, recap: recapScreen };
   const main = $("#main");
   main.style.display = fullChat ? "flex" : "";
   main.style.flexDirection = fullChat ? "column" : "";
   main.style.overflowY = fullChat ? "hidden" : "";
+  main.dataset.screen = S.screen;
   main.innerHTML = views[S.screen]();
   const tabFor = { play: "play", lobby: "lobby", mission: "lobby", comms: "comms", profile: "profile" };
   document.querySelectorAll(".nav button").forEach(b => b.setAttribute("aria-current", String(b.dataset.x === tabFor[S.screen])));

@@ -546,6 +546,6 @@ button.chip.trust { background: var(--mint); color: var(--green-d); border-color
 .race-n { font-family: var(--display); font-size: 12px; fill: var(--ink); }
 .tnode .tl b { display: block; }
 .tnode .tl i { display: block; font-style: normal; font-weight: 500; font-size: 11px; }
-.squadcard { display: flex; flex-direction: column; gap: 8px; }
+.squadcard { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; }
 .squadcard .stack .av { width: 30px; height: 30px; }
 .gmap .trow + .crow { margin-top: 70px; }

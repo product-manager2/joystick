@@ -145,3 +145,6 @@ textarea.inp { resize: vertical; min-height: 60px; }
 .bell { position: relative; width: 38px; height: 38px; border: var(--line-2); border-radius: 12px; background: var(--card); display: grid; place-items: center; box-shadow: var(--pop-sm); flex: none; padding: 0; }
 .bell .unread { position: absolute; top: -9px; right: -9px; min-width: 20px; height: 20px; font-size: 10px; }
 .banner { background: var(--cream); padding: 12px 14px; display: flex; gap: 10px; align-items: center; }
+
+/* Full-screen views (stage, plan, quest, chat…) hide the bottom tabs on phones */
+@media (max-width: 959px) { .app.full > .nav { display: none; } }

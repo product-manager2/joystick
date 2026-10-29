@@ -3,6 +3,7 @@ import "./design/tokens.css";
 import "./design/base.css";
 import "./design/components.css";
 import "./styles/screens.css";
+import "./styles/desktop.css";
 import { missions } from "./data/content.js";
 import { reopenDrill } from "./design/components.js";
 import { learnedSheet, lookSheet, styleSheet, walletSheet } from "./screens/profile.js";
