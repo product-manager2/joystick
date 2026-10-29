@@ -75,6 +75,7 @@ textarea.inp { resize: vertical; min-height: 60px; }
 /* Overlays */
 .scrim { position: absolute; inset: 0; background: var(--scrim); z-index: 20; display: flex; align-items: flex-end; }
 .sheet { width: 100%; max-height: 90%; overflow-y: auto; background: var(--paper); border-top: var(--line); border-radius: 24px 24px 0 0; display: flex; flex-direction: column; gap: 14px; padding-block: 12px calc(20px + env(safe-area-inset-bottom, 0px)); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); animation: up .25s cubic-bezier(.2,1.2,.4,1); }
+.sheet > * { flex-shrink: 0; }
 @keyframes up { from { transform: translateY(100%); } }
 .contract { background: var(--cream); border: var(--line); border-radius: 6px; padding: 16px; box-shadow: var(--pop); display: flex; flex-direction: column; gap: 10px; outline: var(--line-1); outline-offset: -9px; }
 .contract .clause { font-size: 14px; line-height: 1.5; }

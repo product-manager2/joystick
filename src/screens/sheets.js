@@ -1,9 +1,9 @@
 import { ROLES, SIZE } from "../data/content.js";
-import { PEOPLE, TOOLS, TRUST, VERIFY } from "../data/world.js";
+import { PEOPLE, STAGE_BRIEF, TOOLS, TRUST, VERIFY } from "../data/world.js";
 import { DetailGroup as Group, DetailRow as Row, Tick, drill } from "../design/components.js";
 import { ledgerOf } from "../game/economy.js";
 import { hasSkill } from "../game/personalise.js";
-import { stratOf, strats } from "../game/strategies.js";
+import { gateOf, stratOf, strats } from "../game/strategies.js";
 import { chanIcon, crewAv, crewOf, short, stratBadge } from "./quests.js";
 import { S, threads } from "../state.js";
 import { go, renderHud } from "../ui/chrome.js";
@@ -172,4 +172,20 @@ export function prizeSheet(m) {
     <ul class="news"><li>Every quest that passes review pays, even if its plan loses</li><li>You get paid when the stage is cleared</li></ul>
     <div class="eyebrow">If it stops</div><p class="small">${esc(trustOf(m).fail)}</p>
     <button class="info" data-a="trust" data-x="${m.id}">Who runs it, and is it safe? →</button>`, esc(m.title));
+}
+
+// The stage goal, explained: what it means, what counts, how it's checked, why it matters
+export function stageBriefSheet(m) {
+  const b = STAGE_BRIEF[m.id], st = m.stages[m.current], g = gateOf(m);
+  if (!b) return drill(`Stage ${m.current + 1} goal`, `<p class="claim">${esc(st.goal)}</p>`, esc(m.title));
+  drill(`Stage ${m.current + 1} · ${esc(st.name)}`, `<p class="claim">${esc(b.plain)}</p>
+    <div class="eyebrow">The goal</div>
+    <p class="small"><b>${esc(st.goal)}</b> · ${g.have} of ${g.need} done</p>
+    ${b.counts.length === g.need ? `<div class="eyebrow">The ${g.need} ${esc(g.unit)}</div>
+    ${Group(b.counts.map((c, i) => Row(i < g.have ? Tick(1) : `${i + 1}`, esc(c), i < g.have ? "Done" : "To do")))}`
+    : `<div class="eyebrow">What each ${esc(b.item)} needs</div>
+    ${Group(b.counts.map(c => Row("•", esc(c), "")))}`}
+    <div class="eyebrow">How it's checked</div><p class="small">${esc(b.checked)}</p>
+    <div class="eyebrow">Why it matters</div><p class="small">${esc(b.why)}</p>
+    <div class="eyebrow">After this</div><p class="small">${esc(b.next)}</p>`, esc(m.title));
 }

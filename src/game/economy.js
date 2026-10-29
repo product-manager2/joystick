@@ -23,7 +23,8 @@ export const FUEL0 = {
   reef:  { money: [6000, 8000],  time: [220, 260], know: [9, 10],  compute: [80, 200],    dryDays: 30, supply: 210000, more: [6, 40] },
   tutor: { money: [3000, 10000], time: [40, 200],  know: [3, 15],  compute: [50, 400],    dryDays: 12, supply: 90000,  more: [9, 77] },
 };
-export const ASK = { "glio-dock": [6000, 150, 2500], "glio-repurpose": [4000, 120, 200], "glio-gen": [5000, 100, 1500], "glio-whole": [3500, 90, 100], "cad-rust": [40000, 600, 1000] };
+export const ASK = { "glio-dock": [15000, 150, 2500], "glio-repurpose": [10000, 120, 200], "glio-gen": [9000, 100, 1500], "glio-whole": [6000, 90, 100],
+  "cad-occ": [12000, 300, 600], "cad-users": [4000, 120, 0], "cad-rust": [40000, 600, 1000], "reef-shops": [7000, 200, 0], "reef-app": [3000, 80, 0], "tutor-teach": [4000, 150, 0], "tutor-ai": [3000, 60, 300] };
 // Matching pool for each milestone round: the part of the treasury that matches backers quadratically
 export const POOL = { glio: 25000, cad: 8000, reef: 10000, tutor: 12000 };
 export function fuelOf(m) {

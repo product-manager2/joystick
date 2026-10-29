@@ -57,3 +57,24 @@ export const DEMAND = {
 export const MERGE = {
   cad: { from: "cad-users", to: "cad-occ", why: "is short on funds", gain: "Together they reach the checkpoint about 2× faster" },
 };
+
+// The current stage's goal in plain words: what counts, how it's checked, why it matters.
+// "counts" are listed in the order they're usually finished; the first N tick off as the goal fills.
+export const STAGE_BRIEF = {
+  glio: { plain: "Find 10 drugs that might kill this brain tumour, and prove each one on real data.",
+    counts: ["Binds the EGFRvIII pocket", "Gets past the blood–brain barrier", "Not toxic to healthy cells", "Result re-run by a second lab", "Safe dose is known"],
+    item: "candidate", checked: "Each candidate needs a docking score, a blood–brain barrier check and a toxicity check. Two checkers re-run them; a lab confirms the top 3.",
+    why: "Labs only have money to test about 10 drugs properly. Picking the right 10 is the whole game.", next: "Stage 3 tests the 10 drugs on real tumour cells." },
+  cad: { plain: "Get the core of the CAD app (the kernel) doing 8 basic things without breaking.",
+    counts: ["Draw a box, cylinder and sphere", "Cut one shape out of another", "Join two shapes", "Round off edges (fillets)", "Open STEP files from other CAD apps", "Save STEP files", "Handle curved surfaces", "Measure distances and angles"],
+    item: "feature", checked: "Each feature has to pass the shared test suite: 1,000 real-world shapes. A feature counts when every test for it passes and 2 checkers agree.",
+    why: "The kernel is the engine. Without these 8, nobody can draw a real part, so nothing else matters yet.", next: "Stage 3 puts a simple app on top so 50 engineers can try it." },
+  reef: { plain: "Have someone check the health of 200 reefs, so we know where coral is dying.",
+    counts: ["Photo of the reef", "GPS location", "Health score from 1 to 5", "Checked against satellite tiles"],
+    item: "site", checked: "A site counts when it has a photo, a GPS point and a health score, and the classifier agrees with the diver.",
+    why: "Satellites miss what's under the surface. Divers fill the gap.", next: "Stage 5 turns the checks into a live public map." },
+  tutor: { plain: "Write down what kids learn in maths, year by year, in 10 countries.",
+    counts: ["Topics for each school year", "Which topics come first", "Checked by a local teacher"],
+    item: "country", checked: "A country counts when every school year is mapped and a local teacher signs off.",
+    why: "The tutor can't help a kid if it doesn't know what their class is learning.", next: "Stage 3 builds lessons for the mapped topics." },
+};

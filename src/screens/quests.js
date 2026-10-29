@@ -178,7 +178,7 @@ export function questItem(q, m) {
       ${mono(x.role, 36)}
       <span style="min-width:0"><b class="qt">${esc(x.title)}</b>
         <span class="small muted" style="display:block">${x.parts ? `Split into ${parts.length} parts` : `${x.human ? "✋ · " : ""}${SIZE[x.size].label} · $${x.coins}${x.gain ? ` · <b style="color:var(--navy)">+${x.gain} ${x.gain === 1 ? m.unit.replace(/s$/, "") : m.unit}</b>` : ""}`}${S.roles.includes(x.role) && !x.done && !x.parts ? ` · <b style="color:var(--green-d)">2×</b>` : ""}</span></span>
-      ${questStatus(x)}${!x.done && !x.parts && cls !== "part" ? `<span class="why-row">${why(questWhy(x, m))}</span>` : ""}</button>`;
+      ${questStatus(x)}${!x.done && !x.parts && cls !== "part" && (playable(x) || x.state) ? `<span class="why-row">${why(questWhy(x, m))}</span>` : ""}</button>`;
   return q.parts ? `<div class="qtree">${row(q, "parent")}<div class="parts">${parts.map(p => row(p, "part")).join("")}</div></div>` : row(q);
 }
 // Plan tags: Waiting with its reason, or Leading, plus whether you back it
@@ -211,12 +211,13 @@ export function stageScreen() {
     <div class="chat-head">${backBtn("back", "", "Back")}${chanIcon(m)}
       <div style="min-width:0;flex:1">${where("stage", [chName(m)])}<div class="display chan-name">Stage ${m.current + 1} of ${m.stages.length} · ${esc(m.stages[m.current].name)}</div></div></div>
     <div class="stage-list">
-      <div class="card milestone">
+      <button class="card milestone" data-a="stagebrief" data-x="${m.id}" style="text-align:left;width:100%">
         <div class="eyebrow">Stage ${m.current + 1} goal</div>
         <div class="mgoal">${esc(m.stages[m.current].goal)}</div>
         ${gateBar(m)}
         <div class="row small"><b>${g.have}/${g.need} ${g.unit}</b><span class="spacer"></span><span class="muted">${live.length} plans racing</span></div>
-      </div>
+        <div class="small" style="color:var(--blue);font-weight:700;margin-top:6px">What does this mean? →</div>
+      </button>
       ${(() => {
         const all = [...live].sort((a, b) => stratScore(b, m) - stratScore(a, m));
         return `<div class="row"><div class="eyebrow">Pick a plan to play</div><span class="spacer"></span><button class="btn sm" data-a="propose">+ Suggest one</button></div>
@@ -227,32 +228,52 @@ export function stageScreen() {
   </div>`;
 }
 // A plan is one squad's idea for winning the stage: what it is, who runs it, what money it needs
+// What a plan still needs in money, after backers and the bonus
+export function fundOf(m, s) {
+  const need = askOf(s).money, have = raisedOf(s) + matchOf(m, s);
+  return { need, have: Math.min(have, need), left: Math.max(0, need - have), pct: Math.min(100, have / need * 100) };
+}
+// Funding is a quest too: for players who bring money instead of time
+export function fundQuest(m, s, cls = "") {
+  const f = fundOf(m, s), extra = matchGain(m, s, 10);
+  return `<div class="card move ${cls}"><span class="mico" style="background:var(--gold)"><span class="coin" style="width:20px;height:20px"></span></span>
+    <div style="min-width:0;flex:1"><b>Fund ${esc(s.squad)}</b><span class="small muted" style="display:block">$${fmt(f.left)} to go${extra > 0 ? ` · your $10 brings about $${fmt(10 + extra)}` : ""}</span>
+      <span class="meter" style="margin-top:6px"><i style="width:${f.pct}%;background:var(--gold)"></i></span></div>
+    ${Button(stakeOf(s) ? "Add more" : "Fund", { size: "sm", variant: "gold", action: "backsheet", value: s.id })}</div>`;
+}
 export function strategyScreen() {
   const m = mission(), s = strats(m).find(x => x.id === S.stratId);
   const qs = m.quests.filter(q => q.strat === s.id && !q.parent);
-  const a = askOf(s), mt = matchOf(m, s), have = raisedOf(s) + mt;
-  const backLabel = s.status === "proposed" ? `Back it to start · ${s.backers}/${s.need}` : stakeOf(s) ? `✓ You back it · add more` : "Back this plan";
-  const status = s.status ? waitWhy(s) : "Racing now";
-  const ranked = [...qs].sort((x, y) => (y.done ? -9 : questScore(y, m)) - (x.done ? -9 : questScore(x, m)));
+  const f = fundOf(m, s);
+  const isLocked = q => !q.done && !q.state && !q.parts && !playable(q);
+  const done = qs.filter(q => q.done), locked = qs.filter(isLocked), open = qs.filter(q => !q.done && !isLocked(q));
+  const rank = list => [...list].sort((x, y) => questScore(y, m) - questScore(x, m));
+  // Your move: one quest that fits you, funding, and a free back. Waiting plans lead with backing.
+  const best = rank(open.filter(q => playable(q)))[0];
+  const questMove = best ? `<button class="card move" data-a="quest" data-x="${best.id}"><span class="mico">${mono(best.role, 40)}</span>
+      <span style="min-width:0;flex:1"><b>${esc(best.title)}</b><span class="small muted" style="display:block">${SIZE[best.size].label} · $${best.coins}${best.gain ? ` · +${best.gain} ${best.gain === 1 ? m.unit.replace(/s$/, "") : m.unit}` : ""}</span>${why(questWhy(best, m))}</span>
+      <span class="btn sm blue">Play</span></button>` : "";
+  const fundMove = f.left > 0 && s.status !== "review" ? fundQuest(m, s) : "";
+  const freeMove = `<button class="card move" data-a="backsheet" data-x="${s.id}"><span class="mico" style="background:var(--pink)">♥</span>
+      <span style="min-width:0;flex:1"><b>Cheer it on</b><span class="small muted" style="display:block">Free. More backers means more money for the squad.</span></span><span class="btn sm">Back</span></button>`;
+  const moves = s.status ? [fundMove, freeMove, questMove] : S.coins > 200 && !best ? [fundMove, questMove, freeMove] : [questMove, fundMove, freeMove];
   return `<div class="chat">
     <div class="chat-head">${backBtn("back", "stage", "Back")}${stratBadge(s)}
       <div style="min-width:0;flex:1">${where("plan", [chName(m), `Stage ${m.current + 1}`])}<div class="room-title">${esc(s.name)}</div></div></div>
     <div class="stage-list">
-      <div class="card milestone thesis">
-        <div class="eyebrow">The plan</div>
-        <p class="claim">${esc(s.bet)}</p>
-        <div class="kvrow"><span>${s.status ? "Waiting" : "Status"}</span><b>${esc(status)}</b></div>
-        <div class="kvrow"><span>Squad</span><b>${esc(s.squad)} · led by ${PEOPLE[s.lead] ? `<button class="info" data-a="person" data-x="${esc(s.lead)}">${esc(s.lead)}</button>` : esc(s.lead)}</b></div>
-        <div class="kvrow"><span>Counts toward</span><b>${esc(m.stages[m.current].goal)}${s.score ? ` · +${s.score} so far` : ""}</b></div>
-      </div>
+      <p class="claim" style="margin:0">${esc(s.bet)}</p>
+      <div class="eyebrow">How you can help</div>
+      <div class="list">${moves.filter(Boolean).join("")}</div>
       <div class="card milestone">
-        <div class="eyebrow">Money it needs</div>
-        <div class="mgoal">$${fmt(Math.min(a.money, have))} of $${fmt(a.money)}</div>
-        <div class="meter"><i style="width:${Math.min(100, have / a.money * 100)}%;background:var(--gold)"></i></div>
-        <p class="small muted">${backersOf(s)} ${backersOf(s) === 1 ? "backer" : "backers"} put in $${fmt(raisedOf(s))}.${mt ? ` The mission adds $${fmt(mt)} more because so many people back it.` : ""}</p>
-        ${s.status === "review" ? "" : Button(backLabel, { variant: stakeOf(s) ? "gold" : "red", block: true, action: "backsheet", value: s.id })}
+        <div class="row"><div class="eyebrow">How it's going</div><span class="spacer"></span><span class="chip" style="${s.status ? "background:var(--cream)" : "background:var(--navy);color:var(--white)"}">${s.status ? `Waiting · ${esc(waitWhy(s))}` : "Racing"}</span></div>
+        <div class="kvrow"><span>Goal</span><b>${s.score ? `+${s.score} of ${m.target} ${esc(m.unit)}` : `0 of ${m.target} ${esc(m.unit)} yet`}</b></div>
+        <div class="kvrow"><span>Quests</span><b>${done.length} done · ${open.length} open · ${locked.length} locked</b></div>
+        <div class="kvrow"><span>Money</span><b>$${fmt(f.have)} of $${fmt(f.need)}</b></div>
+        <div class="kvrow"><span>Squad</span><b>${esc(s.squad)} · ${PEOPLE[s.lead] ? `<button class="info" data-a="person" data-x="${esc(s.lead)}">${esc(s.lead)}</button>` : esc(s.lead)}</b></div>
       </div>
-      ${qs.length ? `<div class="eyebrow">Quests in this plan · ${qs.length}</div><div class="list">${ranked.map(q => questItem(q, m)).join("")}</div>` : ""}
+      ${open.length > (best ? 1 : 0) ? `<div class="eyebrow">${best ? "More open quests" : "Open quests"}</div><div class="list">${rank(open).filter(q => q !== best).map(q => questItem(q, m)).join("")}</div>` : ""}
+      ${locked.length ? `<div class="eyebrow">Locked · ${locked.length}</div><div class="list">${locked.map(q => questItem(q, m)).join("")}</div>` : ""}
+      ${done.length ? `<div class="eyebrow">Done · ${done.length}</div><div class="list">${done.map(q => questItem(q, m)).join("")}</div>` : ""}
     </div>
     <form class="composer" id="stratBar"><input id="stratsay" placeholder="Ask ${esc(S.agentName)} about this plan…" autocomplete="off"><button class="btn sm red" type="submit">Ask</button></form>
   </div>`;

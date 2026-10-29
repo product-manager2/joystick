@@ -529,3 +529,9 @@ button.chip.trust { background: var(--mint); color: var(--green-d); border-color
 /* Join sheet: one tap to join a mission */
 .join { background: var(--card); border: var(--line); border-radius: var(--r-lg, 16px); padding: 16px; box-shadow: var(--pop); display: flex; flex-direction: column; gap: 10px; }
 .join p { margin: 0; }
+
+/* Plan page: "How you can help" cards, one per way to play (time, money, a free tap) */
+.move { display: flex; align-items: center; gap: 12px; text-align: left; width: 100%; }
+.move .mico { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-size: 18px; color: var(--ink); border: var(--line-2); }
+.move .mico:has(.mono) { border: 0; }
+.move .meter { display: block; }

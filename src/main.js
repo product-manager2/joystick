@@ -13,7 +13,7 @@ import { contractSheet } from "./screens/contract.js";
 import { forgeKind, forgeLaunch, forgeNext, forgeStart, forgeText } from "./screens/forge.js";
 import { drawTrail } from "./screens/missions.js";
 import { backSheet, fuelSheet, launchStrategy, proposeStrategy, sendInRoom, stageCleared, startSession } from "./screens/quests.js";
-import { creditsSheet, historySheet, inputSheet, kycSheet, ledgerSheet, manageSheet, notifSheet, openDM, payoutSheet, personSheet, prizeSheet, proofSheet, refereeSheet, reqSheet, reviewInfo, skillsSheet, squadSheet, toolsSheet, trustSheet, verifySheet } from "./screens/sheets.js";
+import { creditsSheet, stageBriefSheet, historySheet, inputSheet, kycSheet, ledgerSheet, manageSheet, notifSheet, openDM, payoutSheet, personSheet, prizeSheet, proofSheet, refereeSheet, reqSheet, reviewInfo, skillsSheet, squadSheet, toolsSheet, trustSheet, verifySheet } from "./screens/sheets.js";
 import { S } from "./state.js";
 import { go, goBack, render } from "./ui/chrome.js";
 import { $, duoName, esc, findQuest, fmt, loadReturning, mission, thread, titleCard, toast, toggle } from "./ui/helpers.js";
@@ -62,6 +62,7 @@ document.addEventListener("click", e => {
     case "botname": S.agentName = x; render(); return dd && reopenDrill();
     case "recap": return go("recap", { recapId: x });
     case "prize": return prizeSheet(mission(x));
+    case "stagebrief": return stageBriefSheet(mission(x));
     case "output": return outputSheet(x);
     case "askpip": return askPip(x);
     case "ob-mission": S.picks = toggle(S.picks || [], x); return render();
@@ -94,7 +95,7 @@ document.addEventListener("click", e => {
     case "rtab": { const [q] = findQuest(S.questId); S.roomTab = x; if (x === "chat") q.unreadChat = 0; return render(); }
     case "strategy": return go("strategy", { stratId: x });
     case "strategy-from-map": return go("strategy", { stratId: x });
-    case "backsheet": return backSheet(x);
+    case "backsheet": { const mm = missions.find(y => (y.strategies || []).some(s => s.id === x)); if (mm) S.missionId = mm.id; return backSheet(x); }
     case "openstrat": return go("strategy", { missionId: x, stratId: b.dataset.s });
     case "needit": { const m = mission(x); if (S.voiced[m.id]) return; S.voiced[m.id] = true; demandOf(m).asks++; toast("Added your voice · it pays a little if this ships"); return render(); }
     case "merge": S.mergeSeen[x] = true; toast("Suggested to both squads. They vote on it"); return render();
