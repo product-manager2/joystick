@@ -6,7 +6,7 @@ import { forgeCard } from "./forge.js";
 import { AGENT_TAG, chName, chanIcon, crewAv, isMulti, short } from "./quests.js";
 import { S, TEAMMATES, threads } from "../state.js";
 import { render } from "../ui/chrome.js";
-import { backBtn, bot, botAv, esc, face, findQuest, gain, learn, mission, mono, thread, tier, youAv } from "../ui/helpers.js";
+import { backBtn, bot, botAv, esc, face, findQuest, learn, mission, mono, thread, youAv } from "../ui/helpers.js";
 
 // ===================== Comms =====================
 export function threadTitle(t) { return t.kind === "agent" ? S.agentName : t.title; }
@@ -97,7 +97,7 @@ export function threadScreen() {
   t.unread = 0;
   const quick = t.kind === "agent" ? ["What's next?", "What have you learned?", "I prefer open-source tools"] : t.kind === "dm" ? ["Want to pair on a quest?", "Can you review my shard?"] : ["On it!", "Need a Critic here", "Pushed my part"];
   return `<div class="chat">
-    <div class="chat-head">${backBtn("back", "", "Back")}${threadAv(t)}<div style="min-width:0"><div class="display chan-name">${esc(threadTitle(t))}</div><div class="small muted">${t.kind === "agent" ? `Your partner · ${tier().name} · Sync ${S.sync}%` : t.kind === "dm" ? `${esc(PEOPLE[t.person].squad)} · ★ ${PEOPLE[t.person].rep}` : "4 players · 4 agents"}</div></div></div>
+    <div class="chat-head">${backBtn("back", "", "Back")}${threadAv(t)}<div style="min-width:0"><div class="display chan-name">${esc(threadTitle(t))}</div><div class="small muted">${t.kind === "agent" ? `Your agent · works on your authority` : t.kind === "dm" ? `${esc(PEOPLE[t.person].squad)} · ★ ${PEOPLE[t.person].rep}` : "4 players · 4 agents"}</div></div></div>
     <div class="msgs" id="msgs">${t.msgs.map(msgHTML).join("")}</div>
     <div class="quick">${quick.map(q => `<button class="chip" data-a="quick" data-x="${esc(q)}">${esc(q)}</button>`).join("")}</div>
     <form class="composer" id="composer"><input id="say" placeholder="Message ${esc(threadTitle(t))}" autocomplete="off"><button class="btn sm red" type="submit">Send</button></form>
@@ -126,6 +126,5 @@ export function agentReply(text) {
     return { agent: true, html: true, text: S.learned.length ? "So far:<br>" + S.learned.slice(0, 4).map(l => "• " + esc(l)).join("<br>") : "Not much yet. Play a quest with me." };
   }
   learn(`You said: “${text}”`);
-  gain(0, 0, 1);
   return { agent: true, text: `Got it. I'll do it your way.` };
 }

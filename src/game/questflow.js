@@ -158,14 +158,13 @@ function approveQuest(q, m) {
   s.score += q.gain || 0;
   S.contrib = S.contrib || {};
   S.contrib[s.id] = (S.contrib[s.id] || 0) + (q.gain || 0);
-  gain(xp, 0, 6);
+  gain(xp);
   S.wallet.pending += q.coins;
   S.credits.unshift({ m: m.id, what: q.title, out: q.out || "" });
   const qf = questFuel(q), shares = contribute(m, qf);
   S.wallet.timeCredits += qf.time; S.wallet.insights += qf.know + 1;
   award("spark");
   if (S.together === 3) award("sync");
-  if (S.sync >= 70) award("proxy");
   m.news = [`${duoName()} cleared “${q.title}”${q.gain ? ` · +${q.gain} ${m.unit}` : ""}`, ...(m.news || [])];
   postQ(q, m, { sys: `✓ Approved by 2 Critics · +${xp} XP · $${q.coins} pending till the milestone clears · +${shares} ${tok(m)}${q.gain ? ` · ${s.name} +${q.gain} ${m.unit}` : ""}`, win: true });
   notify(`Approved: “${short(q.title)}” · $${q.coins} pending`, q.id);

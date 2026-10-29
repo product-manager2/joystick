@@ -52,7 +52,7 @@ export function contractSheet(mid) {
         { who: "Rosa", color: "var(--pink)", text: `Hey! Critic here. Take ${m.stages[m.current].name} together?` }] });
       setTimeout(() => {
         close();
-        gain(50, 0, 2);
+        gain(50);
         titleCard(esc(m.title), "SIGNED!", "Ready? Go!", () => {
           const pq = S.pendingQuest; S.pendingQuest = null;
           go("stage", { missionId: m.id });

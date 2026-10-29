@@ -1,4 +1,4 @@
-import { GLYPHS, ROLES, TIERS, missions, roleColor } from "../data/content.js";
+import { GLYPHS, ROLES, missions, roleColor } from "../data/content.js";
 import { color, cssColor } from "../design/tokens.js";
 import { seedRoom } from "../screens/quests.js";
 import { S, threads } from "../state.js";
@@ -10,7 +10,6 @@ export const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<":
 export const fmt = n => n >= 1000 ? (n >= 100000 ? Math.round(n / 1000) + "k" : (n / 1000).toFixed(n % 1000 ? 1 : 0) + "k") : String(n);
 export const mission = (id = S.missionId) => missions.find(m => m.id === id);
 export const findQuest = id => { for (const m of missions) { const q = m.quests.find(x => x.id === id); if (q) return [q, m]; } return []; };
-export const tier = () => [...TIERS].reverse().find(t => S.sync >= t.min);
 export const duoName = () => `${S.name || "You"} & ${S.agentName}`;
 export const thread = id => threads.find(t => t.id === id);
 
@@ -68,14 +67,10 @@ export function showCard() {
   el.addEventListener("click", close);
   setTimeout(close, c.ms);
 }
-export function gain(xp, coins = 0, sync = 0) {
+export function gain(xp, coins = 0) {
   S.xp += xp; S.coins += coins;
-  const before = tier();
-  S.sync = Math.min(100, S.sync + sync);
   // Defer so a quest's own moment (KNOCKOUT, etc.) plays first
   while (S.xp >= S.xpMax) { S.xp -= S.xpMax; S.level++; S.xpMax = Math.round(S.xpMax * 1.25); const lv = S.level; setTimeout(() => titleCard("Level up", `LV ${lv}!`, esc(duoName()), null, 1400), 50); }
-  const now = tier();
-  if (now !== before) setTimeout(() => titleCard(`Sync ${S.sync}%`, `${esc(S.agentName)} is a ${now.name}!`, now.unlock, null, 1800), 60);
   renderHud();
 }
 export function learn(text) {
@@ -85,7 +80,7 @@ export function learn(text) {
 
 // A returning player, for demoing the "already playing" experience
 export function loadReturning() {
-  Object.assign(S, { name: "nova", agentName: "Pip", roles: ["implementer", "critic", "strategist"], level: 9, xp: 1450, xpMax: 2600, coins: 1240, sync: 48, streak: 12, together: 14, shipped: 9, raid: 1, botColor: "var(--sky)", lobbyTab: "mine" });
+  Object.assign(S, { name: "nova", agentName: "Pip", roles: ["implementer", "critic", "strategist"], level: 9, xp: 1450, xpMax: 2600, coins: 1240, streak: 12, together: 14, shipped: 9, raid: 1, botColor: "var(--sky)", lobbyTab: "mine" });
   S.badges = ["spark", "squad", "sync", "raider", "slayer", "gate"];
   S.wallet = { shares: { glio: 1240, cad: 410 }, timeCredits: 46, insights: 18, pending: 90 };
   S.stakes = { "glio-dock": 100 };

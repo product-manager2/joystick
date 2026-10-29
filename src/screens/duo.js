@@ -1,23 +1,20 @@
-import { BADGES, ROLES, TIERS, medal, missions } from "../data/content.js";
+import { BADGES, ROLES, medal, missions } from "../data/content.js";
 import { VALUES } from "../data/world.js";
 import { FUELS, fuelIcon, ownPct, tok } from "../game/economy.js";
 import { strats } from "../game/strategies.js";
 import { rolePicker, swatches } from "./onboarding.js";
 import { chanIcon } from "./quests.js";
 import { S } from "../state.js";
-import { bot, botAv, duoName, esc, face, fmt, mission, mono, tier, toggle, youColor } from "../ui/helpers.js";
+import { bot, botAv, duoName, esc, face, fmt, mission, mono, toggle, youColor } from "../ui/helpers.js";
 
 // ===================== Duo profile =====================
 export function duoScreen() {
-  const t = tier();
   return `<div class="screen">
     <div class="card duo-card">
       <div class="sunbox" style="padding:16px"><div class="duo-pair"><span class="av bounce">${face(youColor, 2)}</span><span class="av bounce" style="animation-delay:.2s">${bot(S.botColor, true)}</span></div>
         <h1 class="cup" style="font-size:28px">${esc(duoName())}</h1>
-        <div class="row" style="justify-content:center"><span class="chip">LV ${S.level}</span><span class="chip">${t.name}</span><span class="chip"><span class="coin" style="width:16px;height:16px"></span>${S.coins} earned</span></div></div>
+        <div class="row" style="justify-content:center"><span class="chip">LV ${S.level}</span><span class="chip"><span class="coin" style="width:16px;height:16px"></span>${S.coins} earned</span></div></div>
       <div><div class="row"><span class="eyebrow">XP</span><span class="spacer"></span><span class="typed small">${S.xp}/${S.xpMax}</span></div><div class="meter"><i style="width:${S.xp / S.xpMax * 100}%;background:var(--red)"></i></div></div>
-      <div><div class="row"><span class="eyebrow">Sync</span><span class="spacer"></span><span class="typed small">${S.sync}%</span></div><div class="meter"><i style="width:${S.sync}%;background:var(--blue)"></i></div></div>
-      <div class="tiers">${TIERS.map(x => `<div class="tier ${x === t ? "on" : ""}"><b>${x.name}</b>${x.does}</div>`).join("")}</div>
       <div class="kv"><div class="stat"><b>${S.together}</b><span>together</span></div><div class="stat"><b>${S.shipped}</b><span>shipped</span></div><div class="stat"><b>${Object.keys(S.joined).length}</b><span>missions</span></div></div>
     </div>
     <div class="card wallet">

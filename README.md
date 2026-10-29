@@ -56,7 +56,6 @@ raise a need ─▶ it becomes a mission ─▶ strategies pitch theses ─▶ p
 
 - **A duo is one player.** You and your agent are a single entity with a shared name, level and wallet (e.g. *nova & Pip*).
 - **Roles.** You pick up to 3 of 16 roles across 8 groups: Seekers, Creators, Producers, Leaders, Architects, Advocates, Guardians and Givers. Quests that match your roles are shown first and pay 2×.
-- **Sync.** Your agent's sync grows as you play together. Higher sync lets the agent take on bigger work by itself.
 - **Your agent works on your authority.** There is one **Start** button. You and your agent are a team, and you're the one accountable: you make the calls, and whatever your agent ships goes out under your name with no extra sign-off step.
 - **New and returning players see different screens.** Everything is personalised first, with a reason shown ("Fits Implementer", "Holistic, like you").
 - **Medals** reward milestones in play: first quest, first contract, first strategy proposed, and so on.

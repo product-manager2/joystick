@@ -107,7 +107,7 @@ export function forgeLaunch() {
   TRUST[id] = { who: "@" + (S.name || "you"), cred: "Mission creator", verified: ["Email"], funders: [["@" + (S.name || "you"), f.bounty]], record: "First mission", safety: "Auto-check passed", deliver: f.rules, fail: "Unspent escrow goes back to you. Approved work stays paid." };
   S.joined[id] = ["shaper", ...S.roles.filter(r => r !== "shaper")].slice(0, 3);
     award("founder");
-  gain(200, 0, 3);
+  gain(200);
   titleCard("A new mission", "IT'S ON!", esc(f.title), () => go("mission", { missionId: id, tab: "map" }), 1700);
   S.forge = null;
 }

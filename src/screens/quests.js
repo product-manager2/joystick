@@ -433,7 +433,6 @@ export function stageAgentReply(m, text) {
     return { agent: true, text: `Goal: ${g.have}/${g.need} ${g.unit}. ${l.name} leads with +${l.score}. ${g.need - g.have} to go.` };
   }
   learn(`You said: “${text.replace(/@\S+\s*/, "")}”`);
-  gain(0, 0, 1);
   return { agent: true, text: "Got it. I'll do it your way." };
 }
 export function startSession(text, title) {
@@ -488,7 +487,7 @@ export function stageCleared(m) {
   award("gate");
   gain(0, released + bonus + (called ? 100 : 0));
   el.querySelector("[data-crate]").addEventListener("click", e => {
-    const loot = [["+$40", () => { S.coins += 40; }], ["Night Owl badge", () => award("owl")], ["+5 Sync", () => { S.sync = Math.min(100, S.sync + 5); }]][Math.floor(Math.random() * 3)];
+    const loot = [["+$40", () => { S.coins += 40; }], ["Night Owl badge", () => award("owl")], ["+100 XP", () => gain(100)]][Math.floor(Math.random() * 3)];
     loot[1](); renderHud();
     e.currentTarget.outerHTML = `<span class="chip" style="font-size:14px;padding:6px 12px;background:var(--gold)">${loot[0]}</span>`;
   }, { once: true });
