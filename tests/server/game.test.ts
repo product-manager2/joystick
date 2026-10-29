@@ -9,6 +9,27 @@ import type { GameActionInput } from '../../contracts/game.js';
 const databaseUrl=process.env.TEST_DATABASE_URL;
 if(!databaseUrl) throw new Error('TEST_DATABASE_URL is required for server integration tests');
 
+test('wallet lifetime earnings include older ledger entries and only the current user',async()=>{
+  const pool=new pg.Pool({connectionString:databaseUrl});
+  const users:string[]=[];
+  try{
+    for(const name of ['Earner','Other earner']){
+      const row=await pool.query('INSERT INTO users(email,name) VALUES($1,$2) RETURNING id',[`${randomUUID()}@example.test`,name]);
+      users.push(row.rows[0].id);
+    }
+    await pool.query(`INSERT INTO game_ledger(user_id,kind,amount) SELECT $1,'earning',1 FROM generate_series(1,201)`,[users[0]]);
+    await pool.query(`INSERT INTO game_ledger(user_id,kind,amount) VALUES($1,'earning',500)`,[users[1]]);
+    const snapshot=await getGameSnapshot(pool,users[0]);
+    assert.equal(snapshot.wallet.earnedLifetime,201);
+    assert.equal((snapshot.wallet.ledger as unknown[]).length,200);
+    assert.equal((await getGameSnapshot(pool,users[1])).wallet.earnedLifetime,500);
+  }finally{
+    for(const id of users)await pool.query('DELETE FROM game_ledger WHERE user_id=$1',[id]);
+    for(const id of users)await pool.query('DELETE FROM users WHERE id=$1',[id]);
+    await pool.end();
+  }
+});
+
 test('mission claims, artifact reviews, dependencies and command replay use real membership',async()=>{
   const pool=new pg.Pool({connectionString:databaseUrl});
   const previousTestCredits=process.env.GAME_TEST_CREDITS;process.env.GAME_TEST_CREDITS='true';
