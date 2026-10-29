@@ -12,7 +12,7 @@ import { gateScreen, runGateVote } from "../screens/gate.js";
 import { closeDrill } from "../design/components.js";
 import { S, threads } from "../state.js";
 import { $, botAv, duoName, esc, findQuest, mission, thread, youAv } from "./helpers.js";
-import { renderLiveScreen } from "../live/game-ui.js";
+import { isLiveConversation, prepareLiveNavigation, renderLiveScreen } from "../live/game-ui.js";
 
 // ===================== Chrome =====================
 export function renderHud() {
@@ -23,7 +23,7 @@ export function renderHud() {
       <div class="meter"><i style="width:${S.xp / S.xpMax * 100}%"></i></div>
       <div class="sub">Level ${S.level}</div>
     </div>
-    <div class="coins" title="${S.live ? "Test credits only" : "Cash you can withdraw"}"><span class="coin"></span>${S.coins.toLocaleString()}${S.live ? '<span class="small"> demo</span>' : ""}</div>
+    <div class="coins" title="Credits"><span class="coin"></span>${S.coins.toLocaleString()}</div>
     <button class="bell" data-a="notifs" aria-label="Updates"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>${S.notifs.filter(n => !n.read).length ? `<span class="unread">${S.notifs.filter(n => !n.read).length}</span>` : ""}</button>`;
   h.dataset.a = "go"; h.dataset.x = "profile";
   const unread = threads.reduce((a, t) => a + t.unread, 0) + missions.reduce((a, m) => a + m.quests.reduce((b, q) => b + (q.feed ? q.unread || 0 : 0), 0), 0);
@@ -34,6 +34,7 @@ export const FULL = ["stage", "strategy", "quest", "session", "thread", "forge",
 // remembered, so Back returns to exactly where you came from, tab included. The bottom nav starts fresh.
 const PLACE = ["personId", "recapId", "missionId", "stageId", "tab", "stratId", "questId", "thread", "sessionId", "roomTab", "lobbyTab"];
 export function go(screen, extra = {}, remember = true) {
+  if (S.live && !prepareLiveNavigation()) return;
   const moved = screen !== S.screen || ["personId", "recapId", "missionId", "stageId", "stratId", "questId", "thread", "sessionId"].some(k => k in extra && extra[k] !== S[k]);
   if (remember && moved && S.screen !== "onboard") S.hist = [...(S.hist || []), Object.fromEntries([["screen", S.screen], ...PLACE.map(k => [k, S[k]])])].slice(-30);
   Object.assign(S, extra, { screen });
@@ -49,7 +50,8 @@ export function goBack(fallback = "lobby") {
 }
 export function render() {
   const inGame = S.screen !== "onboard";
-  const fullChat = FULL.includes(S.screen);
+  const liveConversation = S.live && isLiveConversation();
+  const fullChat = FULL.includes(S.screen) || liveConversation;
   // The mission page has its own header, so the HUD steps aside there
   $("#hud").hidden = !inGame || fullChat || ["mission", "recap"].includes(S.screen);
   $("#nav").hidden = !inGame;
@@ -60,7 +62,7 @@ export function render() {
   main.style.display = fullChat ? "flex" : "";
   main.style.flexDirection = fullChat ? "column" : "";
   main.style.overflowY = fullChat ? "hidden" : "";
-  main.dataset.screen = S.screen;
+  main.dataset.screen = liveConversation ? "live-conversation" : S.screen;
   main.innerHTML = S.live ? renderLiveScreen() : views[S.screen]();
   const tabFor = { play: "play", lobby: "lobby", mission: "lobby", comms: "comms", profile: "profile" };
   document.querySelectorAll(".nav button").forEach(b => b.setAttribute("aria-current", String(b.dataset.x === tabFor[S.screen])));

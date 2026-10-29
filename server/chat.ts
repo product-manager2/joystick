@@ -19,6 +19,18 @@ export async function history(pool: Pool, userId: string, roomId: string, after:
   const result = await pool.query(`SELECT m.id,m.room_id,m.sequence,m.role,m.text,m.user_id,u.name AS sender_name,m.client_id,m.provider_event_id,m.created_at FROM messages m LEFT JOIN users u ON u.id=m.user_id WHERE m.room_id=$1 AND m.sequence>$2 ORDER BY m.sequence LIMIT $3`, [roomId,after,limit+1]);
   return { messages: result.rows.slice(0,limit).map(publicMessage),hasMore:result.rows.length>limit };
 }
+export async function markRoomRead(pool: Pool, userId: string, roomId: string, suppliedSequence: unknown) {
+  if (!uuid(roomId) || typeof suppliedSequence!=='number' || !Number.isSafeInteger(suppliedSequence) || suppliedSequence < 0) throw new ApiError(400,'invalid_input','Invalid read cursor');
+  const sequence=suppliedSequence;
+  return transaction(pool, async client => {
+    const room = await client.query('SELECT next_sequence FROM rooms WHERE id=$1 FOR SHARE',[roomId]);
+    if (!room.rowCount || !await canAccessGameRoom(client,userId,roomId)) throw new ApiError(404,'room_not_found','Room not found');
+    const latest=Number(room.rows[0].next_sequence)-1;
+    if (sequence>latest) throw new ApiError(400,'invalid_input','Read cursor exceeds latest message');
+    await client.query('INSERT INTO room_reads(room_id,user_id,sequence) VALUES($1,$2,$3) ON CONFLICT(room_id,user_id) DO UPDATE SET sequence=GREATEST(room_reads.sequence,EXCLUDED.sequence)',[roomId,userId,sequence]);
+    return {sequence};
+  });
+}
 export async function saveUserMessage(pool: Pool, userId: string, roomId: string, clientId: string, text: string, available: boolean): Promise<{message:Message;created:boolean}> {
   if (!uuid(roomId) || !uuid(clientId) || typeof text !== 'string' || !text.trim() || text.length > 4000) throw new ApiError(400,'invalid_input','Invalid message');
   const cleaned = text.trim();
@@ -71,6 +83,12 @@ export function registerChatRoutes(app: FastifyInstance, pool: Pool, config: Con
     const {roomId} = request.params as {roomId:string};
     const raw = (request.query as {after?:string}).after ?? '0';
     return history(pool,user.id,roomId,Number(raw));
+  });
+  app.post('/api/v1/rooms/:roomId/read', async request => {
+    const user=await requireUser(pool,request);
+    const {roomId}=request.params as {roomId:string};
+    const sequence=(request.body as {sequence?:unknown}|null)?.sequence;
+    return markRoomRead(pool,user.id,roomId,sequence);
   });
   app.get('/api/v1/ws', {websocket:true}, (socket, request) => {
     let subscriber:Subscriber|null=null;

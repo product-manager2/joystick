@@ -1,4 +1,5 @@
 import { api, live } from "./game-client.js";
+import { threads } from "../state.js";
 import { resolveApiOrigin } from "./api-origin.js";
 
 const origin = resolveApiOrigin(import.meta.env.VITE_WS_ORIGIN || import.meta.env.VITE_API_ORIGIN, location.origin, import.meta.env.PROD);
@@ -17,6 +18,17 @@ export async function loadRoom(id) {
   subscribe(id);
   return state;
 }
+export async function markRoomRead(id) {
+  const state=roomState(id), sequence=Math.max(0,...state.messages.filter(m=>!m.pending).map(m=>Number(m.sequence)||0));
+  if (!sequence || sequence <= (state.readCursor||0)) return;
+  await api(`/rooms/${encodeURIComponent(id)}/read`,{method:"POST",body:JSON.stringify({sequence})});
+  state.readCursor=sequence;
+  const room=live.snapshot?.threads?.find(t=>t.id===id);
+  if(room)room.unread=0;
+  const summary=threads.find(t=>t.id===id);
+  if(summary)summary.unread=0;
+  onChange({type:"room.read",roomId:id});
+}
 function save(message) {
   const state = roomState(message.roomId);
   const i = state.messages.findIndex(m => m.id === message.id || (message.clientId && m.clientId === message.clientId));
@@ -24,7 +36,7 @@ function save(message) {
   state.messages.sort((a, b) => (a.sequence || Infinity) - (b.sequence || Infinity));
   state.cursor = Math.max(state.cursor, message.sequence || 0);
   state.pending.delete(message.clientId);
-  onChange();
+  onChange(message);
 }
 function send(frame) { if (ready && socket?.readyState === WebSocket.OPEN) socket.send(JSON.stringify(frame)); }
 function subscribe(id) { send({ type: "subscribe", roomId: id, after: roomState(id).cursor }); }

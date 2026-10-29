@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { test } from 'node:test';
 import pg from 'pg';
 import { applyGameAction, getGameSnapshot } from '../../server/game/service.js';
+import { markRoomRead } from '../../server/chat.js';
 import type { GameActionInput } from '../../contracts/game.js';
 
 const databaseUrl=process.env.TEST_DATABASE_URL;
@@ -20,6 +21,8 @@ test('mission claims, artifact reviews, dependencies and command replay use real
     const m=snap.missions.find(x=>x.title==='A real test mission')!;const mid=m.id as string;missions.push(mid);const stage=(m.stages as any[])[0].id as string;
     await action(maker,'mission.join',mid);await action(reviewerA,'mission.join',mid);await action(reviewerB,'mission.join',mid);
     await action(owner,'funding.reserve',mid,{amount:50});
+    assert.deepEqual(snap.missions.find(x=>x.id===mid)?.funding,{reserved:0,spent:0});
+    assert.deepEqual((await getGameSnapshot(pool,owner)).missions.find(x=>x.id===mid)?.funding,{reserved:50,spent:0});
     await assert.rejects(()=>action(maker,'quest.create',stage,{title:'Unauthorized reward',rewardCredits:20}),/Mission owner action/);
     await assert.rejects(()=>action(owner,'quest.create',stage,{title:'Overfunded reward',rewardCredits:51}),/Reserve enough test credits/);
     snap=await action(owner,'quest.create',stage,{title:'First result',size:'S',rewardCredits:20});
@@ -43,6 +46,12 @@ test('mission claims, artifact reviews, dependencies and command replay use real
     const journal=await pool.query(`SELECT user_id,kind,amount FROM game_ledger WHERE quest_id=$1 AND kind IN ('award','earning')`,[q]);
     assert.deepEqual(journal.rows.map(r=>Number(r.amount)).sort((a,b)=>a-b),[-20,20]);
     assert.equal((await getGameSnapshot(pool,maker)).wallet.balance,1020);
+    const funded=(await getGameSnapshot(pool,owner)).missions.find(x=>x.id===mid)!;
+    assert.deepEqual(funded.funding,{reserved:30,spent:20});
+    const makerInOwnerView=(await getGameSnapshot(pool,owner)).people.find(p=>p.id===maker)!;
+    assert.deepEqual(makerInOwnerView.sharedMissionIds,[mid]);
+    assert.ok((makerInOwnerView.approvedTasks as any[]).some(t=>t.id===q));
+    assert.equal((makerInOwnerView as any).preferences,undefined);
     await action(maker,'quest.claim',child);
     const parentSnap=await action(owner,'quest.create',stage,{title:'Parent task'});
     const parent=(parentSnap.missions.find(x=>x.id===mid)!.quests as any[]).find(x=>x.title==='Parent task')!.id as string;
@@ -58,6 +67,7 @@ test('mission claims, artifact reviews, dependencies and command replay use real
     assert.ok(room.threads.some(t=>t.kind==='mission'&&t.scopeId===mid));
     const outsider=await getGameSnapshot(pool,stranger);
     assert.ok(!outsider.threads.some(t=>t.kind==='mission'&&t.scopeId===mid));
+    assert.ok(!outsider.people.some(p=>p.id===maker));
   } finally {
     for(const id of missions){await pool.query(`DELETE FROM rooms WHERE kind='mission' AND scope_id=$1`,[id]);await pool.query('DELETE FROM game_ledger WHERE mission_id=$1',[id]);await pool.query('DELETE FROM game_missions WHERE id=$1',[id]);}
     for(const id of users)await pool.query('DELETE FROM users WHERE id=$1',[id]);
@@ -99,6 +109,60 @@ test('owner approves a completed stage, notifies watchers, and advances while re
     assert.equal(history.rows[0].approved_by,owner);
     assert.ok(history.rows[0].approved_at);
   }finally{
+    for(const id of missions)await pool.query('DELETE FROM game_missions WHERE id=$1',[id]);
+    for(const id of users)await pool.query('DELETE FROM users WHERE id=$1',[id]);
+    await pool.end();
+  }
+});
+
+test('snapshot activity and public member details follow current access and read progress',async()=>{
+  const pool=new pg.Pool({connectionString:databaseUrl});
+  const users:string[]=[],missions:string[]=[];
+  const makeUser=async(name:string)=>{const r=await pool.query('INSERT INTO users(email,name) VALUES($1,$2) RETURNING id',[`${randomUUID()}@example.test`,name]);users.push(r.rows[0].id);return r.rows[0].id as string;};
+  const action=(user:string,name:GameActionInput['action'],entityId?:string,payload?:Record<string,unknown>)=>applyGameAction(pool,user,{action:name,entityId,payload,requestId:randomUUID()});
+  try{
+    const owner=await makeUser('Scope owner'),member=await makeUser('Scope member'),outsider=await makeUser('Scope outsider');
+    let snap=await action(owner,'mission.create',undefined,{title:'Scoped activity',stages:[{name:'Build'}]});
+    const mission=snap.missions.find(m=>m.title==='Scoped activity')!;const mid=mission.id as string;missions.push(mid);
+    const stage=(mission.stages as any[])[0].id as string;
+    await action(member,'mission.join',mid);
+    await action(member,'profile.update',undefined,{agentName:'Scope Bot',roles:['builder'],skills:['testing'],preferences:{botShape:'orb',privateNote:'keep private'}});
+    snap=await action(owner,'plan.create',stage,{name:'Shared plan',squad:'Both'});
+    const plan=(snap.missions.find(m=>m.id===mid)!.strategies as any[]).find(p=>p.name==='Shared plan');
+    await action(member,'plan.join',plan.id);
+    const ownerView=await getGameSnapshot(pool,owner);
+    const person=ownerView.people.find(p=>p.id===member)!;
+    assert.equal(person.agentName,'Scope Bot');
+    assert.deepEqual(person.roles,['builder']);
+    assert.deepEqual(person.skills,['testing']);
+    assert.equal(person.botShape,'orb');
+    assert.equal((person as any).privateNote,undefined);
+    assert.equal((person as any).preferences,undefined);
+    assert.deepEqual(person.sharedMissionIds,[mid]);
+    assert.deepEqual(person.sharedPlanIds,[plan.id]);
+    assert.equal((ownerView.missions.find(m=>m.id===mid)!.strategies as any[]).find(p=>p.id===plan.id).memberCount,2);
+    const withRoom=await action(owner,'room.create',undefined,{kind:'mission',scopeId:mid});
+    const room=withRoom.threads.find(t=>t.kind==='mission'&&t.scopeId===mid)!.id as string;
+    await pool.query(`INSERT INTO messages(room_id,sequence,role,text,user_id) VALUES($1,1,'user','Visible hello',$2),($1,2,'user','Another update',$2)`,[room,member]);
+    await pool.query('UPDATE rooms SET next_sequence=3 WHERE id=$1',[room]);
+    const before=(await getGameSnapshot(pool,owner)).threads.find(t=>t.id===room)!;
+    assert.equal((before.lastMessage as any).text,'Another update');
+    assert.equal((before.lastMessage as any).senderName,'Scope member');
+    assert.equal(before.unread,2);
+    await markRoomRead(pool,owner,room,1);
+    assert.equal((await getGameSnapshot(pool,owner)).threads.find(t=>t.id===room)!.unread,1);
+    await markRoomRead(pool,owner,room,0);
+    assert.equal((await getGameSnapshot(pool,owner)).threads.find(t=>t.id===room)!.unread,1);
+    await assert.rejects(()=>markRoomRead(pool,owner,room,3),/Read cursor exceeds/);
+    await assert.rejects(()=>markRoomRead(pool,outsider,room,1),/Room not found/);
+    assert.ok(!(await getGameSnapshot(pool,outsider)).threads.some(t=>t.id===room));
+    await action(member,'mission.leave',mid);
+    const after=(await getGameSnapshot(pool,member));
+    assert.ok(!after.threads.some(t=>t.id===room));
+    assert.ok(!after.people.some(p=>p.id===owner));
+    await assert.rejects(()=>markRoomRead(pool,member,room,2),/Room not found/);
+  }finally{
+    for(const id of missions)await pool.query(`DELETE FROM rooms WHERE kind='mission' AND scope_id=$1`,[id]);
     for(const id of missions)await pool.query('DELETE FROM game_missions WHERE id=$1',[id]);
     for(const id of users)await pool.query('DELETE FROM users WHERE id=$1',[id]);
     await pool.end();

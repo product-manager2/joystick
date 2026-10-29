@@ -77,6 +77,90 @@ test('a requested decision pauses, then resumes only with the selected option',a
   assert.equal(sent.length,1);
 });
 
+test('an acknowledged custom tool result can precede the next decision in provider history',async()=>{
+  const context:RunEvent={type:'agent.custom_tool_use',id:'sevt_context',name:'get_context',input:{}};
+  const ack:RunEvent={type:'user.custom_tool_result',id:'sevt_context_ack',custom_tool_use_id:context.id};
+  const oldIdle:RunEvent={type:'session.status_idle',id:'sevt_old_idle',stop_reason:{type:'requires_action',event_ids:[context.id]}};
+  const decision:RunEvent={type:'agent.custom_tool_use',id:'sevt_decision',name:'request_decision',input:{prompt:'Which goal?',options:[{id:'local',label:'Local community'},{id:'global',label:'Global community'}]}};
+  const newIdle:RunEvent={type:'session.status_idle',id:'sevt_new_idle',stop_reason:{type:'requires_action',event_ids:[decision.id]}};
+  let history:RunEvent[]=[context,oldIdle],status='running',sent=0,decisionWrites=0;
+  const receipts=new Map<string,{result:unknown;is_error:boolean;send_state:string}>();
+  const pool={query:async(sql:string,args:unknown[]=[])=>{
+    if(sql.startsWith('SELECT status FROM agent_runs'))return rows([{status}]);
+    if(sql.startsWith('SELECT result,is_error,send_state FROM agent_run_tool_receipts')){const receipt=receipts.get(String(args[1]));return rows(receipt?[receipt]:[]);}
+    if(sql.startsWith('INSERT INTO agent_run_tool_receipts')){receipts.set(String(args[1]),{result:JSON.parse(String(args[3])),is_error:Boolean(args[4]),send_state:'pending'});return rows([]);}
+    if(sql.includes("SET send_state='sending'")){receipts.get(String(args[1]))!.send_state='sending';return rows([]);}
+    if(sql.includes("SET send_state='sent'")){receipts.get(String(args[1]))!.send_state='sent';return rows([]);}
+    if(sql.startsWith('INSERT INTO agent_run_decisions')){decisionWrites=1;return rows([{id:'decision_saved'}]);}
+    if(sql.startsWith('SELECT id,tool_use_id,selected_option_id'))return rows(decisionWrites?[{id:'decision_saved',tool_use_id:decision.id,selected_option_id:null,result_sent_at:null}]:[]);
+    if(sql.includes("send_state IN ('pending','sending','uncertain')"))return rows([...receipts.values()].some(r=>r.send_state!=='sent')?[{one:1}]:[]);
+    if(sql.startsWith('SELECT 1 FROM agent_run_decisions'))return rows(decisionWrites?[{one:1}]:[]);
+    if(sql.includes("SET status='needs_input'")){status='needs_input';return rows([]);}
+    if(sql.includes("SET status='failed'")){status='failed';return rows([]);}
+    if(sql.startsWith('SELECT pg_notify'))return rows([]);
+    throw Error(`Unexpected query: ${sql}`);
+  }} as unknown as Pool;
+  const provider:RunProvider={create:async()=>({id:'sess_test'}),list:async function*(){for(const event of history)yield event;},sendTool:async()=>{sent++;},interrupt:async()=>{},status:async()=> 'idle'};
+  await reconcileRun(pool,provider,run);
+  assert.equal(status,'running');assert.equal(sent,1);
+  history=[context,oldIdle,ack];
+  await reconcileRun(pool,provider,run);
+  assert.equal(status,'running');assert.equal(sent,1);
+  history=[context,oldIdle,ack,decision,newIdle];
+  await reconcileRun(pool,provider,run);
+  assert.equal(status,'needs_input');assert.equal(decisionWrites,1);assert.equal(sent,1);
+  await reconcileRun(pool,provider,{...run,status:'needs_input'});
+  assert.equal(decisionWrites,1);assert.equal(sent,1);
+});
+
+test('only a positively identified unsupported blocker fails a managed run',async()=>{
+  const native:RunEvent={type:'agent.tool_use',id:'sevt_native'};
+  const history:RunEvent[]=[native,{type:'session.status_idle',id:'sevt_idle',stop_reason:{type:'requires_action',event_ids:[native.id]}}];
+  let status='running';
+  const pool={query:async(sql:string)=>{
+    if(sql.startsWith('SELECT id,tool_use_id,selected_option_id'))return rows([]);
+    if(sql.includes("send_state IN ('pending','sending','uncertain')"))return rows([]);
+    if(sql.startsWith('SELECT 1 FROM agent_run_decisions'))return rows([]);
+    if(sql.includes("SET status='failed'")){status='failed';return rows([]);}
+    if(sql.startsWith('SELECT pg_notify'))return rows([]);
+    throw Error(`Unexpected query: ${sql}`);
+  }} as unknown as Pool;
+  const provider:RunProvider={create:async()=>({id:'sess_test'}),list:async function*(){for(const event of history)yield event;},sendTool:async()=>{},interrupt:async()=>{},status:async()=> 'idle'};
+  await reconcileRun(pool,provider,run);
+  assert.equal(status,'failed');
+});
+
+test('an old end-turn idle does not complete a newer running turn',async()=>{
+  const history:RunEvent[]=[{type:'agent.message',id:'msg',content:[{type:'text',text:'Earlier answer'}]},{type:'session.status_idle',id:'old_end',stop_reason:{type:'end_turn'}},{type:'session.status_running',id:'new_running'}];
+  let completed=false;
+  const pool={query:async(sql:string)=>{
+    if(sql.startsWith('SELECT id,tool_use_id,selected_option_id'))return rows([]);
+    if(sql.includes("send_state IN ('pending','sending','uncertain')"))return rows([]);
+    if(sql.startsWith('SELECT 1 FROM agent_run_decisions'))return rows([]);
+    if(sql.includes("SET status='completed'")){completed=true;return rows([]);}
+    throw Error(`Unexpected query: ${sql}`);
+  }} as unknown as Pool;
+  const provider:RunProvider={create:async()=>({id:'sess_test'}),list:async function*(){for(const event of history)yield event;},sendTool:async()=>{},interrupt:async()=>{},status:async()=> 'idle'};
+  await reconcileRun(pool,provider,run);
+  assert.equal(completed,false);
+});
+
+test('usage telemetry after end-turn does not hold a completed run open',async()=>{
+  const history:RunEvent[]=[{type:'agent.message',id:'msg',content:[{type:'text',text:'Final answer'}]},{type:'session.status_idle',id:'end',stop_reason:{type:'end_turn'}},{type:'session.usage',id:'usage'}];
+  let completed=false;
+  const pool={query:async(sql:string)=>{
+    if(sql.startsWith('SELECT id,tool_use_id,selected_option_id'))return rows([]);
+    if(sql.includes("send_state IN ('pending','sending','uncertain')"))return rows([]);
+    if(sql.startsWith('SELECT 1 FROM agent_run_decisions'))return rows([]);
+    if(sql.includes("SET status='completed'")){completed=true;return rows([]);}
+    if(sql.startsWith('SELECT pg_notify'))return rows([]);
+    throw Error(`Unexpected query: ${sql}`);
+  }} as unknown as Pool;
+  const provider:RunProvider={create:async()=>({id:'sess_test'}),list:async function*(){for(const event of history)yield event;},sendTool:async()=>{},interrupt:async()=>{},status:async()=> 'idle'};
+  await reconcileRun(pool,provider,run);
+  assert.equal(completed,true);
+});
+
 test('a revoked mission membership prevents provider session creation',async()=>{
   const mission='33333333-3333-4333-8333-333333333333';
   let providerCalls=0,finalStatus='queued';

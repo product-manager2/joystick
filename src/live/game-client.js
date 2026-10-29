@@ -1,5 +1,6 @@
 import { startAuthentication, startRegistration } from "@simplewebauthn/browser";
 import { resolveApiOrigin } from "./api-origin.js";
+import { landingView } from "./onboarding.js";
 
 const origin = resolveApiOrigin(import.meta.env.VITE_API_ORIGIN, location.origin, import.meta.env.PROD);
 export const apiOrigin = origin;
@@ -33,10 +34,10 @@ export async function loadGame() {
   return data;
 }
 
-export async function gameAction(action, entityId, payload = {}) {
+export async function gameAction(action, entityId, payload = {}, requestId = crypto.randomUUID()) {
   const data = await api("/game/actions", {
     method: "POST",
-    body: JSON.stringify({ requestId: crypto.randomUUID(), action, ...(entityId ? { entityId } : {}), payload }),
+    body: JSON.stringify({ requestId, action, ...(entityId ? { entityId } : {}), payload }),
   });
   if (data.snapshot) {
     live.snapshot = data.snapshot;
@@ -48,7 +49,15 @@ export async function gameAction(action, entityId, payload = {}) {
 const escape = value => String(value ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
 
 function authMarkup(mode, error = "") {
-  return `<div class="live-auth-wrap"><a class="live-logo" href="/">Joystick<span class="live-logo-dot">.</span></a><main class="live-auth card" aria-labelledby="auth-title"><div class="live-kicker">Your space</div><h1 id="auth-title" class="display">${mode === "signup" ? "Start with a passkey." : mode === "recovery" ? "Recover your account." : "Welcome back."}</h1><p class="live-intro">Your missions, plans, tasks, and chats are saved to your account.</p><div class="live-switch" role="group" aria-label="Account action"><button type="button" data-mode="signup" aria-pressed="${mode === "signup"}">Create account</button><button type="button" data-mode="login" aria-pressed="${mode === "login"}">Sign in</button></div><form id="auth-form" data-mode="${mode}">${mode === "signup" ? '<label for="account-name">Your name</label><input id="account-name" class="inp" name="name" autocomplete="name" required maxlength="80">' : ""}<label for="account-email">Email</label><input id="account-email" class="inp" name="email" type="email" autocomplete="email webauthn" required>${mode === "recovery" ? '<label for="account-code">Recovery code</label><input id="account-code" class="inp" name="code" autocomplete="off" required>' : ""}<button class="btn red block" type="submit">${mode === "signup" ? "Create account with passkey" : mode === "recovery" ? "Create new passkey" : "Sign in with passkey"}</button></form><p class="live-form-error" id="auth-error" role="alert">${escape(error)}</p><p class="live-fine">${mode === "recovery" ? "A valid single-use recovery code replaces your old passkeys and signs out other sessions." : "Your device will ask you to create or use a passkey."}</p>${mode !== "recovery" ? '<button type="button" class="linkbtn" data-mode="recovery">Use a recovery code</button>' : ""}</main></div>`;
+  return `<div class="live-auth-wrap"><button type="button" class="live-logo live-home-link" data-mode="landing">Joystick<span class="live-logo-dot">.</span></button><main class="live-auth card" aria-labelledby="auth-title"><div class="live-kicker">Your space</div><h1 id="auth-title" class="display">${mode === "signup" ? "Start with a passkey." : mode === "recovery" ? "Recover your account." : "Welcome back."}</h1><p class="live-intro">Your missions, plans, tasks, and chats are saved to your account.</p><div class="live-switch" role="group" aria-label="Account action"><button type="button" data-mode="signup" aria-pressed="${mode === "signup"}">Create account</button><button type="button" data-mode="login" aria-pressed="${mode === "login"}">Sign in</button></div><form id="auth-form" data-mode="${mode}">${mode === "signup" ? '<label for="account-name">Your name</label><input id="account-name" class="inp" name="name" autocomplete="name" required maxlength="80">' : ""}<label for="account-email">Email</label><input id="account-email" class="inp" name="email" type="email" autocomplete="email webauthn" required>${mode === "recovery" ? '<label for="account-code">Recovery code</label><input id="account-code" class="inp" name="code" autocomplete="off" required>' : ""}<button class="btn red block" type="submit">${mode === "signup" ? "Create account with passkey" : mode === "recovery" ? "Create new passkey" : "Sign in with passkey"}</button></form><p class="live-form-error" id="auth-error" role="alert">${escape(error)}</p><p class="live-fine">${mode === "recovery" ? "A valid single-use recovery code replaces your old passkeys and signs out other sessions." : "Your device will ask you to create or use a passkey."}</p>${mode !== "recovery" ? '<button type="button" class="linkbtn" data-mode="recovery">Use a recovery code</button>' : ""}</main></div>`;
+}
+
+export function showLanding(onReady) {
+  const root = document.querySelector("#main");
+  document.querySelector("#hud").hidden = true;
+  document.querySelector("#nav").hidden = true;
+  root.innerHTML = `<div class="live-landing">${landingView()}</div>`;
+  root.querySelectorAll("[data-entry]").forEach(button => button.addEventListener("click", () => showAuth(onReady, button.dataset.entry)));
 }
 
 export function showAuth(onReady, mode = "signup", message = "") {
@@ -56,7 +65,7 @@ export function showAuth(onReady, mode = "signup", message = "") {
   document.querySelector("#hud").hidden = true;
   document.querySelector("#nav").hidden = true;
   root.innerHTML = authMarkup(mode, message);
-  root.querySelectorAll("button[data-mode]").forEach(button => button.addEventListener("click", () => showAuth(onReady, button.dataset.mode)));
+  root.querySelectorAll("button[data-mode]").forEach(button => button.addEventListener("click", () => button.dataset.mode === "landing" ? showLanding(onReady) : showAuth(onReady, button.dataset.mode)));
   root.querySelector("#auth-form").addEventListener("submit", async event => {
     event.preventDefault();
     const form = event.currentTarget;
@@ -85,9 +94,11 @@ export function showAuth(onReady, mode = "signup", message = "") {
 }
 
 export async function bootAccount(onReady) {
+  // Keep the original public mission carousel before live snapshots replace the catalog.
+  landingView();
   try {
     const { user } = await api("/me");
-    if (!user) return showAuth(onReady);
+    if (!user) return showLanding(onReady);
     live.user = user;
     await onReady();
   } catch (error) {
@@ -101,5 +112,5 @@ export async function signOut(onReady, onReset) {
   live.snapshot = null;
   live.ready = false;
   onReset?.();
-  showAuth(onReady, "login");
+  showLanding(onReady);
 }
