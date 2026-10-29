@@ -77,7 +77,7 @@ export async function executeTool(pool:Pool,run:Row,event:RunEvent):Promise<{res
         if(input.pitch!==undefined&&!text(input.pitch,5000))throw Error('Invalid pitch');
         if(input.tag!==undefined&&!text(input.tag,40))throw Error('Invalid tag');
         const rules=input.rules===undefined?[]:list(input.rules,20);
-        if(!rules||!rules.every(rule=>text(rule,300))||!stages.every(s=>text(obj(s).unit,40)))throw Error('Invalid mission details');
+        if(!rules||!rules.every(rule=>text(rule,300))||!stages.every(s=>text(obj(s).unit,40)&&(obj(s).gateTarget===undefined||(Number.isSafeInteger(obj(s).gateTarget)&&Number(obj(s).gateTarget)>0&&Number(obj(s).gateTarget)<=100000))))throw Error('Invalid mission details');
       }else if(kind==='plan'){
         if(!scope.missionId||!name||!text(input.squad,120)||typeof input.stageId!=='string'||!uuid.test(input.stageId)||!scope.context?.stages?.some((s:Record<string,unknown>)=>s.id===input.stageId&&s.status==='active'))throw Error('Invalid plan draft or inactive stage');
         if(input.bet!==undefined&&!text(input.bet,3000))throw Error('Invalid plan bet');
@@ -144,12 +144,16 @@ async function processTool(pool:Pool,provider:RunProvider,run:Row,event:RunEvent
 
 export async function reconcileRun(pool:Pool,provider:RunProvider,run:Row){
   if(!run.provider_session_id||!['running','needs_input'].includes(run.status))return;
-  let idleReason='';const pending=new Set<string>();let lastMessage='';
+  let idleStop:RunEvent['stop_reason']|null=null,activityAfterIdle=false;const pending=new Set<string>(),seen=new Map<string,string>();let lastMessage='';
   for await(const event of provider.list(run.provider_session_id)){
+    seen.set(event.id,event.type);
+    // Usage and span telemetry can follow a final idle without starting new work.
+    if(idleStop&&(event.type.startsWith('agent.')||event.type.startsWith('user.')||['session.status_running','session.status_rescheduled','session.status_terminated','session.error'].includes(event.type)))activityAfterIdle=true;
     if(event.type==='agent.custom_tool_use'){pending.add(event.id);await processTool(pool,provider,run,event);}
     else if(event.type==='user.custom_tool_result'&&event.custom_tool_use_id)pending.delete(event.custom_tool_use_id);
     else if(event.type==='agent.message')lastMessage=(event.content??[]).filter(b=>b.type==='text').map(b=>b.text??'').join('\n').slice(0,65536);
-    else if(event.type==='session.status_idle')idleReason=event.stop_reason?.type??'';
+    else if(event.type==='session.status_idle'){idleStop=event.stop_reason??null;activityAfterIdle=false;}
+    else if(event.type==='session.status_running'||event.type==='session.status_rescheduled')idleStop=null;
     else if(event.type==='session.error'){await pool.query("UPDATE agent_runs SET status='failed',error='Provider reported a session error',updated_at=now() WHERE id=$1 AND status IN ('running','needs_input')",[run.id]);await notify(pool,run.id);return;}
   }
   const waiting=await pool.query('SELECT id,tool_use_id,selected_option_id,result_sent_at FROM agent_run_decisions WHERE run_id=$1 AND result_sent_at IS NULL ORDER BY created_at',[run.id]);
@@ -172,13 +176,19 @@ export async function reconcileRun(pool:Pool,provider:RunProvider,run:Row){
   if(needsInput){await pool.query("UPDATE agent_runs SET status='needs_input',updated_at=now() WHERE id=$1 AND status='running'",[run.id]);await notify(pool,run.id);return;}
   const status=await provider.status(run.provider_session_id);
   if(status==='terminated'){await pool.query("UPDATE agent_runs SET status='uncertain',error='Managed session terminated',updated_at=now() WHERE id=$1 AND status='running'",[run.id]);await notify(pool,run.id);return;}
-  if(status==='idle'&&['refusal','retries_exhausted','budget_reached'].includes(idleReason)){
+  // Status can move ahead of the event list. A prior idle is not evidence about
+  // a newer turn once a tool result or another running event follows it.
+  if(status!=='idle'||!idleStop||activityAfterIdle)return;
+  if(['refusal','retries_exhausted','budget_reached'].includes(idleStop.type)){
     await pool.query("UPDATE agent_runs SET status='failed',error='Managed session could not finish this work',updated_at=now() WHERE id=$1 AND status='running'",[run.id]);await notify(pool,run.id);return;
   }
-  if(status==='idle'&&idleReason==='requires_action'&&!pending.size){
-    await pool.query("UPDATE agent_runs SET status='failed',error='Managed session requested an unsupported action',updated_at=now() WHERE id=$1 AND status='running'",[run.id]);await notify(pool,run.id);return;
+  if(idleStop.type==='requires_action'){
+    const blockers=idleStop.event_ids??[];
+    const unsupported=blockers.some(id=>{const type=seen.get(id);return type?.startsWith('agent.')&&type!=='agent.custom_tool_use';});
+    if(unsupported){await pool.query("UPDATE agent_runs SET status='failed',error='Managed session requested an unsupported action',updated_at=now() WHERE id=$1 AND status='running'",[run.id]);await notify(pool,run.id);}
+    return;
   }
-  if(status==='idle'&&idleReason==='end_turn'&&!pending.size){await pool.query("UPDATE agent_runs SET status='completed',response=COALESCE(response,$2),updated_at=now() WHERE id=$1 AND status='running'",[run.id,lastMessage||'Work is ready for review.']);await notify(pool,run.id);}
+  if(idleStop.type==='end_turn'&&!pending.size){await pool.query("UPDATE agent_runs SET status='completed',response=COALESCE(response,$2),updated_at=now() WHERE id=$1 AND status='running'",[run.id,lastMessage||'Work is ready for review.']);await notify(pool,run.id);}
 }
 
 export async function interruptCancelledRuns(pool:Pool,provider:RunProvider){

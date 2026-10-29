@@ -6,6 +6,7 @@ COPY server ./server
 COPY db ./db
 COPY contracts ./contracts
 COPY tests/server ./tests/server
+COPY src/live/stage-refinement.js src/live/stage-refinement.d.ts ./src/live/
 RUN npm run api:build
 
 FROM node:22-bookworm-slim

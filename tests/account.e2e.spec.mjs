@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { test, expect } from "@playwright/test";
+import { enterSignup, finishSetup } from "./helpers/onboarding.mjs";
 
 const baseURL = process.env.JOYSTICK_E2E_URL || "http://localhost:5173";
 const apiOrigin = process.env.JOYSTICK_E2E_API_ORIGIN || "http://localhost:3001";
@@ -45,12 +46,8 @@ test("account security passkey and recovery lifecycle", async ({ browser }) => {
   let contextB, contextC, contextD;
 
   try {
-    await pageA.goto(baseURL, { waitUntil: "domcontentloaded", timeout: actionTimeout });
-    await expect(pageA.getByRole("heading", { name: "Start with a passkey." })).toBeVisible({ timeout: actionTimeout });
-    await pageA.getByLabel("Your name").fill("Account Security Test");
-    await pageA.getByLabel("Email").fill(email);
-    await click(pageA.getByRole("button", { name: "Create account with passkey" }));
-    await click(pageA.getByRole("button", { name: "Skip setup" }));
+    await enterSignup(pageA, "Account Security Test", email);
+    await finishSetup(pageA);
     await pageA.locator("#nav").waitFor({ state: "visible", timeout: actionTimeout });
 
     await openSecurity(pageA);
@@ -103,6 +100,7 @@ test("account security passkey and recovery lifecycle", async ({ browser }) => {
     await click(pageA.locator('#main [data-a="back"]'));
     await click(pageA.locator('#nav [data-x="profile"]'));
     await click(pageA.getByRole("button", { name: "Sign out" }));
+    await pageA.getByRole("button", { name: "I've played before" }).click();
     await expect(pageA.getByRole("heading", { name: "Welcome back." })).toBeVisible({ timeout: actionTimeout });
     await pageA.getByLabel("Email").fill(email);
     await click(pageA.getByRole("button", { name: "Sign in with passkey" }));
@@ -117,10 +115,12 @@ test("account security passkey and recovery lifecycle", async ({ browser }) => {
     pageC.setDefaultTimeout(actionTimeout);
     await addVirtualAuthenticator(contextC, pageC);
     await pageC.goto(baseURL, { waitUntil: "domcontentloaded", timeout: actionTimeout });
+    await click(pageC.getByRole("button", { name: "I've played before" }));
     await click(pageC.getByRole("button", { name: "Use a recovery code" }));
+    await expect(pageC.getByRole("heading", { name: "Recover your account." })).toBeVisible({ timeout: actionTimeout });
     await pageC.getByLabel("Email").fill(email);
     await pageC.getByLabel("Recovery code").fill(recoveryCode);
-    await click(pageC.getByRole("button", { name: "Create new passkey" }));
+    await pageC.getByRole("button", { name: "Create new passkey" }).click();
     await pageC.locator("#nav").waitFor({ state: "visible", timeout: actionTimeout });
 
     const oldSession = await pageA.evaluate(async origin => {
@@ -131,7 +131,8 @@ test("account security passkey and recovery lifecycle", async ({ browser }) => {
     expect(oldSession).toEqual({ status: 200, hasUser: false });
 
     await pageA.reload({ waitUntil: "domcontentloaded", timeout: actionTimeout });
-    await expect(pageA.getByRole("heading", { name: "Start with a passkey." })).toBeVisible({ timeout: actionTimeout });
+    await pageA.getByRole("button", { name: "I've played before" }).click();
+    await expect(pageA.getByRole("heading", { name: "Welcome back." })).toBeVisible({ timeout: actionTimeout });
     await click(pageA.getByRole("button", { name: "Sign in", exact: true }));
     await pageA.getByLabel("Email").fill(email);
     await pageA.route("**/api/v1/auth/login/options", async route => {
@@ -154,11 +155,13 @@ test("account security passkey and recovery lifecycle", async ({ browser }) => {
     const pageD = await contextD.newPage();
     pageD.setDefaultTimeout(actionTimeout);
     await pageD.goto(baseURL, { waitUntil: "domcontentloaded", timeout: actionTimeout });
+    await click(pageD.getByRole("button", { name: "I've played before" }));
     await click(pageD.getByRole("button", { name: "Use a recovery code" }));
+    await expect(pageD.getByRole("heading", { name: "Recover your account." })).toBeVisible({ timeout: actionTimeout });
     await pageD.getByLabel("Email").fill(email);
     await pageD.getByLabel("Recovery code").fill(recoveryCode);
     const reusedCodeOptions = pageD.waitForResponse(response => response.url().includes("/api/v1/auth/recovery/options") && response.request().method() === "POST", { timeout: actionTimeout });
-    await click(pageD.getByRole("button", { name: "Create new passkey" }));
+    await pageD.getByLabel("Recovery code").press("Enter");
     const reusedCodeResponse = await reusedCodeOptions;
     expect(reusedCodeResponse.status()).toBe(400);
     expect((await reusedCodeResponse.json()).error?.code).toBe("invalid_recovery");

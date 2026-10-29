@@ -3,6 +3,7 @@ import type { Pool } from './db.js';
 import { transaction } from './db.js';
 import type { Config } from './config.js';
 import { agentAvailable } from './config.js';
+import { contextualMessage, privateAgentContext } from './agent-context.js';
 
 export interface AgentEvent { type:string; id?:string; content?:Array<{type:string;text?:string}>; event_id?:string; delta?:{type:string;content?:{type:string;text?:string}} }
 export interface ManagedAgentClient {
@@ -46,20 +47,22 @@ export async function recoverInterruptedDispatches(pool:Pool):Promise<number> {
 export async function dispatchNext(pool: Pool, config: Config, client: ManagedAgentClient): Promise<boolean> {
   if (!agentAvailable(config)) return false;
   const job = await transaction(pool, async db => {
-    const found = await db.query(`SELECT d.id,d.room_id,d.message_id,m.text,r.provider_session_id FROM agent_dispatches d JOIN messages m ON m.id=d.message_id JOIN rooms r ON r.id=d.room_id WHERE d.status='pending' AND NOT EXISTS (SELECT 1 FROM agent_dispatches other WHERE other.room_id=d.room_id AND other.status IN ('sending','sent','uncertain')) ORDER BY d.created_at FOR UPDATE OF d,r SKIP LOCKED LIMIT 1`);
+    const found = await db.query(`SELECT d.id,d.room_id,d.message_id,m.text,m.user_id,r.provider_session_id FROM agent_dispatches d JOIN messages m ON m.id=d.message_id JOIN rooms r ON r.id=d.room_id WHERE d.status='pending' AND NOT EXISTS (SELECT 1 FROM agent_dispatches other WHERE other.room_id=d.room_id AND other.status IN ('sending','sent','uncertain')) ORDER BY d.created_at FOR UPDATE OF d,r SKIP LOCKED LIMIT 1`);
     if (!found.rowCount) return null;
     // Recheck after locking the room: the first query's snapshot may predate another worker's commit.
     const active=await db.query(`SELECT 1 FROM agent_dispatches WHERE room_id=$1 AND id<>$2 AND status IN ('sending','sent','uncertain') LIMIT 1`,[found.rows[0].room_id,found.rows[0].id]);
     if (active.rowCount) return null;
     await db.query(`UPDATE agent_dispatches SET status='sending',updated_at=now() WHERE id=$1`, [found.rows[0].id]);
-    return found.rows[0] as {id:string;room_id:string;message_id:string;text:string;provider_session_id:string|null};
+    return found.rows[0] as {id:string;room_id:string;message_id:string;text:string;user_id:string;provider_session_id:string|null};
   });
   if (!job) return false;
   let sessionId = job.provider_session_id;
   let stream: AsyncIterable<AgentEvent> | undefined;
   try {
+    const context=await privateAgentContext(pool,job.room_id,job.user_id);
+    const providerText=contextualMessage(job.text,context);
     if (!sessionId) {
-      const session = await client.create({agent:config.anthropicAgentId!,environment_id:config.anthropicEnvironmentId!,initial_events:[{type:'user.message',content:[{type:'text',text:job.text}]}],metadata:{joystick_room_id:job.room_id,joystick_message_id:job.message_id}});
+      const session = await client.create({agent:config.anthropicAgentId!,environment_id:config.anthropicEnvironmentId!,initial_events:[{type:'user.message',content:[{type:'text',text:providerText}]}],metadata:{joystick_room_id:job.room_id,joystick_message_id:job.message_id}});
       sessionId = session.id;
       await transaction(pool, async db => {
         await db.query(`UPDATE rooms SET provider_session_id=$2 WHERE id=$1 AND provider_session_id IS NULL`, [job.room_id,sessionId]);
@@ -67,7 +70,7 @@ export async function dispatchNext(pool: Pool, config: Config, client: ManagedAg
       });
     } else {
       stream = await client.stream(sessionId,AbortSignal.timeout(20_000));
-      await client.send(sessionId,job.text);
+      await client.send(sessionId,providerText);
       await pool.query(`UPDATE agent_dispatches SET status='sent',provider_session_id=$2,updated_at=now() WHERE id=$1`, [job.id,sessionId]);
     }
     await consumeStream(pool,client,job.room_id,sessionId,stream);

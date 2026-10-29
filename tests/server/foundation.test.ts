@@ -6,6 +6,7 @@ import { buildApp } from '../../server/app.js';
 import { createPool } from '../../server/db.js';
 import { saveUserMessage, history } from '../../server/chat.js';
 import { persistAgentEvent, dispatchNext, refreshDispatchStatus, recoverInterruptedDispatches, type ManagedAgentClient } from '../../server/agent.js';
+import { privateAgentContext } from '../../server/agent-context.js';
 import type { Config } from '../../server/config.js';
 import { startWorker } from '../../server/worker-lock.js';
 
@@ -83,13 +84,35 @@ test('foundation authorization, challenge replay, idempotency, provider dedup, a
     assert.equal(withReply.messages[1].providerEventId,providerEventId);
 
     const agentConfig={...config,anthropicApiKey:'fake',anthropicAgentId:'agent_fake',anthropicEnvironmentId:'env_fake'};
+    await pool.query(`INSERT INTO game_profiles(user_id,roles,skills) VALUES($1,ARRAY['Builder'], '["Research"]')`,[a.user.id]);
+    const mission=(await pool.query(`INSERT INTO game_missions(title,pitch) VALUES('Account context mission','A mission Pip can discuss') RETURNING id`)).rows[0];
+    await pool.query(`INSERT INTO game_memberships(mission_id,user_id) VALUES($1,$2)`,[mission.id,a.user.id]);
+    const stage=(await pool.query(`INSERT INTO game_stages(mission_id,ordinal,name,status) VALUES($1,0,'Start','active') RETURNING id`,[mission.id])).rows[0];
+    await pool.query(`INSERT INTO game_quests(mission_id,stage_id,title) VALUES($1,$2,'Available research task')`,[mission.id,stage.id]);
+    const otherMission=(await pool.query(`INSERT INTO game_missions(title) VALUES('Other account mission') RETURNING id`)).rows[0];
+    await pool.query(`INSERT INTO game_memberships(mission_id,user_id) VALUES($1,$2)`,[otherMission.id,b.user.id]);
+    const otherStage=(await pool.query(`INSERT INTO game_stages(mission_id,ordinal,name,status) VALUES($1,0,'Private work','active') RETURNING id`,[otherMission.id])).rows[0];
+    await pool.query(`INSERT INTO game_quests(mission_id,stage_id,title) VALUES($1,$2,'Other account private task')`,[otherMission.id,otherStage.id]);
+    await saveUserMessage(pool,b.user.id,b.room.id,randomUUID(),'Other account private chat',false);
+    const context=await privateAgentContext(pool,a.room.id,a.user.id);
+    assert.ok(context?.includes('Available research task'));
+    assert.ok(context?.includes('Account context mission'));
+    assert.ok(!context?.includes('Other account private task'));
+    assert.ok(!context?.includes('Other account private chat'));
+    await assert.rejects(()=>privateAgentContext(pool,a.room.id,b.user.id),/no longer has room access/);
+    const sharedRoom=(await pool.query(`INSERT INTO rooms(title,kind) VALUES('Shared','dm') RETURNING id`)).rows[0];
+    await pool.query(`INSERT INTO room_members(room_id,user_id) VALUES($1,$2),($1,$3)`,[sharedRoom.id,a.user.id,b.user.id]);
+    assert.equal(await privateAgentContext(pool,sharedRoom.id,a.user.id),null);
+    const scopedRoom=(await pool.query(`INSERT INTO rooms(title,kind,scope_id) VALUES('Mission chat','mission',$1) RETURNING id`,[mission.id])).rows[0];
+    assert.equal(await privateAgentContext(pool,scopedRoom.id,a.user.id),null);
+    await assert.rejects(()=>privateAgentContext(pool,scopedRoom.id,b.user.id),/no longer has room access/);
     let sends=0;
     let providerStatus:'running'|'idle'='running';
     let failSend=false;
     let streamOpened=false;
     const fake: ManagedAgentClient={
       create:async()=>{throw new Error('Existing session should be reused');},
-      send:async()=>{assert.equal(streamOpened,true);streamOpened=false;sends++; if(failSend) throw new Error('Unknown provider outcome');},
+      send:async(_sessionId,text)=>{assert.equal(streamOpened,true);streamOpened=false;sends++; if(sends===1){assert.ok(text.includes('Available research task'));assert.ok(!text.includes('Other account private task'));assert.ok(text.endsWith('User message (reply to this):\nFirst turn'));} if(failSend) throw new Error('Unknown provider outcome');},
       stream:async()=>{streamOpened=true;return {async *[Symbol.asyncIterator]() { yield {type:'session.status_idle'}; }};},
       list:async function*(){},
       status:async()=>providerStatus,
@@ -101,6 +124,7 @@ test('foundation authorization, challenge replay, idempotency, provider dedup, a
     const admissions=await Promise.all([dispatchNext(pool,agentConfig,fake),dispatchNext(pool,agentConfig,fake)]);
     assert.deepEqual(admissions.sort(),[false,true]);
     assert.equal(sends,1);
+    assert.equal((await history(pool,a.user.id,a.room.id,0)).messages.find(message=>message.id===pendingA.message.id)?.text,'First turn');
     assert.equal(await dispatchNext(pool,agentConfig,fake),false);
     providerStatus='idle';
     await refreshDispatchStatus(pool,fake,a.room.id,providerSessionId);

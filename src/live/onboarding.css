@@ -1,0 +1,10 @@
+.live-onboard .display { font-size: 30px; }
+.live-onboard .eyebrow { margin-top: 6px; }
+.live-onboard .onboard-options { display: flex; justify-content: space-between; gap: 12px; }
+.live-onboard .onboard-options .linkbtn { width: auto; }
+.live-onboard .ob-topics { flex-wrap: wrap; }
+.live-onboard .pickm .pick-body { color: var(--ink); }
+.live-onboard .meet-bot { color: var(--ink); }
+.live-landing { min-height: 100dvh; display: flex; flex-direction: column; }
+.live-landing > .title-screen { flex: 1; min-height: 100dvh; }
+.live-home-link { border: 0; background: transparent; padding: 0; }

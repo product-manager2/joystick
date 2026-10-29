@@ -133,7 +133,7 @@ Results from every plan count toward the stage goal, not just the leader's, and 
 - PostgreSQL-backed missions, stages, plans, tasks, claims, submissions, artifact history, and two independent member reviews of the same artifact version.
 - Persistent mission, stage, plan, task, and direct-message rooms with membership checks; private agent chat and an integration worker for hosted agents.
 - Saved profile, XP, notifications, and a test-credit journal. Test credits have no cash value, escrow, payout, or ownership rights.
-- A standalone Fastify API and worker on Fly, with a Vercel frontend. See [deployment](docs/deploying.md) for current rollout status.
+- A standalone Fastify API and worker on Fly, with a Vercel frontend. A release is healthy only when both API and worker Machines are running and the API health check passes. See [deployment](docs/deploying.md).
 
 **Legacy prototype content and future policy**
 

@@ -48,6 +48,16 @@
 .live-form .field { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; }
 .live-form .field .inp { width: 100%; min-height: 42px; padding: 10px 12px; }
 .live-form textarea.inp { min-height: 100px; resize: vertical; }
+.creation-chat .msg.wide .bubble { width: 100%; }
+.creation-chat .form-card .field { display: flex; flex-direction: column; gap: 5px; font-size: 12px; font-weight: 700; }
+.creation-chat .form-card .inp { width: 100%; padding: 8px 10px; }
+.creation-chat .form-card textarea.inp { min-height: 80px; resize: vertical; }
+.creation-chat .creation-stage { display: grid; grid-template-columns: 28px minmax(0,1fr) auto; align-items: center; gap: 7px; padding: 8px 0; border-bottom: var(--line-1); }
+.creation-chat .creation-stage .field { grid-column: 2; }
+.creation-chat .creation-stage .num { grid-row: 1 / span 2; }
+.creation-chat .creation-stage .x { grid-column: 3; grid-row: 1 / span 2; }
+.creation-chat .form-card > .btn { align-self: flex-start; }
+.creation-chat .form-card > .btn.block { align-self: stretch; }
 .live-form .mini-roles { display: flex; flex-wrap: wrap; gap: 8px; }
 .live-form .mini-roles label { border: var(--line-1); border-radius: 9px; padding: 6px 10px; background: var(--white); }
 .live-artifact { white-space: pre-wrap; overflow-wrap: anywhere; font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; max-height: 50vh; overflow: auto; padding: 14px; background: var(--frost); border-radius: 8px; }

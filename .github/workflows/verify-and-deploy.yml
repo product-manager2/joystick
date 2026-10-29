@@ -57,6 +57,7 @@ jobs:
       - run: npm run typecheck
       - run: npm run api:build
       - run: docker build --tag joystick-api-ci .
+      - run: node --test tests/fly-postdeploy.test.mjs
       - run: npm run build
       - run: npm run test:server
       - run: npx playwright install --with-deps chromium
@@ -85,3 +86,5 @@ jobs:
         with:
           version: 0.4.86
       - run: flyctl deploy --app joystick-api --config fly.toml --remote-only --ha=false --yes
+      - name: Verify API and worker after deployment
+        run: node scripts/fly-postdeploy.mjs joystick-api
