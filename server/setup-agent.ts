@@ -4,6 +4,7 @@ import { readFile, writeFile, rename, chmod, unlink } from 'node:fs/promises';
 import { dirname, join, basename } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { selectedEnvPath } from './env.js';
+import { AGENT_RUN_SYSTEM, AGENT_RUN_TOOLS } from './agent-runs/tools.js';
 
 if (!process.env.JOYSTICK_ENV_FILE || basename(selectedEnvPath) !== '.env.production') throw new Error('Set JOYSTICK_ENV_FILE to the absolute path of the private .env.production file');
 const key=process.env.ANTHROPIC_API_KEY;
@@ -11,6 +12,14 @@ if (!key) throw new Error('Set ANTHROPIC_API_KEY in the selected private environ
 const workspaceId=process.env.ANTHROPIC_WORKSPACE_ID;
 const model=process.env.ANTHROPIC_MODEL || 'claude-haiku-5-5';
 const client=new Anthropic({apiKey:key,maxRetries:0});
+const agentTools=[...AGENT_RUN_TOOLS,{type:'agent_toolset_20260401' as const,default_config:{enabled:false},configs:[
+  {name:'bash' as const,enabled:true,permission_policy:{type:'always_allow' as const}},
+  {name:'read' as const,enabled:true,permission_policy:{type:'always_allow' as const}},
+  {name:'write' as const,enabled:true,permission_policy:{type:'always_allow' as const}},
+  {name:'edit' as const,enabled:true,permission_policy:{type:'always_allow' as const}},
+  {name:'glob' as const,enabled:true,permission_policy:{type:'always_allow' as const}},
+  {name:'grep' as const,enabled:true,permission_policy:{type:'always_allow' as const}},
+]}];
 async function setEnv(name:string,value:string) {
   if (!/^[A-Z_]+$/.test(name) || /[\r\n]/.test(value)) throw new Error('Invalid environment field');
   const source=await readFile(selectedEnvPath,'utf8');
@@ -33,7 +42,7 @@ function safeApiDetail(error:unknown) {
   return error instanceof Anthropic.APIError ? `status=${error.status ?? 'unknown'} type=${error.type ?? 'unknown'} requestID=${error.requestID ?? 'none'}` : 'transport error';
 }
 async function main() {
-  if (process.env.ANTHROPIC_SETUP_ENV_STATE === 'creating' || process.env.ANTHROPIC_SETUP_AGENT_STATE === 'creating') throw new Error('Earlier resource creation has an unknown outcome. Reconcile IDs in Anthropic Console before rerunning.');
+  if (process.env.ANTHROPIC_SETUP_ENV_STATE === 'creating' || process.env.ANTHROPIC_SETUP_AGENT_STATE === 'creating' || ['creating','updating'].includes(process.env.ANTHROPIC_SETUP_WORKFLOW_AGENT_STATE??'')) throw new Error('Earlier resource change has an unknown outcome. Reconcile IDs in Anthropic Console before rerunning.');
   let environmentId=process.env.ANTHROPIC_ENVIRONMENT_ID;
   if (!environmentId) {
     await setEnv('ANTHROPIC_SETUP_ENV_STATE','creating');
@@ -60,6 +69,35 @@ async function main() {
     } catch (error) {
       if (definitivelyRejected(error)) { await setEnv('ANTHROPIC_SETUP_AGENT_STATE','rejected'); throw new Error(`Anthropic rejected agent creation (${safeApiDetail(error)}). Check workspace scope and configuration, then rerun.`); }
       throw new Error(`Agent creation outcome is unknown (${safeApiDetail(error)}). Check Anthropic Console before rerunning.`);
+    }
+  }
+  let workflowAgentId=process.env.ANTHROPIC_WORKFLOW_AGENT_ID;
+  if(!workflowAgentId){
+    await setEnv('ANTHROPIC_SETUP_WORKFLOW_AGENT_STATE','creating');
+    try{
+      const agent=await client.beta.agents.create({name:'Joystick mission work agent',model,system:AGENT_RUN_SYSTEM,tools:agentTools,workspace_id:workspaceId},{maxRetries:0});
+      workflowAgentId=agent.id;
+      await setEnv('ANTHROPIC_WORKFLOW_AGENT_ID',workflowAgentId);
+      await setEnv('ANTHROPIC_SETUP_WORKFLOW_AGENT_STATE','ready');
+      console.log(`Created workflow agent ${workflowAgentId}`);
+    }catch(error){
+      if(definitivelyRejected(error)){await setEnv('ANTHROPIC_SETUP_WORKFLOW_AGENT_STATE','rejected');throw new Error(`Anthropic rejected workflow agent creation (${safeApiDetail(error)}). Check tool configuration, then rerun.`);}
+      throw new Error(`Workflow agent creation outcome is unknown (${safeApiDetail(error)}). Check Anthropic Console before rerunning.`);
+    }
+  } else {
+    const existing=await client.beta.agents.retrieve(workflowAgentId,{workspace_id:workspaceId});
+    const customTools=existing.tools.filter(t=>t.type==='custom');
+    const configured=existing.system===AGENT_RUN_SYSTEM&&AGENT_RUN_TOOLS.every(t=>customTools.some(existingTool=>existingTool.name===t.name&&existingTool.description===t.description&&JSON.stringify(existingTool.input_schema)===JSON.stringify(t.input_schema)))&&existing.tools.some(t=>t.type==='agent_toolset_20260401');
+    if(!configured){
+      await setEnv('ANTHROPIC_SETUP_WORKFLOW_AGENT_STATE','updating');
+      try{
+        await client.beta.agents.update(workflowAgentId,{system:AGENT_RUN_SYSTEM,tools:agentTools,version:existing.version,workspace_id:workspaceId},{maxRetries:0});
+        await setEnv('ANTHROPIC_SETUP_WORKFLOW_AGENT_STATE','ready');
+        console.log(`Updated workflow agent ${workflowAgentId}`);
+      }catch(error){
+        if(definitivelyRejected(error)){await setEnv('ANTHROPIC_SETUP_WORKFLOW_AGENT_STATE','rejected');throw new Error(`Anthropic rejected workflow agent update (${safeApiDetail(error)}). Check tool configuration, then rerun.`);}
+        throw new Error(`Workflow agent update outcome is unknown (${safeApiDetail(error)}). Check Anthropic Console before rerunning.`);
+      }
     }
   }
   console.log('Managed agent configuration is ready. No session was started.');

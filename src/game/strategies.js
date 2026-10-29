@@ -96,7 +96,7 @@ export const stratLive = q => { if (!q.strat) return true; const [, m] = findQue
 // Players see three states: Racing, Waiting (with one short reason) and Won. Merged plans are hidden.
 export const waitWhy = s => s.status === "proposed" ? `Needs ${Math.max(1, s.need - s.backers)} more backers` : s.status === "review" ? "Waiting for the mission's OK" : s.status === "queued" ? (s.when || "Starts later") : "";
 export const STATUS = { proposed: s => `Waiting · ${waitWhy(s)}`, review: s => `Waiting · ${waitWhy(s)}`, queued: s => `Waiting · ${waitWhy(s)}`, merged: s => `Merged into ${s.into}` };
-export const shown = m => strats(m).filter(s => s.status !== "merged");
+export const shown = m => strats(m).filter(s => s.status !== "merged" && (!S.live || s.stageId === m.stages[m.current]?.id));
 export const leaderOf = m => [...strats(m)].sort((a, b) => b.score - a.score)[0];
 // Every plan belongs to a squad: its people (each with an agent) race the plan together.
 // Named players come from PEOPLE; the rest of the headcount is filled from the plan's size.

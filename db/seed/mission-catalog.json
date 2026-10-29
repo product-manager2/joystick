@@ -1,0 +1,2540 @@
+[
+  {
+    "id": "glio",
+    "title": "Find a drug for glioblastoma",
+    "pitch": "Find a drug that kills this brain tumour and get it to a first human trial, fully open.",
+    "tag": "Science",
+    "glyph": "helix",
+    "color": "var(--pink)",
+    "rules": [
+      "Top 10 compounds kill more than 60% of tumour cells in vitro",
+      "3 independent Critics reproduce every result",
+      "All data and code published open-access"
+    ],
+    "seedNotice": "Illustrative workbook mission. People, progress, prizes, and outcomes shown as examples are not verified live activity.",
+    "stages": [
+      {
+        "name": "Recon",
+        "goal": "Map every open brain tumour dataset",
+        "target": 40,
+        "unit": "datasets",
+        "plainWords": "Find all the free data we can learn from."
+      },
+      {
+        "name": "Hypothesis",
+        "goal": "Rank the top 50 drug targets",
+        "target": 50,
+        "unit": "targets",
+        "plainWords": "Pick the weak spots in the tumour to aim at."
+      },
+      {
+        "name": "Simulate",
+        "goal": "Shortlist 10 drug candidates",
+        "target": 10,
+        "unit": "candidates",
+        "plainWords": "Find 10 drugs that might kill this tumour, and prove each one on real data."
+      },
+      {
+        "name": "Wet lab",
+        "goal": "Test the top 10 in a partner lab",
+        "target": 10,
+        "unit": "drugs tested",
+        "plainWords": "Test the 10 on real tumour cells."
+      },
+      {
+        "name": "Trial",
+        "goal": "File for a first human trial",
+        "target": 1,
+        "unit": "filing",
+        "plainWords": "Ask to test the best one in a few patients."
+      }
+    ],
+    "strategies": [
+      {
+        "id": "glio-dock",
+        "name": "Brute-force docking",
+        "squad": "Fold Gang",
+        "bet": "Test all 1 million molecules on rented computers. Wide net, fast.",
+        "color": "var(--pink)",
+        "sampleStatus": "Running",
+        "sampleBlocker": ""
+      },
+      {
+        "id": "glio-repurpose",
+        "name": "Repurpose approved drugs",
+        "squad": "Wet Hands",
+        "bet": "Screen 2,800 drugs that are already safe in people.",
+        "color": "var(--pink)",
+        "sampleStatus": "Running",
+        "sampleBlocker": "Needs a partner lab slot"
+      },
+      {
+        "id": "glio-gen",
+        "name": "Generate new molecules",
+        "squad": "Swarm 404",
+        "bet": "200 small agents design brand-new molecules and vote on the best.",
+        "color": "var(--pink)",
+        "sampleStatus": "Running",
+        "sampleBlocker": "Nobody has checked the designs for toxicity"
+      },
+      {
+        "id": "glio-whole",
+        "name": "Diet + drug combos",
+        "squad": "Whole Health",
+        "bet": "Pair approved drugs with diets that slow tumours.",
+        "color": "var(--pink)",
+        "sampleStatus": "Proposed",
+        "sampleBlocker": "Needs 9 more backers to launch"
+      }
+    ],
+    "quests": [
+      {
+        "id": "g6c",
+        "title": "Test 250,000 molecules (part 3 of 4)",
+        "role": "maker",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "glio-dock",
+        "call": {
+          "q": "2 hits sit right at the cutoff. Count them?",
+          "opts": [
+            "Count both",
+            "Only the stronger one",
+            "Ask a Critic"
+          ]
+        },
+        "sampleReward": "40",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "g3",
+        "title": "Check 20 docking results from Fold Gang",
+        "role": "checker",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "glio-dock",
+        "call": {
+          "q": "3 results drift by more than 1 kcal/mol. What now?",
+          "opts": [
+            "Flag them back to Fold Gang",
+            "Re-run them on a finer grid",
+            "Drop them from the shortlist"
+          ]
+        },
+        "sampleReward": "25",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "g8",
+        "title": "Check which of 40 drugs can reach the brain",
+        "role": "expert",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "glio-repurpose",
+        "call": {
+          "q": "12 drugs cross the barrier only weakly. Keep them?",
+          "opts": [
+            "Keep them — dosing can fix it",
+            "Drop them",
+            "Ask the chemist"
+          ]
+        },
+        "sampleReward": "30",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "g11",
+        "title": "Run the top 3 drugs in a partner lab",
+        "role": "maker",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "glio-repurpose",
+        "call": {
+          "q": "The lab offers a 4th well free. Use it?",
+          "opts": [
+            "Add a 4th drug",
+            "Run a control"
+          ]
+        },
+        "sampleReward": "120",
+        "sampleCurrency": "$",
+        "safetyNote": "Trained lab staff only"
+      },
+      {
+        "id": "g9",
+        "title": "Train a model on known tumour drugs",
+        "role": "maker",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "glio-gen",
+        "call": {
+          "q": "Two models work. Which do we use?",
+          "opts": [
+            "Small and fast",
+            "Bigger, slower, better"
+          ]
+        },
+        "sampleReward": "30",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "g10",
+        "title": "Filter 5,000 designs for toxicity",
+        "role": "checker",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "glio-gen",
+        "call": {
+          "q": "38 designs are borderline toxic. Keep them?",
+          "opts": [
+            "Drop them",
+            "Flag them for the chemist"
+          ]
+        },
+        "sampleReward": "20",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "glio-whole-back",
+        "title": "Back Whole Health",
+        "role": "patron",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "glio-whole",
+        "call": null,
+        "sampleReward": "0",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "g5",
+        "title": "Write this week's progress post",
+        "role": "storyteller",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "glio-dock",
+        "call": {
+          "q": "How should the post sound?",
+          "opts": [
+            "Plain and factual",
+            "Big and hopeful",
+            "Charts first, few words"
+          ]
+        },
+        "sampleReward": "10",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "g7",
+        "title": "Pull the list of approved drugs",
+        "role": "expert",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "glio-repurpose",
+        "call": null,
+        "sampleReward": "10",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      }
+    ],
+    "sample": {
+      "state": "Racing",
+      "teachingPoint": "Squads race each other with different plans",
+      "creator": "Dr. Amara Osei",
+      "creatorDescription": "Brain tumour doctor (fictional hospital)",
+      "place": "Global",
+      "prize": "250000",
+      "currency": "$",
+      "players": "640",
+      "squads": "4",
+      "finished": null,
+      "people": [
+        {
+          "Name": "Priya Nair",
+          "Agent": "Dock",
+          "City": "Bengaluru",
+          "Country": "India",
+          "Main role": "Leader",
+          "Bio (one line)": "Chemist who leads the fastest squad in the glioblastoma race.",
+          "Squad": "Fold Gang",
+          "Type": "Star"
+        },
+        {
+          "Name": "Kenji Sato",
+          "Agent": "Byte",
+          "City": "Osaka",
+          "Country": "Japan",
+          "Main role": "Maker",
+          "Bio (one line)": "Backend engineer who keeps the computers busy.",
+          "Squad": "Fold Gang",
+          "Type": "Regular"
+        },
+        {
+          "Name": "Rosa Lima",
+          "Agent": "Dot",
+          "City": "Lisbon",
+          "Country": "Portugal",
+          "Main role": "Checker",
+          "Bio (one line)": "Biology researcher who re-runs other people's results.",
+          "Squad": "Fold Gang",
+          "Type": "Regular"
+        },
+        {
+          "Name": "Ade Bello",
+          "Agent": "Moss",
+          "City": "Lagos",
+          "Country": "Nigeria",
+          "Main role": "Expert",
+          "Bio (one line)": "Pharmacologist who knows which old drugs might do new tricks.",
+          "Squad": "Wet Hands",
+          "Type": "Regular"
+        },
+        {
+          "Name": "Dr. Wei Lin",
+          "Agent": "Quill",
+          "City": "Singapore",
+          "Country": "Singapore",
+          "Main role": "Checker",
+          "Bio (one line)": "Brain tumour drug expert. Checks the hard ones.",
+          "Squad": "Wet Hands",
+          "Type": "Regular"
+        },
+        {
+          "Name": "Mo Hassan",
+          "Agent": "Fizz",
+          "City": "Cairo",
+          "Country": "Egypt",
+          "Main role": "Maker",
+          "Bio (one line)": "Student who runs a swarm of 200 tiny agents.",
+          "Squad": "Swarm 404",
+          "Type": "New"
+        },
+        {
+          "Name": "Sana Malik",
+          "Agent": "Sprout",
+          "City": "Toronto",
+          "Country": "Canada",
+          "Main role": "Planner",
+          "Bio (one line)": "Nutrition researcher. Her mum had a brain tumour.",
+          "Squad": "Whole Health",
+          "Type": "New"
+        },
+        {
+          "Name": "Yuki Mori",
+          "Agent": "Nori",
+          "City": "Kyoto",
+          "Country": "Japan",
+          "Main role": "Checker",
+          "Bio (one line)": "Chemist who spots bad molecules fast.",
+          "Squad": "Swarm 404",
+          "Type": "Regular"
+        }
+      ],
+      "inviteExamples": [
+        {
+          "From": "Pip (your agent)",
+          "To": "You",
+          "Kind": "Squad suggestion",
+          "Message": "Fold Gang needs a Checker, and you're good at checking. Want in?",
+          "When it shows": "Right after you pick Checker as a role"
+        },
+        {
+          "From": "Dock · Fold Gang's agent",
+          "To": "You",
+          "Kind": "Quest invite",
+          "Message": "Could you check 20 of our docking results? About 15 min, $25.",
+          "When it shows": "First time you open Play"
+        },
+        {
+          "From": "You",
+          "To": "Rosa Lima",
+          "Kind": "Quest invite",
+          "Message": "Invite a good fit to an open slot on your quest",
+          "When it shows": "Invite button on any quest"
+        }
+      ]
+    }
+  },
+  {
+    "id": "aid",
+    "title": "First-aid guides in 50 languages",
+    "pitch": "Turn the 20 first-aid guides that save the most lives into 50 languages, free.",
+    "tag": "Science",
+    "glyph": "helix",
+    "color": "var(--pink)",
+    "rules": [],
+    "seedNotice": "Illustrative workbook mission. People, progress, prizes, and outcomes shown as examples are not verified live activity.",
+    "stages": [
+      {
+        "name": "Pick",
+        "goal": "Choose the 20 guides that save the most lives",
+        "target": 20,
+        "unit": "guides",
+        "plainWords": "Agree which 20 guides matter most: choking, burns, CPR…"
+      },
+      {
+        "name": "Translate",
+        "goal": "Translate them into 50 languages",
+        "target": 50,
+        "unit": "languages",
+        "plainWords": "Agents draft, people who speak the language fix."
+      },
+      {
+        "name": "Check",
+        "goal": "A native speaker checks every guide",
+        "target": 1000,
+        "unit": "guides checked",
+        "plainWords": "Every guide is checked by someone who grew up speaking it."
+      },
+      {
+        "name": "Share",
+        "goal": "Free app and printable cards",
+        "target": 1,
+        "unit": "launch",
+        "plainWords": "Anyone can download or print them."
+      }
+    ],
+    "strategies": [
+      {
+        "id": "aid-first",
+        "name": "Nurses write, agents translate",
+        "squad": "First Aiders",
+        "bet": "Nurses pick and write the guides, agents draft translations, native speakers fix them.",
+        "color": "var(--pink)",
+        "sampleStatus": "Running",
+        "sampleBlocker": ""
+      }
+    ],
+    "quests": [
+      {
+        "id": "a1",
+        "title": "Suggest 3 guides and say why they matter",
+        "role": "expert",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "aid-first",
+        "call": null,
+        "sampleReward": "15",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "a2",
+        "title": "Translate the burns guide into Tagalog",
+        "role": "expert",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "aid-first",
+        "call": null,
+        "sampleReward": "15",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "a3",
+        "title": "Check the Spanish choking guide for mistakes",
+        "role": "checker",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "aid-first",
+        "call": null,
+        "sampleReward": "15",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "a4",
+        "title": "Draw simple pictures for the CPR guide",
+        "role": "maker",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "aid-first",
+        "call": null,
+        "sampleReward": "60",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "a5",
+        "title": "Find 5 people who speak a language we don't have",
+        "role": "storyteller",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "aid-first",
+        "call": null,
+        "sampleReward": "10",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      }
+    ],
+    "sample": {
+      "state": "Recruiting",
+      "teachingPoint": "There is a 15-minute quest you can do right now",
+      "creator": "Maria Santos",
+      "creatorDescription": "ER nurse, Manila",
+      "place": "Global",
+      "prize": "20000",
+      "currency": "$",
+      "players": "38",
+      "squads": "1",
+      "finished": null,
+      "people": [
+        {
+          "Name": "Maria Santos",
+          "Agent": "Luz",
+          "City": "Manila",
+          "Country": "Philippines",
+          "Main role": "Expert",
+          "Bio (one line)": "ER nurse. Wants first aid in every language.",
+          "Squad": "First Aiders",
+          "Type": "Regular"
+        }
+      ],
+      "inviteExamples": [
+        {
+          "From": "Luz · Maria's agent",
+          "To": "You",
+          "Kind": "Quest invite",
+          "Message": "You speak Tagalog? Translate the burns guide in 15 min.",
+          "When it shows": "When you add Tagalog to your languages"
+        }
+      ]
+    }
+  },
+  {
+    "id": "llm",
+    "title": "Build an open AI that speaks India",
+    "pitch": "A free AI model that understands 22 Indian languages and runs on one laptop.",
+    "tag": "Product",
+    "glyph": "cube",
+    "color": "var(--gold)",
+    "rules": [],
+    "seedNotice": "Illustrative workbook mission. People, progress, prizes, and outcomes shown as examples are not verified live activity.",
+    "stages": [
+      {
+        "name": "Data",
+        "goal": "Gather 20 billion words of open text in 22 languages",
+        "target": 22,
+        "unit": "languages",
+        "plainWords": "Collect free, legal text in every Indian language."
+      },
+      {
+        "name": "Train",
+        "goal": "Train a small model on 64 GPUs",
+        "target": 1,
+        "unit": "trained model",
+        "plainWords": "Teach the model from that text."
+      },
+      {
+        "name": "Test",
+        "goal": "Beat today's open models on an Indian-language test",
+        "target": 22,
+        "unit": "languages won",
+        "plainWords": "Prove it understands each language better."
+      },
+      {
+        "name": "Ship",
+        "goal": "Free download that runs on one laptop",
+        "target": 1,
+        "unit": "launch",
+        "plainWords": "Anyone can use it, no cloud needed."
+      }
+    ],
+    "strategies": [
+      {
+        "id": "llm-base",
+        "name": "Train our own from scratch",
+        "squad": "Bharat Base",
+        "bet": "Build a small model from zero, trained only on Indian text.",
+        "color": "var(--gold)",
+        "sampleStatus": "Running",
+        "sampleBlocker": "GPU money runs out in 3 weeks"
+      },
+      {
+        "id": "llm-tune",
+        "name": "Tune an existing open model",
+        "squad": "Fine-Tune Force",
+        "bet": "Start from a good open model and teach it Indian languages.",
+        "color": "var(--gold)",
+        "sampleStatus": "Merging",
+        "sampleBlocker": "Same data as Bharat Base, so they're joining forces"
+      },
+      {
+        "id": "llm-data",
+        "name": "Best data wins",
+        "squad": "Data Desh",
+        "bet": "Spend all effort on clean, checked text. Hand it to whoever trains.",
+        "color": "var(--gold)",
+        "sampleStatus": "Running",
+        "sampleBlocker": ""
+      }
+    ],
+    "quests": [
+      {
+        "id": "m1",
+        "title": "Clean 10,000 lines of Odia text",
+        "role": "expert",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "llm-data",
+        "call": null,
+        "sampleReward": "500",
+        "sampleCurrency": "₹",
+        "safetyNote": ""
+      },
+      {
+        "id": "m2",
+        "title": "Write 50 test questions in Kannada",
+        "role": "expert",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "llm-data",
+        "call": null,
+        "sampleReward": "600",
+        "sampleCurrency": "₹",
+        "safetyNote": ""
+      },
+      {
+        "id": "m3",
+        "title": "Check 100 model answers in Hindi",
+        "role": "checker",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "llm-data",
+        "call": null,
+        "sampleReward": "500",
+        "sampleCurrency": "₹",
+        "safetyNote": ""
+      },
+      {
+        "id": "llm-base-back",
+        "title": "Back Bharat Base's GPU bill",
+        "role": "patron",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "llm-base",
+        "call": null,
+        "sampleReward": "0",
+        "sampleCurrency": "₹",
+        "safetyNote": ""
+      },
+      {
+        "id": "m4",
+        "title": "Set up the training run on 64 GPUs",
+        "role": "maker",
+        "size": "L",
+        "xp": 0,
+        "coins": 0,
+        "strat": "llm-base",
+        "call": null,
+        "sampleReward": "8000",
+        "sampleCurrency": "₹",
+        "safetyNote": ""
+      },
+      {
+        "id": "m5",
+        "title": "Plan how Fine-Tune Force joins Bharat Base",
+        "role": "planner",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "llm-tune",
+        "call": null,
+        "sampleReward": "1500",
+        "sampleCurrency": "₹",
+        "safetyNote": ""
+      },
+      {
+        "id": "m6",
+        "title": "Find 5 free sources of Tamil text",
+        "role": "expert",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "llm-data",
+        "call": null,
+        "sampleReward": "400",
+        "sampleCurrency": "₹",
+        "safetyNote": ""
+      }
+    ],
+    "sample": {
+      "state": "Merging",
+      "teachingPoint": "Two plans can join forces",
+      "creator": "Vikram Rao",
+      "creatorDescription": "AI researcher, Bengaluru",
+      "place": "India",
+      "prize": "5000000",
+      "currency": "₹",
+      "players": "310",
+      "squads": "3",
+      "finished": null,
+      "people": [
+        {
+          "Name": "Vikram Rao",
+          "Agent": "Sutra",
+          "City": "Bengaluru",
+          "Country": "India",
+          "Main role": "Leader",
+          "Bio (one line)": "AI researcher. Wants AI that speaks his grandmother's language.",
+          "Squad": "Bharat Base",
+          "Type": "Star"
+        },
+        {
+          "Name": "Arnav Singh",
+          "Agent": "Tune",
+          "City": "Chandigarh",
+          "Country": "India",
+          "Main role": "Maker",
+          "Bio (one line)": "Engineer who fine-tunes open models on weekends.",
+          "Squad": "Fine-Tune Force",
+          "Type": "Regular"
+        },
+        {
+          "Name": "Fatima Sheikh",
+          "Agent": "Lipi",
+          "City": "Hyderabad",
+          "Country": "India",
+          "Main role": "Expert",
+          "Bio (one line)": "Linguist who knows 6 scripts. Cleans text so models learn right.",
+          "Squad": "Data Desh",
+          "Type": "Regular"
+        }
+      ],
+      "inviteExamples": [
+        {
+          "From": "Sutra · Vikram's agent",
+          "To": "Fine-Tune Force members",
+          "Kind": "Merge invite",
+          "Message": "Fine-Tune Force is joining Bharat Base. Come with them?",
+          "When it shows": "When the merge is agreed"
+        }
+      ]
+    }
+  },
+  {
+    "id": "harness",
+    "title": "Build the agent engine Joystick runs on",
+    "pitch": "The open-source engine that lets every player's agent plan, do and check quests safely.",
+    "tag": "Product",
+    "glyph": "cube",
+    "color": "var(--gold)",
+    "rules": [],
+    "seedNotice": "Illustrative workbook mission. People, progress, prizes, and outcomes shown as examples are not verified live activity.",
+    "stages": [
+      {
+        "name": "Loop",
+        "goal": "An agent finishes a 15-min quest on its own",
+        "target": 1,
+        "unit": "working loop",
+        "plainWords": "One agent can pick a quest, do it and hand it in."
+      },
+      {
+        "name": "Tools",
+        "goal": "Agents use 10 tools safely",
+        "target": 10,
+        "unit": "tools",
+        "plainWords": "GitHub, files, browser, payments… without doing anything you didn't allow."
+      },
+      {
+        "name": "Review",
+        "goal": "A second agent checks every result before a human sees it",
+        "target": 1,
+        "unit": "review step",
+        "plainWords": "Two levels of checks: agent first, then human."
+      },
+      {
+        "name": "Scale",
+        "goal": "1,000 agents work at once with no money mistakes",
+        "target": 1000,
+        "unit": "agents",
+        "plainWords": "Many agents, zero wrong payments."
+      }
+    ],
+    "strategies": [
+      {
+        "id": "har-loop",
+        "name": "One strong agent",
+        "squad": "Loop Lab",
+        "bet": "One capable agent loop with strict limits on money and tools.",
+        "color": "var(--gold)",
+        "sampleStatus": "Running",
+        "sampleBlocker": "The browser tool sometimes clicks the wrong button"
+      },
+      {
+        "id": "har-crew",
+        "name": "Many small agents",
+        "squad": "Small Crew",
+        "bet": "Lots of small agents that each do one job and check each other.",
+        "color": "var(--gold)",
+        "sampleStatus": "Running",
+        "sampleBlocker": ""
+      }
+    ],
+    "quests": [
+      {
+        "id": "h1",
+        "title": "Add a GitHub tool the agent can use safely",
+        "role": "maker",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "har-loop",
+        "call": null,
+        "sampleReward": "100",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "h2",
+        "title": "Try to make the agent spend money it shouldn't",
+        "role": "checker",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "har-loop",
+        "call": null,
+        "sampleReward": "40",
+        "sampleCurrency": "$",
+        "safetyNote": "Test accounts only."
+      },
+      {
+        "id": "h3",
+        "title": "Write the rules for when an agent must ask its human",
+        "role": "planner",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "har-crew",
+        "call": null,
+        "sampleReward": "30",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "h4",
+        "title": "Run the engine on a real quest and log what broke",
+        "role": "user",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "har-loop",
+        "call": null,
+        "sampleReward": "20",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "h5",
+        "title": "Explain the engine in a 2-minute video",
+        "role": "storyteller",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "har-crew",
+        "call": null,
+        "sampleReward": "25",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "h6",
+        "title": "Build the quest loop: pick, do, hand in",
+        "role": "maker",
+        "size": "L",
+        "xp": 0,
+        "coins": 0,
+        "strat": "har-loop",
+        "call": null,
+        "sampleReward": "400",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      }
+    ],
+    "sample": {
+      "state": "Racing",
+      "teachingPoint": "You can help build the game itself",
+      "creator": "Kit Bashford",
+      "creatorDescription": "Agent engineer, 12 years",
+      "place": "Global",
+      "prize": "60000",
+      "currency": "$",
+      "players": "190",
+      "squads": "2",
+      "finished": null,
+      "people": [
+        {
+          "Name": "Kit Bashford",
+          "Agent": "Gear",
+          "City": "Leeds",
+          "Country": "UK",
+          "Main role": "Leader",
+          "Bio (one line)": "Has built developer tools for 12 years. Now builds agents.",
+          "Squad": "Loop Lab",
+          "Type": "Star"
+        },
+        {
+          "Name": "Lena Vogt",
+          "Agent": "Pixel",
+          "City": "Berlin",
+          "Country": "Germany",
+          "Main role": "Planner",
+          "Bio (one line)": "Designer who builds with agents every day.",
+          "Squad": "Small Crew",
+          "Type": "Regular"
+        }
+      ],
+      "inviteExamples": [
+        {
+          "From": "Gear · Kit's agent",
+          "To": "You",
+          "Kind": "Quest invite",
+          "Message": "You code. Try to break our agent engine in 15 minutes?",
+          "When it shows": "On the Missions tab for Makers and Checkers"
+        }
+      ]
+    }
+  },
+  {
+    "id": "reef",
+    "title": "Map every coral reef from space",
+    "pitch": "A free weekly map that shows where coral is dying.",
+    "tag": "Planet",
+    "glyph": "wave",
+    "color": "var(--sky)",
+    "rules": [
+      "Classifier is 90% accurate on dive-site data",
+      "Map refreshes weekly for 3 months",
+      "Free public API"
+    ],
+    "seedNotice": "Illustrative workbook mission. People, progress, prizes, and outcomes shown as examples are not verified live activity.",
+    "stages": [
+      {
+        "name": "Pilot",
+        "goal": "Label 1,000 satellite photos",
+        "target": 1000,
+        "unit": "photos",
+        "plainWords": "Teach the computer what a reef looks like from space."
+      },
+      {
+        "name": "Ground truth",
+        "goal": "Check the health of 200 reefs on site",
+        "target": 200,
+        "unit": "reefs",
+        "plainWords": "Divers check 200 reefs so we know the map is right."
+      },
+      {
+        "name": "Model",
+        "goal": "Map guesses reef health 9 times out of 10",
+        "target": 90,
+        "unit": "% right",
+        "plainWords": "The map is right 9 times out of 10."
+      },
+      {
+        "name": "Public map",
+        "goal": "Weekly public reef map online",
+        "target": 1,
+        "unit": "launch",
+        "plainWords": "Anyone can see it, every week."
+      }
+    ],
+    "strategies": [
+      {
+        "id": "reef-ops",
+        "name": "Divers check, satellites scale",
+        "squad": "Reef Ops",
+        "bet": "Divers score 200 reefs, then the map learns from them.",
+        "color": "var(--sky)",
+        "sampleStatus": "Stuck",
+        "sampleBlocker": "Out of money for dive trips; 30 reports wait for a checker"
+      },
+      {
+        "id": "reef-sky",
+        "name": "Satellite only",
+        "squad": "Sky Eyes",
+        "bet": "Agents read satellite photos, no divers needed.",
+        "color": "var(--sky)",
+        "sampleStatus": "Running",
+        "sampleBlocker": "No human checker yet"
+      }
+    ],
+    "quests": [
+      {
+        "id": "r1",
+        "title": "Dive and score 5 reefs near Cebu",
+        "role": "expert",
+        "size": "L",
+        "xp": 0,
+        "coins": 0,
+        "strat": "reef-ops",
+        "call": {
+          "q": "2 dive logs have no GPS. Keep them?",
+          "opts": [
+            "Drop them",
+            "Estimate from the dive shop's location"
+          ]
+        },
+        "sampleReward": "250",
+        "sampleCurrency": "$",
+        "safetyNote": "Certified divers only. Always dive with a buddy."
+      },
+      {
+        "id": "r2",
+        "title": "Check 30 dive reports against their photos",
+        "role": "checker",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "reef-ops",
+        "call": {
+          "q": "Budget covers 10 of the 12 sites. Which to skip?",
+          "opts": [
+            "The two most remote",
+            "The two already well-studied"
+          ]
+        },
+        "sampleReward": "30",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "reef-ops-back",
+        "title": "Back Reef Ops",
+        "role": "patron",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "reef-ops",
+        "call": null,
+        "sampleReward": "0",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "r3",
+        "title": "Check 50 reef maps made by agents",
+        "role": "checker",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "reef-sky",
+        "call": {
+          "q": "Most misses are cloud shadow. Next step?",
+          "opts": [
+            "Add a cloud-mask step",
+            "Only use clear-sky tiles"
+          ]
+        },
+        "sampleReward": "25",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "r4",
+        "title": "Find a dive shop in Fiji to join us",
+        "role": "planner",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "reef-ops",
+        "call": {
+          "q": "Divers hate typing. What do we ask for?",
+          "opts": [
+            "Photo + GPS only",
+            "Photo, GPS and a 1–5 rating"
+          ]
+        },
+        "sampleReward": "25",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "r5",
+        "title": "Label 200 satellite photos",
+        "role": "expert",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "reef-sky",
+        "call": null,
+        "sampleReward": "20",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      }
+    ],
+    "sample": {
+      "state": "Stuck",
+      "teachingPoint": "Blockers, and how you can help",
+      "creator": "Blue Carbon Lab",
+      "creatorDescription": "Marine charity (fictional)",
+      "place": "Global",
+      "prize": "85000",
+      "currency": "$",
+      "players": "95",
+      "squads": "2",
+      "finished": null,
+      "people": [
+        {
+          "Name": "Tomás Reyes",
+          "Agent": "Coral",
+          "City": "Cebu",
+          "Country": "Philippines",
+          "Main role": "Expert",
+          "Bio (one line)": "Marine biologist and diver. Has seen reefs die.",
+          "Squad": "Reef Ops",
+          "Type": "Regular"
+        }
+      ],
+      "inviteExamples": [
+        {
+          "From": "Coral · Sky Eyes (agents only)",
+          "To": "You",
+          "Kind": "Squad invite",
+          "Message": "We're all agents. We need a human to check our reef maps.",
+          "When it shows": "Shown on the Reef stage page"
+        }
+      ]
+    }
+  },
+  {
+    "id": "lead",
+    "title": "Find every lead pipe in one city",
+    "pitch": "Find every lead water pipe in Dayton so the city can replace them.",
+    "tag": "Planet",
+    "glyph": "wave",
+    "color": "var(--sky)",
+    "rules": [],
+    "seedNotice": "Illustrative workbook mission. People, progress, prizes, and outcomes shown as examples are not verified live activity.",
+    "stages": [
+      {
+        "name": "Records",
+        "goal": "Get the city's water pipe records",
+        "target": 1,
+        "unit": "record set",
+        "plainWords": "Find out what the city already knows."
+      },
+      {
+        "name": "Photos",
+        "goal": "Photo 2,000 pipes where they enter homes",
+        "target": 2000,
+        "unit": "photos",
+        "plainWords": "People photo the pipe at home. Agents spot lead."
+      },
+      {
+        "name": "Map",
+        "goal": "Public map of every lead pipe",
+        "target": 1,
+        "unit": "launch",
+        "plainWords": "Anyone can check their street."
+      },
+      {
+        "name": "Replace",
+        "goal": "City commits to replace 500 pipes",
+        "target": 500,
+        "unit": "pipes",
+        "plainWords": "The city says yes, with a date."
+      }
+    ],
+    "strategies": [
+      {
+        "id": "lead-pipes",
+        "name": "Records + home photos",
+        "squad": "Pipe Finders",
+        "bet": "Start from city records, then people photo the pipe at home.",
+        "color": "var(--sky)",
+        "sampleStatus": "Proposed",
+        "sampleBlocker": "Needs 54 more backers to launch"
+      }
+    ],
+    "quests": [
+      {
+        "id": "lead-pipes-back",
+        "title": "Back Pipe Finders so they can start",
+        "role": "patron",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "lead-pipes",
+        "call": null,
+        "sampleReward": "0",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "l1",
+        "title": "Ask the city for its water pipe records",
+        "role": "planner",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "lead-pipes",
+        "call": null,
+        "sampleReward": "20",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "l2",
+        "title": "Photo the pipe where water enters your home",
+        "role": "user",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "lead-pipes",
+        "call": null,
+        "sampleReward": "15",
+        "sampleCurrency": "$",
+        "safetyNote": "Only your own home, or with the owner's OK."
+      }
+    ],
+    "sample": {
+      "state": "Proposed",
+      "teachingPoint": "Players decide what gets started",
+      "creator": "Bill Turner",
+      "creatorDescription": "Retired civil engineer, Ohio",
+      "place": "Dayton, USA",
+      "prize": "30000",
+      "currency": "$",
+      "players": "0",
+      "squads": "1",
+      "finished": null,
+      "people": [
+        {
+          "Name": "Bill Turner",
+          "Agent": "Rusty",
+          "City": "Dayton",
+          "Country": "USA",
+          "Main role": "Checker",
+          "Bio (one line)": "Retired civil engineer. Spent 30 years on water pipes.",
+          "Squad": "Pipe Finders",
+          "Type": "New"
+        }
+      ],
+      "inviteExamples": [
+        {
+          "From": "Pip (your agent)",
+          "To": "You",
+          "Kind": "Back invite",
+          "Message": "Pipe Finders need 54 more backers to launch. Back them for free?",
+          "When it shows": "In the lobby on proposed missions"
+        }
+      ]
+    }
+  },
+  {
+    "id": "tutor",
+    "title": "Offline maths tutor for kids",
+    "pitch": "A maths tutor that works on a $50 phone with no internet, in 10 languages.",
+    "tag": "Education",
+    "glyph": "book",
+    "color": "var(--leaf)",
+    "rules": [
+      "Pilot kids gain one grade level in 6 months",
+      "Runs fully offline on a $50 Android phone",
+      "Free forever"
+    ],
+    "seedNotice": "Illustrative workbook mission. People, progress, prizes, and outcomes shown as examples are not verified live activity.",
+    "stages": [
+      {
+        "name": "Curriculum",
+        "goal": "Write down what kids learn in maths in 10 countries",
+        "target": 10,
+        "unit": "countries",
+        "plainWords": "Know what each class needs to learn."
+      },
+      {
+        "name": "App",
+        "goal": "Tutor works on a $50 phone with no internet",
+        "target": 1,
+        "unit": "working app",
+        "plainWords": "It runs on cheap phones, offline."
+      },
+      {
+        "name": "Pilot",
+        "goal": "500 kids use it for 4 weeks",
+        "target": 500,
+        "unit": "kids",
+        "plainWords": "Real kids use it in real schools."
+      },
+      {
+        "name": "Results",
+        "goal": "Test scores rise 10% in all 10 countries",
+        "target": 10,
+        "unit": "countries",
+        "plainWords": "Prove it helps. 9 countries done, 1 to go."
+      }
+    ],
+    "strategies": [
+      {
+        "id": "tutor-chalk",
+        "name": "Offline app on cheap phones",
+        "squad": "Chalk Squad",
+        "bet": "One small app that works without internet, tested in real classes.",
+        "color": "var(--leaf)",
+        "sampleStatus": "Running",
+        "sampleBlocker": "Kenya results not in yet"
+      }
+    ],
+    "quests": [
+      {
+        "id": "t1",
+        "title": "Give the 20-minute maths test to one class in Kenya",
+        "role": "user",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "tutor-chalk",
+        "call": {
+          "q": "Some topics overlap with Grade 5. Where do they go?",
+          "opts": [
+            "Keep them in Grade 4",
+            "Move them to Grade 5"
+          ]
+        },
+        "sampleReward": "40",
+        "sampleCurrency": "$",
+        "safetyNote": "Ask the head teacher first. Never alone with a child."
+      },
+      {
+        "id": "t2",
+        "title": "Check test results from 9 countries",
+        "role": "checker",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "tutor-chalk",
+        "call": {
+          "q": "Kids read at different levels. How do we show questions?",
+          "opts": [
+            "Big pictures, few words",
+            "Read-aloud button on everything"
+          ]
+        },
+        "sampleReward": "60",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "t3",
+        "title": "Write the results report",
+        "role": "storyteller",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "tutor-chalk",
+        "call": {
+          "q": "Who first?",
+          "opts": [
+            "Rural teachers",
+            "City teachers",
+            "One of each plus a parent"
+          ]
+        },
+        "sampleReward": "60",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "t4",
+        "title": "Translate the app into Swahili",
+        "role": "expert",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "tutor-chalk",
+        "call": {
+          "q": "Two PDFs are scanned images. What now?",
+          "opts": [
+            "Run OCR and flag for teachers",
+            "Skip them for now"
+          ]
+        },
+        "sampleReward": "60",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "t5",
+        "title": "Make the app run on $50 phones",
+        "role": "maker",
+        "size": "L",
+        "xp": 0,
+        "coins": 0,
+        "strat": "tutor-chalk",
+        "call": null,
+        "sampleReward": "300",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      }
+    ],
+    "sample": {
+      "state": "Final stage",
+      "teachingPoint": "What a finish looks like",
+      "creator": "Chioma Okafor",
+      "creatorDescription": "Head teacher, Lagos",
+      "place": "10 countries",
+      "prize": "120000",
+      "currency": "$",
+      "players": "180",
+      "squads": "1",
+      "finished": null,
+      "people": [
+        {
+          "Name": "Chioma Okafor",
+          "Agent": "Chalk",
+          "City": "Lagos",
+          "Country": "Nigeria",
+          "Main role": "Leader",
+          "Bio (one line)": "Head teacher. Her school has 40 kids per phone.",
+          "Squad": "Chalk Squad",
+          "Type": "Star"
+        }
+      ],
+      "inviteExamples": [
+        {
+          "From": "Chalk · Chioma's agent",
+          "To": "You",
+          "Kind": "Quest invite",
+          "Message": "We're one country from winning. Can you check the results?",
+          "When it shows": "On the Missions tab if you're a Checker"
+        }
+      ]
+    }
+  },
+  {
+    "id": "benefits",
+    "title": "Get families the benefits they're owed",
+    "pitch": "Help poor families claim the pensions, scholarships and ration cards they already have a right to.",
+    "tag": "Community",
+    "glyph": "spark",
+    "color": "var(--blue)",
+    "rules": [],
+    "seedNotice": "Illustrative workbook mission. People, progress, prizes, and outcomes shown as examples are not verified live activity.",
+    "stages": [
+      {
+        "name": "Schemes",
+        "goal": "List 50 schemes in plain words",
+        "target": 50,
+        "unit": "schemes",
+        "plainWords": "Write what each scheme gives and who can get it."
+      },
+      {
+        "name": "Helper",
+        "goal": "Families can ask about schemes in 6 languages",
+        "target": 6,
+        "unit": "languages",
+        "plainWords": "A family can ask in their own language and get a clear answer."
+      },
+      {
+        "name": "Apply",
+        "goal": "1,000 families in 2 districts apply",
+        "target": 1000,
+        "unit": "families",
+        "plainWords": "Help families fill and send the forms."
+      },
+      {
+        "name": "Paid",
+        "goal": "10,000 families get their money",
+        "target": 10000,
+        "unit": "families",
+        "plainWords": "The money actually reaches them."
+      }
+    ],
+    "strategies": [
+      {
+        "id": "ben-haq",
+        "name": "WhatsApp helper",
+        "squad": "Haq Helpers",
+        "bet": "A WhatsApp helper that answers in 6 languages.",
+        "color": "var(--blue)",
+        "sampleStatus": "Running",
+        "sampleBlocker": ""
+      },
+      {
+        "id": "ben-village",
+        "name": "One volunteer per village",
+        "squad": "Village Volunteers",
+        "bet": "Train one trusted person in each village to help neighbours.",
+        "color": "var(--blue)",
+        "sampleStatus": "Running",
+        "sampleBlocker": ""
+      },
+      {
+        "id": "ben-ngo",
+        "name": "Work through local NGOs",
+        "squad": "NGO Bridge",
+        "bet": "Partner with NGOs that already help families with forms.",
+        "color": "var(--blue)",
+        "sampleStatus": "Running",
+        "sampleBlocker": "Waiting on 3 NGOs to reply"
+      }
+    ],
+    "quests": [
+      {
+        "id": "b1",
+        "title": "Write the widow pension rules in plain Hindi",
+        "role": "expert",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "ben-haq",
+        "call": null,
+        "sampleReward": "400",
+        "sampleCurrency": "₹",
+        "safetyNote": ""
+      },
+      {
+        "id": "b2",
+        "title": "Ask the WhatsApp helper 5 questions in Tamil and report mistakes",
+        "role": "user",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "ben-haq",
+        "call": null,
+        "sampleReward": "300",
+        "sampleCurrency": "₹",
+        "safetyNote": ""
+      },
+      {
+        "id": "b3",
+        "title": "Teach the helper to answer about scholarships",
+        "role": "maker",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "ben-haq",
+        "call": null,
+        "sampleReward": "1500",
+        "sampleCurrency": "₹",
+        "safetyNote": ""
+      },
+      {
+        "id": "b4",
+        "title": "Sit with 3 families near you and check what they're missing",
+        "role": "user",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "ben-village",
+        "call": null,
+        "sampleReward": "1000",
+        "sampleCurrency": "₹",
+        "safetyNote": "Go with a local volunteer. Never take anyone's papers home."
+      },
+      {
+        "id": "b5",
+        "title": "Train 5 volunteers in Sitapur",
+        "role": "leader",
+        "size": "L",
+        "xp": 0,
+        "coins": 0,
+        "strat": "ben-village",
+        "call": null,
+        "sampleReward": "5000",
+        "sampleCurrency": "₹",
+        "safetyNote": "Meet in a public place like the school or panchayat office."
+      },
+      {
+        "id": "b6",
+        "title": "Check 20 forms before they're sent",
+        "role": "checker",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "ben-village",
+        "call": null,
+        "sampleReward": "500",
+        "sampleCurrency": "₹",
+        "safetyNote": ""
+      },
+      {
+        "id": "b7",
+        "title": "List the NGOs in 2 districts that help with forms",
+        "role": "planner",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "ben-ngo",
+        "call": null,
+        "sampleReward": "400",
+        "sampleCurrency": "₹",
+        "safetyNote": ""
+      },
+      {
+        "id": "b8",
+        "title": "List all 50 schemes in plain words",
+        "role": "expert",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "ben-haq",
+        "call": null,
+        "sampleReward": "1500",
+        "sampleCurrency": "₹",
+        "safetyNote": ""
+      }
+    ],
+    "sample": {
+      "state": "Racing",
+      "teachingPoint": "Society missions work like science ones",
+      "creator": "Meera Joshi",
+      "creatorDescription": "NGO coordinator, Lucknow",
+      "place": "Uttar Pradesh, India",
+      "prize": "1500000",
+      "currency": "₹",
+      "players": "260",
+      "squads": "3",
+      "finished": null,
+      "people": [
+        {
+          "Name": "Sunita Devi",
+          "Agent": "Didi",
+          "City": "Barmer",
+          "Country": "India",
+          "Main role": "User",
+          "Bio (one line)": "Village health worker. Knows every family in her area.",
+          "Squad": "Village Volunteers",
+          "Type": "Regular"
+        },
+        {
+          "Name": "Divya Reddy",
+          "Agent": "Chip",
+          "City": "Hyderabad",
+          "Country": "India",
+          "Main role": "Maker",
+          "Bio (one line)": "Developer who builds WhatsApp bots for small shops.",
+          "Squad": "Haq Helpers",
+          "Type": "Regular"
+        },
+        {
+          "Name": "Meera Joshi",
+          "Agent": "Saathi",
+          "City": "Lucknow",
+          "Country": "India",
+          "Main role": "Leader",
+          "Bio (one line)": "NGO coordinator. Has helped 2,000 families with forms.",
+          "Squad": "Village Volunteers",
+          "Type": "Star"
+        },
+        {
+          "Name": "Rahul Verma",
+          "Agent": "Ledger",
+          "City": "Delhi",
+          "Country": "India",
+          "Main role": "Planner",
+          "Bio (one line)": "Ex-bank officer. Knows how money moves (and stalls).",
+          "Squad": "NGO Bridge",
+          "Type": "New"
+        }
+      ],
+      "inviteExamples": [
+        {
+          "From": "Didi · Sunita's agent",
+          "To": "You",
+          "Kind": "Quest invite",
+          "Message": "Our village volunteers need someone to check 20 forms.",
+          "When it shows": "When Benefits stage 3 opens"
+        }
+      ]
+    }
+  },
+  {
+    "id": "candidate",
+    "title": "Know your candidate before you vote",
+    "pitch": "Plain facts on every candidate in the Pune city election, from public records only.",
+    "tag": "Community",
+    "glyph": "spark",
+    "color": "var(--blue)",
+    "rules": [],
+    "seedNotice": "Illustrative workbook mission. People, progress, prizes, and outcomes shown as examples are not verified live activity.",
+    "stages": [
+      {
+        "name": "Collect",
+        "goal": "Get the public affidavit of all 310 candidates",
+        "target": 310,
+        "unit": "affidavits",
+        "plainWords": "Every candidate files these papers by law."
+      },
+      {
+        "name": "One-pagers",
+        "goal": "A plain one-page profile for every candidate",
+        "target": 310,
+        "unit": "profiles",
+        "plainWords": "Cases, assets, education. Same page for everyone."
+      },
+      {
+        "name": "Check",
+        "goal": "2 checkers verify every profile",
+        "target": 310,
+        "unit": "profiles",
+        "plainWords": "Nothing goes out unchecked."
+      },
+      {
+        "name": "Share",
+        "goal": "Reach 1 lakh voters before voting day",
+        "target": 100000,
+        "unit": "voters",
+        "plainWords": "Send them by WhatsApp before people vote."
+      }
+    ],
+    "strategies": [
+      {
+        "id": "cand-clear",
+        "name": "Plain one-pagers",
+        "squad": "Vote Clear",
+        "bet": "Turn every affidavit into the same plain one-page profile.",
+        "color": "var(--blue)",
+        "sampleStatus": "Running",
+        "sampleBlocker": "12 days to voting day"
+      }
+    ],
+    "quests": [
+      {
+        "id": "k1",
+        "title": "Turn 5 affidavits into plain one-page profiles",
+        "role": "expert",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "cand-clear",
+        "call": null,
+        "sampleReward": "500",
+        "sampleCurrency": "₹",
+        "safetyNote": "Facts only. Same template for every candidate."
+      },
+      {
+        "id": "k2",
+        "title": "Check 10 profiles against the original affidavit",
+        "role": "checker",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "cand-clear",
+        "call": null,
+        "sampleReward": "400",
+        "sampleCurrency": "₹",
+        "safetyNote": ""
+      },
+      {
+        "id": "k3",
+        "title": "Translate 20 profiles into Marathi",
+        "role": "expert",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "cand-clear",
+        "call": null,
+        "sampleReward": "1200",
+        "sampleCurrency": "₹",
+        "safetyNote": ""
+      },
+      {
+        "id": "k4",
+        "title": "Plan how to reach 1 lakh voters by WhatsApp",
+        "role": "storyteller",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "cand-clear",
+        "call": null,
+        "sampleReward": "1500",
+        "sampleCurrency": "₹",
+        "safetyNote": "No party logos, no opinions."
+      },
+      {
+        "id": "k5",
+        "title": "Design the profile so it reads well on a phone",
+        "role": "maker",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "cand-clear",
+        "call": null,
+        "sampleReward": "500",
+        "sampleCurrency": "₹",
+        "safetyNote": ""
+      }
+    ],
+    "sample": {
+      "state": "Countdown",
+      "teachingPoint": "Some missions race a deadline (12 days to voting day)",
+      "creator": "Arjun Mehta",
+      "creatorDescription": "Journalist, Mumbai",
+      "place": "Pune, India",
+      "prize": "500000",
+      "currency": "₹",
+      "players": "120",
+      "squads": "1",
+      "finished": null,
+      "people": [
+        {
+          "Name": "Ananya Kulkarni",
+          "Agent": "Lex",
+          "City": "Pune",
+          "Country": "India",
+          "Main role": "Expert",
+          "Bio (one line)": "Law student who reads affidavits for fun.",
+          "Squad": "Vote Clear",
+          "Type": "Regular"
+        },
+        {
+          "Name": "Arjun Mehta",
+          "Agent": "Echo",
+          "City": "Mumbai",
+          "Country": "India",
+          "Main role": "Storyteller",
+          "Bio (one line)": "Journalist. Believes voters deserve plain facts.",
+          "Squad": "Vote Clear",
+          "Type": "Regular"
+        }
+      ],
+      "inviteExamples": [
+        {
+          "From": "Echo · Arjun's agent",
+          "To": "You",
+          "Kind": "Quest invite",
+          "Message": "12 days to voting day. Can you check 10 profiles tonight?",
+          "When it shows": "Push notification in the evening"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pothole",
+    "title": "Fix every pothole in Bengaluru",
+    "pitch": "Pin every pothole, file it with the city, and chase it until it's fixed.",
+    "tag": "Community",
+    "glyph": "spark",
+    "color": "var(--blue)",
+    "rules": [],
+    "seedNotice": "Illustrative workbook mission. People, progress, prizes, and outcomes shown as examples are not verified live activity.",
+    "stages": [
+      {
+        "name": "Map",
+        "goal": "Pin 5,000 potholes",
+        "target": 5000,
+        "unit": "potholes",
+        "plainWords": "Photo and pin every pothole you pass."
+      },
+      {
+        "name": "File",
+        "goal": "File every pothole with the city",
+        "target": 5000,
+        "unit": "complaints",
+        "plainWords": "Agents file the complaints for you."
+      },
+      {
+        "name": "Track",
+        "goal": "Chase every complaint until it's fixed",
+        "target": 5000,
+        "unit": "complaints",
+        "plainWords": "Follow up so none are forgotten."
+      },
+      {
+        "name": "Fixed",
+        "goal": "80% fixed within 90 days",
+        "target": 80,
+        "unit": "% fixed",
+        "plainWords": "Most of them actually get fixed."
+      }
+    ],
+    "strategies": [
+      {
+        "id": "pot-patrol",
+        "name": "Riders pin as they ride",
+        "squad": "Pothole Patrol",
+        "bet": "Delivery riders and commuters pin potholes on routes they already take.",
+        "color": "var(--blue)",
+        "sampleStatus": "Running",
+        "sampleBlocker": ""
+      }
+    ],
+    "quests": [
+      {
+        "id": "p1",
+        "title": "Photo and pin 5 potholes on your way home",
+        "role": "user",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "pot-patrol",
+        "call": null,
+        "sampleReward": "200",
+        "sampleCurrency": "₹",
+        "safetyNote": "Stop safely first. Never take photos in moving traffic."
+      },
+      {
+        "id": "p2",
+        "title": "Check 50 pins for repeats",
+        "role": "checker",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "pot-patrol",
+        "call": null,
+        "sampleReward": "300",
+        "sampleCurrency": "₹",
+        "safetyNote": ""
+      },
+      {
+        "id": "p3",
+        "title": "Build the ward scoreboard",
+        "role": "maker",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "pot-patrol",
+        "call": null,
+        "sampleReward": "1500",
+        "sampleCurrency": "₹",
+        "safetyNote": ""
+      },
+      {
+        "id": "p4",
+        "title": "Chase 10 complaints older than 30 days",
+        "role": "leader",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "pot-patrol",
+        "call": null,
+        "sampleReward": "400",
+        "sampleCurrency": "₹",
+        "safetyNote": ""
+      },
+      {
+        "id": "p5",
+        "title": "Pick which wards to map first",
+        "role": "planner",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "pot-patrol",
+        "call": null,
+        "sampleReward": "300",
+        "sampleCurrency": "₹",
+        "safetyNote": ""
+      }
+    ],
+    "sample": {
+      "state": "Just started",
+      "teachingPoint": "Lots of quick quests on your way home",
+      "creator": "Kavya Iyer",
+      "creatorDescription": "Product manager, Bengaluru",
+      "place": "Bengaluru, India",
+      "prize": "800000",
+      "currency": "₹",
+      "players": "340",
+      "squads": "1",
+      "finished": null,
+      "people": [
+        {
+          "Name": "Imran Shaikh",
+          "Agent": "Zippy",
+          "City": "Bengaluru",
+          "Country": "India",
+          "Main role": "User",
+          "Bio (one line)": "Delivery rider. Rides 80 km a day and sees every pothole.",
+          "Squad": "Pothole Patrol",
+          "Type": "New"
+        },
+        {
+          "Name": "Kavya Iyer",
+          "Agent": "Kolam",
+          "City": "Bengaluru",
+          "Country": "India",
+          "Main role": "Planner",
+          "Bio (one line)": "Product manager. Tired of dodging potholes.",
+          "Squad": "Pothole Patrol",
+          "Type": "Regular"
+        }
+      ],
+      "inviteExamples": [
+        {
+          "From": "Pip (your agent)",
+          "To": "You",
+          "Kind": "Squad suggestion",
+          "Message": "You speak Kannada. Pothole Patrol and Data Desh both need you.",
+          "When it shows": "When you add Kannada to your languages"
+        },
+        {
+          "From": "Pip (your agent)",
+          "To": "You",
+          "Kind": "Thank-you nudge",
+          "Message": "Imran pinned 40 potholes this week. Say thanks?",
+          "When it shows": "After you finish a quest"
+        }
+      ]
+    }
+  },
+  {
+    "id": "rti",
+    "title": "Ask where the school money went",
+    "pitch": "Use information requests to see what 100 government schools got, and check what's really there.",
+    "tag": "Community",
+    "glyph": "spark",
+    "color": "var(--blue)",
+    "rules": [],
+    "seedNotice": "Illustrative workbook mission. People, progress, prizes, and outcomes shown as examples are not verified live activity.",
+    "stages": [
+      {
+        "name": "Pick",
+        "goal": "Pick 100 government schools",
+        "target": 100,
+        "unit": "schools",
+        "plainWords": "Choose schools across 4 districts."
+      },
+      {
+        "name": "Ask",
+        "goal": "File an information request for each school",
+        "target": 100,
+        "unit": "requests",
+        "plainWords": "Ask what money each school got."
+      },
+      {
+        "name": "Replies",
+        "goal": "Get answers from all 100 schools",
+        "target": 100,
+        "unit": "replies",
+        "plainWords": "59 replies are late. Each needs an appeal filed in person."
+      },
+      {
+        "name": "Visit",
+        "goal": "Visit each school and compare",
+        "target": 100,
+        "unit": "visits",
+        "plainWords": "Check if the books, toilets and teachers are really there."
+      },
+      {
+        "name": "Report",
+        "goal": "A report card for every school",
+        "target": 100,
+        "unit": "report cards",
+        "plainWords": "Parents can see it all in one page."
+      }
+    ],
+    "strategies": [
+      {
+        "id": "rti-watch",
+        "name": "File and follow up in person",
+        "squad": "School Watch",
+        "bet": "File every request, and appeal in person when replies are late.",
+        "color": "var(--blue)",
+        "sampleStatus": "Stuck",
+        "sampleBlocker": "59 late replies need appeals filed in person"
+      }
+    ],
+    "quests": [
+      {
+        "id": "s1",
+        "title": "File a first appeal for 5 late replies",
+        "role": "expert",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "rti-watch",
+        "call": null,
+        "sampleReward": "1000",
+        "sampleCurrency": "₹",
+        "safetyNote": "Go to the district office in office hours."
+      },
+      {
+        "id": "s2",
+        "title": "Read 20 replies and pull out the numbers",
+        "role": "checker",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "rti-watch",
+        "call": null,
+        "sampleReward": "400",
+        "sampleCurrency": "₹",
+        "safetyNote": ""
+      },
+      {
+        "id": "s3",
+        "title": "Visit one school and photo the toilets and books",
+        "role": "user",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "rti-watch",
+        "call": null,
+        "sampleReward": "800",
+        "sampleCurrency": "₹",
+        "safetyNote": "Go in school hours and ask the head teacher first."
+      },
+      {
+        "id": "s4",
+        "title": "Write the request letter for 100 schools",
+        "role": "expert",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "rti-watch",
+        "call": null,
+        "sampleReward": "400",
+        "sampleCurrency": "₹",
+        "safetyNote": ""
+      }
+    ],
+    "sample": {
+      "state": "Stuck",
+      "teachingPoint": "Real-world blockers need people, not just agents",
+      "creator": "Rajesh Kumar",
+      "creatorDescription": "Retired teacher, Patna",
+      "place": "Bihar, India",
+      "prize": "600000",
+      "currency": "₹",
+      "players": "55",
+      "squads": "1",
+      "finished": null,
+      "people": [
+        {
+          "Name": "Rajesh Kumar",
+          "Agent": "Guru",
+          "City": "Patna",
+          "Country": "India",
+          "Main role": "Checker",
+          "Bio (one line)": "Retired school teacher. Wants to know where the money went.",
+          "Squad": "School Watch",
+          "Type": "Regular"
+        }
+      ],
+      "inviteExamples": []
+    }
+  },
+  {
+    "id": "flood",
+    "title": "Flood alerts by text for Lagos",
+    "pitch": "River sensors that text families 2 hours before a flood.",
+    "tag": "Community",
+    "glyph": "spark",
+    "color": "var(--blue)",
+    "rules": [],
+    "seedNotice": "Illustrative workbook mission. People, progress, prizes, and outcomes shown as examples are not verified live activity.",
+    "stages": [
+      {
+        "name": "Sensors",
+        "goal": "Put 20 water sensors on 3 rivers",
+        "target": 20,
+        "unit": "sensors",
+        "plainWords": "First plan is waiting for the creator's OK."
+      },
+      {
+        "name": "Alerts",
+        "goal": "Text alerts reach 10,000 phones",
+        "target": 10000,
+        "unit": "phones",
+        "plainWords": "Families sign up by text."
+      },
+      {
+        "name": "Test",
+        "goal": "Alerts arrive 2 hours before floods",
+        "target": 2,
+        "unit": "hours warning",
+        "plainWords": "Prove it warns people in time."
+      },
+      {
+        "name": "Hand over",
+        "goal": "The local council runs it",
+        "target": 1,
+        "unit": "handover",
+        "plainWords": "Someone local keeps it going."
+      }
+    ],
+    "strategies": [
+      {
+        "id": "flood-watch",
+        "name": "Sensors + text alerts",
+        "squad": "Flood Watch",
+        "bet": "Cheap river sensors that text families when water rises fast.",
+        "color": "var(--blue)",
+        "sampleStatus": "Waiting for OK",
+        "sampleBlocker": "Plan waits for the creator's OK"
+      }
+    ],
+    "quests": [
+      {
+        "id": "f1",
+        "title": "Review the sensor plan",
+        "role": "checker",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "flood-watch",
+        "call": null,
+        "sampleReward": "20",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "f2",
+        "title": "Find 20 safe spots for sensors on the river",
+        "role": "planner",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "flood-watch",
+        "call": null,
+        "sampleReward": "60",
+        "sampleCurrency": "$",
+        "safetyNote": "Never go near the river when it's high."
+      },
+      {
+        "id": "f3",
+        "title": "Write the alert text in Yoruba and Pidgin",
+        "role": "expert",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "flood-watch",
+        "call": null,
+        "sampleReward": "15",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      }
+    ],
+    "sample": {
+      "state": "Plan in review",
+      "teachingPoint": "The mission creator OKs each new plan",
+      "creator": "Femi Adeyemi",
+      "creatorDescription": "Telecom engineer, Lagos",
+      "place": "Lagos, Nigeria",
+      "prize": "25000",
+      "currency": "$",
+      "players": "12",
+      "squads": "1",
+      "finished": null,
+      "people": [
+        {
+          "Name": "Femi Adeyemi",
+          "Agent": "Rain",
+          "City": "Lagos",
+          "Country": "Nigeria",
+          "Main role": "Maker",
+          "Bio (one line)": "Telecom engineer. His street floods every rainy season.",
+          "Squad": "Flood Watch",
+          "Type": "New"
+        }
+      ],
+      "inviteExamples": []
+    }
+  },
+  {
+    "id": "renter",
+    "title": "Free legal letters for renters",
+    "pitch": "Lawyer-checked letters renters can send in one tap: repairs, deposits, eviction.",
+    "tag": "Community",
+    "glyph": "spark",
+    "color": "var(--blue)",
+    "rules": [],
+    "seedNotice": "Illustrative workbook mission. People, progress, prizes, and outcomes shown as examples are not verified live activity.",
+    "stages": [
+      {
+        "name": "Letters",
+        "goal": "Write 10 letters for the most common problems",
+        "target": 10,
+        "unit": "letters",
+        "plainWords": "Repairs, deposits, rent rises, eviction…"
+      },
+      {
+        "name": "Check",
+        "goal": "A lawyer checks every letter",
+        "target": 10,
+        "unit": "letters",
+        "plainWords": "Nothing goes out without a lawyer's OK."
+      },
+      {
+        "name": "Launch",
+        "goal": "Free letter tool online",
+        "target": 1,
+        "unit": "launch",
+        "plainWords": "Pick your problem, fill 3 boxes, send."
+      },
+      {
+        "name": "Use",
+        "goal": "1,000 renters send a letter",
+        "target": 1000,
+        "unit": "renters",
+        "plainWords": "Real renters get real results."
+      }
+    ],
+    "strategies": [
+      {
+        "id": "renter-right",
+        "name": "Templates checked by lawyers",
+        "squad": "Rent Right",
+        "bet": "10 letters that cover most problems, each checked by a lawyer.",
+        "color": "var(--blue)",
+        "sampleStatus": "Raising money",
+        "sampleBlocker": "$3,200 of $8,000 raised"
+      }
+    ],
+    "quests": [
+      {
+        "id": "renter-right-back",
+        "title": "Back Rent Right",
+        "role": "patron",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "renter-right",
+        "call": null,
+        "sampleReward": "0",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "n1",
+        "title": "Write a letter asking for your deposit back",
+        "role": "expert",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "renter-right",
+        "call": null,
+        "sampleReward": "20",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "n2",
+        "title": "Check 4 letters as a lawyer",
+        "role": "checker",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "renter-right",
+        "call": null,
+        "sampleReward": "80",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "n3",
+        "title": "Tell us a problem you had as a renter",
+        "role": "user",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "renter-right",
+        "call": null,
+        "sampleReward": "10",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      },
+      {
+        "id": "n4",
+        "title": "Write a letter asking for repairs",
+        "role": "expert",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "renter-right",
+        "call": null,
+        "sampleReward": "20",
+        "sampleCurrency": "$",
+        "safetyNote": ""
+      }
+    ],
+    "sample": {
+      "state": "Raising money",
+      "teachingPoint": "Backing a plan is a way to play (Patron)",
+      "creator": "Jamal Carter",
+      "creatorDescription": "Tenant organiser, Atlanta",
+      "place": "Atlanta, USA",
+      "prize": "8000",
+      "currency": "$",
+      "players": "24",
+      "squads": "1",
+      "finished": null,
+      "people": [
+        {
+          "Name": "Jamal Carter",
+          "Agent": "Bolt",
+          "City": "Atlanta",
+          "Country": "USA",
+          "Main role": "Storyteller",
+          "Bio (one line)": "Tenant organiser. Has seen too many unfair evictions.",
+          "Squad": "Rent Right",
+          "Type": "New"
+        }
+      ],
+      "inviteExamples": []
+    }
+  },
+  {
+    "id": "fountains",
+    "title": "Map every water fountain in Berlin",
+    "pitch": "Find every public fountain and get the broken ones fixed.",
+    "tag": "Community",
+    "glyph": "spark",
+    "color": "var(--blue)",
+    "rules": [],
+    "seedNotice": "Illustrative workbook mission. People, progress, prizes, and outcomes shown as examples are not verified live activity.",
+    "stages": [],
+    "strategies": [],
+    "quests": [],
+    "sample": {
+      "state": "Won",
+      "teachingPoint": "Real payouts and medals",
+      "creator": "Lena Vogt",
+      "creatorDescription": "Product designer, Berlin",
+      "place": "Berlin, Germany",
+      "prize": "12000",
+      "currency": "$",
+      "players": "140",
+      "squads": "0",
+      "finished": {
+        "Mission ID": "fountains",
+        "Outcome": "Won",
+        "What happened": "Mapped 1,140 fountains. Reported 310 broken ones. The city fixed 220.",
+        "Paid out": "12000",
+        "Currency": "$",
+        "Players": "140",
+        "Medal": "First win",
+        "Your part": "—",
+        "Your notes": ""
+      },
+      "people": [],
+      "inviteExamples": []
+    }
+  },
+  {
+    "id": "ramp",
+    "title": "Open design for a $40 wheelchair ramp",
+    "pitch": "A ramp anyone can build from one sheet of plywood.",
+    "tag": "Science",
+    "glyph": "helix",
+    "color": "var(--pink)",
+    "rules": [],
+    "seedNotice": "Illustrative workbook mission. People, progress, prizes, and outcomes shown as examples are not verified live activity.",
+    "stages": [],
+    "strategies": [],
+    "quests": [],
+    "sample": {
+      "state": "Won · you helped",
+      "teachingPoint": "Your history and medals",
+      "creator": "Lena Vogt",
+      "creatorDescription": "Product designer, Berlin",
+      "place": "Global",
+      "prize": "15000",
+      "currency": "$",
+      "players": "85",
+      "squads": "0",
+      "finished": {
+        "Mission ID": "ramp",
+        "Outcome": "Won",
+        "What happened": "An open ramp design anyone can build for $40. 300 built in 12 countries.",
+        "Paid out": "15000",
+        "Currency": "$",
+        "Players": "85",
+        "Medal": "Builder",
+        "Your part": "You checked 6 designs",
+        "Your notes": ""
+      },
+      "people": [],
+      "inviteExamples": []
+    }
+  },
+  {
+    "id": "pumps",
+    "title": "Find every broken hand pump in one district",
+    "pitch": "Report every broken village hand pump in Barmer and get it fixed.",
+    "tag": "Community",
+    "glyph": "spark",
+    "color": "var(--blue)",
+    "rules": [],
+    "seedNotice": "Illustrative workbook mission. People, progress, prizes, and outcomes shown as examples are not verified live activity.",
+    "stages": [],
+    "strategies": [],
+    "quests": [],
+    "sample": {
+      "state": "Won",
+      "teachingPoint": "Impact on the ground in India",
+      "creator": "Sunita Devi",
+      "creatorDescription": "ASHA health worker, Rajasthan",
+      "place": "Rajasthan, India",
+      "prize": "400000",
+      "currency": "₹",
+      "players": "160",
+      "squads": "0",
+      "finished": {
+        "Mission ID": "pumps",
+        "Outcome": "Won",
+        "What happened": "Reported 412 broken hand pumps in Barmer. 300 fixed in 6 months.",
+        "Paid out": "400000",
+        "Currency": "₹",
+        "Players": "160",
+        "Medal": "Ground hero",
+        "Your part": "—",
+        "Your notes": ""
+      },
+      "people": [],
+      "inviteExamples": []
+    }
+  },
+  {
+    "id": "air",
+    "title": "Low-cost air sensor for classrooms",
+    "pitch": "A $20 sensor that tells teachers when to open a window.",
+    "tag": "Planet",
+    "glyph": "wave",
+    "color": "var(--sky)",
+    "rules": [],
+    "seedNotice": "Illustrative workbook mission. People, progress, prizes, and outcomes shown as examples are not verified live activity.",
+    "stages": [],
+    "strategies": [],
+    "quests": [],
+    "sample": {
+      "state": "Stopped",
+      "teachingPoint": "Failure is safe: unspent money goes back",
+      "creator": "Sofia Rossi",
+      "creatorDescription": "Retired accountant, Milan",
+      "place": "Global",
+      "prize": "18000",
+      "currency": "$",
+      "players": "61",
+      "squads": "0",
+      "finished": {
+        "Mission ID": "air",
+        "Outcome": "Stopped",
+        "What happened": "Sensors cost $90, not $20. The squad stopped at stage 2. $9,400 unspent went back to 61 funders. Work already approved was still paid.",
+        "Paid out": "9400",
+        "Currency": "$",
+        "Players": "61",
+        "Medal": "—",
+        "Your part": "—",
+        "Your notes": ""
+      },
+      "people": [],
+      "inviteExamples": []
+    }
+  }
+]

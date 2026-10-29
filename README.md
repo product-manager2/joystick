@@ -2,7 +2,7 @@
 
 **Change the world. Multiplayer.** Team up and take on the world's hardest problems, and earn the prize and a piece of what you build.
 
-A mobile-first PWA with real email-and-passkey accounts and persistent private agent chat at `/chat.html`. The mission experience at `/` remains a browser demo; quest execution, reviews, balances, and payments are not connected to the backend yet. See the [foundation guide](docs/running-the-foundation.md) and [technical architecture](docs/technical-architecture.md).
+A mobile-first PWA with passkey accounts, persistent missions and tasks, shared rooms, saved submissions, independent reviews, and private agent chat. The first cut uses **test credits only**: balances, rewards, and payout actions are simulations with no cash value or ownership rights. See [game actions](docs/game-actions.md), [account access](docs/account-access.md), and [deployment](docs/deploying.md).
 
 **Contents**
 
@@ -127,15 +127,17 @@ Results from every plan count toward the stage goal, not just the leader's, and 
 
 ## 10. Status and roadmap
 
-**Implemented foundation**
+**First cut implemented**
 
-- Email identifier and passkey signup/login, without passwords or email verification.
-- Persistent private chat, WebSockets, and Anthropic-hosted Claude Managed Agents.
-- Standalone Fastify API and worker on Fly, managed PostgreSQL, and a Vercel frontend.
+- Passkey signup and sign-in, passkey management, and one-use recovery codes. Email is an unverified identifier.
+- PostgreSQL-backed missions, stages, plans, tasks, claims, submissions, artifact history, and two independent member reviews of the same artifact version.
+- Persistent mission, stage, plan, task, and direct-message rooms with membership checks; private agent chat and an integration worker for hosted agents.
+- Saved profile, XP, notifications, and a test-credit journal. Test credits have no cash value, escrow, payout, or ownership rights.
+- A standalone Fastify API and worker on Fly, with a Vercel frontend. See [deployment](docs/deploying.md) for current rollout status.
 
-**Next backend milestone:** persist one mission and its quests, then connect claims, agent work, saved outputs, and real review decisions to the existing screens. See the [delivery sequence](docs/technical-architecture.md#delivery-sequence).
+**Legacy prototype content and future policy**
 
-**In the demo now**
+The older single-file prototype at `/prototype/joystick-quest.html` illustrates the broader product vision below. These examples and economics are not live account balances, verified skills, ownership, or payments.
 
 - Onboarding for new and returning players, roles, and a meet-your-agent step.
 - Missions list with topic filters; mission page with the stage map, plans, money and about.
@@ -155,7 +157,7 @@ Results from every plan count toward the stage goal, not just the leader's, and 
 2. **Trust weights** in the bonus (new accounts count less until they've played).
 3. **Team-up nudges** between squads.
 
-**Later:** real mission funds and payouts, an agreed ownership model, and collusion-resistant matching.
+**Later:** real mission funds and payouts, an agreed ownership model, verified matching rounds, and collusion-resistant matching. The sample screens still contain illustrative missions and examples; they are separate from account-backed records.
 
 ## 11. Open questions
 
@@ -169,12 +171,15 @@ Results from every plan count toward the stage goal, not just the leader's, and 
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173 (also on your LAN, so you can open it on a phone)
+npm run db:migrate # requires local PostgreSQL configured in .env.local
+npm run api:dev    # API at http://localhost:3001
+npm run dev        # web app at http://localhost:5173
 npm run build      # production build in dist/
-npm run preview    # serve the build at http://localhost:4173 (service worker + install prompt work here)
+npm run preview    # serve the build at http://localhost:4173
 ```
 
-- The mission demo is at `/`, real accounts and private chat are at `/chat.html`, and the living style guide is at `/design.html`. Follow the [foundation guide](docs/running-the-foundation.md) to start the API and local database.
+- The account-backed game is at `/`, private chat is at `/chat.html`, and the living style guide is at `/design.html`. Follow the [foundation guide](docs/running-the-foundation.md) for local database and agent setup.
+- With a disposable database and migrations applied, run `TEST_DATABASE_URL=... npm run test:server`. Run `npm run test:e2e` for Chromium browser checks with virtual passkeys; Playwright starts the local API and Vite. Install Chromium first with `npx playwright install chromium`. The browser tests create synthetic accounts and require `GAME_TEST_CREDITS=true`.
 - In dev, `window.jq` gives you the state and router for poking at screens: `jq.go("lobby")`, `jq.S`, `jq.loadReturning()`.
 
 ### Clickable prototype

@@ -16,6 +16,7 @@ RUN npm ci --omit=dev && npm cache clean --force
 COPY --from=build /app/build/server ./build/server
 COPY --from=build /app/build/db ./build/db
 COPY db/migrations ./build/db/migrations
+COPY db/seed ./build/db/seed
 USER node
 EXPOSE 3001
 CMD ["node", "build/server/main.js"]

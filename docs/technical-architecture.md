@@ -2,28 +2,23 @@
 
 Architecture and implementation status · 29 October 2026
 
-Joystick has its own backend. The starting architecture is the existing responsive PWA, a TypeScript API with a small integration worker, Claude Managed Agents hosted by Anthropic, WebSockets for chat and live updates, and PostgreSQL. Vercel hosts the frontend; Fly hosts the API and worker. Object storage remains a future addition. The first complete product release should make one loop real: join a plan, complete a quest with your agent, have the result reviewed, advance the stage, and receive the agreed reward.
+Joystick has its own backend. The first-cut architecture is the responsive PWA, a TypeScript API with an integration worker, Claude Managed Agents hosted by Anthropic, WebSockets for chat and live updates, and PostgreSQL. Vercel hosts the frontend; Fly hosts the API and worker. Object storage remains a future addition. The current pilot makes mission creation, plan joining, task submission, two-member review, stage advancement, and a simulated reward durable. It does not move real money or issue ownership.
 
 The core asset is a trustworthy record of useful work: who authorized it, what was produced, who accepted it, and what that acceptance earned. Game progress, money, and ownership derive from that record through separate rules.
 
 ## Current baseline
 
-Implementation starts from `main` at `bf148bc` on the isolated `codex/joystick-foundation` branch. The first delivery slice is passkey accounts and persistent private agent chat; mission execution and real payments follow separately.
+The `codex/joystick-first-cut` branch builds on the earlier account-and-chat foundation. Its `/` flow uses the API for account-backed missions, stages, plans, tasks, claims, submissions, reviews, profiles, and test-credit journal entries. `/chat.html` retains private agent chat. The prototype screens and sample content remain as examples, separate from persistent records. Older `strategy` and `token` names remain in presentation source; the API uses mission, stage, plan, and quest vocabulary. See [game actions](game-actions.md), [account access](account-access.md), and [deployment](deploying.md).
 
-The repository is a Vite and vanilla JavaScript PWA. Its design system and playable screens are implemented; accounts, agent execution, reviews, balances, and payouts are browser simulations. The current product hierarchy is **Mission → Stage → Plan → Quest → Part**. Older names such as `strategy` and `token` remain in source; new API contracts should use the current product vocabulary.
-
-Latest main includes desktop layouts, squad-owned plans, player profiles, and backing as a Patron quest. Players choose up to three of seven roles: Leader, Planner, Expert, Maker, Checker, Storyteller, and Patron; everyone also has User. These interests drive recommendations, not authorization or proof of qualification. The implementation branch adds the first account and private-chat backend slice; the remaining mission and funding sections below describe the target architecture. See [running the foundation](running-the-foundation.md).
-
-| Current source | Production responsibility |
+| First-cut behavior | Source and boundary |
 | --- | --- |
-| `src/state.js` | Retain navigation and presentation state; load authoritative domain state from the API |
-| `src/game/questflow.js` | Move claims, execution transitions, submissions, approvals, and reward creation into server services |
-| `src/game/matching.js` | Replace aggregate estimates with calculations over recorded contributor signals |
-| `src/game/economy.js` | Separate funding, contribution credits, rewards, and ownership into distinct records |
-| `src/screens/quests.js` and `src/screens/gate.js` | Render persistent stage outcomes and real review decisions |
-| `public/sw.js` | Cache the public shell and static assets; explicitly exclude authenticated API responses |
+| Passkey access | `server/auth.ts` and migrations `001`–`003`, `006`–`007`: signup, sign-in, signed-in credential management, and single-use recovery codes; email is unverified. |
+| Shared game state | `server/game/service.ts`, `server/game/routes.ts`, migrations `004`, `007`–`010`: membership-scoped commands and snapshots, persistent task artifacts, two distinct registered member reviews of the same version, and owner-attested stage closure. |
+| Agent work | `server/agent-runs/`: dynamically selected mission/plan/task context, scoped read and draft/artifact tools, decision requests, cancellation, and durable run history. The worker uses a Managed Agent session when configured; saved output requires a person's review and is not automatically submitted or approved. |
+| Chat | `server/chat.ts` and the WebSocket gateway: durable private and scoped room messages with current membership checks. |
+| Credits | `server/game/service.ts`: labeled test credits, reservations, XP, journal entries, and payout simulations only. No payment provider, escrow, or ownership issuance is connected. |
 
-The current stage completion code releases a global pending balance and replaces plans and quests for the next stage. Production must instead settle only the relevant stage and retain every previous stage's history.
+The sections below were written as the **target architecture** before the first-cut implementation. They remain useful for later design, but proposed object storage, payment rails, verified matching rounds, ownership, and the full nine-Referee policy are not current pilot features. The pilot instead requires two distinct mission members to review a text artifact and lets the mission owner attest stage completion after its gate. Large files are not yet held in private object storage; bounded text artifacts live in PostgreSQL. Funding and payout labels refer only to simulated credits.
 
 ## System shape
 

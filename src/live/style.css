@@ -44,6 +44,13 @@
 .mine .live-bubble { background: var(--frost); border-radius: 14px 13px 4px 14px; }
 .live-message-meta { color: var(--ink-2); margin: 6px 2px 0; font-size: 10px; font-weight: 700; }
 .live-retry { margin-top: 3px; padding: 3px 0; border: 0; background: transparent; color: var(--blue); font-size: 12px; font-weight: 800; text-decoration: underline; }
+.live-form { display: flex; flex-direction: column; gap: 14px; padding: clamp(18px, 4vw, 30px); max-width: 680px; margin: 16px auto; }
+.live-form .field { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; }
+.live-form .field .inp { width: 100%; min-height: 42px; padding: 10px 12px; }
+.live-form textarea.inp { min-height: 100px; resize: vertical; }
+.live-form .mini-roles { display: flex; flex-wrap: wrap; gap: 8px; }
+.live-form .mini-roles label { border: var(--line-1); border-radius: 9px; padding: 6px 10px; background: var(--white); }
+.live-artifact { white-space: pre-wrap; overflow-wrap: anywhere; font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; max-height: 50vh; overflow: auto; padding: 14px; background: var(--frost); border-radius: 8px; }
 .live-composer { flex: none; display: flex; align-items: flex-end; gap: 10px; padding: 9px; margin-bottom: env(safe-area-inset-bottom, 0px); }
 .live-composer textarea { flex: 1; min-width: 0; min-height: 44px; max-height: 160px; resize: vertical; padding: 11px; border: 0; background: transparent; color: var(--ink); font: inherit; outline-offset: 0; }
 .live-composer .btn { flex: none; min-height: 44px; box-shadow: none; }

@@ -50,7 +50,7 @@ export const textOn = color => {
   const L = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255).map(c => c <= .03928 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4).reduce((a, c, i) => a + c * [.2126, .7152, .0722][i], 0);
   return 1.05 / (L + .05) >= (L + .05) / .0605 ? "var(--white)" : "var(--ink)";
 };
-export const glyph = m => `<div class="glyph"><svg viewBox="0 0 32 32">${GLYPHS[m.glyph]}</svg></div>`;
+export const glyph = m => `<div class="glyph"><svg viewBox="0 0 32 32" aria-hidden="true">${GLYPHS[m.glyph] || GLYPHS.star}</svg></div>`;
 export const pips = m => `<div class="pips">${m.stages.map((_, i) => `<i class="${i < m.current ? "done" : i === m.current ? "now" : ""}"></i>`).join("")}</div>`;
 export const mono = (k, size = 30) => `<span class="mono" style="background:${roleColor(k)};width:${size}px;height:${size}px" title="${ROLES[k].name}"><svg viewBox="0 0 24 24" width="${Math.round(size * .6)}" height="${Math.round(size * .6)}" fill="none" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${ROLES[k].icon}</svg></span>`;
 export const backBtn = (a, x = "", label = "Back") => `<button class="back" data-a="${a}" data-x="${x}" aria-label="${label}"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3 5 9l6 6"/></svg></button>`;

@@ -16,6 +16,7 @@
     "db:migrate": "tsx db/migrate.ts",
     "typecheck": "tsc --noEmit -p tsconfig.server.json",
     "test:server": "tsx --test tests/server/*.test.ts",
+    "test:e2e": "playwright test",
     "agent:setup": "tsx server/setup-agent.ts",
     "api:build": "tsc -p tsconfig.server.json --noEmit false --outDir build --rootDir ."
   },

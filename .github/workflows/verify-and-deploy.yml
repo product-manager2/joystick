@@ -1,0 +1,85 @@
+name: Verify and deploy
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: joystick-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: joystick
+          POSTGRES_PASSWORD: joystick
+          POSTGRES_DB: joystick_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U joystick -d joystick_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      NODE_ENV: development
+      DATABASE_URL: postgres://joystick:joystick@localhost:5432/joystick_test
+      TEST_DATABASE_URL: postgres://joystick:joystick@localhost:5432/joystick_test
+      WEB_ORIGIN: http://localhost:5173
+      RP_ID: localhost
+      COOKIE_SECURE: "false"
+      GAME_TEST_CREDITS: "true"
+      ANTHROPIC_API_KEY: ""
+      ANTHROPIC_AGENT_ID: ""
+      ANTHROPIC_WORKFLOW_AGENT_ID: ""
+      ANTHROPIC_ENVIRONMENT_ID: ""
+      ANTHROPIC_WORKSPACE_ID: ""
+      JOYSTICK_E2E_OUTPUT: test-results/screenshots
+      CI: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run db:migrate
+      - run: npm run typecheck
+      - run: npm run api:build
+      - run: npm run build
+      - run: npm run test:server
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-failure
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7
+
+  deploy-fly:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require app-scoped Fly deploy token
+        run: test -n "$FLY_API_TOKEN" || { echo 'Set the FLY_API_TOKEN repository secret for joystick-api'; exit 1; }
+      - uses: superfly/flyctl-actions/setup-flyctl@fc53c09e1bc3be6f54706524e3b82c4f462f77be # v1.5
+        with:
+          version: 0.4.86
+      - run: flyctl deploy --app joystick-api --config fly.toml --remote-only --ha=false --yes

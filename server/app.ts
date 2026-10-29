@@ -6,6 +6,8 @@ import type { Pool } from './db.js';
 import type { Config } from './config.js';
 import { ApiError, registerAuthRoutes } from './auth.js';
 import { registerChatRoutes } from './chat.js';
+import { registerGameRoutes } from './game/routes.js';
+import { registerAgentRunRoutes } from './agent-runs/routes.js';
 
 export async function buildApp(pool: Pool, config: Config) {
   const app = Fastify({logger:true,bodyLimit:16_384});
@@ -56,6 +58,8 @@ export async function buildApp(pool: Pool, config: Config) {
   });
   app.get('/health',async () => { await pool.query('SELECT 1'); return {ok:true}; });
   registerAuthRoutes(app,pool,config);
+  registerGameRoutes(app,pool);
+  registerAgentRunRoutes(app,pool,config);
   const chat = registerChatRoutes(app,pool,config);
   return {app,chat};
 }

@@ -1,6 +1,6 @@
 # Running the Joystick foundation
 
-This slice adds real email-and-passkey accounts, private persistent chat, a WebSocket connection, and a Claude Managed Agents integration. Open `/chat.html` for the real account flow. The original mission experience at `/` remains a demo; quest execution, independent reviews, and payments are not connected to the backend yet.
+This guide describes the original account-and-chat foundation. Open `/chat.html` for private agent chat. The newer account-backed mission flow at `/` persists tasks, submissions, independent reviews, and test-credit entries. Test credits and payout simulations have no cash value. See [game actions](game-actions.md) and [deployment](deploying.md) for the first cut.
 
 ## Environment files
 
@@ -60,4 +60,4 @@ The deployed Vercel/Fly flow also passed a browser smoke test: a synthetic virtu
 
 ## Authentication scope
 
-Email is an unverified account identifier. Passkey possession authenticates the account. There are no passwords, verification emails, magic links, or email-only recovery. Registering the same email cannot replace an existing account's passkey. Lost-passkey recovery and account credential management remain future work.
+Email is an unverified account identifier. Passkey possession authenticates the account. There are no passwords, verification emails, magic links, or email-only recovery. Registering the same email cannot replace an existing account's passkey. Signed-in accounts can add passkeys and generate one-use recovery codes; a saved recovery code permits replacement of lost passkeys. See [account access](account-access.md).

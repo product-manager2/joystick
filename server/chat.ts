@@ -5,18 +5,18 @@ import type { Message, ServerFrame, User } from '../contracts/chat.js';
 import { ApiError, consumeWsTicket, requireUser, userForSessionHash } from './auth.js';
 import { agentAvailable, type Config } from './config.js';
 import { transaction, type Pool } from './db.js';
+import { canAccessGameRoom } from './game/service.js';
 
 const sha = (value: string) => createHash('sha256').update(value).digest('hex');
 const uuid = (value: unknown): value is string => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
-function publicMessage(row: Record<string,unknown>): Message { return { id:String(row.id),roomId:String(row.room_id),sequence:Number(row.sequence),role:row.role as 'user'|'assistant',text:String(row.text),...(row.client_id ? {clientId:String(row.client_id)} : {}),...(row.provider_event_id ? {providerEventId:String(row.provider_event_id)} : {}),createdAt:new Date(row.created_at as string).toISOString() }; }
+function publicMessage(row: Record<string,unknown>): Message { return { id:String(row.id),roomId:String(row.room_id),sequence:Number(row.sequence),role:row.role as 'user'|'assistant',text:String(row.text),...(row.user_id ? {senderId:String(row.user_id),senderName:String(row.sender_name??'Member')} : {}),...(row.client_id ? {clientId:String(row.client_id)} : {}),...(row.provider_event_id ? {providerEventId:String(row.provider_event_id)} : {}),createdAt:new Date(row.created_at as string).toISOString() }; }
 export async function roomAllowed(pool: Pool, userId: string, roomId: string): Promise<boolean> {
-  const result = await pool.query('SELECT 1 FROM room_members WHERE room_id=$1 AND user_id=$2', [roomId,userId]);
-  return !!result.rowCount;
+  return canAccessGameRoom(pool,userId,roomId);
 }
 export async function history(pool: Pool, userId: string, roomId: string, after: number, limit = 100) {
   if (!uuid(roomId) || !Number.isSafeInteger(after) || after < 0) throw new ApiError(400,'invalid_input','Invalid room or cursor');
   if (!await roomAllowed(pool,userId,roomId)) throw new ApiError(404,'room_not_found','Room not found');
-  const result = await pool.query(`SELECT id,room_id,sequence,role,text,client_id,provider_event_id,created_at FROM messages WHERE room_id=$1 AND sequence>$2 ORDER BY sequence LIMIT $3`, [roomId,after,limit+1]);
+  const result = await pool.query(`SELECT m.id,m.room_id,m.sequence,m.role,m.text,m.user_id,u.name AS sender_name,m.client_id,m.provider_event_id,m.created_at FROM messages m LEFT JOIN users u ON u.id=m.user_id WHERE m.room_id=$1 AND m.sequence>$2 ORDER BY m.sequence LIMIT $3`, [roomId,after,limit+1]);
   return { messages: result.rows.slice(0,limit).map(publicMessage),hasMore:result.rows.length>limit };
 }
 export async function saveUserMessage(pool: Pool, userId: string, roomId: string, clientId: string, text: string, available: boolean): Promise<{message:Message;created:boolean}> {
@@ -24,15 +24,17 @@ export async function saveUserMessage(pool: Pool, userId: string, roomId: string
   const cleaned = text.trim();
   const hash = sha(cleaned);
   return transaction(pool, async client => {
-    const room = await client.query(`SELECT r.id FROM rooms r JOIN room_members rm ON rm.room_id=r.id WHERE r.id=$1 AND rm.user_id=$2 FOR UPDATE OF r`, [roomId,userId]);
+    const room = await client.query(`SELECT r.id FROM rooms r WHERE r.id=$1 FOR UPDATE OF r`, [roomId]);
     if (!room.rowCount) throw new ApiError(404,'room_not_found','Room not found');
-    const old = await client.query(`SELECT id,room_id,sequence,role,text,client_id,provider_event_id,created_at,request_hash FROM messages WHERE room_id=$1 AND user_id=$2 AND client_id=$3`, [roomId,userId,clientId]);
+    if (!await canAccessGameRoom(client,userId,roomId)) throw new ApiError(404,'room_not_found','Room not found');
+    const old = await client.query(`SELECT m.id,m.room_id,m.sequence,m.role,m.text,m.user_id,u.name AS sender_name,m.client_id,m.provider_event_id,m.created_at,m.request_hash FROM messages m LEFT JOIN users u ON u.id=m.user_id WHERE m.room_id=$1 AND m.user_id=$2 AND m.client_id=$3`, [roomId,userId,clientId]);
     if (old.rowCount) {
       if (old.rows[0].request_hash !== hash) throw new ApiError(409,'idempotency_conflict','Client ID was already used for different text');
       return {message:publicMessage(old.rows[0]),created:false};
     }
     const sequence = await client.query(`UPDATE rooms SET next_sequence=next_sequence+1 WHERE id=$1 RETURNING next_sequence-1 AS sequence`, [roomId]);
-    const inserted = await client.query(`INSERT INTO messages(room_id,sequence,role,text,user_id,client_id,request_hash) VALUES($1,$2,'user',$3,$4,$5,$6) RETURNING id,room_id,sequence,role,text,client_id,provider_event_id,created_at`, [roomId,sequence.rows[0].sequence,cleaned,userId,clientId,hash]);
+    const inserted = await client.query(`INSERT INTO messages(room_id,sequence,role,text,user_id,client_id,request_hash) VALUES($1,$2,'user',$3,$4,$5,$6) RETURNING id,room_id,sequence,role,text,user_id,client_id,provider_event_id,created_at`, [roomId,sequence.rows[0].sequence,cleaned,userId,clientId,hash]);
+    inserted.rows[0].sender_name=(await client.query('SELECT name FROM users WHERE id=$1',[userId])).rows[0]?.name;
     await client.query(`INSERT INTO agent_dispatches(room_id,message_id,status) VALUES($1,$2,$3)`, [roomId,inserted.rows[0].id,available?'pending':'unavailable']);
     return {message:publicMessage(inserted.rows[0]),created:true};
   });
@@ -60,8 +62,9 @@ export function registerChatRoutes(app: FastifyInstance, pool: Pool, config: Con
   }
   app.get('/api/v1/rooms', async request => {
     const user = await requireUser(pool,request);
-    const result = await pool.query(`SELECT r.id,r.title,r.kind FROM rooms r JOIN room_members m ON m.room_id=r.id WHERE m.user_id=$1 ORDER BY r.created_at`, [user.id]);
-    return {rooms:result.rows,agentAvailable:agentAvailable(config)};
+    const result = await pool.query(`SELECT r.id,r.title,r.kind FROM rooms r ORDER BY r.created_at`);
+    const rooms=[]; for(const room of result.rows)if(await roomAllowed(pool,user.id,room.id))rooms.push(room);
+    return {rooms,agentAvailable:agentAvailable(config)};
   });
   app.get('/api/v1/rooms/:roomId/messages', async request => {
     const user = await requireUser(pool,request);
@@ -162,7 +165,7 @@ export function registerChatRoutes(app: FastifyInstance, pool: Pool, config: Con
     socket.on('message',authHandler);
   });
   async function broadcastSavedById(messageId:string) {
-    const result = await pool.query(`SELECT id,room_id,sequence,role,text,client_id,provider_event_id,created_at FROM messages WHERE id=$1`,[messageId]);
+    const result = await pool.query(`SELECT m.id,m.room_id,m.sequence,m.role,m.text,m.user_id,u.name AS sender_name,m.client_id,m.provider_event_id,m.created_at FROM messages m LEFT JOIN users u ON u.id=m.user_id WHERE m.id=$1`,[messageId]);
     if (result.rowCount) await broadcast(publicMessage(result.rows[0]));
   }
   async function broadcastPreview(roomId:string,messageId:string,text:string) {
