@@ -3,7 +3,7 @@ import { PEOPLE } from "../data/world.js";
 import { spendOpts } from "../game/questflow.js";
 import { gateOf, playable, stratOf, strats } from "../game/strategies.js";
 import { forgeCard } from "./forge.js";
-import { AGENT_TAG, chName, chanIcon, crewAv, isMulti, short } from "./quests.js";
+import { AGENT_TAG, chName, chanIcon, stageLine, crewAv, isMulti, short } from "./quests.js";
 import { S, TEAMMATES, threads } from "../state.js";
 import { render } from "../ui/chrome.js";
 import { backBtn, bot, botAv, esc, face, findQuest, learn, mission, mono, thread, youAv } from "../ui/helpers.js";
@@ -37,8 +37,8 @@ export function commsScreen() {
       const rooms = missions.flatMap(m => m.quests.filter(q => q.feed && (q.scripted || q.feed.some(x => x.me))).map(q => ({ q, m })));
       return rooms.length ? `<div class="eyebrow">Quest rooms</div><div class="list">${rooms.map(({ q, m }) => row("quest", q.id, mono(q.role, 44), `${esc(short(q.title))} <span class="mode ${isMulti(q) ? "multi" : ""}">${isMulti(q) ? "Squad" : "Solo"}</span>`, lastLine(q.feed), q.unread, chName(m))).join("")}</div>` : "";
     })()}
-    <div class="eyebrow">Channels</div>
-    <div class="list">${chans.map(m => row("mission-ch", m.id, chanIcon(m, 44), `${chName(m)} <span class="small muted">· ${esc(m.title)}</span>`, `${gateOf(m).have}/${gateOf(m).need} ${m.unit} · ${strats(m).length} strategies racing`, m.unread, S.joined[m.id] ? "joined" : "")).join("")}</div>
+    <div class="eyebrow">Missions</div>
+    <div class="list">${chans.map(m => row("mission-ch", m.id, chanIcon(m, 44), esc(m.title), `${stageLine(m)} · ${gateOf(m).have}/${gateOf(m).need}`, m.unread, S.joined[m.id] ? "joined" : "")).join("")}</div>
   </div>`;
 }
 export function partnerSeed() {

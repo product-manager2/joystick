@@ -78,7 +78,7 @@ document.addEventListener("click", e => {
     case "contract": return contractSheet(x);
     case "stage": {
       const m = mission(), i = +x;
-      if (i === m.current) return titleCard(`Milestone ${i + 1}`, esc(m.stages[i].name), "Ready? Go!", () => go("stage"), 1200);
+      if (i === m.current) return titleCard(`Stage ${i + 1}`, esc(m.stages[i].name), "Ready? Go!", () => go("stage"), 1200);
       if (i > m.current && (m.stages[i].tracks || []).length > 1) return toast(`${esc(m.stages[i].name)}: ${m.stages[i].tracks.length} tracks run in parallel, once ${esc(m.stages[m.current].name)} clears`);
       return toast(i < m.current ? `${esc(m.stages[i].name)} · cleared` : `Clear ${esc(m.stages[m.current].name)} first`);
     }
@@ -110,7 +110,7 @@ document.addEventListener("click", e => {
     case "forge": return forgeStart();
     case "f-kind": return forgeKind(x);
     case "f-next": return forgeNext();
-    case "f-addstage": f.stages.splice(f.stages.length - 1, 0, "New milestone"); return render();
+    case "f-addstage": f.stages.splice(f.stages.length - 1, 0, "New stage"); return render();
     case "f-delstage": f.stages.splice(+x, 1); return render();
     case "f-rule": { const r = f.ruleOpts[+x]; f.rules = toggle(f.rules, r); return render(); }
     case "f-role": f.roles = toggle(f.roles, x); return render();

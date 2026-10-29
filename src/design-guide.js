@@ -29,7 +29,7 @@ const ui = [
     <div class="row wrap">${Button("+ New", { size: "sm" })}${Button("Start", { variant: "red", size: "sm" })}${Button("Disabled", { variant: "red", disabled: true })}</div>`],
   [Eyebrow("Chips"), `<div class="row wrap">${Chip("Planet")}${Chip("2 quests fit you", { tone: "fitchip" })}${Chip("All", { action: "x", pressed: true })}${Chip("Science", { action: "x", pressed: false })}<span class="chip" style="background:var(--navy);color:var(--white)">$GLIO ×1.5</span></div>`],
   [Eyebrow("Tabs"), Tabs([["map", "Map"], ["s", "Strategies"], ["t", "Treasury"], ["b", "Brief"]], "map", "x")],
-  [Eyebrow("Stats"), Stats([["$250k", "bounty"], ["3/5", "milestone"], ["1.3k", "playing"]])],
+  [Eyebrow("Stats"), Stats([["$250k", "bounty"], ["3/5", "stage"], ["1.3k", "playing"]])],
   [Eyebrow("Meter"), Meter(64)],
   [Eyebrow("Avatars + roles"), `<div class="row wrap">${youAv()}${botAv()}${["implementer", "critic", "strategist", "connector"].map(k => mono(k, 32)).join("")}${["implementer", "critic"].map(k => `<span class="rtag" style="background:${roleColor(k)}">${ROLES[k].name}</span>`).join("")}</div>`],
   [Eyebrow("Detail rows"), DetailGroup([DetailRow(Tick(1), "Dr. Amara Osei", "Neuro-oncologist · verified by ORCID"), DetailRow(Tick(0, "✓", "!"), "Identity", "Needed once before your first withdrawal", Button("Verify", { size: "sm" })), DetailRow("$", "GPU rental · shards A–B", "Fold Gang · 2h ago", "<b>$1.2k</b>")])],
@@ -46,7 +46,7 @@ document.getElementById("guide").innerHTML = `
   ${section("Components", ui.map(([h, b]) => `<div class="g-ui">${h}${b}</div>`).join(""))}
 `;
 document.addEventListener("click", e => {
-  if (e.target.closest("[data-demo=drill]")) return drill("Can I trust it?", DetailGroup([DetailRow(Tick(1), "$250k in escrow", "Locked before launch. Paid out only as milestones clear."), DetailRow("★", "Track record", "2 missions run · 1 won")]), "Drill-downs hold real-world detail");
+  if (e.target.closest("[data-demo=drill]")) return drill("Can I trust it?", DetailGroup([DetailRow(Tick(1), "$250k in escrow", "Locked before launch. Paid out only as stages clear."), DetailRow("★", "Track record", "2 missions run · 1 won")]), "Drill-downs hold real-world detail");
   if (e.target.closest("[data-a=dclose]")) return document.querySelectorAll(".dd").forEach(x => x.remove());
   if (!e.target.closest("[data-demo=sheet]")) return;
   openSheet({ label: "Demo", render: () => `<div class="grab"></div><div class="row"><h2 class="display" style="font-size:22px">A bottom sheet</h2><span class="spacer"></span>${CloseButton()}</div><p>Tap outside or ✕ to close.</p>${Button("Done", { variant: "red", block: true, "data-close": true })}` });

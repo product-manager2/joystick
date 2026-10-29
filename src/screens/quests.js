@@ -12,7 +12,10 @@ import { go, render } from "../ui/chrome.js";
 import { $, backBtn, bot, botAv, duoName, esc, face, findQuest, fmt, gain, glyph, learn, mission, mono, titleCard, toast, youAv } from "../ui/helpers.js";
 
 // ===================== Stage → strategies → quests (rooms) =====================
-export const chName = m => "#" + m.stages[m.current].name.toLowerCase().replace(/\s+/g, "-");
+// Missions are named by what they are and what they're doing now, never by an internal step name
+const SHORT = { glio: "Glioblastoma", cad: "Open CAD", reef: "Reef Map", tutor: "AI Tutor" };
+export const chName = m => SHORT[m.id] || m.title;
+export const stageLine = m => `Stage ${m.current + 1} of ${m.stages.length} · ${m.stages[m.current].goal}`;
 export const short = t => t.length > 26 ? t.slice(0, 24) + "…" : t;
 export const AGENT_TAG = '<span class="bot-tag">AGENT</span>';
 export const chanIcon = (m, size = 40) => `<span class="glyph" style="width:${size}px;height:${size}px;background:${m.color}"><svg viewBox="0 0 32 32" style="width:${size * .55}px;height:${size * .55}px">${GLYPHS[m.glyph]}</svg></span>`;
@@ -31,7 +34,7 @@ export const BRIEF = {
   g6c: { task: "Dock compounds 500,001–750,000 from the ZINC library against the EGFRvIII pocket and report every hit.", done: ["All 250k compounds docked with the shared config", "Hits scored at or below the cutoff", "Hits file uploaded with SMILES and scores", "A Critic re-runs 5 random hits"], inputs: ["zinc-shard-C.sdf · 250k compounds", "egfrviii-pocket.pdb", "docking-config.yaml · from PR #142"] },
   g6d: { task: "Dock compounds 750,001–1,000,000 and report every hit.", done: ["All 250k compounds docked", "Hits scored at or below the cutoff", "A Critic re-runs 5 random hits"], inputs: ["zinc-shard-D.sdf · 250k compounds", "docking-config.yaml"] },
   g3: { task: "Re-run 20 of Fold Gang's docking results on your own machine and confirm the scores match.", done: ["All 20 re-run with the same settings", "Any drift over 1 kcal/mol flagged", "A verdict posted for each result"], inputs: ["fold-gang-results-20.csv", "docking-config.yaml"] },
-  g8: { task: "Find out which of 40 approved drugs can cross the blood–brain barrier well enough to reach the tumour.", done: ["A BBB score for all 40 drugs", "Weak crossers marked, not dropped", "Shortlist handed to the Wet Lab milestone"], inputs: ["fda-approved-40.csv", "cns-permeability-db · via Moss"] },
+  g8: { task: "Find out which of 40 approved drugs can cross the blood–brain barrier well enough to reach the tumour.", done: ["A BBB score for all 40 drugs", "Weak crossers marked, not dropped", "Shortlist handed to the Wet Lab stage"], inputs: ["fda-approved-40.csv", "cns-permeability-db · via Moss"] },
   g2: { task: "Set up the shared docking pipeline every Fold Gang shard runs on.", done: ["Pipeline docks a 1,000-compound test set", "Config checked into the repo", "A one-page runbook added to this brief"], inputs: ["egfrviii-pocket.pdb", "GPU credits · $4k from the bounty"] },
   g4: { task: "Bring a medicinal chemist onto Wet Hands to judge which repurposed drugs are realistic.", done: ["2+ chemists contacted", "One signs the mission contract"], inputs: ["chemist-shortlist.csv"] },
   c2: { task: "Import 50 real customer STEP files and log every failure.", done: ["All 50 files attempted", "Every failure has a repro file", "Bug report filed with the Kernel Crew"], inputs: ["step-test-set-50.zip"] },
@@ -55,7 +58,7 @@ export function briefDoc(q, m) {
     <div class="crumbs">${parent ? `Part of ${esc(short(parent.title))}` : esc(s.name)}</div>
     <h1 class="doc-title">${esc(q.title)}</h1>
     <div class="loot"><span><b>+${q.xp}</b>XP</span><span><b>$${q.coins}</b>bounty</span><span><b>+${fmt(tokFor(m, questFuel(q)))}</b>${tok(m)}</span>${q.gain ? `<span><b>+${q.gain}</b>${q.gain === 1 ? m.unit.replace(/s$/, "") : m.unit}</span>` : ""}</div>
-    <div class="small muted">Pays when 2 Critics approve · released when the milestone is cleared</div>
+    <div class="small muted">Pays when 2 Critics approve · released when the stage is cleared</div>
     <div class="row wrap small" style="gap:6px"><span class="rtag" style="background:${roleColor(q.role)}">${ROLES[q.role].name}</span><span class="size">${SIZE[q.size].label}</span><span class="muted">${isMulti(q) ? "Squad" : "Solo"} · <button class="info" data-a="history" data-x="${q.id}">edited by ${esc(q.editedBy || s.lead)}</button></span></div>
     ${q.mine && !q.done ? `<div class="small"><b>Claimed by you</b> · 3 days to finish, then it reopens</div>` : q.claimed ? `<div class="small"><b>Claimed by ${esc(q.claimed[0])}</b> · ${q.claimed[1]} left</div>` : ""}
     <h3>Needs</h3>${needsLine(q)}
@@ -232,10 +235,10 @@ export function stageScreen() {
   };
   return `<div class="chat">
     <div class="chat-head">${backBtn("back", "", "Back")}${chanIcon(m)}
-      <div style="min-width:0;flex:1"><div class="display chan-name">${chName(m)}</div><div class="small muted ellip">${esc(m.title)} · milestone ${m.current + 1}/${m.stages.length}</div></div></div>
+      <div style="min-width:0;flex:1"><div class="display chan-name">${esc(m.title)}</div><div class="small muted ellip">Stage ${m.current + 1} of ${m.stages.length} · ${esc(m.stages[m.current].name)}</div></div></div>
     <div class="stage-list">
       <div class="card milestone">
-        <div class="eyebrow">Milestone ${m.current + 1} goal</div>
+        <div class="eyebrow">Stage ${m.current + 1} goal</div>
         <div class="mgoal">${esc(m.stages[m.current].goal)}</div>
         ${gateBar(m)}
         <div class="row small"><b>${g.have}/${g.need} ${g.unit}</b><span class="spacer"></span><span class="muted">${strats(m).length} strategies racing</span></div>
@@ -329,7 +332,7 @@ export function roomScreen() {
   if (S.screen === "session") {
     const c = m.sessions.find(x => x.id === S.sessionId);
     return `<div class="chat">
-      <div class="chat-head">${backBtn("go", "stage", "Back to strategies")}${botAv("av big")}<div style="min-width:0"><div class="display chan-name">${esc(c.title)}</div><div class="small muted">${chName(m)} · chat</div></div></div>
+      <div class="chat-head">${backBtn("go", "stage", "Back to strategies")}${botAv("av big")}<div style="min-width:0"><div class="display chan-name">${esc(c.title)}</div><div class="small muted">${esc(chName(m))} · chat</div></div></div>
       <div class="msgs" id="msgs">${c.msgs.map(msgHTML).join("")}</div>
       ${quickBar([`@${S.agentName} what's next?`, `@${S.agentName} sum up`, "Need a Critic"])}
       <form class="composer" id="roomComposer"><input id="roomsay" placeholder="${c.proposing ? "Or type your own strategy…" : "Message"}" autocomplete="off"><button class="btn sm red" type="submit">Send</button></form>
@@ -396,7 +399,7 @@ export function proposeStrategy() {
   const m = mission();
   m.sessions = m.sessions || [];
   const c = { id: "s" + Date.now(), title: "New strategy", proposing: true, msgs: [
-    { me: true, text: `@${S.agentName} I want to try another way to hit this milestone` },
+    { me: true, text: `@${S.agentName} I want to try another way to hit this stage` },
     { agent: true, text: `Goal: ${m.stages[m.current].goal}. A few angles nobody's racing yet:`, ideas: IDEAS[m.id] || ["A smaller first step", "Partner with experts", "Crowdsource it"] },
   ] };
   m.sessions.unshift(c);
@@ -472,7 +475,7 @@ export function stageCleared(m) {
   const bonus = Math.round(m.bounty * .12 * .02 / 20), released = S.wallet.pending;
   S.wallet.pending = 0;
   const tally = m.gv ? `${m.gv.yes}–${m.gv.no}` : "9–0";
-  el.innerHTML = `${conf}<div class="top">${esc(m.title)}</div><div class="cup big" style="font-size:clamp(40px,13vw,58px)">MILESTONE<br>CLEARED!</div>
+  el.innerHTML = `${conf}<div class="top">${esc(m.title)}</div><div class="cup big" style="font-size:clamp(40px,13vw,58px)">STAGE<br>CLEAR!</div>
     <p style="font-weight:700">${esc(top.name)} led with +${top.score} ${m.unit}. Referees voted ${tally}.</p>
     <p class="small" style="font-weight:600;margin-top:-6px">Every approved quest paid, win or lose</p>
     <div class="rewards">
@@ -497,12 +500,12 @@ export function stageCleared(m) {
     const p = m.id + Date.now();
     m.target = 6; m.unit = "results";
     m.strategies = [
-      { id: p + "A", name: "Proven path", squad: "Veterans", lead: "Rosa", color: "var(--green)", score: 0, backers: 40, raised: 900, tags: ["Fast track"], bet: "Do what worked last milestone, faster." },
+      { id: p + "A", name: "Proven path", squad: "Veterans", lead: "Rosa", color: "var(--green)", score: 0, backers: 40, raised: 900, tags: ["Fast track"], bet: "Do what worked last stage, faster." },
       { id: p + "B", name: "Bold bet", squad: "Moonshots", lead: "Kenji", color: "var(--blue)", score: 0, backers: 25, need: 26, status: "proposed", raised: 400, tags: ["Open science"], rel: [["competes", p + "A"]], bet: "Try the risky idea everyone kept talking about." },
     ];
     m.quests = [
       Q(p + "a", `Gather everything known about “${goal}”`, "explorer", "S", 180, 15, ["searching 18k sources…", "brief drafted", "brief posted ✓"], { q: "Where should we dig first?", opts: ["Recent papers", "What other squads tried", "Talk to practitioners"] }, { strat: p + "A", gain: 1, out: "research-brief.md" }),
-      Q(p + "b", "Build the tooling this milestone needs", "implementer", "M", 320, 30, ["scaffolding…", "tests passing", "deployed ✓"], { q: "Build fast or build solid?", opts: ["Fast — we'll refactor later", "Solid — this will last"] }, { strat: p + "A", gain: 2, out: "tooling · PR" }),
+      Q(p + "b", "Build the tooling this stage needs", "implementer", "M", 320, 30, ["scaffolding…", "tests passing", "deployed ✓"], { q: "Build fast or build solid?", opts: ["Fast — we'll refactor later", "Solid — this will last"] }, { strat: p + "A", gain: 2, out: "tooling · PR" }),
       Q(p + "c", "Prototype the risky idea", "inventor", "M", 300, 30, ["sketching…", "prototype runs", "demo posted ✓"], { q: "It half works. Ship the demo?", opts: ["Ship it", "One more day"] }, { strat: p + "B", gain: 2, out: "prototype · demo" }),
       Q(p + "d", "Stress-test the prototype", "critic", "S", 200, 20, ["running checks…", "2 issues found", "report posted ✓"], { q: "2 issues found. Block it?", opts: ["Block until fixed", "Ship with notes"] }, { strat: p + "B", gain: 1, out: "stress-test.md" }),
     ];
@@ -510,7 +513,7 @@ export function stageCleared(m) {
     m.gv = null;
     if (S.backed) S.backed[m.id] = null;
     el.remove();
-    titleCard(`Milestone ${m.current + 1}`, esc(m.stages[m.current].name), "Planning window: back a strategy", () => go("stage", { missionId: m.id }));
+    titleCard(`Stage ${m.current + 1}`, esc(m.stages[m.current].name), "Planning window: back a strategy", () => go("stage", { missionId: m.id }));
   });
 }
 

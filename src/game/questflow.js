@@ -166,7 +166,7 @@ function approveQuest(q, m) {
   award("spark");
   if (S.together === 3) award("sync");
   m.news = [`${duoName()} cleared “${q.title}”${q.gain ? ` · +${q.gain} ${m.unit}` : ""}`, ...(m.news || [])];
-  postQ(q, m, { sys: `✓ Approved by 2 Critics · +${xp} XP · $${q.coins} pending till the milestone clears · +${shares} ${tok(m)}${q.gain ? ` · ${s.name} +${q.gain} ${m.unit}` : ""}`, win: true });
+  postQ(q, m, { sys: `✓ Approved by 2 Critics · +${xp} XP · $${q.coins} pending till the stage clears · +${shares} ${tok(m)}${q.gain ? ` · ${s.name} +${q.gain} ${m.unit}` : ""}`, win: true });
   notify(`Approved: “${short(q.title)}” · $${q.coins} pending`, q.id);
   m.quests.filter(x => x.after === q.id).forEach(x => notify(`Unlocked: “${short(x.title)}”`, x.id));
   S.raid++;

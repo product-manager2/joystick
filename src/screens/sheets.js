@@ -26,7 +26,7 @@ export function trustSheet(m) {
   const t = trustOf(m), total = t.funders.reduce((a, [, v]) => a + v, 0);
   drill("Can I trust it?", `${Group([
       Row(Tick(1), esc(t.who), `${esc(t.cred)} · verified by ${t.verified.join(", ")}`),
-      Row(Tick(1), `$${fmt(total)} in escrow`, "Locked before launch. Paid out only as milestones clear."),
+      Row(Tick(1), `$${fmt(total)} in escrow`, "Locked before launch. Paid out only as stages clear."),
       Row(Tick(1), "Safety review", esc(t.safety)),
       Row("★", "Track record", esc(t.record)),
     ])}
@@ -37,7 +37,7 @@ export function trustSheet(m) {
 }
 export function ledgerSheet(m) {
   const all = ledgerOf(m), total = all.reduce((a, x) => a + x.amt, 0);
-  drill("Ledger", `<div class="small muted">$${fmt(total)} spent this milestone. Every spend has a receipt.</div>
+  drill("Ledger", `<div class="small muted">$${fmt(total)} spent this stage. Every spend has a receipt.</div>
     ${Group(all.map(x => Row("$", esc(x.what), `${esc(x.squad)} · ${esc(x.when)} · receipt ✓`, `<b>$${fmt(x.amt)}</b>`)))}
     <button class="btn block" data-a="flagspend">Flag a spend for the Referees</button>`, esc(m.title));
 }
@@ -46,7 +46,7 @@ export function manageSheet(m) {
   drill("Manage mission", Group([
     Row("✎", "Strategy proposals", pend.length ? `${pend.length} waiting for your OK` : "None waiting", pend.length ? `<button class="btn sm red" data-a="approvestrat">Approve</button>` : ""),
     Row("$", "Escrow", `$${fmt(m.bounty)} locked · nothing pending`, `<button class="btn sm" data-a="topup">Top up</button>`),
-    Row("🔒", "Milestones", "You can edit future milestones. The current one is locked."),
+    Row("🔒", "Stages", "You can edit future stages. The current one is locked."),
     Row("⚑", "Reports", "No flagged spends or disputes"),
   ]), esc(m.title));
 }
@@ -123,7 +123,7 @@ export function proofSheet(q) {
     <button class="btn red block" data-a="submitproof" data-x="${q.id}" ${ready ? "" : "disabled"}>Submit for review</button>`, esc(short(q.title)), () => proofSheet(q));
 }
 export function disputeSheet(q) {
-  drill("Dispute the review", `<p class="small">3 Referees from squads not racing this milestone re-run the work. They decide within 24h.</p>
+  drill("Dispute the review", `<p class="small">3 Referees from squads not racing this stage re-run the work. They decide within 24h.</p>
     ${Group([Row(Tick(1), "If they side with you", "It's approved. The reviewer's score drops."), Row(Tick(0), "If they don't", "You fix it and lose 5 rep. This stops spam disputes.")])}
     <div class="qbtns"><button class="btn red" data-a="filedispute" data-x="${q.id}">File dispute</button><button class="btn" data-a="fixq" data-x="${q.id}">Fix it instead</button></div>`, esc(short(q.title)));
 }
@@ -132,14 +132,14 @@ export function reviewInfo() {
     Row("1", "Your duo ships it", `${esc(S.agentName)} works on your authority, so its work counts as yours`),
     Row("2", "2 Critics from other squads", "Nobody reviews their own squad's work"),
     Row("3", "They re-run it", "Checked against the brief's “Done when” list"),
-    Row("4", "Both approve, it counts", "Pay is held until the milestone is cleared"),
+    Row("4", "Both approve, it counts", "Pay is held until the stage is cleared"),
     Row("$", "Critics get paid too", "$8 per review. Overruled reviews cost them score"),
     Row("⚑", "Spam guard", "3 rejected submissions in a day pauses your agent"),
   ]));
 }
 export function refereeSheet() {
-  drill("Who are the Referees?", `<p class="small">9 players with high review scores, picked at random from squads that aren't racing this milestone. They check the evidence and vote on whether the milestone is really done.</p>
-    ${Group([Row("✓", "Paid per milestone", "From the 15% Referee share of the bounty"), Row("24h", "Challenge window", "Any token holder can flag evidence before payouts"), Row("⚖", "Disputes", "Referees also settle review disputes")])}`);
+  drill("Who are the Referees?", `<p class="small">9 players with high review scores, picked at random from squads that aren't racing this stage. They check the evidence and vote on whether the stage is really done.</p>
+    ${Group([Row("✓", "Paid per stage", "From the 15% Referee share of the bounty"), Row("24h", "Challenge window", "Any token holder can flag evidence before payouts"), Row("⚖", "Disputes", "Referees also settle review disputes")])}`);
 }
 export function challengeSheet(m) {
   drill("Challenge the result", `<div class="small muted">Flag evidence you think is wrong. Referees re-check it before payouts.</div>
@@ -172,11 +172,11 @@ export function creditsSheet() {
 export function payoutSheet() {
   drill("Payouts", `${Group([
       Row(`<span class="coin"></span>`, "Available", "Yours to withdraw", `<b>$${fmt(S.coins)}</b>`),
-      Row("⏳", "Pending", "Approved work, paid when each milestone clears", `<b>$${fmt(S.wallet.pending)}</b>`),
+      Row("⏳", "Pending", "Approved work, paid when each stage clears", `<b>$${fmt(S.wallet.pending)}</b>`),
       Row(Tick(S.kyc, "✓", "!"), "Identity", S.kyc ? "Verified · tax form on file" : "Needed once before your first withdrawal"),
     ])}
     <div class="eyebrow">How you get paid</div>
-    <ul class="news"><li>Quest approved by 2 Critics, then pay is pending</li><li>Milestone clears, then pending becomes available</li><li>Withdraw to bank or USDC · 1–2 days</li></ul>
+    <ul class="news"><li>Quest approved by 2 Critics, then pay is pending</li><li>Stage clears, then pending becomes available</li><li>Withdraw to bank or USDC · 1–2 days</li></ul>
     <button class="btn red block" data-a="withdraw" ${S.coins ? "" : "disabled"}>${S.kyc ? `Withdraw $${fmt(S.coins)}` : "Verify identity to withdraw"}</button>`, "", payoutSheet);
 }
 export function kycSheet() {

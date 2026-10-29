@@ -4,7 +4,7 @@ import { questScore, questWhy, why } from "../game/personalise.js";
 import { NEEDS, NEED_BTN, needsYou } from "../game/questflow.js";
 import { gateOf, playable } from "../game/strategies.js";
 import { partnerSeed } from "./comms.js";
-import { AGENT_TAG, chName, chanIcon, gateBar, questStatus, short } from "./quests.js";
+import { AGENT_TAG, chName, chanIcon, stageLine, gateBar, questStatus, short } from "./quests.js";
 import { S } from "../state.js";
 import { go } from "../ui/chrome.js";
 import { botAv, esc, mission, mono, pips } from "../ui/helpers.js";
@@ -38,10 +38,10 @@ export function playScreen() {
       <button class="card callrow" data-a="openq" data-x="${m.id}" data-q="${q.id}">${botAv()}<span style="min-width:0"><b>${esc(NEEDS[q.state](q))}</b><span class="small muted">${esc(q.title)}</span></span><span class="btn sm red">${NEED_BTN[q.state]}</span></button>`).join("")}</div>` : ""}
     ${busy.length ? `<div class="eyebrow">In progress</div><div class="list">${busy.map(({ q, m }) => `
       <button class="card callrow" style="background:var(--card)" data-a="openq" data-x="${m.id}" data-q="${q.id}">${botAv()}<span style="min-width:0"><b>${esc(short(q.title))}</b><span class="small muted">${{ work: `${esc(S.agentName)} is working · ${esc(q.eta || "")}`, run: `${esc(S.agentName)} is on it`, review: "2 Critics checking", dispute: "Referees deciding" }[q.state]}</span></span>${questStatus(q)}</button>`).join("")}</div>` : ""}
-    ${joined.length ? `<h2 class="sec-title">Your channels</h2><div class="list">${joined.map(m => {
+    ${joined.length ? `<h2 class="sec-title">Your missions</h2><div class="list">${joined.map(m => {
         const g = gateOf(m);
         return `<button class="card chanrow" data-a="mission-ch" data-x="${m.id}">${chanIcon(m, 44)}
-          <span style="min-width:0"><span class="display" style="font-size:16px;display:block">${chName(m)}</span><span class="small muted ellip" style="display:block">${esc(m.title)}</span>
+          <span style="min-width:0"><span class="display" style="font-size:16px;display:block">${esc(m.title)}</span><span class="small muted ellip" style="display:block">${esc(stageLine(m))}</span>
           <span style="display:block;margin-top:6px">${gateBar(m, 10)}</span></span>
           ${m.unread ? `<span class="unread">${m.unread}</span>` : `<span class="small"><b>${g.have}/${g.need}</b></span>`}</button>`; }).join("")}</div>`
       : `<div class="card firstrun">${botAv("av big")}<div style="flex:1;min-width:0"><div class="from">${esc(S.agentName)}${AGENT_TAG}</div>

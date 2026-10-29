@@ -35,7 +35,7 @@ export function onboard() {
     ${startForm()}
       <a class="howto-link" href="#howto">How it works ↓</a>
     </div>
-    <div class="ticker" aria-hidden="true"><span>${"&nbsp;★&nbsp; Rosa & Dot cleared “Verify docking” +$25 &nbsp;★&nbsp; Fold Gang is 1 quest from clearing a milestone &nbsp;★&nbsp; Kenji & Byte joined Open CAD &nbsp;★&nbsp; @dr.amara added $10k to the bounty ".repeat(2)}</span></div>
+    <div class="ticker" aria-hidden="true"><span>${"&nbsp;★&nbsp; Rosa & Dot cleared “Verify docking” +$25 &nbsp;★&nbsp; Fold Gang is 1 quest from clearing a stage &nbsp;★&nbsp; Kenji & Byte joined Open CAD &nbsp;★&nbsp; @dr.amara added $10k to the bounty ".repeat(2)}</span></div>
     <div class="howto-wrap">
       <div class="howto" id="howto">
         <div class="panel"><div class="card panel-card">
@@ -54,7 +54,7 @@ export function onboard() {
         </div></div>
         <div class="panel"><div class="card panel-card">
           <div class="step"><span class="num">3</span>Own a piece of the win.</div>
-          <div class="mini-win"><div class="gate"><i style="width:100%"></i></div><div class="cup" style="font-size:26px">Milestone cleared!</div><span class="chip" style="background:var(--gold)"><span class="coin"></span> +$600</span><span class="chip" style="background:var(--navy);color:var(--white)">+120 $GLIO</span></div>
+          <div class="mini-win"><div class="gate"><i style="width:100%"></i></div><div class="cup" style="font-size:26px">Stage cleared!</div><span class="chip" style="background:var(--gold)"><span class="coin"></span> +$600</span><span class="chip" style="background:var(--navy);color:var(--white)">+120 $GLIO</span></div>
           <p class="panel-cap">Put in time or money. Earn the mission’s token: your vote, and your cut of what it builds.</p>
         </div></div>
       </div>

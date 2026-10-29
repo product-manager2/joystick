@@ -12,7 +12,7 @@ export function gateScreen() {
   const ranked = [...strats(m)].filter(s => s.score > 0).sort((a, b) => b.score - a.score), holds = S.wallet.shares[m.id] || 0;
   const idle = strats(m).length - ranked.length;
   return `<div class="chat">
-    <div class="chat-head">${chanIcon(m)}<div style="min-width:0;flex:1"><div class="display chan-name">Final check</div><div class="small muted ellip">${esc(m.title)} · milestone ${m.current + 1}</div></div></div>
+    <div class="chat-head">${chanIcon(m)}<div style="min-width:0;flex:1"><div class="display chan-name">Final check</div><div class="small muted ellip">${esc(m.title)} · stage ${m.current + 1}</div></div></div>
     <div class="stage-list">
       <div class="card milestone"><div class="eyebrow">The goal</div><div class="mgoal">${esc(m.stages[m.current].goal)}</div>${gateBar(m)}<div class="small"><b>${g.have}/${g.need} ${g.unit}</b> submitted</div></div>
       <div class="eyebrow">Evidence</div>
@@ -22,11 +22,11 @@ export function gateScreen() {
         <div class="referees" id="gvs">${gvCircles(v)}</div><div class="small muted" id="gvstat">${gvStat(v)}</div></div>
       ${holds ? `<div class="card milestone"><div class="eyebrow">Your vote · ${fmt(holds)} ${tok(m)}</div>${v.mine ? `<div class="small"><b>You: ${esc(v.mine)}</b></div>` : `<div class="qbtns"><button class="btn blue sm" data-a="gvote" data-x="Yes, it's done">Yes, it's done</button><button class="btn sm" data-a="gchallenge">Challenge</button></div>`}<div class="small muted">Challenge window: 24h. Payouts wait for it.</div></div>` : ""}
     </div>
-    <div class="room-bar one"><button class="btn red" id="gopen" data-a="opengate" ${v.done ? "" : "disabled"}>${v.done ? "Clear the milestone" : "Referees voting…"}</button></div>
+    <div class="room-bar one"><button class="btn red" id="gopen" data-a="opengate" ${v.done ? "" : "disabled"}>${v.done ? "Clear the stage" : "Referees voting…"}</button></div>
   </div>`;
 }
 const gvCircles = v => Array.from({ length: 9 }, (_, i) => `<span class="gv ${i < v.yes ? "yes" : i < v.yes + v.no ? "no" : ""}">${i < v.yes ? "✓" : i < v.yes + v.no ? "✗" : ""}</span>`).join("");
-const gvStat = v => v.done ? `<b>${v.yes}–${v.no}</b>: the milestone is done` : `Re-checking the evidence · ${v.yes + v.no}/9 voted`;
+const gvStat = v => v.done ? `<b>${v.yes}–${v.no}</b>: the stage is done` : `Re-checking the evidence · ${v.yes + v.no}/9 voted`;
 export function runGateVote(m) {
   const v = m.gv;
   if (!v || v.started) return;
@@ -40,6 +40,6 @@ export function runGateVote(m) {
     const a = $("#gvs"), b = $("#gvstat"), c = $("#gopen");
     if (a) a.innerHTML = gvCircles(v);
     if (b) b.innerHTML = gvStat(v);
-    if (c && v.done) { c.disabled = false; c.textContent = "Clear the milestone"; }
+    if (c && v.done) { c.disabled = false; c.textContent = "Clear the stage"; }
   }, 500);
 }

@@ -26,7 +26,7 @@ export function forgeScreen() {
     <div class="chat-head">${backBtn("back", "", "Leave the forge")}${botAv("av")}<div><div class="display" style="font-size:15px">New mission</div><div class="typed small muted">with ${esc(S.agentName)}</div></div></div>
     <div class="msgs" id="msgs">${f.msgs.map(msgHTML).join("")}</div>
     ${f.step === 0 && !f.msgs.some(x => x.typing) ? `<div class="quick wrap">${Object.keys(FORGE_PRESETS).map(k => `<button class="chip" data-a="f-kind" data-x="${k}">${k}</button>`).join("")}</div>` : ""}
-    <form class="composer" id="forgeComposer"><input id="fsay" placeholder="${["Or say it in your words…", "New name…", "Add a milestone…", "Add a rule…", "Anything else?", "Anything else?"][f.step]}" autocomplete="off"><button class="btn sm red" type="submit">Send</button></form>
+    <form class="composer" id="forgeComposer"><input id="fsay" placeholder="${["Or say it in your words…", "New name…", "Add a stage…", "Add a rule…", "Anything else?", "Anything else?"][f.step]}" autocomplete="off"><button class="btn sm red" type="submit">Send</button></form>
   </div>`;
 }
 export function forgeCard(kind) {
@@ -39,8 +39,8 @@ export function forgeCard(kind) {
       <div class="field"><label for="fpitch">The win</label><textarea class="inp" id="fpitch" ${dis}>${esc(f.pitch)}</textarea></div>
       ${live ? `<button class="btn sm red" data-a="f-next">Looks good</button>` : ""}</div>`;
   if (kind === "stages") return `<div class="form-card">
-      ${f.stages.map((s, i) => `<div class="ed"><span class="num" style="width:26px;height:26px;font-size:11px">${i === f.stages.length - 1 ? "★" : i + 1}</span><input id="fs${i}" data-fs="${i}" value="${esc(s)}" ${dis} aria-label="Milestone ${i + 1}">${live && f.stages.length > 2 ? `<button class="x" data-a="f-delstage" data-x="${i}" aria-label="Remove milestone">✕</button>` : ""}</div>`).join("")}
-      ${live ? `<div class="row"><button class="btn sm" data-a="f-addstage">+ Milestone</button><span class="spacer"></span><button class="btn sm red" data-a="f-next">Lock them</button></div>` : ""}</div>`;
+      ${f.stages.map((s, i) => `<div class="ed"><span class="num" style="width:26px;height:26px;font-size:11px">${i === f.stages.length - 1 ? "★" : i + 1}</span><input id="fs${i}" data-fs="${i}" value="${esc(s)}" ${dis} aria-label="Stage ${i + 1}">${live && f.stages.length > 2 ? `<button class="x" data-a="f-delstage" data-x="${i}" aria-label="Remove stage">✕</button>` : ""}</div>`).join("")}
+      ${live ? `<div class="row"><button class="btn sm" data-a="f-addstage">+ Stage</button><span class="spacer"></span><button class="btn sm red" data-a="f-next">Lock them</button></div>` : ""}</div>`;
   if (kind === "rules") return `<div class="form-card"><div class="mini-roles">${f.ruleOpts.map((r, i) => `<button data-a="f-rule" data-x="${i}" aria-pressed="${f.rules.includes(r)}" ${dis}>${esc(r)}</button>`).join("")}</div>
       ${live ? `<button class="btn sm red" data-a="f-next" ${f.rules.length ? "" : "disabled"}>These are the rules</button>` : ""}</div>`;
   if (kind === "team") return `<div class="form-card"><div class="eyebrow">Roles</div>
@@ -50,10 +50,10 @@ export function forgeCard(kind) {
       ${live ? `<button class="btn sm red" data-a="f-next">Ready</button>` : ""}</div>`;
   if (kind === "launch") return `<div class="form-card"><div class="card poster" style="box-shadow:2px 2px 0 var(--ink)">
       <div class="band" style="background:var(--pink)"><div class="glyph"><svg viewBox="0 0 32 32">${GLYPHS.star}</svg></div><h3>${esc(f.title)}</h3></div>
-      <div class="body"><p class="small">${esc(f.pitch)}</p><div class="eyebrow">${f.stages.length} milestones · ${f.rules.length} win rules · $${fmt(f.bounty)} bounty</div>
+      <div class="body"><p class="small">${esc(f.pitch)}</p><div class="eyebrow">${f.stages.length} stages · ${f.rules.length} win rules · $${fmt(f.bounty)} bounty</div>
       <div class="row wrap" style="gap:4px">${f.roles.map(r => `<span class="rtag" style="background:${roleColor(r)}">${ROLES[r].name}</span>`).join("")}</div></div></div>
       <div class="dgroup" style="box-shadow:var(--pop-sm)">
-        <div class="drow"><span class="${f.funded ? "ok" : "no"}">${f.funded ? "✓" : "!"}</span><span><b>Escrow</b><span class="small muted" style="display:block">${f.funded ? `$${fmt(f.bounty)} locked. Paid out only as milestones clear.` : `Lock $${fmt(f.bounty)} so players know it's real.`}</span></span>${f.funded || !live ? "<span></span>" : `<button class="btn sm gold" data-a="f-fund">Deposit</button>`}</div>
+        <div class="drow"><span class="${f.funded ? "ok" : "no"}">${f.funded ? "✓" : "!"}</span><span><b>Escrow</b><span class="small muted" style="display:block">${f.funded ? `$${fmt(f.bounty)} locked. Paid out only as stages clear.` : `Lock $${fmt(f.bounty)} so players know it's real.`}</span></span>${f.funded || !live ? "<span></span>" : `<button class="btn sm gold" data-a="f-fund">Deposit</button>`}</div>
         <div class="drow"><span class="${f.funded ? "ok" : "muted"}">${f.funded ? "✓" : "○"}</span><span><b>Safety check</b><span class="small muted" style="display:block">${f.funded ? "Auto-check passed · no harm or dual-use flags" : "Runs after the deposit"}</span></span><span></span></div>
       </div>
       ${live ? `<button class="btn red block" data-a="f-launch" ${f.funded ? "" : "disabled"}>${f.funded ? "Launch" : "Deposit to launch"}</button>` : ""}</div>`;
@@ -75,7 +75,7 @@ export function forgeKind(kind, custom) {
 }
 export function forgeNext() {
   const f = S.forge;
-  const lines = ["", "Your milestones. Last one's the boss.", "How do we know you won?", "Who do you need? What's the bounty?", "Ready."];
+  const lines = ["", "Your stages. Last one's the boss.", "How do we know you won?", "Who do you need? What's the bounty?", "Ready."];
   const forms = ["", "stages", "rules", "team", "launch"];
   const i = f.step;
   f.msgs.push({ me: true, text: ["", "Looks good", "Lock them", "These are the rules", "Ready"][i] });

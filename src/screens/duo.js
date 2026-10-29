@@ -25,7 +25,7 @@ export function duoScreen() {
         <div class="reward" style="background:${FUELS.know.color}">${fuelIcon("know", 22)}<b>${S.wallet.insights}</b><span>insights</span></div>
         <div class="reward" style="background:var(--white)"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18l5-6 4 3 7-9"/><path d="M15 6h5v5"/></svg><b>${Object.keys(S.wallet.shares).length + Object.keys(S.stakes).length}</b><span>tokens + stakes</span></div>
       </div>
-      <div class="row small"><span><b>$${fmt(S.wallet.pending)}</b> pending · paid when milestones clear</span><span class="spacer"></span><button class="info" data-a="acct" data-x="payouts">Withdraw</button></div>
+      <div class="row small"><span><b>$${fmt(S.wallet.pending)}</b> pending · paid when stages clear</span><span class="spacer"></span><button class="info" data-a="acct" data-x="payouts">Withdraw</button></div>
       <div class="eyebrow">Mission tokens · a share of the problem</div>
       ${Object.entries(S.wallet.shares).map(([id, n]) => { const mm = mission(id); return `<div class="row small">${chanIcon(mm, 28)}<span style="flex:1;min-width:0"><b>${fmt(n)} ${tok(mm)}</b><span class="muted" style="display:block">${esc(mm.title)}</span></span><span>${ownPct(mm).toFixed(2)}%</span></div>`; }).join("")}
       ${Object.keys(S.stakes).length ? `<div class="eyebrow">Team stakes · a share of what they build</div>

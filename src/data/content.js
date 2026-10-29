@@ -49,7 +49,7 @@ export const BADGES = {
   sync:    { name: "Hat Trick",    desc: "Cleared 3 quests",                icon: '<circle cx="12.5" cy="16" r="5"/><circle cx="19.5" cy="16" r="5"/>', rib: ["var(--pink)", "var(--blue)"] },
   raider:  { name: "Raider",       desc: "Cleared a daily raid",           icon: '<path d="M11 24V8M11 9h10l-2.5 3.5L21 16H11"/>', rib: ["var(--red)", "var(--gold)"] },
   slayer:  { name: "Heavy Lifter", desc: "Cleared an L quest",         icon: '<path d="M16 7l2.6 5.4 5.9.8-4.3 4.1 1 5.8L16 20.3 10.8 23l1-5.8-4.3-4.1 5.9-.8z"/>', rib: ["var(--green-d)", "var(--gold)"] },
-  gate:    { name: "Finisher",     desc: "Helped clear a milestone",           icon: '<path d="M9 24V12a7 7 0 0 1 14 0v12M9 24h14M16 13v6"/>', rib: ["var(--violet)", "var(--green)"] },
+  gate:    { name: "Finisher",     desc: "Helped clear a stage",           icon: '<path d="M9 24V12a7 7 0 0 1 14 0v12M9 24h14M16 13v6"/>', rib: ["var(--violet)", "var(--green)"] },
   founder: { name: "Founder",      desc: "Launched a mission",             icon: '<path d="M16 6c4 3 5 8 3 13h-6c-2-5-1-10 3-13zM13 19l-3 4M19 19l3 4M16 12v2"/>', rib: ["var(--blue)", "var(--red)"] },
   owl:     { name: "Night Owl",    desc: "Found in a mystery crate",       icon: '<path d="M20 9a7.5 7.5 0 1 0 3 12 6 6 0 0 1-3-12z"/>', rib: ["var(--navy)", "var(--sky)"] },
   fire:    { name: "On Fire",      desc: "7-day streak",                   icon: '<path d="M16 6c1 4 6 6 6 11a6 6 0 0 1-12 0c0-3 2-4 3-6 1 2 2 2 3 1-1-2-1-4 0-6z"/>', rib: ["var(--red)", "var(--gold)"] },
