@@ -65,3 +65,42 @@ test('mission claims, artifact reviews, dependencies and command replay use real
     if(previousTestCredits===undefined)delete process.env.GAME_TEST_CREDITS;else process.env.GAME_TEST_CREDITS=previousTestCredits;
   }
 });
+
+test('owner approves a completed stage, notifies watchers, and advances while retaining history',async()=>{
+  const pool=new pg.Pool({connectionString:databaseUrl});
+  const users:string[]=[],missions:string[]=[];
+  const makeUser=async(name:string)=>{const r=await pool.query('INSERT INTO users(email,name) VALUES($1,$2) RETURNING id',[`${randomUUID()}@example.test`,name]);users.push(r.rows[0].id);return r.rows[0].id as string;};
+  const action=(user:string,name:GameActionInput['action'],entityId?:string,payload?:Record<string,unknown>)=>applyGameAction(pool,user,{action:name,entityId,payload,requestId:randomUUID()});
+  try{
+    const owner=await makeUser('Stage owner'),worker=await makeUser('Stage worker'),first=await makeUser('Stage reviewer A'),second=await makeUser('Stage reviewer B');
+    let snap=await action(owner,'mission.create',undefined,{title:'Stage approval regression',stages:[{name:'Build',target:1},{name:'Ship',target:1}]});
+    const mission=snap.missions.find(m=>m.title==='Stage approval regression')!;missions.push(mission.id as string);
+    const firstStage=(mission.stages as any[])[0].id as string,secondStage=(mission.stages as any[])[1].id as string;
+    for(const user of [worker,first,second])await action(user,'mission.join',mission.id as string);
+    snap=await action(owner,'quest.create',firstStage,{title:'Complete the build'});
+    const quest=(snap.missions.find(m=>m.id===mission.id)!.quests as any[]).find(q=>q.title==='Complete the build')!.id as string;
+    await action(first,'quest.watch',quest);
+    await action(worker,'quest.claim',quest);
+    await action(worker,'quest.submit',quest,{title:'Evidence',content:'Completed and checked'});
+    await action(first,'quest.review',quest,{verdict:'approve',note:'Looks good'});
+    await action(second,'quest.review',quest,{verdict:'approve',note:'Verified independently'});
+    snap=await action(owner,'stage.approve',firstStage);
+    const approved=snap.missions.find(m=>m.id===mission.id)!;
+    assert.equal((approved.stages as any[])[0].status,'approved');
+    assert.equal((approved.stages as any[])[1].status,'pending');
+    const notified=await getGameSnapshot(pool,first);
+    assert.ok(notified.notifications.some(n=>n.kind==='stage.approved'&&n.entityId===firstStage));
+    snap=await action(owner,'stage.advance',mission.id as string);
+    const advanced=snap.missions.find(m=>m.id===mission.id)!;
+    assert.equal((advanced.stages as any[])[0].status,'approved');
+    assert.equal((advanced.stages as any[])[1].status,'active');
+    assert.equal((advanced.quests as any[]).find(q=>q.id===quest)?.done,true);
+    const history=await pool.query('SELECT approved_by,approved_at FROM game_stages WHERE id=$1',[firstStage]);
+    assert.equal(history.rows[0].approved_by,owner);
+    assert.ok(history.rows[0].approved_at);
+  }finally{
+    for(const id of missions)await pool.query('DELETE FROM game_missions WHERE id=$1',[id]);
+    for(const id of users)await pool.query('DELETE FROM users WHERE id=$1',[id]);
+    await pool.end();
+  }
+});
