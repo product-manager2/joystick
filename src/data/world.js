@@ -39,7 +39,7 @@ export const TRUST = {
   tutor: { who: "Mrs. Chioma Okafor", cred: "Head teacher · Lagos", verified: ["School email"], funders: [["EdTech Grant", 100000], ["@mrs.okafor", 20000]], record: "First mission", safety: "Child-safety review passed", deliver: ["Offline tutor app", "Pilot results report"], fail: "Unspent escrow goes back to funders. Approved work stays paid." },
 };
 export const LEDGER = {
-  glio:  [["GPU rental · shards A–B", "Fold Gang", 1240, "2h ago"], ["Basel lab deposit", "Wet Hands", 2000, "1d ago"], ["Critic rewards · 14 reviews", "Referees", 310, "1d ago"], ["CNS database licence", "Wet Hands", 450, "3d ago"]],
+  glio:  [["GPU rental · parts 1–2", "Fold Gang", 1240, "2h ago"], ["Basel lab deposit", "Wet Hands", 2000, "1d ago"], ["Critic rewards · 14 reviews", "Referees", 310, "1d ago"], ["CNS database licence", "Wet Hands", 450, "3d ago"]],
   cad:   [["CI runners", "Kernel Crew", 180, "5h ago"], ["Interview gift cards", "Field Team", 250, "2d ago"]],
   reef:  [["Dive shop payments · 9 sites", "Reef Ops", 2700, "1d ago"], ["Satellite tiles", "Reef Ops", 900, "4d ago"]],
   tutor: [["Test phones · 5 × $50", "Chalk Squad", 250, "2d ago"]],

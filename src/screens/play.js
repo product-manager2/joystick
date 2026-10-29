@@ -2,9 +2,9 @@ import { SIZE, missions } from "../data/content.js";
 import { color } from "../design/tokens.js";
 import { questScore, questWhy, why } from "../game/personalise.js";
 import { NEEDS, NEED_BTN, needsYou } from "../game/questflow.js";
-import { gateOf, leaderOf, playable, shown } from "../game/strategies.js";
+import { gateOf, playable } from "../game/strategies.js";
 import { partnerSeed } from "./comms.js";
-import { AGENT_TAG, fundOf, fundQuest, chName, chanIcon, stageLine, gateBar, questStatus, short } from "./quests.js";
+import { AGENT_TAG, questSub, chName, chanIcon, stageLine, gateBar, questStatus, short } from "./quests.js";
 import { S } from "../state.js";
 import { go } from "../ui/chrome.js";
 import { botAv, esc, mission, mono, pips } from "../ui/helpers.js";
@@ -12,7 +12,7 @@ import { botAv, esc, mission, mono, pips } from "../ui/helpers.js";
 // ===================== Play hub: what to do right now =====================
 export function questRow({ q, m }) {
   return `<div class="card qplay">${mono(q.role, 34)}
-    <button class="qbody" data-a="openq" data-x="${m.id}" data-q="${q.id}"><b>${esc(q.title)}</b><span class="small muted">${chName(m)} · ${SIZE[q.size].label} · $${q.coins}</span>${why(questWhy(q, m))}</button>
+    <button class="qbody" data-a="openq" data-x="${m.id}" data-q="${q.id}"><b>${esc(q.title)}</b><span class="small muted">${chName(m)} · ${questSub(q, m)}</span>${why(questWhy(q, m))}</button>
     <button class="btn sm blue" data-a="play" data-x="${q.id}">Start</button></div>`;
 }
 export function playScreen() {
@@ -24,9 +24,7 @@ export function playScreen() {
   const forYou = open.filter(x => questScore(x.q, x.m) > 1).sort((a, b) => questScore(b.q, b.m) - questScore(a.q, a.m));
   // One top quest from each mission you're in, then the best of the rest
   const pool = forYou.length ? forYou : open, firsts = joined.map(m => pool.find(x => x.m === m)).filter(Boolean);
-  const list = [...firsts, ...pool.filter(x => !firsts.includes(x))].slice(0, 4);
-  // Funding is a quest too: the plan you back, or the leading plan in a mission you're in, if it still needs money
-  const fundIn = (joined.length ? joined : missions).map(m => ({ m, s: shown(m).find(x => x.id === S.backed?.[m.id]) || leaderOf(m) })).find(({ m, s }) => s && !s.status && fundOf(m, s).left > 0);
+  const list = [...firsts, ...pool.filter(x => !firsts.includes(x))].filter((x, i, a) => !x.q.back || a.findIndex(y => y.q.back) === i).slice(0, 4);
   const best = missions.map(m => ({ m, n: m.quests.filter(q => playable(q) && S.roles.includes(q.role)).length })).sort((a, b) => b.n - a.n)[0];
   return `<div class="screen">
     ${calls.length ? `<div class="eyebrow" style="color:var(--red)">${esc(S.agentName)} needs you</div><div class="list">${calls.map(({ q, m }) => `
@@ -38,6 +36,6 @@ export function playScreen() {
           <p><b>Start with ${esc(best.m.title)}?</b> ${best.n} quests fit your style.</p>
           <button class="btn red sm" data-a="mission" data-x="${best.m.id}" style="margin-top:8px">Let's go</button></div></div>`}
     <h2 class="sec-title">For you</h2>
-    <div class="list">${list.slice(0, 2).map(questRow).join("")}${fundIn ? fundQuest(fundIn.m, fundIn.s) : ""}${list.slice(2).map(questRow).join("")}</div>
+    <div class="list">${list.map(questRow).join("")}</div>
   </div>`;
 }

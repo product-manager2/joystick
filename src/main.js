@@ -90,8 +90,8 @@ document.addEventListener("click", e => {
       if (i < m.current) return stageRecapSheet(m, i);
       return toast(`Clear ${esc(m.stages[m.current].name)} first`);
     }
-    case "openq": S.roomTab = "chat"; return go("quest", { missionId: x, questId: b.dataset.q, stratId: findQuest(b.dataset.q)[0].strat });
-    case "quest": { const [q, mm] = findQuest(x); q.unread = 0; S.roomTab = q.visited ? "chat" : "brief"; q.visited = true; return go("quest", { missionId: mm.id, questId: x, stratId: q.strat }); }
+    case "openq": if (findQuest(b.dataset.q)[0].back) return playQuest(b.dataset.q); S.roomTab = "chat"; return go("quest", { missionId: x, questId: b.dataset.q, stratId: findQuest(b.dataset.q)[0].strat });
+    case "quest": { const [q, mm] = findQuest(x); if (q.back) return playQuest(x); q.unread = 0; S.roomTab = q.visited ? "chat" : "brief"; q.visited = true; return go("quest", { missionId: mm.id, questId: x, stratId: q.strat }); }
     case "rtab": { const [q] = findQuest(S.questId); S.roomTab = x; if (x === "chat") q.unreadChat = 0; return render(); }
     case "strategy": return go("strategy", { stratId: x });
     case "strategy-from-map": return go("strategy", { stratId: x });

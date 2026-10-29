@@ -1,4 +1,4 @@
-import { ROLES, SUITS, medal, missions } from "../data/content.js";
+import { ROLES, medal, missions } from "../data/content.js";
 import { color } from "../design/tokens.js";
 import { playable, strats } from "../game/strategies.js";
 import { homeDeck, startForm } from "./home.js";
@@ -55,11 +55,6 @@ export function onboard() {
 }
 export const shapePicker = (keep = false) => `<div class="shapes">${Object.entries(SHAPES).map(([k, sh]) => `<button class="shape-pick" data-a="shape" data-x="${k}"${keep ? ' data-keep="1"' : ""} aria-pressed="${S.botShape === k}" aria-label="${sh.name}: ${sh.line}"><span class="av">${bot(k)}</span><b>${sh.name}</b></button>`).join("")}</div>`;
 export function rolePicker(selected, action, max = 3) {
-  return Object.entries(SUITS).map(([sk, s]) => `
-    <div class="suit">
-      <div class="suit-head"><i class="pip" style="background:${s.color}"></i>${s.name}</div>
-      <div class="role-grid ${selected.length >= max ? "full" : ""}">${Object.entries(ROLES).filter(([, r]) => r.suit === sk).map(([k, r]) => `
-        <button class="role" data-a="${action}" data-x="${k}" aria-pressed="${selected.includes(k)}">${mono(k)}<span><b>${r.name}</b><span class="muted">${r.does}</span></span></button>`).join("")}
-      </div>
-    </div>`).join("");
+  return `<div class="role-grid ${selected.length >= max ? "full" : ""}">${Object.entries(ROLES).map(([k, r]) => `
+    <button class="role" data-a="${action}" data-x="${k}" aria-pressed="${selected.includes(k)}">${mono(k, 44)}<span><b>${r.name}</b><span class="muted">${r.does}</span></span></button>`).join("")}</div>`;
 }

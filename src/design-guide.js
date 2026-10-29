@@ -32,7 +32,7 @@ const ui = [
   [Eyebrow("Stats"), Stats([["$250k", "bounty"], ["3/5", "stage"], ["1.3k", "playing"]])],
   [Eyebrow("Meter"), Meter(64)],
   [Eyebrow("Avatars + roles"), `<div class="row wrap">${youAv()}${botAv()}${["implementer", "critic", "strategist", "connector"].map(k => mono(k, 32)).join("")}${["implementer", "critic"].map(k => `<span class="rtag" style="background:${roleColor(k)}">${ROLES[k].name}</span>`).join("")}</div>`],
-  [Eyebrow("Detail rows"), DetailGroup([DetailRow(Tick(1), "Dr. Amara Osei", "Neuro-oncologist · verified by ORCID"), DetailRow(Tick(0, "✓", "!"), "Identity", "Needed once before your first withdrawal", Button("Verify", { size: "sm" })), DetailRow("$", "GPU rental · shards A–B", "Fold Gang · 2h ago", "<b>$1.2k</b>")])],
+  [Eyebrow("Detail rows"), DetailGroup([DetailRow(Tick(1), "Dr. Amara Osei", "Neuro-oncologist · verified by ORCID"), DetailRow(Tick(0, "✓", "!"), "Identity", "Needed once before your first withdrawal", Button("Verify", { size: "sm" })), DetailRow("$", "GPU rental · parts 1–2", "Fold Gang · 2h ago", "<b>$1.2k</b>")])],
   [Eyebrow("Value tags"), `<div class="row wrap">${Chip("Holistic", { tone: "vtag mine" })}${Chip("Open science", { tone: "vtag" })}${Chip("✓ Escrow · verified", { tone: "trust", action: "x" })}</div>`],
   [Eyebrow("Bonus estimate"), `<div class="estimate"><span>$10 now</span><b>→ about $43 with the bonus</b></div>`],
   [Eyebrow("Sheets"), `<div class="row wrap">${Button("Open a sheet", { variant: "blue", "data-demo": "sheet" })}${Button("Open a drill-down", { "data-demo": "drill" })}</div>`],

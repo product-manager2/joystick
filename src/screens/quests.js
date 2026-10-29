@@ -27,18 +27,18 @@ export const stratBadge = (s, size = 40) => `<span class="sbadge" style="width:$
 export const CREW = {
   g1: [{ who: "Priya", color: "var(--red)", text: "Library's done. 1,000,412 molecules." }, { who: "Dock", owner: "Priya", color: "var(--red)", bot: true, text: "Uploaded to the shared drive." }],
   g3: [{ who: "Rosa", color: "var(--pink)", text: "Started on the first 5. Anyone want the rest?" }, { who: "Dot", owner: "Rosa", color: "var(--pink)", bot: true, text: "5 of 20 checked. All match so far." }],
-  g6c: [{ who: "Kenji", color: "var(--sky)", text: "Shards A and B are in. 4 hits. C and D left." }, { who: "Byte", owner: "Kenji", color: "var(--sky)", bot: true, text: "GPUs reserved for tonight." }],
+  g6c: [{ who: "Kenji", color: "var(--sky)", text: "Parts 1 and 2 are in. 4 hits. 3 and 4 left." }, { who: "Byte", owner: "Kenji", color: "var(--sky)", bot: true, text: "GPUs reserved for tonight." }],
   g8: [{ who: "Ade", color: "var(--leaf)", text: "Lab says BBB is the make-or-break for this one." }, { who: "Moss", owner: "Ade", color: "var(--leaf)", bot: true, text: "Pulled CNS data for all 40 drugs." }],
   c2: [{ who: "Kenji", color: "var(--sky)", text: "20 files done. 30 to go." }, { who: "Byte", owner: "Kenji", color: "var(--sky)", bot: true, text: "2 broke on fillets so far." }],
   r3: [{ who: "Ade", color: "var(--leaf)", text: "Most misses look like cloud shadow to me." }],
 };
 // Quest briefs: the doc that says what a quest is, why it matters and when it's done
 export const BRIEF = {
-  g6c: { task: "Dock compounds 500,001–750,000 from the ZINC library against the EGFRvIII pocket and report every hit.", done: ["All 250k compounds docked with the shared config", "Hits scored at or below the cutoff", "Hits file uploaded with SMILES and scores", "A Critic re-runs 5 random hits"], inputs: ["zinc-shard-C.sdf · 250k compounds", "egfrviii-pocket.pdb", "docking-config.yaml · from PR #142"] },
-  g6d: { task: "Dock compounds 750,001–1,000,000 and report every hit.", done: ["All 250k compounds docked", "Hits scored at or below the cutoff", "A Critic re-runs 5 random hits"], inputs: ["zinc-shard-D.sdf · 250k compounds", "docking-config.yaml"] },
+  g6c: { task: "Test molecules 500,001 to 750,000 against the tumour target (EGFRvIII). List every one that sticks.", done: ["All 250k compounds docked with the shared config", "Hits scored at or below the cutoff", "Hits file uploaded with SMILES and scores", "A Critic re-runs 5 random hits"], inputs: ["zinc-part-C.sdf · 250k compounds", "egfrviii-pocket.pdb", "docking-config.yaml · from PR #142"] },
+  g6d: { task: "Test molecules 750,001 to 1,000,000. List every one that sticks.", done: ["All 250k compounds docked", "Hits scored at or below the cutoff", "A Critic re-runs 5 random hits"], inputs: ["zinc-part-D.sdf · 250k compounds", "docking-config.yaml"] },
   g3: { task: "Re-run 20 of Fold Gang's docking results on your own machine and confirm the scores match.", done: ["All 20 re-run with the same settings", "Any drift over 1 kcal/mol flagged", "A verdict posted for each result"], inputs: ["fold-gang-results-20.csv", "docking-config.yaml"] },
   g8: { task: "Find out which of 40 approved drugs can cross the blood–brain barrier well enough to reach the tumour.", done: ["A BBB score for all 40 drugs", "Weak crossers marked, not dropped", "Shortlist handed to the Wet Lab stage"], inputs: ["fda-approved-40.csv", "cns-permeability-db · via Moss"] },
-  g2: { task: "Set up the shared docking pipeline every Fold Gang shard runs on.", done: ["Pipeline docks a 1,000-compound test set", "Config checked into the repo", "A one-page runbook added to this brief"], inputs: ["egfrviii-pocket.pdb", "GPU credits · $4k from the bounty"] },
+  g2: { task: "Set up the shared docking pipeline every Fold Gang part runs on.", done: ["Pipeline docks a 1,000-compound test set", "Config checked into the repo", "A one-page runbook added to this brief"], inputs: ["egfrviii-pocket.pdb", "GPU credits · $4k from the bounty"] },
   g4: { task: "Bring a medicinal chemist onto Wet Hands to judge which repurposed drugs are realistic.", done: ["2+ chemists contacted", "One signs the mission contract"], inputs: ["chemist-shortlist.csv"] },
   c2: { task: "Import 50 real customer STEP files and log every failure.", done: ["All 50 files attempted", "Every failure has a repro file", "Bug report filed with the Kernel Crew"], inputs: ["step-test-set-50.zip"] },
   c3: { task: "Fix the crash when booleans hit curved (NURBS) faces.", done: ["Crash reproduced in a test", "Fix merged", "Test suite still green"], inputs: ["crash-repro.step", "kernel repo · issue #61"] },
@@ -89,11 +89,11 @@ export const FILE_ICON = '<svg viewBox="0 0 20 20" width="18" height="18" fill="
 // Live squad talk inside multiplayer quests ({me} is your name)
 export const SCRIPT = {
   g6c: [
-    { who: "Kenji", color: "var(--sky)", text: "@{me} you taking shard C? I'll start D in parallel." },
-    { who: "Byte", owner: "Kenji", color: "var(--sky)", bot: true, text: "Shard D queued. About 40 minutes." },
+    { who: "Kenji", color: "var(--sky)", text: "@{me} you taking part 3? I'll start part 4 at the same time." },
+    { who: "Byte", owner: "Kenji", color: "var(--sky)", bot: true, text: "Part 4 queued. About 40 minutes." },
     { who: "Priya", color: "var(--red)", text: "Heads up: use a −9 kcal/mol cutoff, not −8. Too many weak hits at −8." },
     { who: "Kenji", color: "var(--sky)", text: "Good catch. Putting it in the brief.", note: "Cutoff is −9 kcal/mol (Priya)", edit: "Kenji" },
-    { who: "Dock", owner: "Priya", color: "var(--red)", bot: true, text: "Re-scored shard B with −9. Still 2 hits." },
+    { who: "Dock", owner: "Priya", color: "var(--red)", bot: true, text: "Re-scored part 2 with −9. Still 2 hits." },
   ],
   g3: [
     { who: "Rosa", color: "var(--pink)", text: "@{me} want results 6–20? I'll keep 1–5." },
@@ -156,8 +156,9 @@ export function crewOf(q) {
 export const crewAv = x => `<span class="av">${x.bot ? bot(x.color) : face(x.color, x.who.length)}</span>`;
 export function questStatus(q) {
   if (q.done) return `<span class="qstat done">✓ Cleared</span>`;
+  if (q.back) return stakeOf({ id: q.back }) ? `<span class="qstat done">✓ Backed</span>` : `<span class="qstat">Open</span>`;
   if (q.parts) { const [, m] = findQuest(q.id); const d = q.parts.filter(id => m.quests.find(x => x.id === id).done).length; return `<span class="qstat">${d}/${q.parts.length} parts</span>`; }
-  if (needsYou(q)) return `<span class="qstat call">${{ call: "Your call", spend: "Approve $", proof: "Add proof", changes: "Fix needed" }[q.state]}</span>`;
+  if (needsYou(q)) return `<span class="qstat call">${{ call: "Your call", proof: "Add proof", changes: "Fix needed" }[q.state]}</span>`;
   if (q.state === "work") return `<span class="qstat live">Working</span>`;
   if (q.state === "review") return `<span class="qstat review">In review</span>`;
   if (q.state) return `<span class="qstat live">Playing</span>`;
@@ -177,7 +178,7 @@ export function questItem(q, m) {
   const row = (x, cls = "") => `<button class="card qitem ${cls} ${x.done ? "done" : ""}" ${x.parts ? "disabled" : `data-a="quest" data-x="${x.id}"`}>
       ${mono(x.role, 36)}
       <span style="min-width:0"><b class="qt">${esc(x.title)}</b>
-        <span class="small muted" style="display:block">${x.parts ? `Split into ${parts.length} parts` : `${x.human ? "✋ · " : ""}${SIZE[x.size].label} · $${x.coins}${x.gain ? ` · <b style="color:var(--navy)">+${x.gain} ${x.gain === 1 ? m.unit.replace(/s$/, "") : m.unit}</b>` : ""}`}${S.roles.includes(x.role) && !x.done && !x.parts ? ` · <b style="color:var(--green-d)">2×</b>` : ""}</span></span>
+        <span class="small muted" style="display:block">${x.parts ? `Split into ${parts.length} parts` : questSub(x, m)}${S.roles.includes(x.role) && !x.done && !x.parts ? ` · <b style="color:var(--green-d)">2×</b>` : ""}</span></span>
       ${questStatus(x)}${!x.done && !x.parts && cls !== "part" && (playable(x) || x.state) ? `<span class="why-row">${why(questWhy(x, m))}</span>` : ""}</button>`;
   return q.parts ? `<div class="qtree">${row(q, "parent")}<div class="parts">${parts.map(p => row(p, "part")).join("")}</div></div>` : row(q);
 }
@@ -233,13 +234,10 @@ export function fundOf(m, s) {
   const need = askOf(s).money, have = raisedOf(s) + matchOf(m, s);
   return { need, have: Math.min(have, need), left: Math.max(0, need - have), pct: Math.min(100, have / need * 100) };
 }
-// Funding is a quest too: for players who bring money instead of time
-export function fundQuest(m, s, cls = "") {
-  const f = fundOf(m, s), extra = matchGain(m, s, 10);
-  return `<div class="card move ${cls}"><span class="mico" style="background:var(--gold)"><span class="coin" style="width:20px;height:20px"></span></span>
-    <div style="min-width:0;flex:1"><b>Fund ${esc(s.squad)}</b><span class="small muted" style="display:block">$${fmt(f.left)} to go${extra > 0 ? ` · your $10 brings about $${fmt(10 + extra)}` : ""}</span>
-      <span class="meter" style="margin-top:6px"><i style="width:${f.pct}%;background:var(--gold)"></i></span></div>
-    ${Button(stakeOf(s) ? "Add more" : "Fund", { size: "sm", variant: "gold", action: "backsheet", value: s.id })}</div>`;
+// One line under a quest's title. Backing quests show what the plan still needs instead of time and pay.
+export function questSub(q, m) {
+  if (q.back) { const s = strats(m).find(x => x.id === q.back), f = fundOf(m, s); if (s.status === "proposed") return `Money or a free back · ${esc(waitWhy(s).toLowerCase())}`; return f.left > 0 ? `Money or a free back · $${fmt(f.left)} to go` : "Money or a free back · fully funded"; }
+  return `${q.human ? "✋ · " : ""}${SIZE[q.size].label} · $${q.coins}${q.gain ? ` · +${q.gain} ${q.gain === 1 ? m.unit.replace(/s$/, "") : m.unit}` : ""}`;
 }
 export function strategyScreen() {
   const m = mission(), s = strats(m).find(x => x.id === S.stratId);
@@ -248,22 +246,15 @@ export function strategyScreen() {
   const isLocked = q => !q.done && !q.state && !q.parts && !playable(q);
   const done = qs.filter(q => q.done), locked = qs.filter(isLocked), open = qs.filter(q => !q.done && !isLocked(q));
   const rank = list => [...list].sort((x, y) => questScore(y, m) - questScore(x, m));
-  // Your move: one quest that fits you, funding, and a free back. Waiting plans lead with backing.
-  const best = rank(open.filter(q => playable(q)))[0];
-  const questMove = best ? `<button class="card move" data-a="quest" data-x="${best.id}"><span class="mico">${mono(best.role, 40)}</span>
-      <span style="min-width:0;flex:1"><b>${esc(best.title)}</b><span class="small muted" style="display:block">${SIZE[best.size].label} · $${best.coins}${best.gain ? ` · +${best.gain} ${best.gain === 1 ? m.unit.replace(/s$/, "") : m.unit}` : ""}</span>${why(questWhy(best, m))}</span>
-      <span class="btn sm blue">Play</span></button>` : "";
-  const fundMove = f.left > 0 && s.status !== "review" ? fundQuest(m, s) : "";
-  const freeMove = `<button class="card move" data-a="backsheet" data-x="${s.id}"><span class="mico" style="background:var(--pink)">♥</span>
-      <span style="min-width:0;flex:1"><b>Cheer it on</b><span class="small muted" style="display:block">Free. More backers means more money for the squad.</span></span><span class="btn sm">Back</span></button>`;
-  const moves = s.status ? [fundMove, freeMove, questMove] : S.coins > 200 && !best ? [fundMove, questMove, freeMove] : [questMove, fundMove, freeMove];
+  // How you can help: the 3 quests that suit you best. Backing is one of them; a waiting plan needs backing first.
+  const top = rank(open.filter(playable)).sort((x, y) => s.status ? (y.back ? 1 : 0) - (x.back ? 1 : 0) : 0).slice(0, 3);
   return `<div class="chat">
     <div class="chat-head">${backBtn("back", "stage", "Back")}${stratBadge(s)}
       <div style="min-width:0;flex:1">${where("plan", [chName(m), `Stage ${m.current + 1}`])}<div class="room-title">${esc(s.name)}</div></div></div>
     <div class="stage-list">
       <p class="claim" style="margin:0">${esc(s.bet)}</p>
       <div class="eyebrow">How you can help</div>
-      <div class="list">${moves.filter(Boolean).join("")}</div>
+      <div class="list">${top.map(q => questItem(q, m)).join("")}</div>
       <div class="card milestone">
         <div class="row"><div class="eyebrow">How it's going</div><span class="spacer"></span><span class="chip" style="${s.status ? "background:var(--cream)" : "background:var(--navy);color:var(--white)"}">${s.status ? `Waiting · ${esc(waitWhy(s))}` : "Racing"}</span></div>
         <div class="kvrow"><span>Goal</span><b>${s.score ? `+${s.score} of ${m.target} ${esc(m.unit)}` : `0 of ${m.target} ${esc(m.unit)} yet`}</b></div>
@@ -271,7 +262,7 @@ export function strategyScreen() {
         <div class="kvrow"><span>Money</span><b>$${fmt(f.have)} of $${fmt(f.need)}</b></div>
         <div class="kvrow"><span>Squad</span><b>${esc(s.squad)} · ${PEOPLE[s.lead] ? `<button class="info" data-a="person" data-x="${esc(s.lead)}">${esc(s.lead)}</button>` : esc(s.lead)}</b></div>
       </div>
-      ${open.length > (best ? 1 : 0) ? `<div class="eyebrow">${best ? "More open quests" : "Open quests"}</div><div class="list">${rank(open).filter(q => q !== best).map(q => questItem(q, m)).join("")}</div>` : ""}
+      ${open.length > top.length ? `<div class="eyebrow">More open quests</div><div class="list">${rank(open).filter(q => !top.includes(q)).map(q => questItem(q, m)).join("")}</div>` : ""}
       ${locked.length ? `<div class="eyebrow">Locked · ${locked.length}</div><div class="list">${locked.map(q => questItem(q, m)).join("")}</div>` : ""}
       ${done.length ? `<div class="eyebrow">Done · ${done.length}</div><div class="list">${done.map(q => questItem(q, m)).join("")}</div>` : ""}
     </div>

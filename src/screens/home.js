@@ -12,17 +12,13 @@ export const startForm = () => `<div class="start hero-start">
     <button class="linkbtn" data-a="returning">I've played before</button>
   </div>`;
 export const HEADLINE = `The world's hardest problems. <span>Now a game you can win.</span>`;
-export const SUBLINE = "Play your part. Own a piece of the win.";
 export const PUNCH = { glio: "Cure brain cancer. With 1,284 strangers.", cad: "Free CAD for every engineer on Earth.", reef: "Map every reef on Earth. From space.", tutor: "A maths teacher in every kid's pocket." };
 // Deck: the missions themselves are the pitch
 export function homeDeck() {
-  const total = missions.reduce((a, m) => a + m.players, 0);
   return `<div class="title-screen deck-home">
     <div class="deck-top">
       <div class="logo-mid">Joystick</div>
       <div class="deck-tag">${HEADLINE}</div>
-      <p class="hero-sub">${SUBLINE}</p>
-      <div class="live-pill"><i></i>${total.toLocaleString()} people playing right now</div>
     </div>
     <div class="deck-mid"><div class="deck" id="deck">${missions.map(m => {
       const g = gateOf(m), lead = leaderOf(m);

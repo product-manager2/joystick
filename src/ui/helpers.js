@@ -52,7 +52,7 @@ export const textOn = color => {
 };
 export const glyph = m => `<div class="glyph"><svg viewBox="0 0 32 32">${GLYPHS[m.glyph]}</svg></div>`;
 export const pips = m => `<div class="pips">${m.stages.map((_, i) => `<i class="${i < m.current ? "done" : i === m.current ? "now" : ""}"></i>`).join("")}</div>`;
-export const mono = (k, size = 30) => `<span class="mono" style="background:${roleColor(k)};width:${size}px;height:${size}px">${ROLES[k].mono}</span>`;
+export const mono = (k, size = 30) => `<span class="mono" style="background:${roleColor(k)};width:${size}px;height:${size}px" title="${ROLES[k].name}"><svg viewBox="0 0 24 24" width="${Math.round(size * .6)}" height="${Math.round(size * .6)}" fill="none" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${ROLES[k].icon}</svg></span>`;
 export const backBtn = (a, x = "", label = "Back") => `<button class="back" data-a="${a}" data-x="${x}" aria-label="${label}"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3 5 9l6 6"/></svg></button>`;
 
 export function toast(html) {
@@ -92,7 +92,7 @@ export function learn(text) {
 
 // A returning player, for demoing the "already playing" experience
 export function loadReturning() {
-  Object.assign(S, { name: "nova", agentName: "Pip", roles: ["implementer", "critic", "strategist"], level: 9, xp: 1450, xpMax: 2600, coins: 1240, streak: 12, together: 14, shipped: 9, botShape: "cube", lobbyTab: "mine" });
+  Object.assign(S, { name: "nova", agentName: "Pip", roles: ["implementer", "critic", "strategist"], level: 9, xp: 1450, xpMax: 2600, coins: 1240, together: 14, shipped: 9, botShape: "cube", lobbyTab: "mine" });
   S.badges = ["spark", "squad", "sync", "slayer", "gate"];
   S.wallet = { shares: { glio: 1240, cad: 410 }, timeCredits: 46, insights: 18, pending: 90 };
   S.stakes = { "glio-dock": 100 };
@@ -115,8 +115,8 @@ export function loadReturning() {
   const [q, m] = findQuest("g4");
   seedRoom(q).push({ me: true, text: "@Pip let's go" }, { agent: true, text: "I'll do the prep. The real-world part is yours.", run: "g4", phase: 1, p: 1, log: q.log[1] }, { agent: true, call: "g4", text: q.call.q });
   q.state = "call"; q.mode = "together";
-  threads.splice(1, 0, { id: "sq-glio", kind: "squad", mission: "glio", title: "Your squad · Cure Glioblastoma", unread: 2, msgs: [{ who: "Rosa", color: "var(--pink)", text: "Shard C tonight? Kenji's in." }, { who: "Dot", owner: "Rosa", color: "var(--pink)", bot: true, text: "GPUs reserved for 9pm." }] });
-  titleCard("Welcome back", "Day 12!", "Streak still alive", () => go("lobby"), 1400);
+  threads.splice(1, 0, { id: "sq-glio", kind: "squad", mission: "glio", title: "Your squad · Cure Glioblastoma", unread: 2, msgs: [{ who: "Rosa", color: "var(--pink)", text: "Part 3 tonight? Kenji's in." }, { who: "Dot", owner: "Rosa", color: "var(--pink)", bot: true, text: "GPUs reserved for 9pm." }] });
+  go("lobby");
 }
 
 // Add or remove k from a list, capped at max

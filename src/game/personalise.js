@@ -10,7 +10,7 @@ export function questWhy(q, m) {
   const r = [];
   if (["call", "spend", "proof", "changes"].includes(q.state)) r.push([9, `${S.agentName} needs you`]);
   if (S.roles.includes(q.role)) r.push([4, `Fits ${ROLES[q.role].name}`]);
-  if (S.backed?.[m.id] === q.strat) r.push([3, "Your strategy"]);
+  if (S.backed?.[m.id] === q.strat) r.push([3, "Your plan"]);
   if ((S.contrib?.[q.strat] || 0) > 0) r.push([2, "You've played here"]);
   const friend = crewOf(q).find(x => !x.bot && ["Rosa", "Kenji"].includes(x.who));
   if (friend) r.push([2, `${friend.who}'s in it`]);

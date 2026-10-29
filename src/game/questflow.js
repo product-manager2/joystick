@@ -4,7 +4,7 @@ import { contribute, ledgerOf, questFuel } from "./economy.js";
 import { hasSkill } from "./personalise.js";
 import { gateOf, playable, stratOf } from "./strategies.js";
 import { contractSheet } from "../screens/contract.js";
-import { animate, crewOf, postQ, short } from "../screens/quests.js";
+import { animate, backSheet, crewOf, postQ, short } from "../screens/quests.js";
 import { reqSheet } from "../screens/sheets.js";
 import { S, TEAMMATES } from "../state.js";
 import { go, render, renderHud } from "../ui/chrome.js";
@@ -22,6 +22,7 @@ export const needsYou = q => !!NEEDS[q.state];
 
 export function playQuest(id) {
   const [q, m] = findQuest(id);
+  if (q.back) { S.missionId = m.id; return backSheet(q.back); }   // backing is played in one sheet: money or free
   if (!S.joined[m.id]) { S.pendingQuest = { id }; return contractSheet(m.id); }
   const open = () => go("quest", { missionId: m.id, questId: id, stratId: q.strat });
   if (q.state || q.done || q.parts || !playable(q)) return open();

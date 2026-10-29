@@ -12,7 +12,7 @@ import { findQuest, gain } from "../ui/helpers.js";
 export const STRATS = {
   glio: { goal: "Shortlist 10 verified drug candidates", target: 10, unit: "candidates",
     strategies: [
-      { id: "glio-dock", name: "Brute-force docking", squad: "Fold Gang", lead: "Priya", color: "var(--red)", score: 4, backers: 212, raised: 4200, tags: ["Fast track"], rel: [["competes", "glio-gen"]], bet: "Dock all 1M ZINC compounds on rented GPUs. Wide net, fast.", quests: ["g1", "g2", "g6"] },
+      { id: "glio-dock", name: "Brute-force docking", squad: "Fold Gang", lead: "Priya", color: "var(--red)", score: 4, backers: 212, raised: 4200, tags: ["Fast track"], rel: [["competes", "glio-gen"]], bet: "Test all 1 million molecules on rented computers. Wide net, fast.", quests: ["g1", "g2", "g6"] },
       { id: "glio-repurpose", name: "Repurpose approved drugs", squad: "Wet Hands", lead: "Ade", color: "var(--green)", score: 2, backers: 148, raised: 3100, tags: ["Low cost", "Patient-led"], rel: [["feeds", "glio-whole", "Its approved drugs seed the combos"]], bet: "Screen 2,800 FDA-approved drugs. Fewer hits, much faster path to trial.", quests: ["g7", "g8", "g3", "g4", "g11"] },
       { id: "glio-whole", name: "Diet + drug combos", squad: "Whole Health", lead: "Sana", color: "var(--lilac)", score: 0, backers: 141, need: 150, status: "proposed", raised: 2600, tags: ["Holistic", "Patient-led"], rel: [["needs", "glio-repurpose", "Builds on its approved drugs"]], bet: "Pair approved drugs with metabolic diet changes. Treat the whole patient, not just the tumour.", quests: ["g12"] },
       { id: "glio-gen", name: "Generate new molecules", squad: "Swarm 404", lead: "Mo", color: "var(--blue)", score: 1, backers: 96, raised: 1900, tags: ["Open science"], bet: "200 small agents design brand-new compounds and vote on the best.", quests: ["g9", "g10", "g5"] },
@@ -24,13 +24,13 @@ export const STRATS = {
       Q("g10", "Filter 5,000 designs for toxicity", "critic", "S", 200, 20, ["running tox filters…", "38 borderline designs", "filtered list posted ✓"], { q: "38 designs are borderline toxic. Keep them?", opts: ["Drop them", "Flag them for the chemist"] }),
       Q("g11", "Run the top 3 drugs in the Basel lab", "technician", "M", 400, 40, ["confirming the slot…", "samples shipped", "results in ✓"], { q: "The lab offers a 4th well free. Use it?", opts: ["Add a 4th drug", "Run a control"] }),
       Q("g12", "Review 30 diet + drug combo studies", "investigator", "M", 260, 25, ["pulling 30 studies…", "6 combos look promising", "shortlist posted ✓"], { q: "Two combos clash with chemo. Keep them?", opts: ["Drop them", "Flag for Dr. Lin"] }),
-      Q("g6a", "Shard A · compounds 1–250k", "implementer", "S", 300, 40, [], null, { done: true, by: "Kenji & Byte", parent: "g6" }),
-      Q("g6b", "Shard B · compounds 250k–500k", "implementer", "S", 300, 40, [], null, { done: true, by: "Priya & Dock", parent: "g6" }),
-      Q("g6c", "Shard C · compounds 500k–750k", "implementer", "S", 300, 40, ["queueing 250k compounds…", "docked 250k · 2 hits", "shard C submitted ✓"], { q: "2 hits sit right at the cutoff. Count them?", opts: ["Count both", "Only the stronger one", "Ask a Critic"] }, { parent: "g6" }),
-      Q("g6d", "Shard D · compounds 750k–1M", "implementer", "S", 300, 40, ["queueing 250k compounds…", "docked 250k · 1 hit", "shard D submitted ✓"], { q: "One hit is a known toxic scaffold. Keep it?", opts: ["Drop it", "Keep it, flag it"] }, { parent: "g6" }),
+      Q("g6a", "Part 1 of 4 · first 250k molecules", "implementer", "S", 300, 40, [], null, { done: true, by: "Kenji & Byte", parent: "g6" }),
+      Q("g6b", "Part 2 of 4 · next 250k molecules", "implementer", "S", 300, 40, [], null, { done: true, by: "Priya & Dock", parent: "g6" }),
+      Q("g6c", "Part 3 of 4 · next 250k molecules", "implementer", "S", 300, 40, ["queueing 250k molecules…", "docked 250k · 2 hits", "part 3 sent ✓"], { q: "2 hits sit right at the cutoff. Count them?", opts: ["Count both", "Only the stronger one", "Ask a Critic"] }, { parent: "g6" }),
+      Q("g6d", "Part 4 of 4 · last 250k molecules", "implementer", "S", 300, 40, ["queueing 250k molecules…", "docked 250k · 1 hit", "part 4 sent ✓"], { q: "One hit is a known toxic scaffold. Keep it?", opts: ["Drop it", "Keep it, flag it"] }, { parent: "g6" }),
     ],
     q: { g2: [1, "docking-pipeline · PR #142"], g3: [1, "review-20-results.md"], g4: [0, "Dr. Lin joined Wet Hands"], g5: [0, "weekly-post.md · 1.2k reads"],
-         g6c: [2, "shard-C-hits.csv · 2 candidates"], g6d: [1, "shard-D-hits.csv · 1 candidate"], g8: [2, "bbb-check-40.csv · 2 candidates"], g11: [3, "basel-run-1 · lab report"], g12: [1, "combo-shortlist.md · 1 candidate"], g9: [1, "egfr-gen-v1 · model card"], g10: [1, "tox-filtered.csv · 1 candidate"] },
+         g6c: [2, "part-3-hits.csv · 2 candidates"], g6d: [1, "part-4-hits.csv · 1 candidate"], g8: [2, "bbb-check-40.csv · 2 candidates"], g11: [3, "basel-run-1 · lab report"], g12: [1, "combo-shortlist.md · 1 candidate"], g9: [1, "egfr-gen-v1 · model card"], g10: [1, "tox-filtered.csv · 1 candidate"] },
   },
   cad: { goal: "8 kernel features passing tests", target: 8, unit: "features",
     strategies: [
@@ -60,6 +60,12 @@ export const STRATS = {
 };
 export function ensureStrategies(m) {
   if (m.strategies) return m.strategies;
+  buildStrategies(m);
+  // Backing a plan is a quest too, played as a Patron: put in money, or back it for free
+  m.strategies.forEach(s => m.quests.push(Q(`${s.id}-back`, `Back ${s.squad}`, "patron", "S", 20, 0, [], null, { strat: s.id, back: s.id, gain: 0 })));
+  return m.strategies;
+}
+function buildStrategies(m) {
   const cfg = STRATS[m.id];
   if (!cfg) {
     m.target = Math.max(3, m.quests.length); m.unit = "results";
@@ -83,7 +89,7 @@ export function ensureStrategies(m) {
 export const strats = m => ensureStrategies(m);
 export const stratOf = q => { const [, m] = findQuest(q.id); return strats(m).find(s => s.id === q.strat); };
 export const gateOf = m => { const have = strats(m).reduce((a, s) => a + s.score, 0); return { have, need: m.target, unit: m.unit, pct: Math.min(100, have / m.target * 100) }; };
-export const playable = q => !q.done && !q.state && !q.parts && !q.claimed && !q.blocked && !lockedBy(q) && stratLive(q);
+export const playable = q => q.back ? !q.done : !q.done && !q.state && !q.parts && !q.claimed && !q.blocked && !lockedBy(q) && stratLive(q);
 // A quest can wait on another quest, and on its strategy being live
 export const lockedBy = q => { if (!q.after) return null; const [d] = findQuest(q.after); return d && !d.done ? d : null; };
 export const stratLive = q => { if (!q.strat) return true; const [, m] = findQuest(q.id); const s = m && m.strategies && m.strategies.find(x => x.id === q.strat); return !s || !s.status; };
