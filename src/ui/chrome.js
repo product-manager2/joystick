@@ -37,7 +37,8 @@ export function go(screen, extra = {}) {
 export function render() {
   const inGame = S.screen !== "onboard";
   const fullChat = FULL.includes(S.screen);
-  $("#hud").hidden = !inGame || fullChat;
+  // The mission page has its own header, so the HUD steps aside there
+  $("#hud").hidden = !inGame || fullChat || S.screen === "mission";
   $("#nav").hidden = !inGame || fullChat;
   const views = { onboard, play: playScreen, lobby, mission: missionScreen, stage: stageScreen, strategy: strategyScreen, quest: roomScreen, session: roomScreen, comms: commsScreen, thread: threadScreen, forge: forgeScreen, duo: duoScreen, gate: gateScreen };
   const main = $("#main");

@@ -53,13 +53,15 @@ export function missionScreen() {
   const f = fuelOf(m), dry = f.money[0] < f.money[1];
   const tabs = [["map", "Map"], ["squads", "Strategies"], ["fuel", "Treasury"], ["rules", "Brief"]];
   const body = S.tab === "map" ? mapView(m) : S.tab === "squads" ? strategiesView(m) : S.tab === "fuel" ? treasuryView(m) : rulesView(m);
+  // The squad you race with matters more than who posted the mission (that lives in the trust sheet)
+  const mine = S.backed?.[m.id] && strats(m).find(s => s.id === S.backed[m.id]);
+  const who = mine ? `Your squad · ${mine.squad}` : `${m.squads} squads racing`;
   return `<div class="screen">
-    <div class="row">${backBtn("go", "lobby", "Back to missions")}<span class="eyebrow">Mission by ${esc(m.creator)}</span></div>
     <div class="card mhead">
-      <div class="band" style="background:${m.color}">${glyph(m)}<h1>${esc(m.title)}</h1></div>
+      <div class="band" style="background:${m.color}">${backBtn("go", "lobby", "Back to missions")}<span class="mtitle"><h1>${esc(m.title)}</h1><span class="msquad">${esc(who)}</span></span>${glyph(m)}</div>
       <div class="in">
         <p>${esc(m.pitch)}</p>
-        ${Stats([[`$${fmt(m.bounty)}`, "bounty"], [`${m.current + 1}/${m.stages.length}`, "milestone"], [fmt(m.players), "playing"]])}
+        ${Stats([[`$${fmt(m.bounty)}`, "bounty"], [`${m.current + 1}/${m.stages.length}`, "milestone"], [`${m.squads}`, "squads"]])}
         <button class="demand" data-a="needit" data-x="${m.id}" aria-pressed="${!!S.voiced[m.id]}"><span class="small"><b>${fmt(demandOf(m).asks)}</b> people need this · <b>$${fmt(demandOf(m).pledged)}</b> pledged</span><span class="chip">${S.voiced[m.id] ? "✓ You too" : "+1 Me too"}</span></button>
         <div class="row wrap" style="gap:6px"><button class="chip trust" data-a="trust" data-x="${m.id}">✓ Escrow · verified</button>${m.creator === "@" + (S.name || "you") ? `<button class="chip" data-a="manage">Manage</button>` : ""}${signed ? signed.map(r => `<span class="rtag" style="background:${roleColor(r)}">${ROLES[r].name}</span>`).join("") : ""}<span class="chip" style="background:var(--navy);color:var(--white)">${tok(m)} ×${mult(m)}</span>${dry ? `<button class="chip drychip" data-a="tab" data-x="fuel">Dry in ${f.dryDays}d</button>` : ""}</div>
       </div>
