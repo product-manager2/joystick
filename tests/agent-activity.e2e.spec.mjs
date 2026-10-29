@@ -39,10 +39,11 @@ test("private agent activity updates in place and opens an existing screen", asy
     await expect(composer).toHaveValue("A draft I am still writing");
     await expect(composer).toBeFocused();
     await expect(page.locator('#msgs')).not.toContainText("ui.open");
+    await expect.poll(() => page.evaluate(() => window.__roomSockets.some(socket => new URL(socket.url).pathname === "/api/v1/ws" && socket.readyState === WebSocket.OPEN))).toBe(true);
     const streamId = randomUUID(), savedId = randomUUID();
     await page.evaluate(({streamId,savedId}) => {
       const roomId = document.querySelector('#live-composer').dataset.scope.slice(3);
-      const socket = window.__roomSockets.find(socket => socket.readyState === WebSocket.OPEN);
+      const socket = window.__roomSockets.find(socket => new URL(socket.url).pathname === "/api/v1/ws" && socket.readyState === WebSocket.OPEN);
       const emit = frame => socket.dispatchEvent(new MessageEvent("message",{data:JSON.stringify(frame)}));
       emit({type:"message.delta",roomId,messageId:streamId,text:"Your "});
       emit({type:"message.delta",roomId,messageId:streamId,text:"plan is ready"});
