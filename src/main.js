@@ -13,7 +13,7 @@ import { contractSheet } from "./screens/contract.js";
 import { forgeKind, forgeLaunch, forgeNext, forgeStart, forgeText } from "./screens/forge.js";
 import { drawTrail } from "./screens/missions.js";
 import { backSheet, fuelSheet, launchStrategy, proposeStrategy, sendInRoom, stageCleared, startSession } from "./screens/quests.js";
-import { challengeSheet, creditsSheet, disputeSheet, historySheet, inputSheet, kycSheet, ledgerSheet, manageSheet, notifSheet, openDM, payoutSheet, personSheet, proofSheet, refereeSheet, reqSheet, reviewInfo, skillsSheet, spendSheet, squadSheet, toolsSheet, trustSheet, verifySheet } from "./screens/sheets.js";
+import { challengeSheet, creditsSheet, disputeSheet, historySheet, inputSheet, kycSheet, ledgerSheet, manageSheet, notifSheet, openDM, payoutSheet, personSheet, prizeSheet, proofSheet, refereeSheet, reqSheet, reviewInfo, skillsSheet, spendSheet, squadSheet, toolsSheet, trustSheet, verifySheet } from "./screens/sheets.js";
 import { S } from "./state.js";
 import { go, goBack, render } from "./ui/chrome.js";
 import { $, duoName, esc, findQuest, fmt, loadReturning, mission, thread, titleCard, toast, toggle } from "./ui/helpers.js";
@@ -61,6 +61,7 @@ document.addEventListener("click", e => {
     case "ob-role": S.roles = toggle(S.roles, x, 3); return render();
     case "botname": S.agentName = x; return render();
     case "recap": return go("recap", { recapId: x });
+    case "prize": return prizeSheet(mission(x));
     case "output": return outputSheet(x);
     case "askpip": return askPip(x);
     case "ob-mission": S.picks = toggle(S.picks || [], x); return render();

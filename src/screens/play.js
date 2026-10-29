@@ -30,7 +30,9 @@ export function playScreen() {
   const busy = missions.flatMap(m => m.quests.filter(q => ["work", "review", "run", "dispute"].includes(q.state)).map(q => ({ q, m })));
   const open = missions.flatMap(m => m.quests.filter(playable).map(q => ({ q, m })));
   const forYou = open.filter(x => questScore(x.q, x.m) > 1).sort((a, b) => questScore(b.q, b.m) - questScore(a.q, a.m));
-  const list = (forYou.length ? forYou : open).slice(0, 4);
+  // One top quest from each mission you're in, then the best of the rest
+  const pool = forYou.length ? forYou : open, firsts = joined.map(m => pool.find(x => x.m === m)).filter(Boolean);
+  const list = [...firsts, ...pool.filter(x => !firsts.includes(x))].slice(0, 4);
   const best = missions.map(m => ({ m, n: m.quests.filter(q => playable(q) && S.roles.includes(q.role)).length })).sort((a, b) => b.n - a.n)[0];
   return `<div class="screen">
     ${raidCard()}
@@ -38,12 +40,7 @@ export function playScreen() {
       <button class="card callrow" data-a="openq" data-x="${m.id}" data-q="${q.id}">${botAv()}<span style="min-width:0"><b>${esc(NEEDS[q.state](q))}</b><span class="small muted">${esc(q.title)}</span></span><span class="btn sm red">${NEED_BTN[q.state]}</span></button>`).join("")}</div>` : ""}
     ${busy.length ? `<div class="eyebrow">In progress</div><div class="list">${busy.map(({ q, m }) => `
       <button class="card callrow" style="background:var(--card)" data-a="openq" data-x="${m.id}" data-q="${q.id}">${botAv()}<span style="min-width:0"><b>${esc(short(q.title))}</b><span class="small muted">${{ work: `${esc(S.agentName)} is working · ${esc(q.eta || "")}`, run: `${esc(S.agentName)} is on it`, review: "2 Critics checking", dispute: "Referees deciding" }[q.state]}</span></span>${questStatus(q)}</button>`).join("")}</div>` : ""}
-    ${joined.length ? `<h2 class="sec-title">Your missions</h2><div class="list">${joined.map(m => {
-        const g = gateOf(m);
-        return `<button class="card chanrow" data-a="mission-ch" data-x="${m.id}">${chanIcon(m, 44)}
-          <span style="min-width:0"><span class="display" style="font-size:16px;display:block">${esc(m.title)}</span><span class="small muted ellip" style="display:block">${esc(stageLine(m))}</span>
-          <span style="display:block;margin-top:6px">${gateBar(m, 10)}</span></span>
-          ${m.unread ? `<span class="unread">${m.unread}</span>` : `<span class="small"><b>${g.have}/${g.need}</b></span>`}</button>`; }).join("")}</div>`
+    ${joined.length ? ""
       : `<div class="card firstrun">${botAv("av big")}<div style="flex:1;min-width:0"><div class="from">${esc(S.agentName)}${AGENT_TAG}</div>
           <p><b>Start with ${esc(best.m.title)}?</b> ${best.n} quests fit your style.</p>
           <button class="btn red sm" data-a="mission" data-x="${best.m.id}" style="margin-top:8px">Let's go</button></div></div>`}

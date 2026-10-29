@@ -44,8 +44,8 @@ export function tokenCard(m) {
   return `<div class="tokcard">
     <div class="row"><span class="tokcoin">${tok(m).slice(1, 2)}</span><span style="flex:1;min-width:0"><b class="tokname">${tok(m)}</b><span class="small muted" style="display:block">${fmt(fuelOf(m).supply + mine)} minted · ${fmt(holders(m))} holders</span></span>
       ${mine ? `<span class="tokmine"><b>${fmt(mine)}</b><span>${ownPct(m).toFixed(2)}%</span></span>` : ""}</div>
-    <div class="tokgrid"><span><b>Vote</b>on treasury draws and the final check</span><span><b>Earn</b>from the bounty and a 5% fee on ${t.pays.slice(0, 2).join(", ").toLowerCase()}</span></div>
-    <div class="row" style="gap:8px"><button class="btn gold sm" style="flex:1" data-a="fuelit" data-x="${m.id}">Back it</button><span class="small muted" style="flex:1">$100 → <b>${fmt(Math.round(100 * mult(m) / 10))} ${tok(m)}</b></span></div>
+    <p class="small">${mine ? `You own <b>${ownPct(m).toFixed(2)}%</b> of this mission.` : "Own a small piece of this mission."} Owners vote on how the money is spent, and get paid if it makes money.</p>
+    <div class="row" style="gap:8px"><button class="btn gold sm" style="flex:1" data-a="fuelit" data-x="${m.id}">Get more</button><span class="small muted" style="flex:1">$100 gets you <b>${fmt(Math.round(100 * mult(m) / 10))} ${tok(m)}</b></span></div>
   </div>`;
 }
 // Credit a contribution: fuel goes in, mission tokens come out

@@ -184,3 +184,12 @@ export function kycSheet() {
     <p class="small muted">About 2 minutes. Handled by a licensed payments partner.</p>
     <button class="btn red block" data-a="kyc">Verify (demo)</button>`);
 }
+
+// How the prize works: who gets what, when, and what happens if it stops
+export function prizeSheet(m) {
+  drill(`The $${fmt(m.bounty)} prize`, `${Group(m.split.map(([k, v]) => Row(`${v}%`, esc(k), "")))}
+    <div class="eyebrow">How you get paid</div>
+    <ul class="news"><li>Every quest that passes review pays, even if its strategy loses</li><li>You get paid when the stage is cleared</li><li>If you back a team, you own a small share of what it makes</li></ul>
+    <div class="eyebrow">If it stops</div><p class="small">${esc(trustOf(m).fail)}</p>
+    <button class="info" data-a="trust" data-x="${m.id}">Who runs it, and is it safe? →</button>`, esc(m.title));
+}
