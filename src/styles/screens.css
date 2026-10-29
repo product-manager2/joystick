@@ -486,3 +486,19 @@ button.chip.trust { background: var(--mint); color: var(--green-d); border-color
 /* Pitch cards: one title per card. The headline is the title; the mission name above it is a small tag. */
 .deckcard h3 { font-family: var(--body); font-weight: 700; font-size: 13px; line-height: 1.2; letter-spacing: .08em; text-transform: uppercase; }
 .deck-home .punch { font-size: 27px; letter-spacing: 0; line-height: 1.05; }
+
+/* Meet your agent: a spotlight stage with the agent on a podium */
+.meet-stage { position: relative; isolation: isolate; overflow: hidden; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 14px 18px; border: var(--line); border-radius: var(--wob); box-shadow: var(--pop); background: var(--blue); }
+.meet-stage::before { content: ""; position: absolute; inset: -60%; z-index: -1; background: repeating-conic-gradient(from 0deg, var(--blue) 0 9deg, color-mix(in srgb, var(--blue), var(--white) 14%) 9deg 18deg); }
+.meet-pod { position: relative; width: 240px; height: 168px; display: grid; place-items: end center; }
+.meet-bot { position: relative; z-index: 2; width: 150px; height: 150px; margin-bottom: 12px; }
+.meet .podium { width: 200px; height: 28px; }
+.say { position: relative; max-width: 280px; text-align: center; font-weight: 700; font-size: 15px; line-height: 1.35; background: var(--card); color: var(--ink); border: var(--line-2); border-radius: 18px; padding: 10px 14px; box-shadow: var(--pop-sm); }
+.say::after { content: ""; position: absolute; left: 50%; bottom: -10px; width: 16px; height: 16px; background: var(--card); border-right: var(--line-2); border-bottom: var(--line-2); transform: translateX(-50%) rotate(45deg); }
+.say b { font-family: var(--display); font-weight: 800; font-size: 18px; color: var(--blue); }
+.nameplate input { font-family: var(--display); font-size: 24px; text-align: center; }
+.perks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.perk { display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; padding: 10px 6px; background: var(--card); border: var(--line-2); border-radius: 12px; box-shadow: var(--pop-sm); }
+.perk-i { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: var(--gold); border: var(--line-2); font-weight: 800; }
+.perk b { font-size: 12px; line-height: 1.2; }
+.perk span:last-child { font-size: 11px; color: var(--ink-2); line-height: 1.25; }

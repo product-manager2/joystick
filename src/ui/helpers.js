@@ -104,7 +104,7 @@ export function loadReturning() {
   seedRoom(q).push({ me: true, text: "@Pip let's go" }, { agent: true, text: "I'll do the prep. The real-world part is yours.", run: "g4", phase: 1, p: 1, log: q.log[1] }, { agent: true, call: "g4", text: q.call.q });
   q.state = "call"; q.mode = "together";
   threads.splice(1, 0, { id: "sq-glio", kind: "squad", mission: "glio", title: "Your squad · Cure Glioblastoma", unread: 2, msgs: [{ who: "Rosa", color: "var(--pink)", text: "Shard C tonight? Kenji's in." }, { who: "Dot", owner: "Rosa", color: "var(--pink)", bot: true, text: "GPUs reserved for 9pm." }] });
-  titleCard("Welcome back", "Day 12!", "Streak still alive", () => go("play"), 1400);
+  titleCard("Welcome back", "Day 12!", "Streak still alive", () => go("lobby"), 1400);
 }
 
 // Add or remove k from a list, capped at max

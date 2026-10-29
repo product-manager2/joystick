@@ -58,11 +58,9 @@ export function missionScreen() {
   const who = mine ? `Your squad · ${mine.squad}` : `${m.squads} squads racing`;
   return `<div class="screen">
     <div class="card mhead">
-      <div class="band" style="background:${m.color}">${backBtn("go", "lobby", "Back to missions")}<span class="mtitle"><h1>${esc(m.title)}</h1><span class="msquad">${esc(who)}</span></span>${glyph(m)}</div>
+      <div class="band" style="background:${m.color}">${backBtn("back", "lobby", "Back")}<span class="mtitle"><h1>${esc(m.title)}</h1><span class="msquad">${esc(who)}</span></span>${glyph(m)}</div>
       <div class="in">
-        <p>${esc(m.pitch)}</p>
         ${Stats([[`$${fmt(m.bounty)}`, "bounty"], [`${m.current + 1}/${m.stages.length}`, "stage"], [`${m.squads}`, "squads"]])}
-        <button class="demand" data-a="needit" data-x="${m.id}" aria-pressed="${!!S.voiced[m.id]}"><span class="small"><b>${fmt(demandOf(m).asks)}</b> people need this · <b>$${fmt(demandOf(m).pledged)}</b> pledged</span><span class="chip">${S.voiced[m.id] ? "✓ You too" : "+1 Me too"}</span></button>
         <div class="row wrap" style="gap:6px"><button class="chip trust" data-a="trust" data-x="${m.id}">✓ Escrow · verified</button>${m.creator === "@" + (S.name || "you") ? `<button class="chip" data-a="manage">Manage</button>` : ""}${signed ? signed.map(r => `<span class="rtag" style="background:${roleColor(r)}">${ROLES[r].name}</span>`).join("") : ""}<span class="chip" style="background:var(--navy);color:var(--white)">${tok(m)} ×${mult(m)}</span>${dry ? `<button class="chip drychip" data-a="tab" data-x="fuel">Dry in ${f.dryDays}d</button>` : ""}</div>
       </div>
     </div>
@@ -75,11 +73,13 @@ export function missionScreen() {
 }
 // Treasury: who funds the mission, where the fuel stands, how the matching pool splits, where money went
 export const demandOf = m => DEMAND[m.id] || { asks: 1, pledged: 0, revenue: 0 };
+// The header stays short and shared by every tab; the pitch lives in Brief, demand in Treasury
+const demand = m => `<button class="demand" data-a="needit" data-x="${m.id}" aria-pressed="${!!S.voiced[m.id]}"><span class="small"><b>${fmt(demandOf(m).asks)}</b> people need this · <b>$${fmt(demandOf(m).pledged)}</b> pledged</span><span class="chip">${S.voiced[m.id] ? "✓ You too" : "+1 Me too"}</span></button>`;
 export function treasuryView(m) {
   const f = fuelOf(m), t = trustOf(m), d = demandOf(m), mt = matches(m);
   const sources = [["Sponsors", t.funders.filter(([n]) => !/backers/.test(n)).reduce((a, [, v]) => a + v, 0)], ["Crowd backers", t.funders.filter(([n]) => /backers/.test(n)).reduce((a, [, v]) => a + v, 0) + strats(m).reduce((a, s) => a + (s.raised || 0), 0)], ["People who need it", d.pledged], ["Product revenue", d.revenue]].filter(([, v]) => v);
   const total = sources.reduce((a, [, v]) => a + v, 0);
-  return `<div class="card milestone">
+  return `${demand(m)}<div class="card milestone">
       <div class="eyebrow">Who funds it</div>
       ${sources.map(([k, v]) => `<div class="statline"><span>${k}</span><span class="meter"><i style="width:${v / total * 100}%"></i></span><span class="display" style="font-size:13px">$${fmt(v)}</span></div>`).join("")}
       <div class="small muted">${fmt(d.asks)} people asked for it · pledges pay out only if it ships</div>

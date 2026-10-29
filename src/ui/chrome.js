@@ -27,12 +27,22 @@ export function renderHud() {
   $("#navBadge").innerHTML = unread ? `<span class="unread">${unread}</span>` : "";
 }
 export const FULL = ["stage", "strategy", "quest", "session", "thread", "forge", "gate"];
-export function go(screen, extra = {}) {
-  if (FULL.includes(screen) && !FULL.includes(S.screen)) S.from = S.screen;
+// History: each move to a different screen (or a different mission, strategy, quest or chat) is
+// remembered, so Back returns to exactly where you came from, tab included. The bottom nav starts fresh.
+const PLACE = ["missionId", "tab", "stratId", "questId", "thread", "sessionId", "roomTab", "lobbyTab"];
+export function go(screen, extra = {}, remember = true) {
+  const moved = screen !== S.screen || ["missionId", "stratId", "questId", "thread", "sessionId"].some(k => k in extra && extra[k] !== S[k]);
+  if (remember && moved && S.screen !== "onboard") S.hist = [...(S.hist || []), Object.fromEntries([["screen", S.screen], ...PLACE.map(k => [k, S[k]])])].slice(-30);
   Object.assign(S, extra, { screen });
   closeDrill();
   render();
   $("#main").scrollTop = 0;
+}
+export function goBack(fallback = "lobby") {
+  const h = (S.hist || []).pop();
+  if (!h) return go(fallback, {}, false);
+  const { screen, ...place } = h;
+  go(screen, place, false);
 }
 export function render() {
   const inGame = S.screen !== "onboard";

@@ -14,7 +14,7 @@ import { drawTrail } from "./screens/missions.js";
 import { backSheet, fuelSheet, launchStrategy, proposeStrategy, sendInRoom, stageCleared, startSession } from "./screens/quests.js";
 import { challengeSheet, creditsSheet, disputeSheet, historySheet, inputSheet, kycSheet, ledgerSheet, manageSheet, notifSheet, openDM, payoutSheet, personSheet, proofSheet, refereeSheet, reqSheet, reviewInfo, skillsSheet, spendSheet, squadSheet, toolsSheet, trustSheet, verifySheet } from "./screens/sheets.js";
 import { S } from "./state.js";
-import { go, render } from "./ui/chrome.js";
+import { go, goBack, render } from "./ui/chrome.js";
 import { $, duoName, esc, findQuest, fmt, loadReturning, mission, thread, titleCard, toast, toggle } from "./ui/helpers.js";
 import { hasSkill } from "./game/personalise.js";
 import { demandOf } from "./screens/missions.js";
@@ -34,7 +34,7 @@ document.addEventListener("scroll", e => {
 document.addEventListener("input", e => {
   const t = e.target, f = S.forge;
   if (t.id === "pname") S.name = t.value.trim();
-  if (t.id === "aname") S.agentName = t.value.trim() || "Pip";
+  if (t.id === "aname") { S.agentName = t.value.trim() || "Pip"; document.querySelectorAll("[data-botname]").forEach(el => { el.textContent = S.agentName; }); }
   if (f && t.id === "ftitle") f.title = t.value;
   if (f && t.id === "fpitch") f.pitch = t.value;
   if (f && t.dataset.fs) f.stages[+t.dataset.fs] = t.value;
@@ -54,20 +54,22 @@ document.addEventListener("click", e => {
   const dd = b.closest(".dd");
   if (dd && !b.dataset.keep) dd.remove();
   const a = b.dataset.a, x = b.dataset.x, f = S.forge;
+  if (b.closest("#nav")) S.hist = [];
   switch (a) {
     case "ob-next": if (S.ob === 2 && !S.name) S.name = "nova"; S.ob++; return render();
     case "ob-role": S.roles = toggle(S.roles, x, 3); return render();
+    case "botname": S.agentName = x; return render();
     case "ob-mission": S.picks = toggle(S.picks || [], x); return render();
     case "ob-done": {
       (S.picks || []).forEach(id => { S.joined[id] = [...S.roles]; mission(id).players++; });
       S.badges.push("squad");
       S.lobbyTab = "mine";
-      return titleCard("", "READY?", `${esc(duoName())} — Go!`, () => go("play"));
+      return titleCard("", "READY?", `${esc(duoName())} — Go!`, () => go("lobby"));
     }
     case "returning": return loadReturning();
     case "ltab": S.lobbyTab = x; return render();
     case "paint": S.botColor = x; return render();
-    case "back": return go(S.from || "play");
+    case "back": return goBack(x || "lobby");
     case "style-toggle": S.styleOpen = !S.styleOpen; return render();
     case "duo-role": { const n = toggle(S.roles, x, 3); if (n.length) S.roles = n; return render(); }
     case "go": return go(x);

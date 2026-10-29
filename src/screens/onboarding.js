@@ -1,4 +1,3 @@
-import { VALUES } from "../data/world.js";
 import { ROLES, SUITS, medal, missions } from "../data/content.js";
 import { color } from "../design/tokens.js";
 import { playable, strats } from "../game/strategies.js";
@@ -66,8 +65,6 @@ export function onboard() {
     return `<div class="onboard">
       <div><h1 class="display" style="font-size:30px">What are you great at?</h1><div class="eyebrow" style="margin-top:6px">Pick up to three</div></div>
       ${rolePicker(S.roles, "ob-role")}
-      <div><div class="eyebrow">And what should a solution be?</div>
-        <div class="chips wrap" style="margin-top:8px">${VALUES.map(v => `<button class="chip" data-a="value" data-x="${v}" aria-pressed="${S.values.includes(v)}">${v}</button>`).join("")}</div></div>
       <div class="sticky-cta">${dots}
       <button class="btn red block" data-a="ob-next" ${S.roles.length ? "" : "disabled"}>${S.roles.length ? `That's me · ${S.roles.length}/3` : "Tap 1 to 3"}</button></div>
     </div>`;
@@ -92,15 +89,20 @@ export function onboard() {
         <button class="btn red block" data-a="ob-done" ${S.picks.length ? "" : "disabled"} style="font-size:18px;padding:15px">${S.picks.length ? "Let's play" : "Pick one"}</button></div>
     </div>`;
   }
-  return `<div class="onboard">
-    <h1 class="display" style="font-size:30px">Meet your partner.</h1>
-    <div class="sunbox"><span class="av bounce" style="width:120px;height:120px">${bot(S.botColor, true)}</span>
-      <p class="cup" style="font-size:22px">“You call the shots. I do the legwork.”</p></div>
-    <div class="field"><label for="pname">Your name</label><input class="inp" id="pname" value="${esc(S.name)}" placeholder="nova" maxlength="16"></div>
-    <div class="field"><label for="aname">Its name</label><input class="inp" id="aname" value="${esc(S.agentName)}" maxlength="12"></div>
-    <div class="field"><label>Its color</label>${swatches()}</div>
+  // Character creator: your agent on a podium, naming and painting it updates it live
+  return `<div class="onboard meet">
+    <h1 class="display" style="font-size:30px">Meet your agent.</h1>
+    <div class="meet-stage">
+      <div class="say">Hi! I'm <b data-botname>${esc(S.agentName)}</b>. You call the shots. I do the legwork.</div>
+      <div class="meet-pod"><span class="av bounce meet-bot">${bot(S.botColor, true)}</span><div class="podium"></div></div>
+    </div>
+    <div class="field nameplate"><label for="aname">Name it</label><input class="inp" id="aname" value="${esc(S.agentName)}" maxlength="12" autocomplete="off"></div>
+    <div class="chips wrap">${["Pip", "Bolt", "Sprout", "Mochi", "Rex"].map(n => `<button class="chip" data-a="botname" data-x="${n}" aria-pressed="${S.agentName === n}">${n}</button>`).join("")}</div>
+    <div class="field"><label>Paint it</label>${swatches()}</div>
+    <div class="perks">${[["⚙", "Does the legwork", "Research, code, outreach"], ["✎", "Learns your calls", "Asks you on the big ones"], ["✓", "Works for you", "Ships under your name"]].map(([i, t, d]) => `<div class="perk"><span class="perk-i">${i}</span><b>${t}</b><span>${d}</span></div>`).join("")}</div>
+    <div class="field"><label for="pname">And what should it call you?</label><input class="inp" id="pname" value="${esc(S.name)}" placeholder="nova" maxlength="16" autocomplete="off"></div>
     <div class="sticky-cta">${dots}
-    <button class="btn red block" data-a="ob-next" style="font-size:18px;padding:15px">Next</button></div>
+    <button class="btn red block" data-a="ob-next" style="font-size:18px;padding:15px">Team up with <span data-botname>${esc(S.agentName)}</span></button></div>
   </div>`;
 }
 export const swatches = () => `<div class="swatches">${BOT_PAINT.map(c => `<button class="swatch" data-a="paint" data-x="${c}" style="background:${c}" aria-label="Paint ${c}" aria-pressed="${S.botColor === c}"></button>`).join("")}</div>`;

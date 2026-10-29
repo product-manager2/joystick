@@ -251,7 +251,7 @@ export function stageScreen() {
         const top = [...(picks.length ? picks : all.slice(0, 2)), ...all.filter(x => x.status === "proposed" && !picks.includes(x))].filter((x, i, a) => a.indexOf(x) === i);
         const rest = all.filter(x => !top.includes(x)), more = fuelOf(m).more[0];
         const open = S.showAll["s-" + m.id];
-        return `<div class="row"><div class="eyebrow">For you</div><span class="spacer"></span><button class="btn sm" data-a="propose">+ Propose one</button></div>
+        return `<div class="row"><div class="eyebrow">Pick a strategy to play</div><span class="spacer"></span><button class="btn sm" data-a="propose">+ Propose one</button></div>
           <div class="list">${top.map(card).join("")}</div>
           ${rest.length ? `<button class="seeall" data-a="showall" data-x="s-${m.id}">${open ? "Hide" : "See all"} ${all.length + more} strategies</button>` : ""}
           ${open ? `<div class="list">${rest.map(card).join("")}</div><div class="small muted" style="text-align:center">+ ${more} smaller strategies</div>` : ""}`;
@@ -260,7 +260,7 @@ export function stageScreen() {
       ${m.sessions.length ? `<div class="eyebrow">Chats</div><div class="list">${m.sessions.map(c => `
         <button class="card thread-row" data-a="session" data-x="${c.id}">${botAv("av")}<span style="min-width:0"><span class="t" style="display:block">${esc(c.title)}</span><span class="last" style="display:block">${esc(lastLine(c.msgs))}</span></span><span class="small muted">chat</span></button>`).join("")}</div>` : ""}
     </div>
-    <form class="composer" id="stageBar"><input id="stagesay" placeholder="Ask ${esc(S.agentName)} or start a chat…" autocomplete="off"><button class="btn sm red" type="submit">Start</button></form>
+    <form class="composer" id="stageBar"><input id="stagesay" placeholder="Ask ${esc(S.agentName)} about this stage…" autocomplete="off"><button class="btn sm red" type="submit">Ask</button></form>
   </div>`;
 }
 // A strategy is a thesis: the claim, what it asks for, when, and how it relates to the others
@@ -270,7 +270,7 @@ export function strategyScreen() {
   const a = askOf(s), mt = matchOf(m, s), have = raisedOf(s) + mt, paid = Math.round(mt * .3);
   const backBtnLabel = s.status === "review" ? "" : s.status === "proposed" ? `Back it to launch · ${s.backers}/${s.need}` : stakeOf(s) ? `✓ Backed $${fmt(stakeOf(s))} · add more` : "Back this thesis";
   return `<div class="chat">
-    <div class="chat-head">${backBtn("go", "stage", "Back to strategies")}${stratBadge(s)}
+    <div class="chat-head">${backBtn("back", "stage", "Back")}${stratBadge(s)}
       <div style="min-width:0;flex:1"><div class="room-title">${esc(s.name)}</div><div class="small muted ellip">${esc(s.squad)} · led by ${esc(s.lead)} · ${chName(m)}</div></div></div>
     <div class="stage-list">
       <div class="card milestone thesis">
@@ -332,7 +332,7 @@ export function roomScreen() {
   if (S.screen === "session") {
     const c = m.sessions.find(x => x.id === S.sessionId);
     return `<div class="chat">
-      <div class="chat-head">${backBtn("go", "stage", "Back to strategies")}${botAv("av big")}<div style="min-width:0"><div class="display chan-name">${esc(c.title)}</div><div class="small muted">${esc(chName(m))} · chat</div></div></div>
+      <div class="chat-head">${backBtn("back", "stage", "Back")}${botAv("av big")}<div style="min-width:0"><div class="display chan-name">${esc(c.title)}</div><div class="small muted">${esc(chName(m))} · chat</div></div></div>
       <div class="msgs" id="msgs">${c.msgs.map(msgHTML).join("")}</div>
       ${quickBar([`@${S.agentName} what's next?`, `@${S.agentName} sum up`, "Need a Critic"])}
       <form class="composer" id="roomComposer"><input id="roomsay" placeholder="${c.proposing ? "Or type your own strategy…" : "Message"}" autocomplete="off"><button class="btn sm red" type="submit">Send</button></form>
@@ -345,7 +345,7 @@ export function roomScreen() {
   const actions = q.done ? `<div class="room-bar done">✓ Cleared by ${esc(q.by || duoName())}${q.picked ? ` · “${esc(q.picked)}”` : ""}</div>`
     : q.state ? "" : blockBar(q) || `<div class="room-bar one">${Button(label, { variant: "blue", action: "play", value: q.id })}</div>`;
   return `<div class="chat">
-    <div class="chat-head">${backBtn("go", "strategy", "Back to strategy")}${mono(q.role, 40)}
+    <div class="chat-head">${backBtn("back", "strategy", "Back")}${mono(q.role, 40)}
       <div style="min-width:0;flex:1"><div class="room-title">${esc(q.title)}</div>
         <div class="row small muted" style="gap:6px"><button class="avbtn row small muted" style="gap:6px" data-a="squad" data-x="${q.id}" aria-label="Squad">${multi ? `<span class="mode multi">Squad</span>${crew.length ? `<span class="stack">${crew.slice(0, 4).map(crewAv).join("")}</span> ${crew.length}` : ""}` : `<span class="mode">Solo</span>`}</button><span class="rewardline">$${q.coins} · +${fmt(tokFor(m, questFuel(q)))} ${tok(m)}</span></div></div></div>
     <div class="roomtabs" role="tablist">
