@@ -4,7 +4,7 @@ The first cut uses a static frontend on Vercel and two backend processes on Fly:
 
 On 29 October 2026, the frontend was deployed to `https://joystick-indol.vercel.app` and the backend app `joystick-api` to `https://joystick-api.fly.dev`. The database is `joystick-db`, Fly Managed Postgres Basic with 10 GB storage in Singapore (`sin`). One API Machine and one worker Machine run in the same region; migrations and health checks passed. The Vercel production deployment is `dpl_FQDwQypSN8hxnbeVUR1Ew6tCvQpQ`, published through the authenticated CLI using a prebuilt artifact.
 
-That smoke test covered the earlier account-and-chat foundation. The first-cut branch has passed pull-request checks and a Vercel preview build, but has not yet been merged to `main` or deployed to production. The first-cut game flow and new migrations require a fresh production check after deployment. See [verification details](running-the-foundation.md#verification) for the earlier result.
+That production smoke test covered the earlier account-and-chat foundation. The first cut passed 24 local backend tests and five Chromium browser tests with virtual passkeys. In an isolated local environment, a real Haiku session drafted mission, plan, and task content; a second work session paused for a human decision, saved an artifact, and carried it through preview, edit, and submission. These checks do not establish that the first-cut release works in production. Run the checks below after each production deployment. See [verification details](running-the-foundation.md#verification) for the earlier foundation result.
 
 ## Domains and login
 
@@ -71,8 +71,14 @@ The account-backed mission flow is at `/`; private agent chat is at `/chat.html`
 
 ## Verification after deployment
 
-Confirm the Fly health check passes, the migration completes, and exactly one API and one worker are running. Verify certificate and DNS readiness for both hostnames. In the browser, create a passkey account, send a message, observe one saved message and one live agent response, reload, sign out, and sign back in. Verify another account cannot read the first account's room. Test a worker restart and a WebSocket reconnect without duplicate sends.
+Confirm the Fly health check passes, migrations complete, and exactly one API and one worker are running. Verify certificate and DNS readiness for both hostnames. Then exercise the production origin in a browser:
 
-For this first cut, also create a mission, stage, plan, and task; claim and submit a text artifact; have two other registered mission members review that same version; then reload and confirm the review decision, XP, and journal survive. Check account security by adding a second passkey and saving recovery codes before testing recovery. If `GAME_TEST_CREDITS=true`, verify all balances and payout actions are labeled as simulations. Disable that setting if the pilot should not expose test-credit actions.
+1. Create a passkey account; add a second passkey and save recovery codes. Sign out and back in, then test recovery with a saved code.
+2. Create a mission, plan, and task manually. Start a managed-agent draft for mission, plan, or task work; inspect its output, answer a decision request, edit a saved artifact, and submit only after the person's confirmation.
+3. Exchange messages in private and shared rooms. Reload and reconnect; confirm saved messages appear once, and another account cannot read a room without membership.
+4. Have two other registered mission members review the same submitted artifact version. Request a revision and confirm an older review does not approve the new version; then verify the mission owner can advance a completed stage.
+5. Reload and confirm XP, journal entries, and test-credit balances persist. Confirm every credit and payout action is labeled as a simulation with no cash value.
+
+Text artifacts, including imported code or Markdown, are stored in PostgreSQL. Binary object storage, real payments, verified identity or skills, and live third-party tool connections are outside this pilot. Disable `GAME_TEST_CREDITS` if the pilot should not expose simulated credit actions.
 
 Local integration tests and virtual-passkey browser checks are described in [running the foundation](running-the-foundation.md). They do not prove production DNS, certificates, real-device passkeys, or live provider behavior.

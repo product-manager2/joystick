@@ -9,7 +9,11 @@ import { connectRooms, loadRoom, onRoomsChanged, roomState, resetRooms, sendRoom
 
 const ui = { busy: false, error: "", draft: null, editor: null, room: null, message: "", agentBusy: false, run: null, runData: null, preview: null, security: null, codes: null, onboard: null };
 let accountGeneration = 0;
-onRoomsChanged(() => { if (S.live && !ui.editor && !ui.preview && !ui.run && !ui.runHistory && !document.activeElement?.closest("form") && ["thread", "quest", "stage", "strategy", "mission"].includes(S.screen)) render(); });
+onRoomsChanged(() => {
+  if (!S.live || ui.editor || ui.preview || ui.run || ui.runHistory) return;
+  if (updateVisibleMessages()) return;
+  if (!document.activeElement?.closest("form") && ["thread", "quest", "stage", "strategy", "mission"].includes(S.screen)) render();
+});
 const current = () => missions.find(m => m.id === S.missionId) || missions[0];
 const stage = m => m?.stages?.find(x => x.id === S.stageId) || m?.stages?.[m.current];
 const plan = m => m?.strategies?.find(p => p.id === S.stratId);
@@ -26,6 +30,7 @@ const roomTitle = t => { if (t.kind === "agent") return S.agentName; if (t.kind 
 const taskTree = qs => { const ids=new Set(qs.map(q=>q.id)); const visit=(q,depth=0)=>`${row(`<span style="padding-left:${depth*16}px">${depth?"↳ ":""}${mono(ROLES[q.role]?q.role:"user",30)}</span>`,q.title,q.done?"Approved":q.state,"quest",q.id,q.done?"✓":"›")}${qs.filter(x=>x.parent===q.id).map(x=>visit(x,depth+1)).join("")}`; return qs.filter(q=>!q.parent||!ids.has(q.parent)).map(q=>visit(q)).join(""); };
 function resetAccountUI() {
   accountGeneration++;
+  pendingGameRender = false;
   resetRooms();
   for (const key of Object.keys(ui)) ui[key] = null;
   ui.busy = false; ui.error = ""; ui.message = "";
@@ -72,23 +77,31 @@ export function applySnapshot(snapshot) {
   connectRooms();
 }
 
-let refreshPending = false;
+let refreshPending = false, pendingGameRender = false;
+const editingGameView = () => ui.editor || ui.preview || ui.run || ui.runHistory || document.activeElement?.closest("form");
 async function refreshGame() {
   if (!S.live || !live.user || ui.busy || refreshPending || document.visibilityState === "hidden") return;
   const account = live.user, generation = accountGeneration;
   refreshPending = true;
   try {
     const snapshot = await api("/game");
-    if (!S.live || live.user !== account || accountGeneration !== generation || ui.busy || snapshot.revision <= (live.snapshot?.revision || 0)) return;
+    if (!S.live || live.user !== account || accountGeneration !== generation || ui.busy) return;
+    if (snapshot.revision <= (live.snapshot?.revision || 0)) {
+      if (pendingGameRender && !editingGameView()) { pendingGameRender = false; render(); }
+      return;
+    }
     live.snapshot = snapshot;
     applySnapshot(snapshot);
-    const editing = ui.editor || ui.preview || ui.run || ui.runHistory || document.activeElement?.closest("form");
-    if (!editing) render();
+    pendingGameRender = !!editingGameView();
+    if (!pendingGameRender) render();
   } catch { /* The next refresh or explicit action retries after a transient outage. */ }
   finally { refreshPending = false; }
 }
 setInterval(refreshGame, 5000);
 window.addEventListener("focus", refreshGame);
+document.addEventListener("focusout", () => setTimeout(() => {
+  if (S.live && pendingGameRender && !ui.busy && !editingGameView()) { pendingGameRender = false; render(); }
+}, 0));
 
 async function act(action, id, payload = {}, success = "Saved") {
   if (ui.busy) return;
@@ -160,6 +173,18 @@ function roomMessages(k, scopeId, roomId) {
   return messages.length ? messages.map(m => {const me=m.role==="user"&&(m.senderId===live.user?.id||m.pending);return `<div class="msg ${me ? "me" : ""}">${me ? "" : botAv()}<div class="bubble"><div class="from">${esc(me ? "You" : m.role === "assistant" ? S.agentName : m.senderName || "Member")}</div><div>${esc(m.text)}</div>${m.pending ? '<span class="small muted">Sending…</span>' : ""}${m.error ? `<span class="small no">${esc(m.error)}</span>` : ""}</div></div>`}).join("") : '<p class="small muted">No messages yet. Start the conversation.</p>';
 }
 function composer(scope) { return `<form class="composer" id="live-composer" data-scope="${esc(scope)}"><input name="text" placeholder="Message this room…" maxlength="4000" autocomplete="off" required><button class="btn sm red" type="submit">Send</button></form>`; }
+function updateVisibleMessages() {
+  const list = document.querySelector("#msgs");
+  if (!list) return false;
+  if (S.screen === "thread") {
+    const room = live.snapshot?.threads.find(t => t.id === S.thread);
+    if (!room) return false;
+    list.innerHTML = roomMessages(room.kind, room.scopeId, room.id);
+  } else if (S.screen === "quest" && S.roomTab === "chat") list.innerHTML = roomMessages("quest", S.questId);
+  else return false;
+  list.scrollTop = list.scrollHeight;
+  return true;
+}
 function chatView() {
   const t = live.snapshot.threads.find(x => x.id === S.thread); if (!t) return chatsView();
   return `<div class="chat"><div class="chat-head">${backBtn("back", "comms")}${botAv()}<div><div class="where"><span class="kind kind-${t.kind === "agent" ? "agent" : "quest"}">${kind(t.kind)}</span></div><div class="display chan-name">${esc(roomTitle(t))}</div></div></div><div class="msgs" id="msgs">${roomMessages(t.kind, t.scopeId, t.id)}</div>${composer(`id:${t.id}`)}${message()}</div>`;

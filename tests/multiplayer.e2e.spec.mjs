@@ -4,6 +4,20 @@ import { test, expect } from "@playwright/test";
 
 const baseURL = process.env.JOYSTICK_E2E_URL || "http://localhost:5173";
 
+function sentRoomMessages(page) {
+  const messages = [];
+  page.on("websocket", socket => {
+    socket.on("framesent", frame => {
+      try {
+        const payload = typeof frame.payload === "string" ? frame.payload : frame.payload.toString();
+        const data = JSON.parse(payload);
+        if (data.type === "message.send") messages.push(data);
+      } catch { /* Ignore non-JSON frames. */ }
+    });
+  });
+  return messages;
+}
+
 async function passkey(context, page) {
   const cdp = await context.newCDPSession(page);
   await cdp.send("WebAuthn.enable");
@@ -17,6 +31,7 @@ async function createAccount(browser, name, email) {
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, acceptDownloads: true });
   const page = await context.newPage();
   page.setDefaultTimeout(10_000);
+  const websocketMessages = sentRoomMessages(page);
   await passkey(context, page);
   await page.goto(baseURL);
   await expect(page.getByRole("heading", { name: "Start with a passkey." })).toBeVisible();
@@ -26,7 +41,7 @@ async function createAccount(browser, name, email) {
   await expect(page.getByText("Change the world. Multiplayer.")).toBeVisible();
   await page.getByRole("button", { name: "Skip setup" }).click();
   await expect(page.getByRole("heading", { name: "Missions" })).toBeVisible();
-  return { context, page };
+  return { context, page, websocketMessages };
 }
 
 async function clickTab(page, name) {
@@ -73,6 +88,35 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
       await page.getByRole("button", { name: "Join mission", exact: true }).last().click();
       await expect(page.getByText("✓ Joined")).toBeVisible();
     }
+
+    const makerSentFrames = maker.websocketMessages;
+    const ownerSentFrames = owner.websocketMessages;
+    await clickTab(ownerPage, "About");
+    await ownerPage.getByRole("button", { name: "Mission chat" }).click();
+    await clickTab(makerPage, "About");
+    await makerPage.getByRole("button", { name: "Mission chat" }).click();
+
+    const makerMessage = `Maker room message ${suffix}`;
+    const ownerMessage = `Owner room reply ${suffix}`;
+    await makerPage.getByPlaceholder("Message this room…").fill(makerMessage);
+    await makerPage.getByRole("button", { name: "Send", exact: true }).click();
+    await expect.poll(() => makerSentFrames.some(frame => frame.text === makerMessage), { timeout: 10_000 }).toBe(true);
+    await expect(ownerPage.getByText(makerMessage, { exact: true })).toBeVisible({ timeout: 12_000 });
+
+    await ownerPage.getByPlaceholder("Message this room…").fill(ownerMessage);
+    await ownerPage.getByRole("button", { name: "Send", exact: true }).click();
+    await expect.poll(() => ownerSentFrames.some(frame => frame.text === ownerMessage), { timeout: 10_000 }).toBe(true);
+    await expect(makerPage.getByText(ownerMessage, { exact: true })).toBeVisible({ timeout: 12_000 });
+
+    await ownerPage.reload();
+    await expect(ownerPage.getByRole("heading", { name: "Missions" })).toBeVisible();
+    await ownerPage.getByRole("button", { name: new RegExp(missionTitle) }).click();
+    await clickTab(ownerPage, "About");
+    await ownerPage.getByRole("button", { name: "Mission chat" }).click();
+    await expect(ownerPage.getByText(makerMessage, { exact: true })).toBeVisible();
+    await ownerPage.getByRole("button", { name: "Back", exact: true }).click();
+    await makerPage.getByRole("button", { name: "Back", exact: true }).click();
+    await ownerPage.getByRole("button", { name: "Back", exact: true }).click();
 
     await makerPage.getByRole("button", { name: /Open stage 1/ }).click();
     await expect(makerPage.getByText("Research", { exact: true })).toBeVisible();
