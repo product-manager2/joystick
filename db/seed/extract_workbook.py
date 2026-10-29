@@ -57,6 +57,10 @@ def number(value: str, default: int = 1) -> int:
         return default
 
 
+# Workbook role names -> app role keys (Storyteller is stored as 'champion')
+ROLE_KEYS = {'storyteller': 'champion'}
+
+
 def bullets(value: str) -> list[str]:
     return [re.sub(r'^(•|\d+\.)\s*', '', x).strip() for x in (value or '').split('\n') if x.strip()]
 
@@ -89,7 +93,7 @@ def main():
             'seedNotice': 'Illustrative workbook mission. People, progress, prizes, and outcomes shown as examples are not verified live activity.',
             'stages': [{'name': s['Stage'], 'goal': s['Goal (countable)'], 'target': number(s['Target']), 'unit': s['Unit'] or 'results', 'plainWords': s['In plain words'], 'tracks': bullets(s.get('Workstreams', '')), 'why': s.get('Why this stage', ''), 'howItFits': s.get('How the roles fit together', ''), 'doneWhen': s.get('Done when', ''), 'approves': s.get('Who approves', ''), 'roles': role_map.get((key, s['#']), {}), 'sampleStatus': s.get('Status', '')} for s in stages],
             'strategies': [{'id': s['Squad ID'], 'name': s['Plan'], 'squad': s['Squad'], 'bet': s['The bet'], 'color': color, 'sampleStatus': s['State'], 'sampleBlocker': s['Main blocker'], 'howItWorks': bullets(s.get('How the plan works', '')), 'rolesNeeded': s.get('Roles needed', ''), 'relations': s.get('Relations', '')} for s in plans],
-            'quests': [{'id': q['Quest ID'], 'title': q['Quest'], 'role': q['Role'].lower() or 'user', 'size': q['Size'] if q['Size'] in ('S', 'M', 'L') else 'S', 'xp': 0, 'coins': 0, 'strat': q['Squad ID'], 'call': call_of(q, older_quests.get(q['Quest ID'], {})), 'sampleReward': q['Reward'], 'sampleCurrency': q['Currency'], 'safetyNote': q['Safety note'],
+            'quests': [{'id': q['Quest ID'], 'title': q['Quest'], 'role': ROLE_KEYS.get(q['Role'].lower(), q['Role'].lower()) or 'user', 'size': q['Size'] if q['Size'] in ('S', 'M', 'L') else 'S', 'xp': 0, 'coins': 0, 'strat': q['Squad ID'], 'call': call_of(q, older_quests.get(q['Quest ID'], {})), 'sampleReward': q['Reward'], 'sampleCurrency': q['Currency'], 'safetyNote': q['Safety note'],
                         'stage': number(q.get('Stage #', ''), 0) or None, 'sampleState': q.get('State', ''), 'where': q.get('Where', ''), 'fit': q.get('Good for you if…', ''), 'dependsOn': [d.strip() for d in q.get('Depends on', '').split(',') if d.strip()],
                         'detail': {'brief': q.get('Brief', ''), 'steps': bullets(q.get('Steps', '')), 'handIn': q.get('You hand in', ''), 'doneWhen': q.get('Done when', ''), 'checkedBy': q.get("How it's checked", ''), 'agentDoes': q.get('Your agent does', ''), 'humanDoes': q.get('You do', ''), 'tools': q.get('Tools & data', ''), 'skills': q.get('Skills', '')}} for q in quests],
             'sample': {
