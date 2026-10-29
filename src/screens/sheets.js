@@ -129,7 +129,7 @@ export function disputeSheet(q) {
 }
 export function reviewInfo() {
   drill("How review works", Group([
-    Row("1", "Your duo ships it", `${esc(S.agentName)} works on your authority, so its work counts as yours`),
+    Row("1", `You and ${esc(S.agentName)} ship it`, `${esc(S.agentName)} works on your authority, so its work counts as yours`),
     Row("2", "2 Critics from other squads", "Nobody reviews their own squad's work"),
     Row("3", "They re-run it", "Checked against the brief's “Done when” list"),
     Row("4", "Both approve, it counts", "Pay is held until the stage is cleared"),
@@ -146,7 +146,7 @@ export function challengeSheet(m) {
     ${Group(strats(m).filter(s => s.score).map(s => Row(stratBadge(s, 28), esc(s.name), `+${s.score} ${m.unit}`, `<button class="btn sm" data-a="flag">Flag</button>`)))}`, esc(m.title));
 }
 
-// ---- Account (from the Duo profile)
+// ---- Account (from the Profile)
 export function skillsSheet() {
   const more = ["Python", "Docking (Vina)", "Pharmacology", "ML", "Med chem", "C++", "Writing"].filter(k => !hasSkill(k)).slice(0, 4);
   drill("Skills", `<div class="small muted">Verified skills unlock harder quests and squad slots. Self-reported ones still help matching.</div>

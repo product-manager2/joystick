@@ -1,7 +1,7 @@
 import { recapScreen } from "../screens/recap.js";
 import { missions } from "../data/content.js";
 import { commsScreen, threadScreen } from "../screens/comms.js";
-import { duoScreen } from "../screens/duo.js";
+import { profileScreen } from "../screens/profile.js";
 import { forgeScreen } from "../screens/forge.js";
 import { drawTrail, lobby, missionScreen } from "../screens/missions.js";
 import { onboard } from "../screens/onboarding.js";
@@ -23,7 +23,7 @@ export function renderHud() {
     </div>
     <div class="coins" title="Cash you can withdraw"><span class="coin"></span>${S.coins.toLocaleString()}</div>
     <button class="bell" data-a="notifs" aria-label="Updates"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>${S.notifs.filter(n => !n.read).length ? `<span class="unread">${S.notifs.filter(n => !n.read).length}</span>` : ""}</button>`;
-  h.dataset.a = "go"; h.dataset.x = "duo";
+  h.dataset.a = "go"; h.dataset.x = "profile";
   const unread = threads.reduce((a, t) => a + t.unread, 0) + missions.reduce((a, m) => a + m.quests.reduce((b, q) => b + (q.feed ? q.unread || 0 : 0), 0), 0);
   $("#navBadge").innerHTML = unread ? `<span class="unread">${unread}</span>` : "";
 }
@@ -51,13 +51,13 @@ export function render() {
   // The mission page has its own header, so the HUD steps aside there
   $("#hud").hidden = !inGame || fullChat || ["mission", "recap"].includes(S.screen);
   $("#nav").hidden = !inGame || fullChat;
-  const views = { onboard, play: playScreen, lobby, mission: missionScreen, stage: stageScreen, strategy: strategyScreen, quest: roomScreen, session: roomScreen, comms: commsScreen, thread: threadScreen, forge: forgeScreen, duo: duoScreen, gate: gateScreen, recap: recapScreen };
+  const views = { onboard, play: playScreen, lobby, mission: missionScreen, stage: stageScreen, strategy: strategyScreen, quest: roomScreen, session: roomScreen, comms: commsScreen, thread: threadScreen, forge: forgeScreen, profile: profileScreen, gate: gateScreen, recap: recapScreen };
   const main = $("#main");
   main.style.display = fullChat ? "flex" : "";
   main.style.flexDirection = fullChat ? "column" : "";
   main.style.overflowY = fullChat ? "hidden" : "";
   main.innerHTML = views[S.screen]();
-  const tabFor = { play: "play", lobby: "lobby", mission: "lobby", comms: "comms", duo: "duo" };
+  const tabFor = { play: "play", lobby: "lobby", mission: "lobby", comms: "comms", profile: "profile" };
   document.querySelectorAll(".nav button").forEach(b => b.setAttribute("aria-current", String(b.dataset.x === tabFor[S.screen])));
   if (inGame) renderHud();
   // Map lines need the final layout: draw after this frame and again once web fonts settle

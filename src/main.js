@@ -5,6 +5,7 @@ import "./design/components.css";
 import "./styles/screens.css";
 import { missions } from "./data/content.js";
 import { reopenDrill } from "./design/components.js";
+import { learnedSheet, lookSheet, styleSheet, walletSheet } from "./screens/profile.js";
 import { votePower } from "./game/economy.js";
 import { doSplit, fileDispute, fixQuest, pickCall, pickSpend, playQuest, submitProof } from "./game/questflow.js";
 import { ensureStrategies, strats } from "./game/strategies.js";
@@ -59,7 +60,7 @@ document.addEventListener("click", e => {
   switch (a) {
     case "ob-next": if (S.ob === 2 && !S.name) S.name = "nova"; S.ob++; return render();
     case "ob-role": S.roles = toggle(S.roles, x, 3); return render();
-    case "botname": S.agentName = x; return render();
+    case "botname": S.agentName = x; render(); return dd && reopenDrill();
     case "recap": return go("recap", { recapId: x });
     case "prize": return prizeSheet(mission(x));
     case "output": return outputSheet(x);
@@ -73,10 +74,9 @@ document.addEventListener("click", e => {
     }
     case "returning": return loadReturning();
     case "ltab": S.lobbyTab = x; return render();
-    case "paint": S.botColor = x; return render();
+    case "paint": S.botColor = x; render(); return dd && reopenDrill();
     case "back": return goBack(x || "lobby");
-    case "style-toggle": S.styleOpen = !S.styleOpen; return render();
-    case "duo-role": { const n = toggle(S.roles, x, 3); if (n.length) S.roles = n; return render(); }
+    case "duo-role": { const n = toggle(S.roles, x, 3); if (n.length) S.roles = n; render(); return reopenDrill(); }
     case "go": return go(x);
     case "filter": S.filter = x; return render();
     case "ob-topic": S.obTopic = x; return render();
@@ -98,7 +98,6 @@ document.addEventListener("click", e => {
     case "backsheet": return backSheet(x);
     case "openstrat": return go("strategy", { missionId: x, stratId: b.dataset.s });
     case "needit": { const m = mission(x); if (S.voiced[m.id]) return; S.voiced[m.id] = true; demandOf(m).asks++; toast("Added your voice · it pays a little if this ships"); return render(); }
-    case "value": S.values = S.values.includes(x) ? S.values.filter(v => v !== x) : [...S.values, x].slice(-2); return render();
     case "merge": S.mergeSeen[x] = true; toast("Suggested to both squads. They vote on it"); return render();
     case "mergeno": S.mergeSeen[x] = true; return render();
     case "propose": return proposeStrategy();
@@ -161,7 +160,7 @@ document.addEventListener("click", e => {
     case "gchallenge": return challengeSheet(mission());
     case "flag": mission().gv.mine = "Challenged"; toast("Flagged. Referees re-check it before payouts"); return render();
     case "opengate": return stageCleared(mission());
-    case "acct": return ({ skills: skillsSheet, tools: toolsSheet, spendcap: spendSheet, credits: creditsSheet, payouts: payoutSheet })[x]();
+    case "acct": return ({ skills: skillsSheet, tools: toolsSheet, spendcap: spendSheet, credits: creditsSheet, payouts: payoutSheet, wallet: walletSheet, look: lookSheet, style: styleSheet, learned: learnedSheet })[x]();
     case "cap": S.spendCap = +x; render(); return spendSheet();
     case "kyc": S.kyc = true; toast("Identity verified ✓"); render(); return payoutSheet();
     case "withdraw": if (!S.kyc) return kycSheet(); toast(`$${fmt(S.coins)} on its way · 1–2 days`); S.coins = 0; return render();

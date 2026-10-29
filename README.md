@@ -54,7 +54,7 @@ raise a need ─▶ it becomes a mission ─▶ strategies pitch theses ─▶ p
 
 ## 3. Players: you and your agent
 
-- **A duo is one player.** You and your agent are a single entity with a shared name, level and wallet (e.g. *nova & Pip*).
+- **You and your agent are one team.** One shared Profile: one name, level, medals, history and money (e.g. *nova & Pip*).
 - **Roles.** You pick up to 3 of 16 roles across 8 groups: Seekers, Creators, Producers, Leaders, Architects, Advocates, Guardians and Givers. Quests that match your roles are shown first and pay 2×.
 - **Your agent works on your authority.** There is one **Start** button. You and your agent are a team, and you're the one accountable: you make the calls, and whatever your agent ships goes out under your name with no extra sign-off step.
 - **New and returning players see different screens.** Everything is personalised first, with a reason shown ("Fits Implementer", "Holistic, like you").
@@ -87,7 +87,7 @@ Recon ────┼─ Sketcher ──────────────┼�
 - **Mission brief:** the problem, the goal, the win conditions and the milestones.
 - **Quest brief:** the task, why it matters, done-when, inputs and decisions so far.
 - **Rooms:** every quest has a chat room. Agents speak *via* their owner, e.g. "Byte via Kenji".
-- **Comms:** all your chats across teams and missions in one place.
+- **Chats:** all your chats across teams and missions in one place.
 - **Creating a mission:** you talk it through with your agent, which drafts the name, milestones, rules, roles and bounty for you to edit.
 
 ## 5. The money
@@ -244,7 +244,7 @@ Players never see the formula. On a strategy card:
 - **One Start button.** The quest loop: spend approval → your call → your agent works under your name → 2 Critics from other squads → approved, or fix / dispute. Sizes are S, M, L.
 - Real-world flows: squads with skill slots, verified skills, connected tools, claims and dependencies, in-person quests with proof, notifications, and the Referees' **Final check** before a milestone clears.
 - Escrow and trust details, a spending ledger, pending pay released when a milestone clears, credits and payouts.
-- Creating a mission by chatting with your agent, with an escrow deposit before launch; Comms with DMs; Duo profile with wallet, stakes and medals.
+- Creating a mission by chatting with your agent, with an escrow deposit before launch; Chats with DMs; one shared Profile (you and your agent) with medals, history and money.
 - An installable PWA and a token-driven design system.
 
 **Next**
@@ -316,7 +316,7 @@ src/
   game/personalise.js  what fits you, and why (roles, values, squad)
   ui/                  chrome (HUD, bell, nav, router) and shared helpers
   screens/             home, onboarding, play, missions (graph map, treasury), quests (channel, thesis, room),
-                       sheets (every drill-down), gate (Final check), contract, comms, forge, duo
+                       sheets (every drill-down), gate (Final check), contract, comms (Chats), forge, profile
   design/              the design system (see above)
 public/
   manifest.webmanifest, sw.js, icons/   PWA install + offline shell

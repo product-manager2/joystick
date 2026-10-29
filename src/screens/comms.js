@@ -1,15 +1,15 @@
 import { ROLES, missions } from "../data/content.js";
 import { PEOPLE } from "../data/world.js";
 import { spendOpts } from "../game/questflow.js";
-import { gateOf, playable, stratOf, strats } from "../game/strategies.js";
+import { playable } from "../game/strategies.js";
 import { forgeCard } from "./forge.js";
-import { AGENT_TAG, chName, chanIcon, stageLine, crewAv, isMulti, short } from "./quests.js";
+import { AGENT_TAG, chName, chanIcon, crewAv, short } from "./quests.js";
 import { S, TEAMMATES, threads } from "../state.js";
 import { render } from "../ui/chrome.js";
 import { backBtn, bot, botAv, esc, face, findQuest, learn, mission, mono, thread, youAv } from "../ui/helpers.js";
 
-// ===================== Comms =====================
-export function threadTitle(t) { return t.kind === "agent" ? S.agentName : t.title; }
+// ===================== Chats =====================
+export function threadTitle(t) { return t.kind === "agent" ? S.agentName : t.kind === "squad" ? `${chName(mission(t.mission))} squad` : t.title; }
 export function threadAv(t) {
   if (t.kind === "agent") return `<span class="av" style="width:44px;height:44px">${bot(S.botColor)}</span>`;
   if (t.kind === "dm") return `<span class="av" style="width:44px;height:44px">${face(PEOPLE[t.person].color, t.person.length)}</span>`;
@@ -31,15 +31,15 @@ export function commsScreen() {
     <span style="min-width:0"><span class="t" style="display:block">${title}</span><span class="last" style="display:block">${esc(sub)}</span></span>
     ${unread ? `<span class="unread">${unread}</span>` : `<span class="ctag">${kind}</span>`}</button>`;
   const pip = thread("partner");
-  const KIND = { squad: "Squad", dm: "Direct" };
+  const KIND = { squad: "Squad", dm: "Person" };
   const chats = [
     ...threads.filter(t => t.kind !== "agent").map(t => ({ u: t.unread, html: row("thread", t.id, threadAv(t), esc(threadTitle(t)), KIND[t.kind] || "Chat", lastLine(t.msgs), t.unread) })),
     ...missions.flatMap(m => m.quests.filter(q => q.feed && (q.scripted || q.feed.some(x => x.me))).map(q => ({ u: q.unread || 0, html: row("quest", q.id, mono(q.role, 44), esc(short(q.title)), "Quest", `${chName(m)} · ${lastLine(q.feed)}`, q.unread) }))),
   ].sort((x, y) => (y.u > 0) - (x.u > 0));
   return `<div class="screen">
     <h2 class="sec-title">Chats</h2>
-    ${row("thread", pip.id, threadAv(pip), esc(S.agentName) + AGENT_TAG, "Agent", lastLine(pip.msgs), pip.unread)}
-    ${chats.length ? `<div class="list">${chats.map(c => c.html).join("")}</div>` : `<p class="muted small">Join a squad or start a quest and its chat shows up here.</p>`}
+    ${row("thread", pip.id, threadAv(pip), esc(S.agentName) + AGENT_TAG, "Partner", lastLine(pip.msgs), pip.unread)}
+    ${chats.length ? `<div class="list">${chats.map(c => c.html).join("")}</div>` : `<p class="muted small">Start a quest or join a squad. Its chat shows up here.</p>`}
   </div>`;
 }
 export function partnerSeed() {
@@ -55,7 +55,7 @@ export function msgHTML(msg) {
   const av0 = me ? youAv() : msg.agent ? botAv() : msg.bot ? `<span class="av">${bot(msg.color)}</span>` : `<span class="av">${face(msg.color || "var(--paper-2)", (msg.who || "").length)}</span>`;
   const pk = msg.bot ? msg.owner : msg.who;
   const av = !me && !msg.agent && PEOPLE[pk] ? `<button class="avbtn" data-a="person" data-x="${esc(pk)}" aria-label="${esc(pk)}">${av0}</button>` : av0;
-  const from = me ? "" : `<div class="from">${esc(msg.agent ? S.agentName : msg.who)}${msg.agent || msg.bot ? ` <span class="via">via ${esc(msg.agent ? (S.name || "you") : msg.owner)}</span>` : ""}</div>`;
+  const from = me ? "" : `<div class="from">${esc(msg.agent ? S.agentName : msg.who)}${msg.bot ? ` <span class="via">${esc(msg.owner)}'s agent</span>` : ""}</div>`;
   let extra = "";
   if (msg.quest) {
     const [q, m] = findQuest(msg.quest);
@@ -77,15 +77,15 @@ export function msgHTML(msg) {
   if (msg.spend) {
     const [q] = findQuest(msg.spend);
     extra = msg.answered ? `<div class="small muted" style="margin-top:4px">→ ${esc(msg.answered)}</div>`
-      : `<div class="call" style="margin-top:8px"><div class="opts">${spendOpts(q).map((o, i) => `<button data-a="spend" data-x="${q.id}" data-i="${i}">${o}</button>`).join("")}</div><div class="small muted">Auto-approve limit: $${S.spendCap} · <button class="info" data-a="acct" data-x="spendcap">change</button></div></div>`;
+      : `<div class="call" style="margin-top:8px"><div class="opts">${spendOpts(q).map((o, i) => `<button data-a="spend" data-x="${q.id}" data-i="${i}">${o}</button>`).join("")}</div><div class="small muted">${esc(S.agentName)} can spend up to $${S.spendCap} without asking · <button class="info" data-a="acct" data-x="spendcap">change</button></div></div>`;
   }
   if (msg.review) {
-    const [q] = findQuest(msg.review), sq = !S.squad || S.squad === stratOf(q).squad ? stratOf(q).squad : `${S.squad} or ${stratOf(q).squad}`;
-    const ST = { checking: ["Checking…", ""], ok: ["✓ Approved", "done"], changes: ["Changes", "call"], waiting: ["Waiting", ""], overruled: ["Overruled", ""] };
-    extra = `<div class="review"><div class="row small"><b>Review · 2 independent Critics</b><span class="spacer"></span><button class="info" data-a="reviewinfo" data-x="${q.id}">How?</button></div>${(q.rv || []).map(r => `<div class="rv"><button class="avbtn" data-a="person" data-x="${esc(r.n)}">${crewAv({ who: r.n, color: PEOPLE[r.n].color })}</button><span style="min-width:0"><b>${esc(r.n)}</b><span class="small muted" style="display:block">${esc(PEOPLE[r.n].squad)} · not in ${esc(sq)}</span></span><span class="qstat ${ST[r.st][1]}">${ST[r.st][0]}</span></div>`).join("")}</div>`;
+    const [q] = findQuest(msg.review);
+    const ST = { checking: ["Checking…", ""], ok: ["✓ Approved", "done"], changes: ["Needs fixes", "call"], waiting: ["Waiting", ""], overruled: ["Outvoted", ""] };
+    extra = `<div class="review"><div class="row small"><b>2 checkers from other squads</b><span class="spacer"></span><button class="info" data-a="reviewinfo" data-x="${q.id}">How?</button></div>${(q.rv || []).map(r => `<div class="rv"><button class="avbtn" data-a="person" data-x="${esc(r.n)}">${crewAv({ who: r.n, color: PEOPLE[r.n].color })}</button><span style="min-width:0"><b>${esc(r.n)}</b><span class="small muted" style="display:block">${esc(PEOPLE[r.n].squad)}</span></span><span class="qstat ${ST[r.st][1]}">${ST[r.st][0]}</span></div>`).join("")}</div>`;
   }
   if (msg.fix) extra = msg.answered ? `<div class="small muted" style="margin-top:4px">→ ${esc(msg.answered)}</div>`
-    : `<div class="qbtns" style="margin-top:8px"><button class="btn sm red" data-a="fixq" data-x="${msg.fix}">Fix it, ${esc(S.agentName)}</button><button class="btn sm" data-a="dispute" data-x="${msg.fix}">Dispute</button></div>`;
+    : `<div class="qbtns" style="margin-top:8px"><button class="btn sm red" data-a="fixq" data-x="${msg.fix}">Fix it, ${esc(S.agentName)}</button><button class="btn sm" data-a="dispute" data-x="${msg.fix}">I disagree</button></div>`;
   if (msg.proof) extra = msg.answered ? `<div class="small muted" style="margin-top:4px">→ Proof added</div>`
     : `<button class="btn sm red" data-a="proof" data-x="${msg.proof}" style="margin-top:8px">Add proof</button>`;
   if (msg.ideas) extra = `<div class="mini-roles" style="margin-top:8px">${msg.ideas.map(t => `<button data-a="newstrat" data-x="${esc(t)}">${esc(t)}</button>`).join("")}</div>`;
@@ -96,9 +96,9 @@ export function msgHTML(msg) {
 export function threadScreen() {
   const t = thread(S.thread);
   t.unread = 0;
-  const quick = t.kind === "agent" ? ["What's next?", "What have you learned?", "I prefer open-source tools"] : t.kind === "dm" ? ["Want to pair on a quest?", "Can you review my shard?"] : ["On it!", "Need a Critic here", "Pushed my part"];
+  const quick = t.kind === "agent" ? ["What's next?", "What do you know about me?", "Use free tools"] : t.kind === "dm" ? ["Want to team up on a quest?", "Can you check my work?"] : ["On it!", "Can someone check this?", "My part is done"];
   return `<div class="chat">
-    <div class="chat-head">${backBtn("back", "", "Back")}${threadAv(t)}<div style="min-width:0"><div class="display chan-name">${esc(threadTitle(t))}</div><div class="small muted">${t.kind === "agent" ? `Your agent · works on your authority` : t.kind === "dm" ? `${esc(PEOPLE[t.person].squad)} · ★ ${PEOPLE[t.person].rep}` : "4 players · 4 agents"}</div></div></div>
+    <div class="chat-head">${backBtn("back", "", "Back")}${threadAv(t)}<div style="min-width:0"><div class="display chan-name">${esc(threadTitle(t))}</div><div class="small muted">${t.kind === "agent" ? `Your partner · works for you` : t.kind === "dm" ? `In ${esc(PEOPLE[t.person].squad)}` : `You, ${TEAMMATES.map(([n]) => n).join(", ")}`}</div></div></div>
     <div class="msgs" id="msgs">${t.msgs.map(msgHTML).join("")}</div>
     <div class="quick">${quick.map(q => `<button class="chip" data-a="quick" data-x="${esc(q)}">${esc(q)}</button>`).join("")}</div>
     <form class="composer" id="composer"><input id="say" placeholder="Message ${esc(threadTitle(t))}" autocomplete="off"><button class="btn sm red" type="submit">Send</button></form>

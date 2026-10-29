@@ -141,8 +141,8 @@ export function startScript(q) {
 export function seedRoom(q) {
   if (!q.feed) {
     const [, m] = findQuest(q.id);
-    q.feed = [{ sys: `${ROLES[q.role].name} quest · ${SIZE[q.size].label} · +${q.xp} XP · $${q.coins}` }];
-    if (q.out) q.feed.push({ sys: `Ships ${q.out.split(" · ")[0]}${q.gain ? ` · +${q.gain} ${q.gain === 1 ? m.unit.replace(/s$/, "") : m.unit}` : ""} · Critic checks it` });
+    const adds = q.gain ? ` · Adds ${q.gain} ${q.gain === 1 ? m.unit.replace(/s$/, "") : m.unit}` : "";
+    q.feed = [{ sys: `${SIZE[q.size].label.replace(/^\w · /, "")} · $${q.coins}${adds}` }];
     q.feed.push(...(CREW[q.id] || []).map(x => ({ ...x })));
     if (q.size !== "S" && !q.parent && !q.done && !q.parts) q.feed.push({ agent: true, text: "This one's big. Want me to split it into parts anyone can pick up?", split: q.id });
   }
@@ -349,9 +349,9 @@ export function roomScreen() {
   const actions = q.done ? `<div class="room-bar done">✓ Cleared by ${esc(q.by || duoName())}${q.picked ? ` · “${esc(q.picked)}”` : ""}</div>`
     : q.state ? "" : blockBar(q) || `<div class="room-bar one">${Button(label, { variant: "blue", action: "play", value: q.id })}</div>`;
   return `<div class="chat">
-    <div class="chat-head">${backBtn("back", "strategy", "Back")}${mono(q.role, 40)}
-      <div style="min-width:0;flex:1">${where("quest", [chName(m), stratOf(q).name])}<div class="room-title">${esc(q.title)}</div>
-        <div class="row small muted" style="gap:6px"><button class="avbtn row small muted" style="gap:6px" data-a="squad" data-x="${q.id}" aria-label="Squad">${multi ? `<span class="mode multi">Squad</span>${crew.length ? `<span class="stack">${crew.slice(0, 4).map(crewAv).join("")}</span> ${crew.length}` : ""}` : `<span class="mode">Solo</span>`}</button><span class="rewardline">$${q.coins} · +${fmt(tokFor(m, questFuel(q)))} ${tok(m)}</span></div></div></div>
+    <div class="chat-head">${backBtn("back", "strategy", "Back")}
+      <div style="min-width:0;flex:1"><div class="room-title">${esc(q.title)}</div><div class="small muted">${esc(chName(m))} · <b class="rewardline">$${q.coins}</b></div></div>
+      ${multi && crew.length ? `<button class="avbtn" data-a="squad" data-x="${q.id}" aria-label="Squad · ${crew.length}"><span class="stack">${crew.slice(0, 3).map(crewAv).join("")}</span></button>` : ""}</div>
     <div class="roomtabs" role="tablist">
       <button role="tab" data-a="rtab" data-x="chat" aria-selected="${tab === "chat"}">Chat${q.unreadChat ? ` <span class="unread">${q.unreadChat}</span>` : ""}</button>
       <button role="tab" data-a="rtab" data-x="brief" aria-selected="${tab === "brief"}">Brief</button>

@@ -1,5 +1,5 @@
 // Joystick service worker: app shell offline, fonts cached, everything else network-first.
-const CACHE = "joystick-v9";
+const CACHE = "joystick-v10";
 const SHELL = ["/", "/manifest.webmanifest", "/icons/icon.svg", "/icons/icon-192.png"];
 
 self.addEventListener("install", e => {
