@@ -6,10 +6,16 @@ export const apiOrigin = origin;
 export const live = { user: null, snapshot: null, revision: null, ready: false };
 
 export async function api(path, options = {}) {
+  const requestUser = live.user;
   const response = await fetch(new URL(`/api/v1${path}`, origin), {
     credentials: "include", cache: "no-store", headers: { "Content-Type": "application/json" }, ...options,
   });
   const body = await response.json().catch(() => ({}));
+  if (requestUser && live.user !== requestUser) {
+    const error = new Error("Account changed while this request was in progress.");
+    error.code = "account_changed";
+    throw error;
+  }
   if (!response.ok) {
     const error = new Error(body.error?.message || body.message || "Please try again.");
     error.status = response.status;
