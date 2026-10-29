@@ -65,9 +65,19 @@ test('catalog refresh adds descriptive work without rewriting real progress or o
     assert.equal((context.context?.stages as any[])[1].metadata.plainWords,'Updated plain second');
     assert.equal((context.context?.plans as any[])[0].metadata.catalog.rolesNeeded,'Maker');
     assert.equal((context.context?.quests as any[]).find(q=>q.id===second.id).brief.catalog.detail.brief,'Updated second brief');
-    const revision=(await pool.query('SELECT revision FROM game_revision WHERE id=true')).rows[0].revision;
+    const fixtureRows=async()=>{
+      const [missionRows,stageRows,planRows,questRows,dependencyRows]=await Promise.all([
+        pool.query('SELECT id,title,pitch,sample,owner_id,stage_index FROM game_missions WHERE id=$1',[mission]),
+        pool.query('SELECT id,ordinal,status,metadata FROM game_stages WHERE mission_id=$1 ORDER BY ordinal',[mission]),
+        pool.query('SELECT id,stage_id,name,status,metadata FROM game_plans WHERE mission_id=$1 ORDER BY id',[mission]),
+        pool.query('SELECT id,seed_key,stage_id,plan_id,title,state,claimed_by,reward_credits,brief FROM game_quests WHERE mission_id=$1 ORDER BY seed_key',[mission]),
+        pool.query('SELECT d.quest_id,d.depends_on_id FROM game_quest_dependencies d JOIN game_quests q ON q.id=d.quest_id WHERE q.mission_id=$1 ORDER BY d.quest_id,d.depends_on_id',[mission]),
+      ]);
+      return [missionRows.rows,stageRows.rows,planRows.rows,questRows.rows,dependencyRows.rows];
+    };
+    const beforeRetry=await fixtureRows();
     await syncGameSeedCatalog(pool,catalog(true));
-    assert.equal((await pool.query('SELECT revision FROM game_revision WHERE id=true')).rows[0].revision,revision);
+    assert.deepEqual(await fixtureRows(),beforeRetry);
     assert.equal((await pool.query('SELECT COUNT(*)::int AS n FROM game_quests WHERE mission_id=$1',[mission])).rows[0].n,4);
   }finally{
     if(mission)await pool.query('DELETE FROM game_missions WHERE id=$1',[mission]);

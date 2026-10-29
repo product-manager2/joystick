@@ -1,4 +1,5 @@
 .mine-list,.poster-list{gap:16px}
+.qitem>.glyph{width:36px;height:36px}.qitem>.glyph svg{width:21px;height:21px}
 .mine .band{display:flex;width:100%;text-align:left;align-items:center;gap:12px;border:0;cursor:pointer}
 .mine .body{display:flex;flex-direction:column;gap:10px;padding:14px}
 .mine .body .btn{margin-top:2px}
