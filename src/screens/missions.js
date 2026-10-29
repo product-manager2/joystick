@@ -109,17 +109,19 @@ export function mapView(m) {
       : (st.tracks || [st.name]).map(name => ({ name }));
     const ids = tracks.map((_, j) => `t-${i}-${j}`);
     // In the current stage, your plan carries a YOU flag; with none yet, the caption asks you to pick
-    const isMine = s => S.backed?.[m.id] === s.id || (S.contrib?.[s.id] || 0) > 0;
+    const isMine = s => S.squads?.[m.id] === s.id;
     const mineS = i === m.current ? tracks.map(t => t.s).find(s => s && isMine(s)) : null;
-    const cap = i === m.current ? `<div class="trow-cap"><b>Stage ${i + 1} · ${esc(st.name)}:</b> ${tracks.length} plans racing to the goal. ${mineS ? `You're on <b>${esc(mineS.name)}</b>.` : "Tap one to join it."}</div>` : "";
+    const cap = i === m.current ? `<div class="trow-cap"><b>Stage ${i + 1} · ${esc(st.name)}:</b> ${tracks.length} squads racing to the goal, each with its own plan. ${mineS ? `You're in <b>${esc(mineS.squad)}</b>.` : "Tap a squad to join it."}</div>` : "";
     // Finished and future stages collapse to one checkpoint each; only the current stage shows its tracks
     if (i !== m.current) return `<div class="crow"><button class="cp ${state} ${st.finish ? "finish" : ""}" id="c-${i}" data-from="${prev}" data-a="stage" data-x="${i}">
       <span class="cdisc"><span>${state === "done" ? "✓" : st.finish ? "★" : i + 1}</span></span><span class="lbl">${esc(st.name)}</span></button></div>`;
     return `${cap}<div class="trow">${tracks.map((t, j) => {
       const tst = t.s ? (t.s.status === "queued" ? "queued" : t.s.status ? "raising" : "now") : state;
-      const inner = tst === "done" ? "✓" : t.s ? (t.s.score ? "+" + t.s.score : "·") : "";
-      return `<button class="tnode ${tst}" id="${ids[j]}" data-from="${prev}" ${t.s ? `data-a="strategy" data-x="${t.s.id}"` : `data-a="stage" data-x="${i}"`} ${t.s ? `style="--track:${t.s.color}"` : ""}>
-        ${t.s && t.s === mineS ? `<span class="flag you">YOU</span>` : ""}<span class="tdisc">${inner}</span><span class="tl">${esc(t.name)}${t.s && t.s.status ? `<i>waiting</i>` : ""}</span></button>`;
+      // Each plan is a squad racing down its own path; the squad's marker sits as far along as it has got
+      const inner = tst === "done" ? "✓" : t.s ? esc(t.s.squad.split(/\s+/).map(w => w[0]).join("").slice(0, 2)) : "";
+      const pct = t.s ? Math.min(100, Math.round(t.s.score / m.target * 100)) : 0;
+      return `<button class="tnode ${tst}" id="${ids[j]}" data-from="${prev}" ${t.s ? `data-a="strategy" data-x="${t.s.id}" data-pct="${pct}" data-score="${t.s.score}/${m.target}" data-mine="${t.s === mineS ? 1 : ""}"` : `data-a="stage" data-x="${i}"`} ${t.s ? `style="--track:${t.s.color}"` : ""}>
+        ${t.s && t.s === mineS ? `<span class="flag you">YOUR SQUAD</span>` : ""}<span class="tdisc">${inner}</span><span class="tl">${t.s ? `<b>${esc(t.s.squad)}</b><i>${esc(t.name)}${t.s.status ? " · waiting" : ""}</i>` : esc(t.name)}</span></button>`;
     }).join("")}</div>
     <div class="crow"><button class="cp ${state} ${st.finish ? "finish" : ""}" id="c-${i}" data-from="${ids.join(" ")}" data-a="stage" data-x="${i}">
       ${state === "now" ? `<span class="flag">STAGE ${i + 1} GOAL</span>` : ""}
@@ -148,6 +150,25 @@ export function drawTrail() {
     });
   });
   svg.innerHTML = paths.join("");
+  // Race progress: colour each squad's path up to how far it has got, with a marker at that point
+  const marks = [];
+  map.querySelectorAll(".tnode[data-pct]").forEach(from => {
+    const to = [...map.querySelectorAll(".cp.now")].find(c => c.dataset.from.split(" ").includes(from.id));
+    if (!to) return;
+    // The race runs from under the squad's label down to the goal
+    const lb = from.querySelector(".tl").getBoundingClientRect(), x1 = lb.left - r.left + lb.width / 2, y1 = lb.bottom - r.top + 2;
+    const [x2, y2] = mid(to), my = (y1 + y2) / 2;
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", `M${x1} ${y1} C ${x1} ${my}, ${x2} ${my}, ${x2} ${y2}`);
+    svg.appendChild(path);
+    const len = path.getTotalLength(), pct = +from.dataset.pct, at = path.getPointAtLength(len * Math.max(.18, pct / 100) * .8);
+    path.remove();
+    const c = getComputedStyle(from).getPropertyValue("--track");
+    const d = `M${x1} ${y1} C ${x1} ${my}, ${x2} ${my}, ${x2} ${y2}`;
+    marks.push(`<path d="${d}" pathLength="100" stroke="${c}" stroke-width="5" fill="none" stroke-linecap="round" stroke-dasharray="${Math.max(18, pct) * .8} 100"/>`,
+      `<g transform="translate(${at.x} ${at.y})"><rect x="-19" y="-11" width="38" height="22" rx="11" fill="var(--white)" stroke="${from.dataset.mine ? "var(--blue)" : "var(--ink)"}" stroke-width="${from.dataset.mine ? 3 : 2}"/><text text-anchor="middle" dy="4.5" class="race-n">${from.dataset.score}</text></g>`);
+  });
+  svg.insertAdjacentHTML("beforeend", marks.join(""));
 }
 export function strategiesView(m) {
   const g = gateOf(m);

@@ -110,6 +110,7 @@ export function loadReturning() {
   S.backed = { glio: "glio-dock" }; S.contrib = { "glio-dock": 2 };
   S.learned = ["Prefers open-source tools", "Docking engine → “Run both and compare”", "Likes plain, factual progress posts"];
   S.joined = { glio: ["maker", "checker"], cad: ["maker", "planner"] };
+  S.squads = { glio: "glio-dock", cad: "cad-occ" };
   missions[0].unread = 4; missions[1].unread = 2;
   // Pip ran a quest overnight and is waiting on one call
   const [q, m] = findQuest("g4");

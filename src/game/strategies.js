@@ -1,5 +1,5 @@
 import { Q } from "../data/content.js";
-import { QX } from "../data/world.js";
+import { PEOPLE, QX } from "../data/world.js";
 import { color } from "../design/tokens.js";
 import { S } from "../state.js";
 import { findQuest, gain } from "../ui/helpers.js";
@@ -98,3 +98,14 @@ export const waitWhy = s => s.status === "proposed" ? `Needs ${Math.max(1, s.nee
 export const STATUS = { proposed: s => `Waiting · ${waitWhy(s)}`, review: s => `Waiting · ${waitWhy(s)}`, queued: s => `Waiting · ${waitWhy(s)}`, merged: s => `Merged into ${s.into}` };
 export const shown = m => strats(m).filter(s => s.status !== "merged");
 export const leaderOf = m => [...strats(m)].sort((a, b) => b.score - a.score)[0];
+// Every plan belongs to a squad: its people (each with an agent) race the plan together.
+// Named players come from PEOPLE; the rest of the headcount is filled from the plan's size.
+export function squadOf(m, s) {
+  const named = Object.entries(PEOPLE).filter(([, p]) => p.squad === s.squad).map(([n, p]) => ({ who: n, color: p.color, agent: p.agent }));
+  if (!named.some(x => x.who === s.lead)) named.unshift({ who: s.lead, color: s.color, lead: true });
+  const you = S.squads?.[m.id] === s.id;
+  const people = Math.max(named.length + (you ? 1 : 0), s.crew || Math.max(3, Math.round(s.backers / 15)));
+  return { name: s.squad, named, you, people, agents: people + (s.status ? 0 : 2) };
+}
+// Which plan's squad you're in for a mission, if any
+export const mySquad = m => strats(m).find(s => s.id === S.squads?.[m.id]);

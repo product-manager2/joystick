@@ -5,7 +5,7 @@ import { FUELS, askOf, contribute, fuelIcon, fuelOf, ownPct, stakeOf } from "../
 import { backersOf, matchGain, matchOf, raisedOf, voiceGain } from "../game/matching.js";
 import { hasSkill, questScore, questWhy, stratScore, stratWhy, why } from "../game/personalise.js";
 import { needsYou } from "../game/questflow.js";
-import { STATUS, gateOf, shown, waitWhy, leaderOf, lockedBy, playable, stratLive, stratOf, strats } from "../game/strategies.js";
+import { STATUS, mySquad, squadOf, gateOf, shown, waitWhy, leaderOf, lockedBy, playable, stratLive, stratOf, strats } from "../game/strategies.js";
 import { msgHTML } from "./comms.js";
 import { threads } from "../state.js";
 import { S } from "../state.js";
@@ -201,7 +201,7 @@ export function stageScreen() {
     return `<button class="card strat" data-a="strategy" data-x="${s.id}">
       ${stratBadge(s)}
       <span style="min-width:0"><span class="sname">${esc(s.name)}</span>
-        <span class="small muted" style="display:block">${esc(s.squad)} · led by ${esc(s.lead)}</span>
+        <span class="small muted" style="display:block"><b>${esc(s.squad)}</b> · ${squadOf(m, s).people} people${mySquad(m) === s ? " · your squad" : ""}</span>
         <span class="row wrap" style="gap:6px;margin-top:6px">${stratTags(m, s)}${why(reason)}</span>
         <span class="sbet">${esc(s.bet)}</span>
         <span class="money"><b>$${fmt(raisedOf(s) + matchOf(m, s))}</b> from <b>${backersOf(s)}</b> backers</span>
@@ -249,6 +249,18 @@ export function blockersOf(m, s, qs) {
   if (!s.status && f.left > 0) list.push([`Needs $${fmt(f.left)} more to keep going`, "patron", qs.find(q => q.back)]);
   return list.sort((a, b) => hasRole(b[1]) - hasRole(a[1]));
 }
+// Every plan is run by a squad. Joining the plan means joining its squad.
+export function squadCard(m, s) {
+  const sq = squadOf(m, s), mine = mySquad(m);
+  const faces = sq.named.slice(0, 5).map(x => `<button class="avbtn" data-a="person" data-x="${esc(x.who)}" aria-label="${esc(x.who)}">${crewAv({ who: x.who, color: x.color })}</button>`).join("");
+  const action = sq.you ? `<span class="chip" style="background:var(--blue);color:var(--white)">✓ Your squad</span>`
+    : s.status === "review" ? "" : Button(`Join ${s.squad}`, { size: "sm", variant: "red", action: "joinsquad", value: s.id });
+  return `<div class="card squadcard">
+    <div class="row" style="gap:10px"><span class="stack">${faces}</span><span class="spacer"></span>${action}</div>
+    <div><b>${esc(s.squad)}</b><span class="small muted" style="display:block">${sq.people} people · ${sq.agents} agents · led by <button class="info" data-a="person" data-x="${esc(s.lead)}">${esc(s.lead)}</button></span></div>
+    ${!sq.you && mine ? `<span class="small muted">You're in ${esc(mine.squad)}. Joining moves you here.</span>` : ""}
+  </div>`;
+}
 export function strategyScreen() {
   const m = mission(), s = strats(m).find(x => x.id === S.stratId);
   const qs = m.quests.filter(q => q.strat === s.id && !q.parent);
@@ -262,15 +274,15 @@ export function strategyScreen() {
   const blockRow = ([t, r, q]) => `<${q ? `button data-a="quest" data-x="${q.id}"` : "div"} class="blocker ${hasRole(r) ? "mine" : ""}">${mono(r, 30)}<span style="min-width:0;flex:1"><b>${esc(t)}</b><span class="small muted" style="display:block">${ROLES[r].auto ? "Anyone who uses it can help" : hasRole(r) ? `You're a ${ROLES[r].name}. This one's for you` : `Needs a ${ROLES[r].name}`}</span></span>${q ? `<span class="muted">›</span>` : ""}</${q ? "button" : "div"}>`;
   return `<div class="chat">
     <div class="chat-head">${backBtn("back", "stage", "Back")}${stratBadge(s)}
-      <div style="min-width:0;flex:1">${where("plan", [chName(m), `Stage ${m.current + 1}`])}<div class="room-title">${esc(s.name)}</div></div></div>
+      <div style="min-width:0;flex:1">${where("plan", [chName(m), `Stage ${m.current + 1}`])}<div class="room-title">${esc(s.name)}</div><div class="small muted">${esc(s.squad)}'s plan</div></div></div>
     <div class="stage-list">
       <p class="claim" style="margin:0">${esc(s.bet)}</p>
+      ${squadCard(m, s)}
       <div class="card milestone">
         <div class="row"><div class="eyebrow">How it's going</div><span class="spacer"></span><span class="chip" style="${s.status ? "background:var(--cream)" : "background:var(--navy);color:var(--white)"}">${s.status ? `Waiting · ${esc(waitWhy(s))}` : "Racing"}</span></div>
         <div class="kvrow"><span>Goal</span><b>${s.score ? `+${s.score} of ${m.target} ${esc(m.unit)}` : `0 of ${m.target} ${esc(m.unit)} yet`}</b></div>
         <div class="kvrow"><span>Quests</span><b>${done.length} done · ${open.length} open · ${locked.length} locked</b></div>
         <div class="kvrow"><span>Money</span><b>$${fmt(f.have)} of $${fmt(f.need)}</b></div>
-        <div class="kvrow"><span>Squad</span><b>${esc(s.squad)} · ${PEOPLE[s.lead] ? `<button class="info" data-a="person" data-x="${esc(s.lead)}">${esc(s.lead)}</button>` : esc(s.lead)}</b></div>
         ${blocks.length ? `<div class="eyebrow" style="margin-top:6px">${hasRole(blocks[0][1]) ? `Stuck, and you can help` : "What's stopping it"}</div>
         ${blockRow(blocks[0])}
         ${blocks.length > 1 ? (S.showAll["b-" + s.id] ? blocks.slice(1).map(blockRow).join("") + `<button class="linkbtn" data-a="showall" data-x="b-${s.id}">Show less</button>` : `<button class="linkbtn" data-a="showall" data-x="b-${s.id}" style="align-self:flex-start">See ${blocks.length - 1} more ${blocks.length === 2 ? "blocker" : "blockers"} →</button>`) : ""}` : ""}
@@ -387,7 +399,7 @@ export function proposeStrategy() {
   m.sessions = m.sessions || [];
   const t = pipThread();
   t.msgs.push({ me: true, text: `I want to try another way to win stage ${m.current + 1} of ${chName(m)}` },
-    { agent: true, text: `Goal: ${m.stages[m.current].goal}. A few ideas nobody's trying yet. Tap one to start it as a plan:`, ideas: IDEAS[m.id] || ["A smaller first step", "Partner with experts", "Crowdsource it"] });
+    { agent: true, text: `Goal: ${m.stages[m.current].goal}. A few ideas nobody's trying yet. Tap one and you'll start a new squad to run it, with you as the leader:`, ideas: IDEAS[m.id] || ["A smaller first step", "Partner with experts", "Crowdsource it"] });
   go("thread", { thread: "partner" });
 }
 export function launchStrategy(name) {
@@ -401,8 +413,10 @@ export function launchStrategy(name) {
     Q(id + "c", `Recruit 2 players to the plan`, "champion", "S", 150, 10, ["posting to the channel…", "4 interested", "2 joined ✓"], { q: "Who do we take?", opts: ["Specialists", "Fast movers"] }, { strat: id, gain: 0, out: "2 players joined" }),
   );
   S.backed = { ...(S.backed || {}), [m.id]: id };
+  S.squads[m.id] = id; S.squad = s.squad;
+  if (!S.joined[m.id]) S.joined[m.id] = [...S.roles];
   award("trail");
-  titleCard("New plan", "IT'S A RACE!", esc(name), () => go("strategy", { stratId: id }), 1500);
+  titleCard("Your new squad", "IT'S A RACE!", `${esc(s.squad)} · ${esc(name)}`, () => go("strategy", { missionId: m.id, stratId: id }), 1500);
 }
 // What your agent says inside a mission (quest rooms and chats)
 export function stageAgentReply(m, text) {

@@ -266,6 +266,7 @@
 /* Stage list + quest rooms */
 .stage-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-block: 14px 20px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .stage-list .list { gap: 10px; }
+.stage-list > * { flex-shrink: 0; }
 .qitem { display: grid; grid-template-columns: 36px 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; text-align: left; width: 100%; }
 .qitem b.qt { font-weight: 700; font-size: 14px; line-height: 1.25; display: block; }
 .qitem.done { background: var(--mint); }
@@ -540,3 +541,11 @@ button.chip.trust { background: var(--mint); color: var(--green-d); border-color
 .blocker { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 8px 10px; border: var(--line-2); border-radius: 12px; background: var(--paper); }
 .blocker.mine { background: var(--cream); border-color: var(--gold); }
 .blocker b { font-size: 14px; line-height: 1.3; display: block; }
+
+/* Map: each squad's progress along its path to the stage goal */
+.race-n { font-family: var(--display); font-size: 12px; fill: var(--ink); }
+.tnode .tl b { display: block; }
+.tnode .tl i { display: block; font-style: normal; font-weight: 500; font-size: 11px; }
+.squadcard { display: flex; flex-direction: column; gap: 8px; }
+.squadcard .stack .av { width: 30px; height: 30px; }
+.gmap .trow + .crow { margin-top: 70px; }

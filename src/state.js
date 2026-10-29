@@ -6,7 +6,7 @@ export const S = {
   screen: "onboard", ob: 0,
   name: "", agentName: "Pip", roles: [],
   level: 4, xp: 640, xpMax: 1200, coins: 180,
-  joined: {}, missionId: "glio", tab: "map", filter: "All",
+  joined: {}, squads: {}, missionId: "glio", tab: "map", filter: "All",
   learned: [], together: 0, shipped: 0, values: [],
   badges: [],
   thread: null,

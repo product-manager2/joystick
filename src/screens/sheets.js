@@ -50,18 +50,9 @@ export function manageSheet(m) {
     Row("⚑", "Reports", "No flagged spends or disputes"),
   ]), esc(m.title));
 }
-export function personSheet(n) {
-  const p = PEOPLE[n];
-  if (!p) return;
-  drill(esc(n), `<div class="row" style="gap:12px"><span class="av big">${face(p.color, n.length)}</span><div style="min-width:0"><b>${esc(p.bio)}</b><div class="small muted">${esc(p.squad)}${p.agent ? ` · agent ${esc(p.agent)}` : ""}</div></div></div>
-    <div class="stats"><div class="stat"><b>★ ${p.rep}</b><span>review score</span></div><div class="stat"><b>${p.quests}</b><span>quests cleared</span></div><div class="stat"><b>${ROLES[p.role].name}</b><span>main role</span></div></div>
-    <div class="eyebrow">Skills</div>
-    ${Group(p.skills.map(([k, h]) => Row(Tick(/verified/.test(h), "✓", "~"), esc(k), esc(h))))}
-    <div class="qbtns"><button class="btn blue" data-a="dm" data-x="${esc(n)}">Message</button><button class="btn" data-a="pair" data-x="${esc(n)}">Pair up</button></div>`, "Player profile");
-}
 export function openDM(n) {
   let t = thread("dm-" + n);
-  if (!t) { t = { id: "dm-" + n, kind: "dm", person: n, title: n, unread: 0, msgs: [{ sys: `${n} · ★ ${PEOPLE[n].rep} · ${PEOPLE[n].squad}` }] }; threads.push(t); }
+  if (!t) { t = { id: "dm-" + n, kind: "dm", person: n, title: n, unread: 0, msgs: [{ sys: PEOPLE[n] ? `${n} · ★ ${PEOPLE[n].rep} · ${PEOPLE[n].squad}` : n }] }; threads.push(t); }
   go("thread", { thread: t.id });
 }
 // Squad formation: slots carry the detailed skill requirements

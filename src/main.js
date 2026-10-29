@@ -13,7 +13,7 @@ import { contractSheet } from "./screens/contract.js";
 import { forgeKind, forgeLaunch, forgeNext, forgeStart, forgeText } from "./screens/forge.js";
 import { drawTrail } from "./screens/missions.js";
 import { backSheet, fuelSheet, launchStrategy, proposeStrategy, sendInRoom, stageCleared, startSession } from "./screens/quests.js";
-import { creditsSheet, stageBriefSheet, historySheet, inputSheet, kycSheet, ledgerSheet, manageSheet, notifSheet, openDM, payoutSheet, personSheet, prizeSheet, proofSheet, refereeSheet, reqSheet, reviewInfo, skillsSheet, squadSheet, toolsSheet, trustSheet, verifySheet } from "./screens/sheets.js";
+import { creditsSheet, stageBriefSheet, historySheet, inputSheet, kycSheet, ledgerSheet, manageSheet, notifSheet, openDM, payoutSheet, prizeSheet, proofSheet, refereeSheet, reqSheet, reviewInfo, skillsSheet, squadSheet, toolsSheet, trustSheet, verifySheet } from "./screens/sheets.js";
 import { S } from "./state.js";
 import { go, goBack, render } from "./ui/chrome.js";
 import { $, duoName, esc, findQuest, fmt, loadReturning, mission, thread, titleCard, toast, toggle } from "./ui/helpers.js";
@@ -95,6 +95,7 @@ document.addEventListener("click", e => {
     case "rtab": { const [q] = findQuest(S.questId); S.roomTab = x; if (x === "chat") q.unreadChat = 0; return render(); }
     case "strategy": return go("strategy", { stratId: x });
     case "strategy-from-map": return go("strategy", { stratId: x });
+    case "joinsquad": { const mm = mission(), s = strats(mm).find(y => y.id === x); if (!S.joined[mm.id]) return contractSheet(mm.id, x); S.squads[mm.id] = x; S.squad = s.squad; toast(`You joined ${esc(s.squad)} ✓`); return render(); }
     case "backsheet": { const mm = missions.find(y => (y.strategies || []).some(s => s.id === x)); if (mm) S.missionId = mm.id; return backSheet(x); }
     case "openstrat": return go("strategy", { missionId: x, stratId: b.dataset.s });
     case "needit": { const m = mission(x); if (S.voiced[m.id]) return; S.voiced[m.id] = true; demandOf(m).asks++; toast("Added your voice · it pays a little if this ships"); return render(); }
@@ -130,7 +131,7 @@ document.addEventListener("click", e => {
     case "manage": return manageSheet(mission());
     case "approvestrat": strats(mission()).forEach(s => { if (s.status === "review") s.status = null; }); toast("Approved. It's live"); return render();
     case "topup": return fuelSheet(S.missionId);
-    case "person": return personSheet(x);
+    case "person": return go("person", { personId: x });
     case "dm": return openDM(x);
     case "pair": return toast(`Asked ${esc(x)} to pair. Their agent will reply`);
     case "squad": return squadSheet(findQuest(x)[0]);
