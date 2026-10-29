@@ -9,13 +9,15 @@ import { $, esc, fmt, mission } from "../ui/helpers.js";
 // this milestone re-check it, token holders can challenge, then payouts are released.
 export function gateScreen() {
   const m = mission(), g = gateOf(m), v = m.gv || (m.gv = { yes: 0, no: 0, mine: null, done: false });
-  const ranked = [...strats(m)].sort((a, b) => b.score - a.score), holds = S.wallet.shares[m.id] || 0;
+  const ranked = [...strats(m)].filter(s => s.score > 0).sort((a, b) => b.score - a.score), holds = S.wallet.shares[m.id] || 0;
+  const idle = strats(m).length - ranked.length;
   return `<div class="chat">
     <div class="chat-head">${chanIcon(m)}<div style="min-width:0;flex:1"><div class="display chan-name">Final check</div><div class="small muted ellip">${esc(m.title)} · milestone ${m.current + 1}</div></div></div>
     <div class="stage-list">
       <div class="card milestone"><div class="eyebrow">The goal</div><div class="mgoal">${esc(m.stages[m.current].goal)}</div>${gateBar(m)}<div class="small"><b>${g.have}/${g.need} ${g.unit}</b> submitted</div></div>
       <div class="eyebrow">Evidence</div>
-      <div class="list">${ranked.map(s => `<button class="card qitem" data-a="strategy" data-x="${s.id}">${stratBadge(s, 36)}<span style="min-width:0"><b class="qt">${esc(s.name)}</b><span class="small muted" style="display:block">${esc(s.squad)} · ${m.quests.filter(q => q.strat === s.id && q.done && !q.parts).length} approved quests</span></span><span class="qstat">+${s.score}</span></button>`).join("")}</div>
+      <div class="list">${ranked.map(s => `<button class="card qitem" data-a="strategy" data-x="${s.id}">${stratBadge(s, 36)}<span style="min-width:0"><b class="qt">${esc(s.name)}</b><span class="small muted" style="display:block">${esc(s.squad)} · ${((n) => n ? `${n} approved quest${n === 1 ? "" : "s"}` : "results from earlier")(m.quests.filter(q => q.strat === s.id && q.done && !q.parts).length)}</span></span><span class="qstat">+${s.score}</span></button>`).join("")}</div>
+      ${idle ? `<div class="small muted">${idle} other ${idle === 1 ? "strategy" : "strategies"} had no results to check</div>` : ""}
       <div class="card milestone"><div class="row"><div class="eyebrow">Referees vote</div><span class="spacer"></span><button class="info small" data-a="refinfo">Who are they?</button></div>
         <div class="referees" id="gvs">${gvCircles(v)}</div><div class="small muted" id="gvstat">${gvStat(v)}</div></div>
       ${holds ? `<div class="card milestone"><div class="eyebrow">Your vote · ${fmt(holds)} ${tok(m)}</div>${v.mine ? `<div class="small"><b>You: ${esc(v.mine)}</b></div>` : `<div class="qbtns"><button class="btn blue sm" data-a="gvote" data-x="Yes, it's done">Yes, it's done</button><button class="btn sm" data-a="gchallenge">Challenge</button></div>`}<div class="small muted">Challenge window: 24h. Payouts wait for it.</div></div>` : ""}
