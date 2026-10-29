@@ -98,7 +98,7 @@ const refreshRoom = q => { if (S.screen === "quest" && S.questId === q.id) rende
 function reviewersFor(q) {
   const sq = stratOf(q).squad, crew = crewOf(q).map(c => c.who);
   return Object.keys(PEOPLE).filter(n => PEOPLE[n].squad !== sq && PEOPLE[n].squad !== S.squad && !crew.includes(n))
-    .sort((a, b) => (PEOPLE[b].role === "critic") - (PEOPLE[a].role === "critic")).slice(0, 2);
+    .sort((a, b) => (PEOPLE[b].role === "checker") - (PEOPLE[a].role === "checker")).slice(0, 2);
 }
 export function fixQuest(id) {
   const [q, m] = findQuest(id);

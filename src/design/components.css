@@ -48,11 +48,7 @@ input.inp, textarea.inp { font: inherit; font-weight: 700; border: var(--line); 
 textarea.inp { resize: vertical; min-height: 60px; }
 
 /* Roles */
-.suit { display: flex; flex-direction: column; gap: 8px; }
-.suit { margin-top: 6px; }
-.suit-head { display: inline-flex; align-self: flex-start; align-items: center; gap: 8px; font-weight: 800; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--white); background: var(--navy); padding: 5px 12px 5px 6px; border-radius: var(--r-pill); }
-.suit-head .pip { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--white); }
-.role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.role-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
 .role-grid.full .role[aria-pressed="false"] { opacity: .45; }
 .onboard > .sticky-cta { margin-top: auto; }
 .sticky-cta { position: sticky; bottom: 0; z-index: 5; display: flex; flex-direction: column; gap: 10px; padding-block: 12px 4px; background: linear-gradient(transparent, var(--paper) 30%); }
@@ -60,7 +56,7 @@ textarea.inp { resize: vertical; min-height: 60px; }
 .role[aria-pressed="true"] { background: var(--navy); color: var(--white); }
 .role[aria-pressed="true"] .muted { color: var(--mist); }
 .role b { font-size: 14px; display: block; }
-.role .muted { font-size: 12px; line-height: 1.3; display: block; }
+.role .muted { font-size: 13px; line-height: 1.3; display: block; }
 .mono { width: 30px; height: 30px; border-radius: 50%; border: var(--line-2); display: grid; place-items: center; font-family: var(--display); font-size: 13px; color: var(--ink); }
 .rtag { font-family: var(--type); font-size: 11px; border: var(--line-1); border-radius: 6px; padding: 1px 6px; white-space: nowrap; }
 

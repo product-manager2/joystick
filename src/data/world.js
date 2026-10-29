@@ -3,13 +3,13 @@
 
 // Other players: profiles, verified skills, which squad they race for
 export const PEOPLE = {
-  Rosa:      { color: "var(--pink)",  role: "critic",       squad: "Fold Gang", agent: "Dot",  rep: 4.9, quests: 41, bio: "Postdoc in structural biology, Lisbon", skills: [["Docking (Vina)", "verified · 12 quests"], ["Statistics", "self-reported"]] },
-  Kenji:     { color: "var(--sky)",   role: "implementer",  squad: "Fold Gang", agent: "Byte", rep: 4.7, quests: 63, bio: "Backend engineer, Osaka", skills: [["Python", "verified · GitHub"], ["GPU ops", "verified · 20 quests"], ["Rust", "verified · GitHub"]] },
-  Priya:     { color: "var(--red)",   role: "commander",    squad: "Fold Gang", agent: "Dock", rep: 4.9, quests: 88, bio: "Computational chemistry lead, Bangalore", skills: [["Docking (Vina)", "verified · 30 quests"], ["Med chem", "verified · ORCID"]] },
-  "Dr. Lin": { color: "var(--pink)",  role: "critic",       squad: "Wet Hands", rep: 5.0, quests: 9, bio: "Brain-tumour pharmacologist, Singapore", skills: [["Med chem", "verified · licence"], ["Neuro-oncology", "verified · ORCID"]] },
-  Ade:       { color: "var(--leaf)",  role: "investigator", squad: "Wet Hands", agent: "Moss", rep: 4.8, quests: 38, bio: "Pharmacologist, Lagos", skills: [["Pharmacology", "verified · ORCID"], ["Lab protocols", "verified · 6 quests"]] },
-  Yuki:      { color: "var(--lilac)", role: "critic",       squad: "Swarm 404", agent: "Nori", rep: 4.8, quests: 57, bio: "Medicinal chemist, Kyoto", skills: [["Med chem", "verified · ORCID"], ["Docking (Vina)", "verified · 9 quests"]] },
-  Mo:        { color: "var(--gold)",  role: "inventor",     squad: "Swarm 404", agent: "Fizz", rep: 4.4, quests: 22, bio: "ML student, Cairo", skills: [["ML", "verified · GitHub"], ["Chemistry", "self-reported"]] },
+  Rosa:      { color: "var(--pink)",  role: "checker",       squad: "Fold Gang", agent: "Dot",  rep: 4.9, quests: 41, bio: "Postdoc in structural biology, Lisbon", skills: [["Docking (Vina)", "verified · 12 quests"], ["Statistics", "self-reported"]] },
+  Kenji:     { color: "var(--sky)",   role: "builder",  squad: "Fold Gang", agent: "Byte", rep: 4.7, quests: 63, bio: "Backend engineer, Osaka", skills: [["Python", "verified · GitHub"], ["GPU ops", "verified · 20 quests"], ["Rust", "verified · GitHub"]] },
+  Priya:     { color: "var(--red)",   role: "leader",    squad: "Fold Gang", agent: "Dock", rep: 4.9, quests: 88, bio: "Computational chemistry lead, Bangalore", skills: [["Docking (Vina)", "verified · 30 quests"], ["Med chem", "verified · ORCID"]] },
+  "Dr. Lin": { color: "var(--pink)",  role: "checker",       squad: "Wet Hands", rep: 5.0, quests: 9, bio: "Brain-tumour pharmacologist, Singapore", skills: [["Med chem", "verified · licence"], ["Neuro-oncology", "verified · ORCID"]] },
+  Ade:       { color: "var(--leaf)",  role: "explorer", squad: "Wet Hands", agent: "Moss", rep: 4.8, quests: 38, bio: "Pharmacologist, Lagos", skills: [["Pharmacology", "verified · ORCID"], ["Lab protocols", "verified · 6 quests"]] },
+  Yuki:      { color: "var(--lilac)", role: "checker",       squad: "Swarm 404", agent: "Nori", rep: 4.8, quests: 57, bio: "Medicinal chemist, Kyoto", skills: [["Med chem", "verified · ORCID"], ["Docking (Vina)", "verified · 9 quests"]] },
+  Mo:        { color: "var(--gold)",  role: "creator",     squad: "Swarm 404", agent: "Fizz", rep: 4.4, quests: 22, bio: "ML student, Cairo", skills: [["ML", "verified · GitHub"], ["Chemistry", "self-reported"]] },
 };
 
 // Per-quest requirements, claims, dependencies and real-world steps (merged into quests at boot)
@@ -77,4 +77,19 @@ export const STAGE_BRIEF = {
     counts: ["Topics for each school year", "Which topics come first", "Checked by a local teacher"],
     item: "country", checked: "A country counts when every school year is mapped and a local teacher signs off.",
     why: "The tutor can't help a kid if it doesn't know what their class is learning.", next: "Stage 3 builds lessons for the mapped topics." },
+};
+
+// What's really holding each plan back, beyond missing money or open quests. [what's stuck, the role that can unstick it]
+export const BLOCKERS = {
+  "glio-dock": [["Some hits don't show up again on a second run, so nobody trusts them yet", "checker"], ["GPU prices doubled this week", "patron"]],
+  "glio-repurpose": [["The Basel lab only has one slot a week", "leader"], ["No chemist has signed up to check the blood–brain results", "checker"]],
+  "glio-whole": [["Patients and doctors haven't heard of this plan yet", "champion"]],
+  "glio-gen": [["New molecules need a safety check before anyone sees them", "checker"]],
+  "cad-occ": [["OpenCascade crashes on some curved shapes", "builder"], ["Nobody has tried it on real engineers' files yet", "explorer"]],
+  "cad-users": [["Only 5 engineers interviewed so far; the plan needs 30", "champion"]],
+  "cad-rust": [["Can't start until the beta makes $20k", "patron"], ["No one has written down which features come first", "planner"]],
+  "reef-shops": [["Dive shops in 3 countries haven't replied", "champion"]],
+  "reef-app": [["Divers find the upload form too long", "creator"]],
+  "tutor-teach": [["Teachers only have time on weekends", "planner"]],
+  "tutor-ai": [["Two syllabi are scanned images, not text", "builder"]],
 };

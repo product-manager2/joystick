@@ -4,36 +4,18 @@ import { go } from "../ui/chrome.js";
 import { gain, glyph, mission, mono, titleCard } from "../ui/helpers.js";
 
 // ===================== Content =====================
-export const SUITS = {
-  seekers:    { name: "Seekers",    color: "var(--leaf)" },
-  creators:   { name: "Creators",   color: "var(--pink)" },
-  producers:  { name: "Producers",  color: "var(--peach)" },
-  leaders:    { name: "Leaders",    color: "var(--coral)" },
-  architects: { name: "Architects", color: "var(--sky)" },
-  advocates:  { name: "Advocates",  color: "var(--gold)" },
-  guardians:  { name: "Guardians",  color: "var(--lilac)" },
-  givers:     { name: "Givers",     color: "var(--teal)" },
-};
-// 16 roles. Each has an icon and one plain line on what it does. Suits only set the colour.
+// 8 roles. Each has a colour, an icon and one plain line on what it does.
 export const ROLES = {
-  explorer: { suit: "seekers", name: "Explorer", does: "Goes first into the unknown and finds what's out there", icon: '<circle cx="12" cy="12" r="8.5"/><path d="M15.5 8.5l-2.2 4.8-4.8 2.2 2.2-4.8z"/>' },
-  investigator: { suit: "seekers", name: "Investigator", does: "Digs into the facts until they're really true", icon: '<circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/>' },
-  inventor: { suit: "creators", name: "Inventor", does: "Dreams up new ideas nobody has tried", icon: '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z"/>' },
-  artisan: { suit: "creators", name: "Artisan", does: "Makes things look and feel just right", icon: '<path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/>' },
-  implementer: { suit: "producers", name: "Builder", does: "Turns plans into things that work", icon: '<rect x="3.5" y="13" width="7.5" height="7" rx="1.5"/><rect x="13" y="13" width="7.5" height="7" rx="1.5"/><rect x="8.25" y="4" width="7.5" height="7" rx="1.5"/>' },
-  technician: { suit: "producers", name: "Fixer", does: "Fixes what breaks and keeps it running", icon: '<path d="M15 3.5a5 5 0 0 0-4.6 6.9L3.5 17.3V20.5h3.2l6.9-6.9A5 5 0 0 0 20.5 9l-3.1 1.1-2.4-2.4L16.1 4.6z"/>' },
-  commander: { suit: "leaders", name: "Leader", does: "Sets the dream, leads the way and carries the team", icon: '<path d="M5 21V3.5M5 4h12l-2.5 4.5L17 13H5"/>' },
-  shaper: { suit: "leaders", name: "Pusher", does: "Pushes the team to go further and faster", icon: '<path d="M4 6l6 6-6 6M12 6l6 6-6 6"/>' },
-  strategist: { suit: "architects", name: "Planner", does: "Makes the plan from behind the scenes, three moves ahead", icon: '<circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="6" r="2.2"/><path d="M8.2 18H13a3 3 0 0 0 0-6h-2a3 3 0 0 1 0-6h4.8"/>' },
-  orchestrator: { suit: "architects", name: "Organiser", does: "Keeps everyone in step and on time", icon: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/>' },
-  campaigner: { suit: "advocates", name: "Storyteller", does: "Tells the story so the world cares", icon: '<path d="M4 9.5v5h3l7.5 4.5v-14L7 9.5z"/><path d="M18 9a4.2 4.2 0 0 1 0 6"/>' },
-  connector: { suit: "advocates", name: "Connector", does: "Knows the right person and brings them in", icon: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>' },
-  critic: { suit: "guardians", name: "Checker", does: "Checks the work and spots mistakes", icon: '<circle cx="12" cy="12" r="8.5"/><path d="M8.3 12.2l2.6 2.6 4.8-5.3"/>' },
-  protector: { suit: "guardians", name: "Guardian", does: "Keeps the mission safe and fair", icon: '<path d="M12 3l7.5 3v5.5c0 4.7-3.2 7.8-7.5 9.5-4.3-1.7-7.5-4.8-7.5-9.5V6z"/>' },
-  helper: { suit: "givers", name: "Helper", does: "Jumps in wherever someone is stuck", icon: '<path d="M12 20s-7.5-4.6-7.5-10A4 4 0 0 1 12 7.6 4 4 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/>' },
-  patron: { suit: "givers", name: "Patron", does: "Funds the work and puts money where it's needed", icon: '<circle cx="12" cy="12" r="8.5"/><path d="M14.6 9.4c-.5-.9-1.5-1.4-2.6-1.4-1.5 0-2.6.8-2.6 2s1.1 1.6 2.6 2 2.6.8 2.6 2-1.1 2-2.6 2c-1.1 0-2.1-.5-2.6-1.4M12 6.3v11.4"/>' },
+  explorer: { color: "var(--leaf)", name: "Explorer", does: "Finds out what's out there and what's really true", icon: '<circle cx="12" cy="12" r="8.5"/><path d="M15.5 8.5l-2.2 4.8-4.8 2.2 2.2-4.8z"/>' },
+  creator: { color: "var(--pink)", name: "Creator", does: "Dreams up new ideas and makes them look and feel right", icon: '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z"/>' },
+  builder: { color: "var(--peach)", name: "Builder", does: "Turns plans into things that work, and fixes what breaks", icon: '<rect x="3.5" y="13" width="7.5" height="7" rx="1.5"/><rect x="13" y="13" width="7.5" height="7" rx="1.5"/><rect x="8.25" y="4" width="7.5" height="7" rx="1.5"/>' },
+  leader: { color: "var(--coral)", name: "Leader", does: "Sets the dream, leads the way, pushes the team and carries the weight", icon: '<path d="M5 21V3.5M5 4h12l-2.5 4.5L17 13H5"/>' },
+  planner: { color: "var(--sky)", name: "Planner", does: "Makes the plan from behind the scenes and keeps everyone in step", icon: '<circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="6" r="2.2"/><path d="M8.2 18H13a3 3 0 0 0 0-6h-2a3 3 0 0 1 0-6h4.8"/>' },
+  champion: { color: "var(--gold)", name: "Storyteller", does: "Tells the story so people care, and brings the right people in", icon: '<path d="M4 9.5v5h3l7.5 4.5v-14L7 9.5z"/><path d="M18 9a4.2 4.2 0 0 1 0 6"/>' },
+  checker: { color: "var(--lilac)", name: "Checker", does: "Checks the work, spots mistakes and keeps it safe and fair", icon: '<circle cx="12" cy="12" r="8.5"/><path d="M8.3 12.2l2.6 2.6 4.8-5.3"/>' },
+  patron: { color: "var(--teal)", name: "Patron", does: "Funds the work and helps wherever it's needed", icon: '<circle cx="12" cy="12" r="8.5"/><path d="M14.6 9.4c-.5-.9-1.5-1.4-2.6-1.4-1.5 0-2.6.8-2.6 2s1.1 1.6 2.6 2 2.6.8 2.6 2-1.1 2-2.6 2c-1.1 0-2.1-.5-2.6-1.4M12 6.3v11.4"/>' },
 };
-export const roleColor = k => SUITS[ROLES[k].suit].color;
+export const roleColor = k => ROLES[k].color;
 export const SIZE = { S: { label: "~15 min" }, M: { label: "~1 hr" }, L: { label: "~1 day" } };
 
 export const GLYPHS = {
@@ -91,15 +73,15 @@ export const missions = [
     rules: ["Top 10 compounds kill more than 60% of tumour cells in vitro", "3 independent Critics reproduce every result", "All data and code published open-access"],
     quests: [
       Q("g1", "Curate a 1M compound library from ZINC", "explorer", "M", 200, 20, [], null, { done: true, by: "Fold Gang" }),
-      Q("g2", "Build the docking pipeline", "implementer", "M", 300, 30, ["spinning up 8 GPUs…", "docking config drafted", "test run: 1,000 compounds ✓"],
+      Q("g2", "Build the docking pipeline", "builder", "M", 300, 30, ["spinning up 8 GPUs…", "docking config drafted", "test run: 1,000 compounds ✓"],
         { q: "Which docking engine should we bet on?", opts: ["AutoDock Vina — fast and free", "Glide — slower, more accurate", "Run both on a sample and compare"] }),
-      Q("g3", "Verify 20 docking results from Fold Gang", "critic", "S", 250, 25, ["re-running 20 results…", "17 match, 3 drift by >1 kcal", "verdict posted ✓"],
+      Q("g3", "Verify 20 docking results from Fold Gang", "checker", "S", 250, 25, ["re-running 20 results…", "17 match, 3 drift by >1 kcal", "verdict posted ✓"],
         { q: "3 results drift by more than 1 kcal/mol. What now?", opts: ["Flag them back to Fold Gang", "Re-run them on a finer grid", "Drop them from the shortlist"] }),
-      Q("g4", "Recruit a medicinal chemist", "connector", "S", 150, 15, ["scanning 340 profiles…", "two chemists replied", "chemist joined the squad ✓"],
+      Q("g4", "Recruit a medicinal chemist", "champion", "S", 150, 15, ["scanning 340 profiles…", "two chemists replied", "chemist joined the squad ✓"],
         { q: "Two chemists replied. Who do we bring in?", opts: ["Dr. Lin — brain-tumour pharmacology", "Dr. Rao — kinase inhibitors", "Invite both"] }),
-      Q("g5", "Write this week's progress post", "campaigner", "S", 120, 10, ["pulling this week's numbers…", "draft ready", "posted to mission HQ ✓"],
+      Q("g5", "Write this week's progress post", "champion", "S", 120, 10, ["pulling this week's numbers…", "draft ready", "posted to mission HQ ✓"],
         { q: "How should the post sound?", opts: ["Plain and factual", "Big and hopeful", "Charts first, few words"] }),
-      Q("g6", "Test 1 million molecules against the tumour", "commander", "L", 1200, 150, ["you + 2 squadmates + 3 agents…", "docked 1,000,000 · 38 hits", "shortlist locked ✓"],
+      Q("g6", "Test 1 million molecules against the tumour", "leader", "L", 1200, 150, ["you + 2 squadmates + 3 agents…", "docked 1,000,000 · 38 hits", "shortlist locked ✓"],
         { q: "38 hits. Which 10 go to the wet lab?", opts: ["Top 10 by docking score", "Top 10 by chemical diversity", "Let the chemist pick"] }, { needs: 3 }),
     ],
   },
@@ -117,15 +99,15 @@ export const missions = [
     ],
     rules: ["500 engineers use it weekly for a month", "Opens 95% of STEP test files", "MIT licensed"],
     quests: [
-      Q("c1", "Design the sketch toolbar", "artisan", "M", 280, 25, ["pulling 12 CAD toolbars for reference…", "3 layouts mocked", "prototype shared ✓"],
+      Q("c1", "Design the sketch toolbar", "creator", "M", 280, 25, ["pulling 12 CAD toolbars for reference…", "3 layouts mocked", "prototype shared ✓"],
         { q: "Which toolbar layout do we test?", opts: ["Left rail, like Fusion 360", "Top ribbon, like SolidWorks", "Radial menu on right-click"] }),
-      Q("c2", "Test STEP import on 50 real files", "critic", "S", 160, 15, ["importing 50 files…", "46 open, 4 break on fillets", "bug report filed ✓"],
+      Q("c2", "Test STEP import on 50 real files", "checker", "S", 160, 15, ["importing 50 files…", "46 open, 4 break on fillets", "bug report filed ✓"],
         { q: "4 files break on fillets. Priority?", opts: ["Blocker — fix before Sketcher", "Log it, keep moving", "Ask the 4 file owners for details"] }),
-      Q("c3", "Fix boolean ops on curved faces", "implementer", "M", 320, 30, ["reproducing the crash…", "found it: tolerance on NURBS", "patch merged ✓"],
+      Q("c3", "Fix boolean ops on curved faces", "builder", "M", 320, 30, ["reproducing the crash…", "found it: tolerance on NURBS", "patch merged ✓"],
         { q: "Two fixes work. Which one ships?", opts: ["Tighter tolerance — safe, slower", "New intersection algorithm — fast, riskier"] }),
       Q("c4", "Interview 5 engineers about pain points", "explorer", "S", 140, 10, ["booking 5 calls…", "transcripts summarised", "top 3 pains posted ✓"],
         { q: "Which pain should the squad chase first?", opts: ["Licence cost", "Slow on big assemblies", "Bad Mac support"] }),
-      Q("c5", "Kernel passes the 1,000-shape test suite", "implementer", "L", 1000, 120, ["you + squad + 4 agents…", "961 / 1,000 passing", "1,000 / 1,000 ✓"],
+      Q("c5", "Kernel passes the 1,000-shape test suite", "builder", "L", 1000, 120, ["you + squad + 4 agents…", "961 / 1,000 passing", "1,000 / 1,000 ✓"],
         { q: "39 shapes fail on one edge case. Ship anyway?", opts: ["No — fix all 39 first", "Ship, fix in Sketcher stage"] }, { needs: 3 }),
     ],
   },
@@ -143,11 +125,11 @@ export const missions = [
     ],
     rules: ["Classifier is 90% accurate on dive-site data", "Map refreshes weekly for 3 months", "Free public API"],
     quests: [
-      Q("r1", "Match 40 dive logs to satellite tiles", "investigator", "M", 260, 25, ["parsing dive logs…", "38 matched, 2 unclear", "matches published ✓"],
+      Q("r1", "Match 40 dive logs to satellite tiles", "explorer", "M", 260, 25, ["parsing dive logs…", "38 matched, 2 unclear", "matches published ✓"],
         { q: "2 dive logs have no GPS. Keep them?", opts: ["Drop them", "Estimate from the dive shop's location"] }),
-      Q("r2", "Book divers for 12 unchecked sites", "technician", "S", 150, 15, ["finding dive shops…", "9 shops replied", "12 dives booked ✓"],
+      Q("r2", "Book divers for 12 unchecked sites", "builder", "S", 150, 15, ["finding dive shops…", "9 shops replied", "12 dives booked ✓"],
         { q: "Budget covers 10 of the 12 sites. Which to skip?", opts: ["The two most remote", "The two already well-studied"] }),
-      Q("r3", "Review the model's 50 worst misses", "critic", "S", 200, 20, ["loading misses…", "pattern: cloud shadow", "report posted ✓"],
+      Q("r3", "Review the model's 50 worst misses", "checker", "S", 200, 20, ["loading misses…", "pattern: cloud shadow", "report posted ✓"],
         { q: "Most misses are cloud shadow. Next step?", opts: ["Add a cloud-mask step", "Only use clear-sky tiles"] }),
     ],
   },
@@ -166,9 +148,9 @@ export const missions = [
     quests: [
       Q("t1", "Map Kenya's Grade 4 maths syllabus", "explorer", "S", 140, 10, ["finding the official syllabus…", "62 topics extracted", "map published ✓"],
         { q: "Some topics overlap with Grade 5. Where do they go?", opts: ["Keep them in Grade 4", "Move them to Grade 5"] }),
-      Q("t2", "Sketch the first lesson screen", "artisan", "M", 260, 25, ["looking at 8 kids' apps…", "2 sketches done", "posted for feedback ✓"],
+      Q("t2", "Sketch the first lesson screen", "creator", "M", 260, 25, ["looking at 8 kids' apps…", "2 sketches done", "posted for feedback ✓"],
         { q: "Kids read at different levels. How do we show questions?", opts: ["Big pictures, few words", "Read-aloud button on everything"] }),
-      Q("t3", "Find 3 teachers to advise the squad", "connector", "S", 150, 15, ["reaching out via teacher forums…", "5 replies", "3 teachers onboarded ✓"],
+      Q("t3", "Find 3 teachers to advise the squad", "champion", "S", 150, 15, ["reaching out via teacher forums…", "5 replies", "3 teachers onboarded ✓"],
         { q: "Who first?", opts: ["Rural teachers", "City teachers", "One of each plus a parent"] }),
     ],
   },
