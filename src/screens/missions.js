@@ -27,7 +27,7 @@ export function lobby() {
         <div class="row small"><b>Stage ${m.current + 1} · ${esc(m.stages[m.current].name)}</b><span class="spacer"></span><span>${g.have}/${g.need} ${g.unit}</span></div>
         ${gateBar(m)}
         <ul class="news">${(m.news || []).slice(0, 2).map(n => `<li>${esc(n)}</li>`).join("")}${big ? `<li class="hotline">Big quest open: ${esc(short(big.title))}</li>` : ""}</ul>
-        <div class="row"><button class="btn sm blue" style="flex:1" data-a="mission-ch" data-x="${m.id}">Play</button><button class="btn sm" data-a="mission" data-x="${m.id}">Details</button></div>
+        <div class="row"><button class="btn sm blue" style="flex:1" data-a="mission-ch" data-x="${m.id}">Pick a strategy</button><button class="btn sm" data-a="mission" data-x="${m.id}">Mission info</button></div>
       </div></div>`;
   };
   return `<div class="screen">
@@ -58,7 +58,7 @@ export function missionScreen() {
   const who = mine ? `Your squad · ${mine.squad}` : `${m.squads} squads racing`;
   return `<div class="screen">
     <div class="card mhead">
-      <div class="band" style="background:${m.color}">${backBtn("back", "lobby", "Back")}<span class="mtitle"><h1>${esc(m.title)}</h1><span class="msquad">${esc(who)}</span></span>${glyph(m)}</div>
+      <div class="band" style="background:${m.color}">${backBtn("back", "lobby", "Back")}<span class="mtitle"><span class="kind kind-mission">Mission</span><h1>${esc(m.title)}</h1><span class="msquad">${esc(who)}</span></span>${glyph(m)}</div>
       <div class="in">
         ${Stats([[`$${fmt(m.bounty)}`, "bounty"], [`${m.current + 1}/${m.stages.length}`, "stage"], [`${m.squads}`, "squads"]])}
         <div class="row wrap" style="gap:6px"><button class="chip trust" data-a="trust" data-x="${m.id}">✓ Escrow · verified</button>${m.creator === "@" + (S.name || "you") ? `<button class="chip" data-a="manage">Manage</button>` : ""}${signed ? signed.map(r => `<span class="rtag" style="background:${roleColor(r)}">${ROLES[r].name}</span>`).join("") : ""}<span class="chip" style="background:var(--navy);color:var(--white)">${tok(m)} ×${mult(m)}</span>${dry ? `<button class="chip drychip" data-a="tab" data-x="fuel">Dry in ${f.dryDays}d</button>` : ""}</div>
@@ -67,7 +67,7 @@ export function missionScreen() {
     ${Tabs(tabs, S.tab, "tab")}
     ${body}
     <div class="sticky-cta">${signed
-      ? `${Button(`Play stage ${m.current + 1}`, { variant: "blue", block: true, action: "mission-ch", value: m.id })}`
+      ? `${Button(`Pick a strategy for stage ${m.current + 1} →`, { variant: "blue", block: true, action: "mission-ch", value: m.id })}`
       : `${Button("Join mission", { variant: "red", block: true, action: "contract", value: m.id })}`}</div>
   </div>`;
 }

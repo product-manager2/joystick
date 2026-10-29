@@ -1,7 +1,7 @@
 import { GLYPHS, Q, ROLES, SIZE, award, roleColor } from "../data/content.js";
 import { MERGE, PEOPLE } from "../data/world.js";
 import { Button, CloseButton, Stats, openSheet } from "../design/components.js";
-import { FUELS, askOf, contribute, fuelIcon, fuelNum, fuelOf, mult, questFuel, stakeOf, tok, tokFor } from "../game/economy.js";
+import { FUELS, askOf, contribute, fuelIcon, fuelNum, fuelOf, fuelUnit, mult, questFuel, stakeOf, tok, tokFor } from "../game/economy.js";
 import { backersOf, matchGain, matchOf, matches, poolOf, raisedOf, voiceGain } from "../game/matching.js";
 import { hasSkill, questScore, questWhy, stratScore, stratWhy, why } from "../game/personalise.js";
 import { needsYou } from "../game/questflow.js";
@@ -14,6 +14,8 @@ import { $, backBtn, bot, botAv, duoName, esc, face, findQuest, fmt, gain, glyph
 // ===================== Stage → strategies → quests (rooms) =====================
 // Missions are named by what they are and what they're doing now, never by an internal step name
 const SHORT = { glio: "Glioblastoma", cad: "Open CAD", reef: "Reef Map", tutor: "AI Tutor" };
+// Every screen inside a mission says what it is and where it sits: Mission › Stage › Strategy › Quest
+export const where = (kind, crumbs = []) => `<div class="where"><span class="kind kind-${kind}">${kind}</span>${crumbs.length ? `<span class="crumbs ellip">${crumbs.map(esc).join(" › ")}</span>` : ""}</div>`;
 export const chName = m => SHORT[m.id] || m.title;
 export const stageLine = m => `Stage ${m.current + 1} of ${m.stages.length} · ${m.stages[m.current].goal}`;
 export const short = t => t.length > 26 ? t.slice(0, 24) + "…" : t;
@@ -200,9 +202,10 @@ export function matchingRound(m) {
   const P = poolOf(m), mt = matches(m);
   const list = [...strats(m)].filter(s => s.status !== "merged").sort((a, b) => (mt[b.id] || 0) - (mt[a.id] || 0));
   return `<div class="card fround">
-    <div class="fhead"><b class="display" style="font-size:17px;color:var(--navy)">Matching round</b><span class="small"><b>$${fmt(P)}</b> pool</span><span class="spacer"></span><span class="chip" style="background:var(--red);color:var(--white)">2d</span></div>
-    ${list.map(s => `<button class="mrow" data-a="backsheet" data-x="${s.id}"><span class="vdot" style="background:${s.color}"></span><span class="vname">${esc(s.name)}</span><span class="meter"><i style="width:${(mt[s.id] || 0) / P * 100}%;background:${s.color}"></i></span><span class="vpct">+$${fmt(mt[s.id] || 0)}</span></button>`).join("")}
-    <div class="small muted">More backers beat bigger cheques</div>
+    <div class="fhead"><b class="display" style="font-size:17px;color:var(--navy)">Bonus round</b><span class="small"><b>$${fmt(P)}</b> to share</span><span class="spacer"></span><span class="chip" style="background:var(--red);color:var(--white)">Ends in 2d</span></div>
+    <p class="small">The mission adds <b>$${fmt(P)}</b> on top of what backers give. It's split by <b>how many people</b> back each strategy, so 10 people giving $5 beats one person giving $50.</p>
+    ${list.map(s => `<button class="mrow" data-a="backsheet" data-x="${s.id}"><span class="vdot" style="background:${s.color}"></span><span class="vname">${esc(s.name)}<span class="small muted" style="display:block;font-weight:600">${backersOf(s)} backers</span></span><span class="meter"><i style="width:${(mt[s.id] || 0) / P * 100}%;background:${s.color}"></i></span><span class="vpct">+$${fmt(mt[s.id] || 0)}</span></button>`).join("")}
+    <div class="small muted">Tap a strategy to back it and grow its bonus</div>
   </div>`;
 }
 // The game nudges squads to team up when a fundraise stalls; it never forces it
@@ -229,13 +232,13 @@ export function stageScreen() {
         <span class="row wrap" style="gap:6px;margin-top:6px">${stratTags(m, s)}${why(reason)}</span>
         <span class="sbet">${esc(s.bet)}</span>
         ${relLine(m, s) ? `<span class="rels">${relLine(m, s)}</span>` : ""}
-        <span class="money"><b>$${fmt(raisedOf(s))}</b> raised · <b>${backersOf(s)}</b> backers · <b class="match">+$${fmt(mt[s.id] || 0)}</b> match</span>
+        <span class="money"><b>$${fmt(raisedOf(s))}</b> from <b>${backersOf(s)}</b> backers · <b class="match">+$${fmt(mt[s.id] || 0)}</b> bonus</span>
         <span class="small muted">+${s.score} ${s.score === 1 ? m.unit.replace(/s$/, "") : m.unit} · ${open} quests open</span></span>
     </button>`;
   };
   return `<div class="chat">
     <div class="chat-head">${backBtn("back", "", "Back")}${chanIcon(m)}
-      <div style="min-width:0;flex:1"><div class="display chan-name">${esc(m.title)}</div><div class="small muted ellip">Stage ${m.current + 1} of ${m.stages.length} · ${esc(m.stages[m.current].name)}</div></div></div>
+      <div style="min-width:0;flex:1">${where("stage", [chName(m)])}<div class="display chan-name">Stage ${m.current + 1} of ${m.stages.length} · ${esc(m.stages[m.current].name)}</div></div></div>
     <div class="stage-list">
       <div class="card milestone">
         <div class="eyebrow">Stage ${m.current + 1} goal</div>
@@ -267,35 +270,36 @@ export function stageScreen() {
 export function strategyScreen() {
   const m = mission(), s = strats(m).find(x => x.id === S.stratId);
   const qs = m.quests.filter(q => q.strat === s.id && !q.parent);
-  const a = askOf(s), mt = matchOf(m, s), have = raisedOf(s) + mt, paid = Math.round(mt * .3);
-  const backBtnLabel = s.status === "review" ? "" : s.status === "proposed" ? `Back it to launch · ${s.backers}/${s.need}` : stakeOf(s) ? `✓ Backed $${fmt(stakeOf(s))} · add more` : "Back this thesis";
+  const a = askOf(s), mt = matchOf(m, s), have = raisedOf(s) + mt, paid = Math.round(mt * .3), share = Math.min(1, have / a.money);
+  const backLabel = s.status === "proposed" ? `Back it to launch · ${s.backers}/${s.need}` : stakeOf(s) ? `✓ Backed $${fmt(stakeOf(s))} · add more` : "Back this strategy";
+  const status = s.status === "review" ? `Waiting for ${m.creator}'s OK · usually under a day` : s.status === "proposed" ? `Starts once ${s.need} people back it` : s.status === "queued" ? (relLine(m, s) ? "Queued: starts after the strategy it needs" : "Queued") : "Running now";
+  const need = (k, label, total, got) => `<div class="need"><span class="fi" style="background:${FUELS[k].color}">${fuelIcon(k, 14)}</span><span class="need-t">${label}</span><span class="meter"><i style="width:${Math.min(100, got / total * 100)}%;background:${FUELS[k].color}"></i></span><b>${fuelNum(k, got)} of ${fuelNum(k, total)}${fuelUnit(k)}</b></div>`;
+  const ranked = [...qs].sort((x, y) => (y.done ? -9 : questScore(y, m)) - (x.done ? -9 : questScore(x, m)));
   return `<div class="chat">
     <div class="chat-head">${backBtn("back", "stage", "Back")}${stratBadge(s)}
-      <div style="min-width:0;flex:1"><div class="room-title">${esc(s.name)}</div><div class="small muted ellip">${esc(s.squad)} · led by ${esc(s.lead)} · ${chName(m)}</div></div></div>
+      <div style="min-width:0;flex:1">${where("strategy", [chName(m), `Stage ${m.current + 1}`])}<div class="room-title">${esc(s.name)}</div></div></div>
     <div class="stage-list">
       <div class="card milestone thesis">
-        <div class="row wrap" style="gap:6px">${stratTags(m, s)}</div>
-        <div class="eyebrow">The thesis</div>
+        <div class="eyebrow">The plan</div>
         <p class="claim">${esc(s.bet)}</p>
+        <div class="row wrap" style="gap:6px">${stratTags(m, s)}</div>
         ${relLine(m, s) ? `<div class="rels">${relLine(m, s)}</div>` : ""}
-        ${s.status === "queued" ? "" : `<div class="kvrow"><span>When</span><b>${s.status === "proposed" ? "As soon as it's backed" : "Now"}</b></div>`}
-        ${Stats([[`$${fmt(raisedOf(s))}`, "raised"], [backersOf(s), "backers"], [`+$${fmt(mt)}`, "match"]])}
-        <div class="eyebrow">The ask</div>
-        <div class="asks">${[["money", a.money, Math.min(a.money, have)], ["time", a.time, Math.round(a.time * Math.min(1, have / a.money))], ["compute", a.compute, Math.round(a.compute * Math.min(1, have / a.money))]].map(([k, v, got]) => `<div class="ask"><span class="row" style="gap:5px"><span class="fi" style="background:${FUELS[k].color};width:22px;height:22px;border-radius:6px">${fuelIcon(k, 12)}</span><span class="fname">${FUELS[k].name}</span></span><span class="meter"><i style="width:${Math.min(100, got / v * 100)}%;background:${FUELS[k].color}"></i></span><span class="fnum">${fuelNum(k, got)} / ${fuelNum(k, v)}</span></div>`).join("")}</div>
-        ${mt ? `<div class="kvrow"><span>Treasury draw</span><b>$${fmt(paid)} paid · $${fmt(mt - paid)} at checkpoints</b></div>` : ""}
-        ${s.status === "review" ? `<div class="small" style="text-align:center"><b>Waiting for ${esc(m.creator)}'s OK</b> · usually under a day</div>` : Button(backBtnLabel, { variant: stakeOf(s) ? "gold" : "red", block: true, action: "backsheet", value: s.id })}
+        <div class="kvrow"><span>Status</span><b>${esc(status)}</b></div>
+        <div class="kvrow"><span>Squad</span><b>${esc(s.squad)} · led by ${PEOPLE[s.lead] ? `<button class="info" data-a="person" data-x="${esc(s.lead)}">${esc(s.lead)}</button>` : esc(s.lead)}</b></div>
+        <div class="kvrow"><span>Counts toward</span><b>${esc(m.stages[m.current].goal)}${s.score ? ` · +${s.score} so far` : ""}</b></div>
+      </div>
+      <div class="card milestone">
+        <div class="eyebrow">What it needs to run</div>
+        ${need("money", "Money", a.money, Math.min(a.money, have))}
+        ${need("time", "People's time", a.time, Math.round(a.time * share))}
+        ${need("compute", "Computing", a.compute, Math.round(a.compute * share))}
+        <p class="small muted">${backersOf(s)} backers put in $${fmt(raisedOf(s))}${mt ? `, plus a $${fmt(mt)} bonus from the mission` : ""}. ${mt ? `$${fmt(paid)} is paid out so far; the rest unlocks as the plan hits checkpoints.` : ""}</p>
+        ${s.status === "review" ? "" : Button(backLabel, { variant: stakeOf(s) ? "gold" : "red", block: true, action: "backsheet", value: s.id })}
         ${stakeOf(s) ? `<div class="small muted" style="text-align:center;margin-top:-2px">You hold a $${fmt(stakeOf(s))} stake in ${esc(s.squad)}</div>` : ""}
       </div>
-      ${(() => {
-        const ranked = [...qs].sort((a, b) => (b.done ? -9 : questScore(b, m)) - (a.done ? -9 : questScore(a, m)));
-        const top = ranked.filter(q => !q.done && questScore(q, m) > 1).slice(0, 3), rest = ranked.filter(q => !top.includes(q));
-        const open = S.showAll["q-" + s.id];
-        return qs.length ? `${top.length ? `<div class="eyebrow">For you</div><div class="list">${top.map(q => questItem(q, m)).join("")}</div>` : ""}
-          <button class="seeall" data-a="showall" data-x="q-${s.id}">${open ? "Hide" : "See all"} ${qs.length} quests in this strategy</button>
-          ${open || !top.length ? `<div class="list">${rest.map(q => questItem(q, m)).join("")}</div>` : ""}` : "";
-      })()}
+      ${qs.length ? `<div class="eyebrow">Quests in this strategy · ${qs.length}</div><div class="list">${ranked.map(q => questItem(q, m)).join("")}</div>` : ""}
     </div>
-    <form class="composer" id="stratBar"><input id="stratsay" placeholder="Talk strategy with ${esc(S.agentName)}…" autocomplete="off"><button class="btn sm red" type="submit">Start</button></form>
+    <form class="composer" id="stratBar"><input id="stratsay" placeholder="Ask ${esc(S.agentName)} about this strategy…" autocomplete="off"><button class="btn sm red" type="submit">Ask</button></form>
   </div>`;
 }
 // Back a thesis with money or your voice. The live match estimate teaches the rule.
@@ -309,7 +313,7 @@ export function backSheet(sid) {
     <div class="row">${stratBadge(s, 36)}<div style="flex:1;min-width:0"><h2 class="display" style="font-size:20px;color:var(--navy)">Back ${esc(s.name)}</h2><div class="small muted ellip">${esc(s.squad)} · ${backersOf(s)} backers</div></div>${CloseButton()}</div>
     <div class="amounts">${amounts.map(a => `<button data-b="amt" data-v="${a}" aria-pressed="${amt === a}">$${a}</button>`).join("")}</div>
     <button class="chip voice" data-b="amt" data-v="0" aria-pressed="${amt === 0}">+1 · Add my voice</button>
-    <div class="estimate">${amt ? `<span>$${amt} now</span><b>→ about $${fmt(amt + extra)} with match</b>` : `<span>Free</span><b>→ +$${fmt(extra)} match</b>`}</div>
+    <div class="estimate">${amt ? `<span>$${amt} now</span><b>→ about $${fmt(amt + extra)} with the bonus</b>` : `<span>Free</span><b>→ +$${fmt(extra)} bonus</b>`}</div>
     <div class="small muted">${amt ? `You get a stake in ${esc(s.squad)}: a share of what it builds.` : "Counts once you've played. Earns a little if it ships."}</div>
     ${Button(amt ? `Back with $${amt}` : "Add my voice", { variant: "red", block: true, "data-b": "go" })}`;
   }, onClick: (e, close, draw) => {
@@ -322,7 +326,7 @@ export function backSheet(sid) {
     if (first || (!amt && s.status === "proposed")) s.backers++;
     close();
     if (s.status === "proposed" && s.backers >= s.need) { s.status = null; titleCard("Your backing tipped it", "LAUNCHED!", esc(s.name), null, 1300); }
-    else toast(`${amt ? `Backed $${amt}` : "Voice added"} · match <b>+$${fmt(Math.max(0, matchOf(m, s) - before))}</b>`);
+    else toast(`${amt ? `Backed $${amt}` : "Voice added"} · bonus <b>+$${fmt(Math.max(0, matchOf(m, s) - before))}</b>`);
     render();
   } });
 }
@@ -346,7 +350,7 @@ export function roomScreen() {
     : q.state ? "" : blockBar(q) || `<div class="room-bar one">${Button(label, { variant: "blue", action: "play", value: q.id })}</div>`;
   return `<div class="chat">
     <div class="chat-head">${backBtn("back", "strategy", "Back")}${mono(q.role, 40)}
-      <div style="min-width:0;flex:1"><div class="room-title">${esc(q.title)}</div>
+      <div style="min-width:0;flex:1">${where("quest", [chName(m), stratOf(q).name])}<div class="room-title">${esc(q.title)}</div>
         <div class="row small muted" style="gap:6px"><button class="avbtn row small muted" style="gap:6px" data-a="squad" data-x="${q.id}" aria-label="Squad">${multi ? `<span class="mode multi">Squad</span>${crew.length ? `<span class="stack">${crew.slice(0, 4).map(crewAv).join("")}</span> ${crew.length}` : ""}` : `<span class="mode">Solo</span>`}</button><span class="rewardline">$${q.coins} · +${fmt(tokFor(m, questFuel(q)))} ${tok(m)}</span></div></div></div>
     <div class="roomtabs" role="tablist">
       <button role="tab" data-a="rtab" data-x="chat" aria-selected="${tab === "chat"}">Chat${q.unreadChat ? ` <span class="unread">${q.unreadChat}</span>` : ""}</button>

@@ -93,7 +93,7 @@ export function loadReturning() {
     { text: "Pip needs your call: recruit a medicinal chemist", q: "g4", when: "6h ago" },
     { text: "Mo claimed “Train a generator on known EGFR inhibitors”", q: "g9", when: "9h ago" },
     { text: "Your review of “Verify docking · batch 2” was upheld", when: "1d ago", read: true },
-    { text: "Matching round closes in 2 days", when: "1d ago", read: true },
+    { text: "Bonus round ends in 2 days", when: "1d ago", read: true },
   ];
   S.backed = { glio: "glio-dock" }; S.contrib = { "glio-dock": 2 };
   S.learned = ["Prefers open-source tools", "Docking engine → “Run both and compare”", "Likes plain, factual progress posts"];

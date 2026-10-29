@@ -502,3 +502,18 @@ button.chip.trust { background: var(--mint); color: var(--green-d); border-color
 .perk-i { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: var(--gold); border: var(--line-2); font-weight: 800; }
 .perk b { font-size: 12px; line-height: 1.2; }
 .perk span:last-child { font-size: 11px; color: var(--ink-2); line-height: 1.25; }
+
+/* Where am I: a coloured tag per level, plus the path */
+.where { display: flex; align-items: center; gap: 6px; min-width: 0; margin-bottom: 2px; }
+.kind { flex: none; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; border: 2px solid var(--ink); border-radius: 6px; padding: 0 5px; line-height: 1.5; color: var(--ink); align-self: flex-start; }
+.kind-mission { background: var(--white); }
+.kind-stage { background: var(--gold); }
+.kind-strategy { background: var(--violet); color: var(--white); }
+.kind-quest { background: var(--blue); color: var(--white); }
+.crumbs { font-size: 12px; font-weight: 600; color: var(--ink-2); min-width: 0; }
+/* Strategy: what it needs, one row per resource */
+.need { display: grid; grid-template-columns: 24px 96px 1fr auto; gap: 8px; align-items: center; font-size: 13px; }
+.need .fi { width: 24px; height: 24px; border-radius: 7px; }
+.need .meter { height: 9px; border-width: 2px; }
+.need b { font-size: 12px; white-space: nowrap; }
+.ctag { font-size: 11px; font-weight: 800; color: var(--ink-2); border: 2px solid var(--paper-2); border-radius: 99px; padding: 1px 8px; white-space: nowrap; }

@@ -23,22 +23,23 @@ export function lastLine(msgs) {
   }
   return "";
 }
+// One inbox: your agent pinned on top, then every chat you're in (squads, direct messages, quest
+// rooms), unread first. Missions live in their own tab, so they aren't listed here.
 export function commsScreen() {
   partnerSeed();
-  const row = (a, x, av, title, sub, unread, tag) => `<button class="card thread-row" data-a="${a}" data-x="${x}">${av}
+  const row = (a, x, av, title, kind, sub, unread) => `<button class="card thread-row" data-a="${a}" data-x="${x}">${av}
     <span style="min-width:0"><span class="t" style="display:block">${title}</span><span class="last" style="display:block">${esc(sub)}</span></span>
-    ${unread ? `<span class="unread">${unread}</span>` : `<span class="small muted">${tag}</span>`}</button>`;
-  const chans = [...missions].sort((a, b) => !!S.joined[b.id] - !!S.joined[a.id]);
+    ${unread ? `<span class="unread">${unread}</span>` : `<span class="ctag">${kind}</span>`}</button>`;
+  const pip = thread("partner");
+  const KIND = { squad: "Squad", dm: "Direct" };
+  const chats = [
+    ...threads.filter(t => t.kind !== "agent").map(t => ({ u: t.unread, html: row("thread", t.id, threadAv(t), esc(threadTitle(t)), KIND[t.kind] || "Chat", lastLine(t.msgs), t.unread) })),
+    ...missions.flatMap(m => m.quests.filter(q => q.feed && (q.scripted || q.feed.some(x => x.me))).map(q => ({ u: q.unread || 0, html: row("quest", q.id, mono(q.role, 44), esc(short(q.title)), "Quest", `${chName(m)} · ${lastLine(q.feed)}`, q.unread) }))),
+  ].sort((x, y) => (y.u > 0) - (x.u > 0));
   return `<div class="screen">
-    <h2 class="sec-title">Comms</h2>
-    <div class="eyebrow">Direct</div>
-    <div class="list">${threads.map(t => row("thread", t.id, threadAv(t), esc(threadTitle(t)) + (t.kind === "agent" ? AGENT_TAG : ""), lastLine(t.msgs), t.unread, t.kind)).join("")}</div>
-    ${(() => {
-      const rooms = missions.flatMap(m => m.quests.filter(q => q.feed && (q.scripted || q.feed.some(x => x.me))).map(q => ({ q, m })));
-      return rooms.length ? `<div class="eyebrow">Quest rooms</div><div class="list">${rooms.map(({ q, m }) => row("quest", q.id, mono(q.role, 44), `${esc(short(q.title))} <span class="mode ${isMulti(q) ? "multi" : ""}">${isMulti(q) ? "Squad" : "Solo"}</span>`, lastLine(q.feed), q.unread, chName(m))).join("")}</div>` : "";
-    })()}
-    <div class="eyebrow">Missions</div>
-    <div class="list">${chans.map(m => row("mission-ch", m.id, chanIcon(m, 44), esc(m.title), `${stageLine(m)} · ${gateOf(m).have}/${gateOf(m).need}`, m.unread, S.joined[m.id] ? "joined" : "")).join("")}</div>
+    <h2 class="sec-title">Chats</h2>
+    ${row("thread", pip.id, threadAv(pip), esc(S.agentName) + AGENT_TAG, "Agent", lastLine(pip.msgs), pip.unread)}
+    ${chats.length ? `<div class="list">${chats.map(c => c.html).join("")}</div>` : `<p class="muted small">Join a squad or start a quest and its chat shows up here.</p>`}
   </div>`;
 }
 export function partnerSeed() {
