@@ -50,11 +50,10 @@ export function stageRecapSheet(m, i) {
 }
 
 export function outputSheet(key) {
-  const [name, kind, place, note, licence] = outputAt(key), K = OUTPUT_KIND[kind];
+  const [name, kind, place, note] = outputAt(key), K = OUTPUT_KIND[kind];
   drill(esc(name.split(" · ")[0]), `${Group([
       Row(K.icon, K.label, esc(note)),
       Row("▤", `Lives in ${esc(place)}`, kind === "live" ? "Anyone can use it" : "Open to everyone, no squad needed"),
-      Row("©", "Licence", esc(licence || "Open")),
     ])}
     ${kind === "live" ? "" : `<button class="btn blue block" data-a="openin" data-x="${esc(place)}">Open in ${esc(place)} ↗</button>`}`, "Output");
 }

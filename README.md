@@ -1,6 +1,6 @@
 # Joystick
 
-**Play missions that solve real problems, with your AI agent. Earn bounties and a stake in what you build.**
+**Play missions that solve real problems, with your AI agent. Earn the prize and a piece of what you build.**
 
 A mobile-first PWA demo of [getjoystick.xyz](https://getjoystick.xyz). All data is mocked in the browser for now; the backend comes later.
 
@@ -9,16 +9,16 @@ A mobile-first PWA demo of [getjoystick.xyz](https://getjoystick.xyz). All data 
 1. [Why](#1-why)
 2. [The big idea](#2-the-big-idea)
 3. [Players: you and your agent](#3-players-you-and-your-agent)
-4. [The work: needs, missions, tracks, strategies, quests](#4-the-work)
-5. [The money: who funds what](#5-the-money)
-6. [Ownership: two layers of tokens](#6-ownership-two-layers-of-tokens)
-7. [Converging efforts](#7-converging-efforts)
-8. [The funding algorithm: multi-signal quadratic matching](#8-the-funding-algorithm)
-9. [Safeguards](#9-safeguards)
-10. [Design principles](#10-design-principles)
-11. [Status and roadmap](#11-status-and-roadmap)
-12. [Open questions](#12-open-questions)
-13. [Developer guide](#13-developer-guide)
+4. [The work: missions, stages, plans, quests](#4-the-work)
+5. [The money](#5-the-money)
+6. [Owning a piece](#6-owning-a-piece)
+7. [Plans that race, and plans that wait](#7-plans-that-race-and-plans-that-wait)
+8. [Safeguards](#8-safeguards)
+9. [Design principles](#9-design-principles)
+10. [Status and roadmap](#10-status-and-roadmap)
+11. [Open questions](#11-open-questions)
+12. [Developer guide](#12-developer-guide)
+13. [Appendix: how the bonus is worked out](#appendix-how-the-bonus-is-worked-out)
 
 ---
 
@@ -34,235 +34,128 @@ Hard problems like curing a cancer, open CAD or mapping every reef fail for coor
 
 ## 2. The big idea
 
-Turn problem-solving into a game that people play with their AI agents. Its structure mirrors the real world:
+Turn problem-solving into a game that people play with their AI agents. In one line: **pick a big mission, play quests with your agent, help your squad win the stage, get paid.**
 
-- **Demand is visible.** People with a problem raise it, back it and pledge money for a solution.
-- **Work is a graph, not a line.** Parallel tracks run at once and converge on checkpoints.
-- **Every approach is a thesis.** Teams pitch their strategy and raise their own backing.
-- **A shared treasury matches backing quadratically**, so breadth of belief beats size of wallet.
-- **Everyone who contributes owns a piece**, whether they bring money, time, knowledge, compute or simply demand.
-- **The game nudges teams to converge** (pool, sequence or merge) instead of fighting for the same money.
+- **One goal at a time.** A mission is split into stages, each with one measurable goal.
+- **Squads race with different plans.** Each plan is one squad's idea for hitting the goal, and people back the plans they believe in.
+- **Breadth beats size of wallet.** The mission adds a bonus to each plan, and plans with more backers get more of it.
+- **Everyone who helps owns a piece**, whether they bring money, time or skill.
 
 The core loop:
 
 ```
-raise a need ─▶ it becomes a mission ─▶ strategies pitch theses ─▶ people back them
-      ▲                                                                  │
-      │                                                                  ▼
- rewards + stake ◀── checkpoint cleared ◀── quests played (you + agent) ◀┘
+pick a mission ─▶ back or join a plan ─▶ play quests (you + agent)
+      ▲                                          │
+      │                                          ▼
+ paid + a piece ◀──────── stage cleared ◀── results checked
 ```
 
 ## 3. Players: you and your agent
 
+- **Your agent has a look.** Pick a name and one of six shape characters (Blob, Cube, Cone, Star, Drop, Pill), each with its own colour and personality. Other players' agents get shapes too.
 - **You and your agent are one team.** One shared Profile: one name, level, medals, history and money (e.g. *nova & Pip*).
 - **Roles.** You pick up to 3 of 16 roles across 8 groups: Seekers, Creators, Producers, Leaders, Architects, Advocates, Guardians and Givers. Quests that match your roles are shown first and pay 2×.
-- **Your agent works on your authority.** There is one **Start** button. You and your agent are a team, and you're the one accountable: you make the calls, and whatever your agent ships goes out under your name with no extra sign-off step.
-- **New and returning players see different screens.** Everything is personalised first, with a reason shown ("Fits Implementer", "Holistic, like you").
-- **Medals** reward milestones in play: first quest, first contract, first strategy proposed, and so on.
+- **Your agent works on your authority.** There is one **Start** button. You make the calls, and whatever your agent ships goes out under your name with no extra sign-off step.
+- **Everything is personalised first**, with a reason shown ("Fits Implementer", "Rosa's in it").
+- **Medals** reward milestones in play: first quest, first squad joined, first plan suggested, and so on.
 
 ## 4. The work
 
 | Level | What it is | Example |
 | --- | --- | --- |
-| **Need** | A problem someone has and wants solved | "CAD I can afford as a student" |
-| **Mission** | A goal with a bounty, a brief and win conditions | *Open CAD that beats SolidWorks* |
-| **Track** | A stream of work that runs in parallel with others | Kernel · Sketcher · STEP import |
-| **Checkpoint** | Where tracks converge; it opens when every track feeding it is done | *Private beta* |
-| **Strategy** | A team's thesis for how to clear a track or checkpoint | "Build on OpenCascade" vs "Rust kernel" |
-| **Quest** | One playable unit of work, sized S, M or L | "Import 50 real STEP files" |
-| **Part** | A quest split into smaller pieces | Shard A, B, C, D |
+| **Mission** | A big problem with a prize and win conditions | *Open CAD that beats SolidWorks* |
+| **Stage** | One step of the mission, with one goal | Stage 2: *8 kernel features passing tests* |
+| **Plan** | One squad's idea for hitting the stage goal | "Build on OpenCascade" vs "Rust kernel" |
+| **Quest** | One job you and your agent do, from ~15 min to ~1 day | "Import 50 real STEP files" |
+| **Part** | A big quest split into smaller ones | Shard A, B, C, D |
 
-**The map is a graph.** Complex work runs in parallel and converges:
-
-```
-          ┌─ Kernel (OpenCascade) ──┐
-Recon ────┼─ Sketcher ──────────────┼──▶ ◆ Private beta ──▶ ◆ 1,000 engineers
-          └─ STEP import ───────────┘          ▲
-                                               ┆
-          Rust kernel (queued) ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┘  starts after beta revenue
-```
+**The map** shows one checkpoint per stage. Only the current stage opens up, showing the plans racing to its goal and a YOU flag on yours. Finished stages open a recap of what they produced.
 
 **Where conversation happens:**
 
-- **Mission brief:** the problem, the goal, the win conditions and the milestones.
+- **Mission page:** the problem, the goal, how we win and what we'll make.
 - **Quest brief:** the task, why it matters, done-when, inputs and decisions so far.
-- **Rooms:** every quest has a chat room. Agents speak *via* their owner, e.g. "Byte via Kenji".
-- **Chats:** all your chats across teams and missions in one place.
-- **Creating a mission:** you talk it through with your agent, which drafts the name, milestones, rules, roles and bounty for you to edit.
+- **Quest rooms:** every quest has a chat room with the squad and their agents.
+- **Your agent's chat:** ask about a stage or plan, suggest a new plan, or ask what a finished mission produced. It all happens in one chat.
+- **Creating a mission:** you talk it through with your agent, which drafts the name, stages, rules, roles and prize for you to edit.
 
 ## 5. The money
 
-Each kind of money has a clear purpose:
-
-| Who | Puts in | Into | Why |
-| --- | --- | --- | --- |
-| **People with the problem** | A +1, or a pledge held until it ships | A **need** | "Solve this for me." Pledged money is only paid out when the mission delivers. |
-| **People who care about the problem** | Money | The **mission treasury** | "Someone solve this." The treasury becomes the **matching pool**. |
-| **People who believe in an approach** | Money, time, compute, knowledge or a +1 | A **strategy** | "This way is right." |
-| **Sponsors** | Large grants | The treasury or a need | The same rules apply; big money is matched like any other contribution. |
-| **Products** | Revenue | The team, plus a commons fee to the treasury | Early products can fund later bets. |
-
-**Missions need four kinds of fuel:** money, time, knowledge and compute. **They pay out in four kinds:** money, time back, knowledge, and equity (tokens). Each mission page shows its fuel gauges and when the treasury runs dry.
-
-**Treasury draws are paid in tranches.** A team asks for money and mission token holders approve it. The first part is paid on approval; the rest is released only as the team hits its checkpoints. No single team can drain the pot.
-
-**Values tags.** Strategies carry one or two tags, such as *Holistic*, *Open science*, *Fast track*, *Low cost* or *Patient-led*. Players choose the values they care about once, and matching strategies come first. Someone who wants cancer solved holistically backs those strategies, and pulls matching money toward them.
-
-## 6. Ownership: two layers of tokens
-
-Ten companies can work on the same disease without sharing their profits.
-
-| | **Mission token** (e.g. `$GLIO`) | **Team stake** (e.g. *Fold Gang*) |
+| Who | Puts in | Why |
 | --- | --- | --- |
-| Belongs to | The problem | One team and its thesis |
-| You earn it by | Funding the treasury, playing quests, raising the need early | Backing or joining that team |
-| Gives you | A vote on treasury draws and a share of the bounty | A share of that team's product |
-| Pays out from | The bounty, plus the **commons fee** | That team's revenue, licences or exit |
+| **Sponsors** | Large grants for the prize and the mission fund | "Someone solve this." |
+| **Players** | Money behind a plan they believe in | "This way is right." |
+| **People who want it** | A promise of money, paid only when it works | "Solve this for me." |
+| **Sales** | Revenue from early products | Early products fund later work. |
 
-- **The commons fee.** A team that draws treasury money, or builds on shared mission work, pays a small fee back to the mission (around 5% of revenue). It is the only profit that crosses between teams.
-- **Early backers get more.** Contributions earn tokens at a multiplier that falls as the mission advances (×3, ×2, ×1.5, ×1.2, ×1).
-- **Holding the mission token is a bet that *someone* solves the problem.** Holding a team stake is a bet that *this* team does.
-- **Suited to DAOs.** Each mission is effectively a small DAO: a treasury, a governance token, proposals (treasury draws) and an on-chain record of contributions.
+- **There's one way to put money in: back a plan.** You can also back a plan for free; it still counts as one more backer.
+- **The bonus.** Each stage the mission adds a bonus pot on top of what backers give. It's shared by **how many people** back each plan, so 100 people giving $10 beat one person giving $1,000. Players never see the maths, only "Your $10 brings the squad about $35". The [appendix](#appendix-how-the-bonus-is-worked-out) shows how it's worked out.
+- **The prize** is locked in before launch and split 70% players, 15% referees, 10% mission creator, 5% community fund. Every quest that passes review pays, even if its plan loses.
+- **Every spend has a receipt.** The Money tab shows what the money paid for.
 
-## 7. Converging efforts
+## 6. Owning a piece
 
-Strategies are related, not just rivals. Each one declares how it connects to the others:
+- **You own a piece of each mission you help.** It's shown in plain words: "You own 0.34% of Open CAD". Owners get paid if the mission makes money.
+- **Early players get more.** The same help earns a bigger piece early on (3× in stage 1, falling to 1× later).
+- **Owners can add a 👍** when the referees check a stage. Full owner votes come later.
 
-| Relation | Meaning | Example |
-| --- | --- | --- |
-| **Feeds** | One strategy's output funds or unlocks another | Selling the prototype fills the treasury for the Rust kernel |
-| **Competes** | Same goal, different bet | OpenCascade kernel vs Rust kernel |
-| **Needs** | One can't start until the other delivers | Rust waits for beta revenue |
+## 7. Plans that race, and plans that wait
 
-**Strategies move through these states:** *Raising → Running → Queued → Merged → Won / Dropped*.
+Plans are **Racing**, **Waiting** or **Won**. A waiting plan always says why, in one line:
 
-- **Sequencing.** A good bet that needs money upfront can be **queued** behind one that brings money in sooner. It appears on the map as a dotted line and starts on its own when its trigger is hit.
-- **Merge nudges, not forced merges.** When a team's fundraise stalls, or two teams overlap heavily, the agent suggests: *"Short on funds. Team up with Kernel Crew?"* Both teams vote. Their stakes combine in proportion to what each brought, and both earn a medal.
-- **Shared commons.** Briefs, data and results are visible to every team on the mission. Every strategy's results count toward the checkpoint, not just the leader's.
-- **Demand steers effort.** Needs with many +1s and pledges surface first, so people build less of what nobody wants. Builders can still start missions nobody asked for; they just show less demand.
+- *Needs 9 more backers* (a new plan raising its first backers)
+- *Starts when the beta makes $20k* (a good bet that needs money upfront, queued behind one that brings money in sooner)
+- *Waiting for the mission's OK*
 
-## 8. The funding algorithm
+Results from every plan count toward the stage goal, not just the leader's, and briefs, data and results are visible to every squad. **Later:** the agent will suggest that two squads team up when one runs short on money.
 
-Each milestone runs a **matching round**. The treasury (the matching pool) is shared across strategies using quadratic funding, extended to count more than money.
+## 8. Safeguards
 
-### 8.1 Signals
+- **Fake accounts.** One team per verified person. New accounts count for less in the bonus until they've played.
+- **Collusion.** Bonus from backers who always back the same plans together can be dampened (pairwise-bounded QF). This is planned for later, not the demo.
+- **Pledging without doing.** Time and compute only count once delivered and approved.
+- **Checked work.** 2 Critics from other squads check every quest, and 9 Referees check every stage before the prize pays out.
+- **Draining the pot.** No plan can take more than 40% of a stage's bonus.
 
-Every backer can back a strategy with several signals. Each signal is converted to **credits** using one table (the same one that mints tokens, in `src/game/economy.js`):
-
-| Signal | Unit | Credits per unit | Counts when |
-| --- | --- | --- | --- |
-| Demand | a +1 | 1 | Straight away (verified players only) |
-| Money | $1 | 1 | Straight away |
-| Time | 1 hour | 50 | When the work is **approved**, not when pledged |
-| Compute | 1 GPU-hour | 2 | When it is used |
-| Knowledge | 1 accepted insight | 200 | When a Critic accepts it |
-
-### 8.2 Formula
-
-For backer $i$ on strategy $s$, sum their signals into one contribution, then weight it by trust:
-
-$$c_{i,s} = r_i \sum_k w_k \, v_{i,s,k}$$
-
-- $v_{i,s,k}$ is how much of signal $k$ they gave.
-- $w_k$ is the credit rate from the table above.
-- $r_i \in [0, 1]$ is the backer's **trust weight**: verified identity, plus a history of approved work.
-
-Each strategy's raw quadratic score:
-
-$$q_s = \Big(\sum_i \sqrt{c_{i,s}}\Big)^2 - \sum_i c_{i,s}$$
-
-Its share of the pool $P$, capped at $\kappa$ (e.g. 40%) of the pool:
-
-$$m_s = \min\!\Big(\kappa P,\; P \cdot \frac{q_s}{\sum_j q_j}\Big)$$
-
-Any match removed by the cap is shared again among the uncapped strategies.
-
-**Why combine signals per backer before taking the square root:** someone who gives both time and money still counts as **one** person of breadth. Signals add depth to that person's contribution, but don't multiply their headcount.
-
-### 8.3 Worked example
-
-A $10,000 pool and four strategies:
-
-| Strategy | Backers | Total credits | Raw score $q$ | **Match** |
-| --- | --- | ---: | ---: | ---: |
-| A: one whale | 1 × $1,000 | 1,000 | 0 | **$0** |
-| B: broad crowd | 100 × $10 | 1,000 | 99,000 | **$5,041** |
-| C: people with the problem | 40 × $5 + 200 × (+1) | 400 | 83,377 | **$4,246** |
-| D: a few builders | 8 × 5 approved hours | 2,000 | 14,000 | **$713** |
-
-- **A and B raised the same amount**, but B's breadth earns all the match.
-- **C raised the least money**, yet 200 +1s from people who have the problem pull in almost half the pool. This is demand backing at work.
-- **The next $10 matters more in a crowd.** $10 from a new backer adds about **$53** of match to C, but only about **$10** to A.
-
-### 8.4 What players see
-
-Players never see the formula. On a strategy card:
-
-> **$4.2k raised · 212 backers · +$9.8k match**
-> Back with $10 → **$63 with match**
-
-- The match estimate updates live as you change the amount. That alone teaches the rule: small gifts from many people go further.
-- A **+1** is shown as "Adds your voice" with the same live match estimate.
-
-### 8.5 Tuning knobs
-
-| Knob | Default | Effect |
-| --- | --- | --- |
-| Credit rates $w_k$ | See 8.1 | How much each signal is worth |
-| Trust weight $r_i$ | 0.2 (new) to 1.0 (proven) | How much fake accounts can game the match |
-| Cap $\kappa$ | 40% | Stops one strategy taking the whole pool |
-| Round length | One per milestone | How often the treasury is split again |
-| Tranches | 30% on approval, the rest at checkpoints | Ties money to delivery |
-
-## 9. Safeguards
-
-- **Fake accounts.** One duo per verified person. New accounts start with a low trust weight, which grows with approved work. This is what makes quadratic matching safe.
-- **Collusion.** Match from backers who always back the same strategies together can be dampened (pairwise-bounded QF). This is planned for later, not the demo.
-- **Pledging without doing.** Time, compute and knowledge only count once delivered and approved.
-- **Spam +1s.** These are cheap but trust-weighted. Early +1s only earn a reward if the mission ships.
-- **Treasury drain.** Draws are paid in tranches, capped by $\kappa$, and approved by token holders.
-
-## 10. Design principles
+## 9. Design principles
 
 - **It's a game.** The look is inspired by Cuphead, in Joystick's colours and fonts (Baloo 2 ExtraBold and Lexend).
-- **Show, don't explain.** Copy is short and in the style of Steve Jobs; the system is learned by playing. If a sentence explains how the system works, cut it and let the UI show it instead.
+- **Show, don't explain.** Copy is short, simple enough for a kid, and in the style of Steve Jobs. If a sentence explains how the system works, cut it and let the UI show it instead.
+- **Details live in drill-downs.** The main screens stay a game; the real-world detail is one tap away.
 - **Personal first.** Every list starts with what fits you, and says why.
 - **Mobile-first.** Primary actions sit at the bottom, within thumb reach, with 44px tap targets.
-- **Real-world shape.** Parallel tracks, competing theses and messy convergence are deliberate. The game mirrors how hard problems actually get solved.
 
-## 11. Status and roadmap
+## 10. Status and roadmap
 
 **In the demo now**
 
-- Onboarding for new and returning players, roles, values, and three home layouts.
-- Missions list with topic filters; mission page with a **graph map** (parallel tracks converging on ◆ checkpoints), strategies, treasury and brief.
-- **Strategies as theses:** claim, ask, when, relations (feeds, needs, competes) and states (raising, awaiting OK, queued, merged).
-- **Matching rounds:** quadratic matching with a cap, a live "about $X with match" estimate when you back a thesis, and +1 voices.
-- **Two-layer ownership:** mission tokens for the problem, team stakes for the team you back, and the 5% commons fee.
-- **Demand:** "+1 Me too" on every mission; the treasury shows who funds it (sponsors, crowd, people who need it, revenue).
-- **Merge nudges:** the agent suggests teaming up when a squad's fundraise stalls. Squads vote; nothing is forced.
-- **One Start button.** The quest loop: spend approval → your call → your agent works under your name → 2 Critics from other squads → approved, or fix / dispute. Sizes are S, M, L.
-- Real-world flows: squads with skill slots, verified skills, connected tools, claims and dependencies, in-person quests with proof, notifications, and the Referees' **Final check** before a milestone clears.
-- Escrow and trust details, a spending ledger, pending pay released when a milestone clears, credits and payouts.
-- Creating a mission by chatting with your agent, with an escrow deposit before launch; Chats with DMs; one shared Profile (you and your agent) with medals, history and money.
+- Onboarding for new and returning players, roles, and a meet-your-agent step.
+- Missions list with topic filters; mission page with the stage map, plans, money and about.
+- **Plans** with one status (Racing / Waiting / Won), a money bar, and backing with money or for free, with a live "brings the squad about $X" estimate.
+- **The bonus:** quadratic matching with a cap, working behind the scenes.
+- **Owning a piece** of each mission, in plain words.
+- **One Start button.** The quest loop: your call → your agent works under your name → 2 Critics from other squads → approved, or fix.
+- Real-world flows in drill-downs: squads with skill slots, verified skills, connected tools, claims and dependencies, in-person quests with proof, notifications, and the Referees' **stage check**.
+- Who runs a mission and whether it's safe, a spending list, pending pay released when a stage clears, credits and payouts.
+- Recaps of finished stages and missions: what they produced, and your agent explains them.
+- Creating a mission by chatting with your agent; Chats; one shared Profile (you and your agent) with medals, history and money.
 - An installable PWA and a token-driven design system.
 
 **Next**
 
-1. **Needs as their own screen:** browse and raise needs, pledges held until delivery, and needs that become missions.
-2. **Treasury draws:** token-holder votes on each tranche.
-3. **Trust weights** in matching (new accounts count less until they've played).
+1. **Needs as their own screen:** browse and raise needs, promises held until delivery, and needs that become missions.
+2. **Trust weights** in the bonus (new accounts count less until they've played).
+3. **Team-up nudges** between squads.
 
-**Later:** a backend with real accounts, real treasuries and an on-chain token ledger, plus collusion-resistant matching.
+**Later:** a backend with real accounts, real mission funds and an on-chain record of who owns what, plus collusion-resistant matching.
 
-## 12. Open questions
+## 11. Open questions
 
-- **What does a +1 earn?** The proposal is reputation always, plus a tiny token reward only if the mission ships.
-- **Who approves treasury draws?** The proposal is a vote by mission token holders, paid out in tranches at checkpoints.
+- **What does free backing earn?** The proposal is reputation always, plus a tiny piece only if the mission ships.
+- **Who approves big spends?** The proposal is a vote by owners, later.
 - **Credit rates.** Is an hour really worth $50 of credit everywhere, or should rates vary by mission?
-- **The commons fee.** Is 5% a flat rate, or set per mission?
 
-## 13. Developer guide
+## 12. Developer guide
 
 ### Run it
 
@@ -307,16 +200,16 @@ Rules:
 src/
   main.js              boot, click/submit routing, service worker
   state.js             the single state object S
-  data/content.js      roles, missions (with parallel tracks), quests, medals: all mock content
-  data/world.js        people, quest requirements, tools, escrow + trust, ledger, demand, values, merge nudges
-  game/strategies.js   theses: status, relations, quest gating (claims, dependencies)
-  game/economy.js      fuel, mission tokens, team stakes, matching pools, ledger
-  game/matching.js     quadratic matching with a cap, and the live "with match" estimate
-  game/questflow.js    the quest loop: start, spend, call, work, review, fix, dispute, approve
-  game/personalise.js  what fits you, and why (roles, values, squad)
+  data/content.js      roles, missions and stages, quests, medals: all mock content
+  data/world.js        people, quest requirements, tools, escrow + trust, ledger, demand, team-up nudges (later)
+  game/strategies.js   plans: status (racing / waiting), quest gating (claims, dependencies)
+  game/economy.js      mission fund, your piece of each mission, ledger
+  game/matching.js     the bonus: quadratic matching with a cap, and the live "brings the squad about $X" estimate
+  game/questflow.js    the quest loop: start, call, work, review, fix, approve (Pip spends plan money without asking)
+  game/personalise.js  what fits you, and why (roles, squad, friends)
   ui/                  chrome (HUD, bell, nav, router) and shared helpers
-  screens/             home, onboarding, play, missions (graph map, treasury), quests (channel, thesis, room),
-                       sheets (every drill-down), gate (Final check), contract, comms (Chats), forge, profile
+  screens/             home, onboarding, play, missions (stage map, money), quests (stage, plan, room),
+                       sheets (every drill-down), gate (stage check), contract (joining), comms (Chats), forge, profile
   design/              the design system (see above)
 public/
   manifest.webmanifest, sw.js, icons/   PWA install + offline shell
@@ -328,3 +221,64 @@ public/
 - `manifest.webmanifest` makes it installable ("Add to Home Screen"), standalone, portrait.
 - `sw.js` caches the app shell. Built assets and fonts are cache-first; pages are network-first with an offline fallback.
 - Bump `CACHE` in `sw.js` when you change what it caches.
+
+## Appendix: how the bonus is worked out
+
+Each stage the mission adds a bonus pot. It's shared across plans using quadratic funding, extended to count more than money. Players never see this; they see "Your $10 brings the squad about $35", which updates live as they change the amount.
+
+### Signals
+
+Every backer can back a plan with several signals. Each signal is converted to **credits** using one table (the same one that sets your piece of the mission, in `src/game/economy.js`):
+
+| Signal | Unit | Credits per unit | Counts when |
+| --- | --- | --- | --- |
+| Demand | a +1 | 1 | Straight away (verified players only) |
+| Money | $1 | 1 | Straight away |
+| Time | 1 hour | 50 | When the work is **approved**, not when pledged |
+| Compute | 1 GPU-hour | 2 | When it is used |
+
+### Formula
+
+For backer $i$ on plan $s$, sum their signals into one contribution, then weight it by trust:
+
+$$c_{i,s} = r_i \sum_k w_k \, v_{i,s,k}$$
+
+- $v_{i,s,k}$ is how much of signal $k$ they gave.
+- $w_k$ is the credit rate from the table above.
+- $r_i \in [0, 1]$ is the backer's **trust weight**: verified identity, plus a history of approved work.
+
+Each plan's raw quadratic score:
+
+$$q_s = \Big(\sum_i \sqrt{c_{i,s}}\Big)^2 - \sum_i c_{i,s}$$
+
+Its share of the pool $P$, capped at $\kappa$ (e.g. 40%) of the pool:
+
+$$m_s = \min\!\Big(\kappa P,\; P \cdot \frac{q_s}{\sum_j q_j}\Big)$$
+
+Any bonus removed by the cap is shared again among the uncapped plans.
+
+**Why combine signals per backer before taking the square root:** someone who gives both time and money still counts as **one** person of breadth. Signals add depth to that person's contribution, but don't multiply their headcount.
+
+### Worked example
+
+A $10,000 bonus pot and four plans:
+
+| Plan | Backers | Total credits | Raw score $q$ | **Bonus** |
+| --- | --- | ---: | ---: | ---: |
+| A: one whale | 1 × $1,000 | 1,000 | 0 | **$0** |
+| B: broad crowd | 100 × $10 | 1,000 | 99,000 | **$5,041** |
+| C: people with the problem | 40 × $5 + 200 × (+1) | 400 | 83,377 | **$4,246** |
+| D: a few builders | 8 × 5 approved hours | 2,000 | 14,000 | **$713** |
+
+- **A and B raised the same amount**, but B's breadth earns all the bonus.
+- **C raised the least money**, yet 200 +1s from people who have the problem pull in almost half the pot. This is demand backing at work.
+- **The next $10 matters more in a crowd.** $10 from a new backer adds about **$53** of bonus to C, but only about **$10** to A.
+
+### Tuning knobs
+
+| Knob | Default | Effect |
+| --- | --- | --- |
+| Credit rates $w_k$ | See Signals | How much each signal is worth |
+| Trust weight $r_i$ | 0.2 (new) to 1.0 (proven) | How much fake accounts can game the bonus |
+| Cap $\kappa$ | 40% | Stops one plan taking the whole pot |
+| Round length | One per stage | How often the pot is shared again |

@@ -38,7 +38,6 @@ export const TRUST = {
   reef:  { who: "Blue Carbon Lab", cred: "Marine NGO · registered charity", verified: ["Charity number", "Domain"], funders: [["Ocean Trust", 60000], ["@bluecarbon", 25000]], record: "First mission", safety: "Auto-check passed", deliver: ["Weekly public reef map", "Free API", "Labelled dataset"], fail: "Unspent escrow goes back to funders. Approved work stays paid." },
   tutor: { who: "Mrs. Chioma Okafor", cred: "Head teacher · Lagos", verified: ["School email"], funders: [["EdTech Grant", 100000], ["@mrs.okafor", 20000]], record: "First mission", safety: "Child-safety review passed", deliver: ["Offline tutor app", "Pilot results report"], fail: "Unspent escrow goes back to funders. Approved work stays paid." },
 };
-export const LICENSE = { glio: "CC-BY data · MIT code", cad: "MIT", reef: "CC-BY 4.0", tutor: "CC-BY-SA" };
 export const LEDGER = {
   glio:  [["GPU rental · shards A–B", "Fold Gang", 1240, "2h ago"], ["Basel lab deposit", "Wet Hands", 2000, "1d ago"], ["Critic rewards · 14 reviews", "Referees", 310, "1d ago"], ["CNS database licence", "Wet Hands", 450, "3d ago"]],
   cad:   [["CI runners", "Kernel Crew", 180, "5h ago"], ["Interview gift cards", "Field Team", 250, "2d ago"]],
@@ -54,10 +53,7 @@ export const DEMAND = {
   tutor: { asks: 2210, pledged: 7000, revenue: 0 },
 };
 
-// Values a strategy can stand for; players back the ones that match theirs
-export const VALUES = ["Holistic", "Open science", "Fast track", "Low cost", "Patient-led"];
-
-// The game suggests teaming up when a fundraise stalls or efforts overlap
+// Later: the game suggests teaming up when a fundraise stalls or efforts overlap (not shown yet)
 export const MERGE = {
   cad: { from: "cad-users", to: "cad-occ", why: "is short on funds", gain: "Together they reach the checkpoint about 2× faster" },
 };

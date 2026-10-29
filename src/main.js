@@ -6,15 +6,14 @@ import "./styles/screens.css";
 import { missions } from "./data/content.js";
 import { reopenDrill } from "./design/components.js";
 import { learnedSheet, lookSheet, styleSheet, walletSheet } from "./screens/profile.js";
-import { votePower } from "./game/economy.js";
-import { doSplit, fileDispute, fixQuest, pickCall, pickSpend, playQuest, submitProof } from "./game/questflow.js";
+import { fixQuest, pickCall, playQuest, submitProof } from "./game/questflow.js";
 import { ensureStrategies, strats } from "./game/strategies.js";
 import { sendInThread } from "./screens/comms.js";
 import { contractSheet } from "./screens/contract.js";
 import { forgeKind, forgeLaunch, forgeNext, forgeStart, forgeText } from "./screens/forge.js";
 import { drawTrail } from "./screens/missions.js";
 import { backSheet, fuelSheet, launchStrategy, proposeStrategy, sendInRoom, stageCleared, startSession } from "./screens/quests.js";
-import { challengeSheet, creditsSheet, disputeSheet, historySheet, inputSheet, kycSheet, ledgerSheet, manageSheet, notifSheet, openDM, payoutSheet, personSheet, prizeSheet, proofSheet, refereeSheet, reqSheet, reviewInfo, skillsSheet, spendSheet, squadSheet, toolsSheet, trustSheet, verifySheet } from "./screens/sheets.js";
+import { creditsSheet, historySheet, inputSheet, kycSheet, ledgerSheet, manageSheet, notifSheet, openDM, payoutSheet, personSheet, prizeSheet, proofSheet, refereeSheet, reqSheet, reviewInfo, skillsSheet, squadSheet, toolsSheet, trustSheet, verifySheet } from "./screens/sheets.js";
 import { S } from "./state.js";
 import { go, goBack, render } from "./ui/chrome.js";
 import { $, duoName, esc, findQuest, fmt, loadReturning, mission, thread, titleCard, toast, toggle } from "./ui/helpers.js";
@@ -74,7 +73,7 @@ document.addEventListener("click", e => {
     }
     case "returning": return loadReturning();
     case "ltab": S.lobbyTab = x; return render();
-    case "paint": S.botColor = x; render(); return dd && reopenDrill();
+    case "shape": S.botShape = x; render(); return dd && reopenDrill();
     case "back": return goBack(x || "lobby");
     case "duo-role": { const n = toggle(S.roles, x, 3); if (n.length) S.roles = n; render(); return reopenDrill(); }
     case "go": return go(x);
@@ -103,10 +102,7 @@ document.addEventListener("click", e => {
     case "propose": return proposeStrategy();
     case "showall": S.showAll[x] = !S.showAll[x]; return render();
     case "fuelit": return fuelSheet(x);
-    case "home": S.home = x; return render();
-    case "mapisle": S.mapPick = x; return render();
     case "newstrat": { const c = mission().sessions.find(c => c.id === S.sessionId); if (c) c.proposing = false; return launchStrategy(x); }
-    case "dosplit": return doSplit(x);
     case "session": return go("session", { sessionId: x });
     case "roomquick": return sendInRoom(x);
     case "mission-ch": return go("stage", { missionId: x });
@@ -147,21 +143,15 @@ document.addEventListener("click", e => {
     case "history": return historySheet(findQuest(x)[0]);
     case "watchq": return toast("We'll ping you when it unlocks");
     case "nudge": return toast("Nudged. The lab replies within a day");
-    case "spend": return pickSpend(x, +b.dataset.i);
     case "proof": return proofSheet(findQuest(x)[0]);
     case "attach": { const [q] = findQuest(b.dataset.q), e = q.evidence[+x]; q.proof[+x] = e.toLowerCase().replace(/[^a-z]+/g, "-") + (+x ? ".jpg" : ".pdf"); return reopenDrill(); }
     case "submitproof": return submitProof(x);
     case "fixq": return fixQuest(x);
-    case "dispute": return disputeSheet(findQuest(x)[0]);
-    case "filedispute": return fileDispute(x);
     case "reviewinfo": return reviewInfo();
     case "refinfo": return refereeSheet();
-    case "gvote": { const m = mission(); m.gv.mine = x; toast(`Voted · weight ${votePower(m)}`); return render(); }
-    case "gchallenge": return challengeSheet(mission());
-    case "flag": mission().gv.mine = "Challenged"; toast("Flagged. Referees re-check it before payouts"); return render();
+    case "gvote": { const m = mission(); m.gv.mine = x; toast("Thanks 👍"); return render(); }
     case "opengate": return stageCleared(mission());
-    case "acct": return ({ skills: skillsSheet, tools: toolsSheet, spendcap: spendSheet, credits: creditsSheet, payouts: payoutSheet, wallet: walletSheet, look: lookSheet, style: styleSheet, learned: learnedSheet })[x]();
-    case "cap": S.spendCap = +x; render(); return spendSheet();
+    case "acct": return ({ skills: skillsSheet, tools: toolsSheet, credits: creditsSheet, payouts: payoutSheet, wallet: walletSheet, look: lookSheet, style: styleSheet, learned: learnedSheet })[x]();
     case "kyc": S.kyc = true; toast("Identity verified ✓"); render(); return payoutSheet();
     case "withdraw": if (!S.kyc) return kycSheet(); toast(`$${fmt(S.coins)} on its way · 1–2 days`); S.coins = 0; return render();
     case "export": return toast(`Credits exported to ${esc(x)}`);

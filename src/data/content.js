@@ -34,7 +34,7 @@ export const ROLES = {
   patron:       { suit: "givers",     name: "Patron",       mono: "Pa", does: "Backs it with money" },
 };
 export const roleColor = k => SUITS[ROLES[k].suit].color;
-export const SIZE = { S: { label: "S · ~15 min" }, M: { label: "M · ~1 hr" }, L: { label: "L · ~1 day" } };
+export const SIZE = { S: { label: "~15 min" }, M: { label: "~1 hr" }, L: { label: "~1 day" } };
 
 export const GLYPHS = {
   helix: '<path d="M9 4c0 8 14 8 14 16s-14 8-14 8M23 4c0 8-14 8-14 16s14 8 14 8M11 10h10M11 22h10" stroke="var(--ink)" stroke-width="2.8" fill="none" stroke-linecap="round"/>',
@@ -47,15 +47,12 @@ export const GLYPHS = {
 export const BADGES = {
   spark:   { name: "Spark",        desc: "Cleared our first quest",       icon: '<path d="M10 16.5l4 4 8-9" stroke-width="3"/>', rib: ["var(--blue)", "var(--green)"] },
   sync:    { name: "Hat Trick",    desc: "Cleared 3 quests",                icon: '<circle cx="12.5" cy="16" r="5"/><circle cx="19.5" cy="16" r="5"/>', rib: ["var(--pink)", "var(--blue)"] },
-  raider:  { name: "Raider",       desc: "Cleared a daily raid",           icon: '<path d="M11 24V8M11 9h10l-2.5 3.5L21 16H11"/>', rib: ["var(--red)", "var(--gold)"] },
-  slayer:  { name: "Heavy Lifter", desc: "Cleared an L quest",         icon: '<path d="M16 7l2.6 5.4 5.9.8-4.3 4.1 1 5.8L16 20.3 10.8 23l1-5.8-4.3-4.1 5.9-.8z"/>', rib: ["var(--green-d)", "var(--gold)"] },
+  slayer:  { name: "Heavy Lifter", desc: "Cleared a day-long quest",         icon: '<path d="M16 7l2.6 5.4 5.9.8-4.3 4.1 1 5.8L16 20.3 10.8 23l1-5.8-4.3-4.1 5.9-.8z"/>', rib: ["var(--green-d)", "var(--gold)"] },
   gate:    { name: "Finisher",     desc: "Helped clear a stage",           icon: '<path d="M9 24V12a7 7 0 0 1 14 0v12M9 24h14M16 13v6"/>', rib: ["var(--violet)", "var(--green)"] },
   founder: { name: "Founder",      desc: "Launched a mission",             icon: '<path d="M16 6c4 3 5 8 3 13h-6c-2-5-1-10 3-13zM13 19l-3 4M19 19l3 4M16 12v2"/>', rib: ["var(--blue)", "var(--red)"] },
-  owl:     { name: "Night Owl",    desc: "Found in a mystery crate",       icon: '<path d="M20 9a7.5 7.5 0 1 0 3 12 6 6 0 0 1-3-12z"/>', rib: ["var(--navy)", "var(--sky)"] },
-  fire:    { name: "On Fire",      desc: "7-day streak",                   icon: '<path d="M16 6c1 4 6 6 6 11a6 6 0 0 1-12 0c0-3 2-4 3-6 1 2 2 2 3 1-1-2-1-4 0-6z"/>', rib: ["var(--red)", "var(--gold)"] },
-  squad:   { name: "Squad Up",     desc: "Signed our first contract",     icon: '<circle cx="12" cy="13" r="3"/><circle cx="20" cy="13" r="3"/><path d="M7 23c1-4 3-5 5-5s4 1 5 5M15 23c1-4 3-5 5-5s4 1 5 5"/>', rib: ["var(--pink)", "var(--green)"] },
+  squad:   { name: "Squad Up",     desc: "Joined our first squad",     icon: '<circle cx="12" cy="13" r="3"/><circle cx="20" cy="13" r="3"/><path d="M7 23c1-4 3-5 5-5s4 1 5 5M15 23c1-4 3-5 5-5s4 1 5 5"/>', rib: ["var(--pink)", "var(--green)"] },
   mind:    { name: "First Try",    desc: "Approved with no fixes needed",        icon: '<path d="M6 16s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6z"/><circle cx="16" cy="16" r="2.5"/>', rib: ["var(--violet)", "var(--gold)"] },
-  trail:   { name: "Trailblazer",  desc: "Proposed a new strategy",        icon: '<path d="M8 24l6-12 4 6 2-3 4 9z"/><circle cx="21" cy="9" r="2"/>', rib: ["var(--gold)", "var(--blue)"] },
+  trail:   { name: "Trailblazer",  desc: "Suggested a new plan",        icon: '<path d="M8 24l6-12 4 6 2-3 4 9z"/><circle cx="21" cy="9" r="2"/>', rib: ["var(--gold)", "var(--blue)"] },
 };
 export function medal(id, size = 64, force = false) {
   const b = BADGES[id], on = force || S.badges.includes(id);

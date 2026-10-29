@@ -1,12 +1,13 @@
 import { GLYPHS, Q, ROLES, SIZE, award, roleColor } from "../data/content.js";
-import { MERGE, PEOPLE } from "../data/world.js";
-import { Button, CloseButton, Stats, openSheet } from "../design/components.js";
-import { FUELS, askOf, contribute, fuelIcon, fuelNum, fuelOf, fuelUnit, mult, questFuel, stakeOf, tok, tokFor } from "../game/economy.js";
-import { backersOf, matchGain, matchOf, matches, poolOf, raisedOf, voiceGain } from "../game/matching.js";
+import { PEOPLE } from "../data/world.js";
+import { Button, CloseButton, openSheet } from "../design/components.js";
+import { FUELS, askOf, contribute, fuelIcon, fuelOf, ownPct, stakeOf } from "../game/economy.js";
+import { backersOf, matchGain, matchOf, raisedOf, voiceGain } from "../game/matching.js";
 import { hasSkill, questScore, questWhy, stratScore, stratWhy, why } from "../game/personalise.js";
 import { needsYou } from "../game/questflow.js";
-import { REL, STATUS, gateOf, leaderOf, lockedBy, playable, stratLive, stratOf, strats } from "../game/strategies.js";
-import { lastLine, msgHTML } from "./comms.js";
+import { STATUS, gateOf, shown, waitWhy, leaderOf, lockedBy, playable, stratLive, stratOf, strats } from "../game/strategies.js";
+import { msgHTML } from "./comms.js";
+import { threads } from "../state.js";
 import { S } from "../state.js";
 import { go, render } from "../ui/chrome.js";
 import { $, backBtn, bot, botAv, duoName, esc, face, findQuest, fmt, gain, glyph, learn, mission, mono, titleCard, toast, youAv } from "../ui/helpers.js";
@@ -14,8 +15,8 @@ import { $, backBtn, bot, botAv, duoName, esc, face, findQuest, fmt, gain, glyph
 // ===================== Stage → strategies → quests (rooms) =====================
 // Missions are named by what they are and what they're doing now, never by an internal step name
 const SHORT = { glio: "Glioblastoma", cad: "Open CAD", reef: "Reef Map", tutor: "AI Tutor" };
-// Every screen inside a mission says what it is and where it sits: Mission › Stage › Strategy › Quest
-export const where = (kind, crumbs = []) => `<div class="where"><span class="kind kind-${kind}">${kind}</span>${crumbs.length ? `<span class="crumbs ellip">${crumbs.map(esc).join(" › ")}</span>` : ""}</div>`;
+// Every screen inside a mission says what it is and where it sits: Mission › Stage › Plan › Quest
+export const where = (kind, crumbs = []) => `<div class="where"><span class="kind kind-${kind === "plan" ? "strategy" : kind}">${kind}</span>${crumbs.length ? `<span class="crumbs ellip">${crumbs.map(esc).join(" › ")}</span>` : ""}</div>`;
 export const chName = m => SHORT[m.id] || m.title;
 export const stageLine = m => `Stage ${m.current + 1} of ${m.stages.length} · ${m.stages[m.current].goal}`;
 export const short = t => t.length > 26 ? t.slice(0, 24) + "…" : t;
@@ -54,18 +55,18 @@ export function briefDoc(q, m) {
   const s = stratOf(q), b = BRIEF[q.id] || {}, st = m.stages[m.current];
   const parent = q.parent && m.quests.find(x => x.id === q.parent);
   const crew = crewOf(q).filter(x => !x.bot);
-  const done = b.done || [`Ship: ${q.out || "the result"}`, "A Critic approves it"];
+  const done = b.done || [`Ship: ${q.out || "the result"}`, "2 players check it"];
   const notes = [...(q.notes || []), ...(q.picked ? [`${q.call.q} → ${q.picked}`] : [])];
   return `<article class="card doc">
     <div class="crumbs">${parent ? `Part of ${esc(short(parent.title))}` : esc(s.name)}</div>
     <h1 class="doc-title">${esc(q.title)}</h1>
-    <div class="loot"><span><b>+${q.xp}</b>XP</span><span><b>$${q.coins}</b>bounty</span><span><b>+${fmt(tokFor(m, questFuel(q)))}</b>${tok(m)}</span>${q.gain ? `<span><b>+${q.gain}</b>${q.gain === 1 ? m.unit.replace(/s$/, "") : m.unit}</span>` : ""}</div>
-    <div class="small muted">Pays when 2 Critics approve · released when the stage is cleared</div>
+    <div class="loot"><span><b>+${q.xp}</b>XP</span><span><b>$${q.coins}</b>bounty</span>${q.gain ? `<span><b>+${q.gain}</b>${q.gain === 1 ? m.unit.replace(/s$/, "") : m.unit}</span>` : ""}</div>
+    <div class="small muted">Pays when 2 players check it and the stage is cleared</div>
     <div class="row wrap small" style="gap:6px"><span class="rtag" style="background:${roleColor(q.role)}">${ROLES[q.role].name}</span><span class="size">${SIZE[q.size].label}</span><span class="muted">${isMulti(q) ? "Squad" : "Solo"} · <button class="info" data-a="history" data-x="${q.id}">edited by ${esc(q.editedBy || s.lead)}</button></span></div>
     ${q.mine && !q.done ? `<div class="small"><b>Claimed by you</b> · 3 days to finish, then it reopens</div>` : q.claimed ? `<div class="small"><b>Claimed by ${esc(q.claimed[0])}</b> · ${q.claimed[1]} left</div>` : ""}
     <h3>Needs</h3>${needsLine(q)}
     <h3>The task</h3><p>${esc(b.task || q.title + ".")}</p>
-    <h3>Why it matters</h3><p>${esc(s.bet)} ${q.gain ? `Counts toward the goal: “${esc(st.goal)}”.` : `Unblocks the rest of the strategy.`}</p>
+    <h3>Why it matters</h3><p>${esc(s.bet)} ${q.gain ? `Counts toward the goal: “${esc(st.goal)}”.` : `Unblocks the rest of the plan.`}</p>
     <h3>Done when</h3><ul class="checks">${done.map(d => `<li class="${q.done ? "on" : ""}">${esc(d)}</li>`).join("")}</ul>
     ${b.inputs ? `<h3>Inputs</h3>${b.inputs.map(f => `<button class="filechip" data-a="input" data-x="${esc(f)}" style="width:100%;text-align:left">${FILE_ICON}<span style="flex:1">${esc(f)}</span><span class="muted">›</span></button>`).join("")}` : ""}
     ${q.out ? `<h3>Ships</h3><div class="filechip">${FILE_ICON}${esc(q.out)}</div>` : ""}
@@ -142,9 +143,8 @@ export function seedRoom(q) {
   if (!q.feed) {
     const [, m] = findQuest(q.id);
     const adds = q.gain ? ` · Adds ${q.gain} ${q.gain === 1 ? m.unit.replace(/s$/, "") : m.unit}` : "";
-    q.feed = [{ sys: `${SIZE[q.size].label.replace(/^\w · /, "")} · $${q.coins}${adds}` }];
+    q.feed = [{ sys: `${SIZE[q.size].label} · $${q.coins}${adds}` }];
     q.feed.push(...(CREW[q.id] || []).map(x => ({ ...x })));
-    if (q.size !== "S" && !q.parent && !q.done && !q.parts) q.feed.push({ agent: true, text: "This one's big. Want me to split it into parts anyone can pick up?", split: q.id });
   }
   return q.feed;
 }
@@ -158,7 +158,6 @@ export function questStatus(q) {
   if (q.done) return `<span class="qstat done">✓ Cleared</span>`;
   if (q.parts) { const [, m] = findQuest(q.id); const d = q.parts.filter(id => m.quests.find(x => x.id === id).done).length; return `<span class="qstat">${d}/${q.parts.length} parts</span>`; }
   if (needsYou(q)) return `<span class="qstat call">${{ call: "Your call", spend: "Approve $", proof: "Add proof", changes: "Fix needed" }[q.state]}</span>`;
-  if (q.state === "dispute") return `<span class="qstat review">Disputed</span>`;
   if (q.state === "work") return `<span class="qstat live">Working</span>`;
   if (q.state === "review") return `<span class="qstat review">In review</span>`;
   if (q.state) return `<span class="qstat live">Playing</span>`;
@@ -178,50 +177,23 @@ export function questItem(q, m) {
   const row = (x, cls = "") => `<button class="card qitem ${cls} ${x.done ? "done" : ""}" ${x.parts ? "disabled" : `data-a="quest" data-x="${x.id}"`}>
       ${mono(x.role, 36)}
       <span style="min-width:0"><b class="qt">${esc(x.title)}</b>
-        <span class="small muted" style="display:block">${x.parts ? `Split into ${parts.length} parts` : `${x.human ? "✋ · " : ""}${SIZE[x.size].label} · +${x.xp} XP${x.gain ? ` · <b style="color:var(--navy)">+${x.gain} ${x.gain === 1 ? m.unit.replace(/s$/, "") : m.unit}</b>` : ""}`}${S.roles.includes(x.role) && !x.done && !x.parts ? ` · <b style="color:var(--green-d)">2×</b>` : ""}</span></span>
+        <span class="small muted" style="display:block">${x.parts ? `Split into ${parts.length} parts` : `${x.human ? "✋ · " : ""}${SIZE[x.size].label} · $${x.coins}${x.gain ? ` · <b style="color:var(--navy)">+${x.gain} ${x.gain === 1 ? m.unit.replace(/s$/, "") : m.unit}</b>` : ""}`}${S.roles.includes(x.role) && !x.done && !x.parts ? ` · <b style="color:var(--green-d)">2×</b>` : ""}</span></span>
       ${questStatus(x)}${!x.done && !x.parts && cls !== "part" ? `<span class="why-row">${why(questWhy(x, m))}</span>` : ""}</button>`;
   return q.parts ? `<div class="qtree">${row(q, "parent")}<div class="parts">${parts.map(p => row(p, "part")).join("")}</div></div>` : row(q);
 }
-// Strategy tags: status first, then leading / backed, then values
+// Plan tags: Waiting with its reason, or Leading, plus whether you back it
 const stratTags = (m, s) => {
   const lead = leaderOf(m);
   return [
     s.status ? `<span class="chip" style="background:var(--cream)">${STATUS[s.status](s)}</span>` : "",
     !s.status && s === lead && s.score ? `<span class="chip" style="background:var(--navy);color:var(--white)">Leading</span>` : "",
-    stakeOf(s) ? `<span class="chip" style="background:var(--gold)">Backed</span>` : "",
-    ...(s.tags || []).map(t => `<span class="chip vtag ${(S.values || []).includes(t) ? "mine" : ""}">${esc(t)}</span>`),
+    stakeOf(s) ? `<span class="chip" style="background:var(--gold)">You back it</span>` : "",
   ].join("");
 };
-// How a thesis connects to the others: feeds, needs, competes
-export const relLine = (m, s) => (s.rel || []).map(([t, id, note]) => {
-  const o = strats(m).find(x => x.id === id);
-  return o ? `<span class="rel ${t}"><b>${REL[t]}</b> ${esc(o.name)}${note ? ` · ${esc(note)}` : ""}</span>` : "";
-}).join("");
-// Matching round: the treasury's pool is shared by quadratic matching. Back a thesis to move it.
-export function matchingRound(m) {
-  const P = poolOf(m), mt = matches(m);
-  const list = [...strats(m)].filter(s => s.status !== "merged").sort((a, b) => (mt[b.id] || 0) - (mt[a.id] || 0));
-  return `<div class="card fround">
-    <div class="fhead"><b class="display" style="font-size:17px;color:var(--navy)">Bonus round</b><span class="small"><b>$${fmt(P)}</b> to share</span><span class="spacer"></span><span class="chip" style="background:var(--red);color:var(--white)">Ends in 2d</span></div>
-    <p class="small">The mission adds <b>$${fmt(P)}</b> on top of what backers give. It's split by <b>how many people</b> back each strategy, so 10 people giving $5 beats one person giving $50.</p>
-    ${list.map(s => `<button class="mrow" data-a="backsheet" data-x="${s.id}"><span class="vdot" style="background:${s.color}"></span><span class="vname">${esc(s.name)}<span class="small muted" style="display:block;font-weight:600">${backersOf(s)} backers</span></span><span class="meter"><i style="width:${(mt[s.id] || 0) / P * 100}%;background:${s.color}"></i></span><span class="vpct">+$${fmt(mt[s.id] || 0)}</span></button>`).join("")}
-    <div class="small muted">Tap a strategy to back it and grow its bonus</div>
-  </div>`;
-}
-// The game nudges squads to team up when a fundraise stalls; it never forces it
-function mergeNudge(m) {
-  const g = MERGE[m.id];
-  if (!g || S.mergeSeen?.[m.id]) return "";
-  const a = strats(m).find(s => s.id === g.from), b = strats(m).find(s => s.id === g.to);
-  if (!a || !b || a.status === "merged") return "";
-  return `<div class="card nudge">${botAv()}<span style="min-width:0;flex:1"><b>Team up?</b><span class="small" style="display:block">${esc(a.squad)} ${esc(g.why)}. ${esc(g.gain)} with ${esc(b.squad)}.</span>
-    <span class="row" style="gap:8px;margin-top:8px">${Button("Suggest it", { variant: "blue", size: "sm", action: "merge", value: m.id })}${Button("Not now", { size: "sm", action: "mergeno", value: m.id })}</span></span></div>`;
-}
 export function stageScreen() {
   const m = mission();
   m.unread = 0;
-  m.sessions = m.sessions || [];
-  const g = gateOf(m), mt = matches(m);
+  const g = gateOf(m), live = shown(m);
   const card = s => {
     const open = m.quests.filter(q => q.strat === s.id && playable(q)).length;
     const reason = stratWhy(s, m).filter(([, t]) => !/backed|leading/i.test(t));
@@ -231,8 +203,7 @@ export function stageScreen() {
         <span class="small muted" style="display:block">${esc(s.squad)} · led by ${esc(s.lead)}</span>
         <span class="row wrap" style="gap:6px;margin-top:6px">${stratTags(m, s)}${why(reason)}</span>
         <span class="sbet">${esc(s.bet)}</span>
-        ${relLine(m, s) ? `<span class="rels">${relLine(m, s)}</span>` : ""}
-        <span class="money"><b>$${fmt(raisedOf(s))}</b> from <b>${backersOf(s)}</b> backers · <b class="match">+$${fmt(mt[s.id] || 0)}</b> bonus</span>
+        <span class="money"><b>$${fmt(raisedOf(s) + matchOf(m, s))}</b> from <b>${backersOf(s)}</b> backers</span>
         <span class="small muted">+${s.score} ${s.score === 1 ? m.unit.replace(/s$/, "") : m.unit} · ${open} quests open</span></span>
     </button>`;
   };
@@ -244,65 +215,49 @@ export function stageScreen() {
         <div class="eyebrow">Stage ${m.current + 1} goal</div>
         <div class="mgoal">${esc(m.stages[m.current].goal)}</div>
         ${gateBar(m)}
-        <div class="row small"><b>${g.have}/${g.need} ${g.unit}</b><span class="spacer"></span><span class="muted">${strats(m).length} strategies racing</span></div>
+        <div class="row small"><b>${g.have}/${g.need} ${g.unit}</b><span class="spacer"></span><span class="muted">${live.length} plans racing</span></div>
       </div>
-      ${strats(m).some(s => s.status === "proposed") ? `<div class="card banner"><span class="display" style="font-size:22px">✎</span><span class="small"><b>Planning window · 2d left.</b> Back a proposed strategy to launch it, or propose your own.</span></div>` : ""}
-      ${mergeNudge(m)}
       ${(() => {
-        const all = [...strats(m)].sort((a, b) => stratScore(b, m) - stratScore(a, m));
-        const picks = all.filter(x => stratScore(x, m) > 0).slice(0, 2);
-        const top = [...(picks.length ? picks : all.slice(0, 2)), ...all.filter(x => x.status === "proposed" && !picks.includes(x))].filter((x, i, a) => a.indexOf(x) === i);
-        const rest = all.filter(x => !top.includes(x)), more = fuelOf(m).more[0];
-        const open = S.showAll["s-" + m.id];
-        return `<div class="row"><div class="eyebrow">Pick a strategy to play</div><span class="spacer"></span><button class="btn sm" data-a="propose">+ Propose one</button></div>
-          <div class="list">${top.map(card).join("")}</div>
-          ${rest.length ? `<button class="seeall" data-a="showall" data-x="s-${m.id}">${open ? "Hide" : "See all"} ${all.length + more} strategies</button>` : ""}
-          ${open ? `<div class="list">${rest.map(card).join("")}</div><div class="small muted" style="text-align:center">+ ${more} smaller strategies</div>` : ""}`;
+        const all = [...live].sort((a, b) => stratScore(b, m) - stratScore(a, m));
+        return `<div class="row"><div class="eyebrow">Pick a plan to play</div><span class="spacer"></span><button class="btn sm" data-a="propose">+ Suggest one</button></div>
+          <div class="list">${all.map(card).join("")}</div>`;
       })()}
-      ${matchingRound(m)}
-      ${m.sessions.length ? `<div class="eyebrow">Chats</div><div class="list">${m.sessions.map(c => `
-        <button class="card thread-row" data-a="session" data-x="${c.id}">${botAv("av")}<span style="min-width:0"><span class="t" style="display:block">${esc(c.title)}</span><span class="last" style="display:block">${esc(lastLine(c.msgs))}</span></span><span class="small muted">chat</span></button>`).join("")}</div>` : ""}
     </div>
     <form class="composer" id="stageBar"><input id="stagesay" placeholder="Ask ${esc(S.agentName)} about this stage…" autocomplete="off"><button class="btn sm red" type="submit">Ask</button></form>
   </div>`;
 }
-// A strategy is a thesis: the claim, what it asks for, when, and how it relates to the others
+// A plan is one squad's idea for winning the stage: what it is, who runs it, what money it needs
 export function strategyScreen() {
   const m = mission(), s = strats(m).find(x => x.id === S.stratId);
   const qs = m.quests.filter(q => q.strat === s.id && !q.parent);
-  const a = askOf(s), mt = matchOf(m, s), have = raisedOf(s) + mt, paid = Math.round(mt * .3), share = Math.min(1, have / a.money);
-  const backLabel = s.status === "proposed" ? `Back it to launch · ${s.backers}/${s.need}` : stakeOf(s) ? `✓ Backed $${fmt(stakeOf(s))} · add more` : "Back this strategy";
-  const status = s.status === "review" ? `Waiting for ${m.creator}'s OK · usually under a day` : s.status === "proposed" ? `Starts once ${s.need} people back it` : s.status === "queued" ? (relLine(m, s) ? "Queued: starts after the strategy it needs" : "Queued") : "Running now";
-  const need = (k, label, total, got) => `<div class="need"><span class="fi" style="background:${FUELS[k].color}">${fuelIcon(k, 14)}</span><span class="need-t">${label}</span><span class="meter"><i style="width:${Math.min(100, got / total * 100)}%;background:${FUELS[k].color}"></i></span><b>${fuelNum(k, got)} of ${fuelNum(k, total)}${fuelUnit(k)}</b></div>`;
+  const a = askOf(s), mt = matchOf(m, s), have = raisedOf(s) + mt;
+  const backLabel = s.status === "proposed" ? `Back it to start · ${s.backers}/${s.need}` : stakeOf(s) ? `✓ You back it · add more` : "Back this plan";
+  const status = s.status ? waitWhy(s) : "Racing now";
   const ranked = [...qs].sort((x, y) => (y.done ? -9 : questScore(y, m)) - (x.done ? -9 : questScore(x, m)));
   return `<div class="chat">
     <div class="chat-head">${backBtn("back", "stage", "Back")}${stratBadge(s)}
-      <div style="min-width:0;flex:1">${where("strategy", [chName(m), `Stage ${m.current + 1}`])}<div class="room-title">${esc(s.name)}</div></div></div>
+      <div style="min-width:0;flex:1">${where("plan", [chName(m), `Stage ${m.current + 1}`])}<div class="room-title">${esc(s.name)}</div></div></div>
     <div class="stage-list">
       <div class="card milestone thesis">
         <div class="eyebrow">The plan</div>
         <p class="claim">${esc(s.bet)}</p>
-        <div class="row wrap" style="gap:6px">${stratTags(m, s)}</div>
-        ${relLine(m, s) ? `<div class="rels">${relLine(m, s)}</div>` : ""}
-        <div class="kvrow"><span>Status</span><b>${esc(status)}</b></div>
+        <div class="kvrow"><span>${s.status ? "Waiting" : "Status"}</span><b>${esc(status)}</b></div>
         <div class="kvrow"><span>Squad</span><b>${esc(s.squad)} · led by ${PEOPLE[s.lead] ? `<button class="info" data-a="person" data-x="${esc(s.lead)}">${esc(s.lead)}</button>` : esc(s.lead)}</b></div>
         <div class="kvrow"><span>Counts toward</span><b>${esc(m.stages[m.current].goal)}${s.score ? ` · +${s.score} so far` : ""}</b></div>
       </div>
       <div class="card milestone">
-        <div class="eyebrow">What it needs to run</div>
-        ${need("money", "Money", a.money, Math.min(a.money, have))}
-        ${need("time", "People's time", a.time, Math.round(a.time * share))}
-        ${need("compute", "Computing", a.compute, Math.round(a.compute * share))}
-        <p class="small muted">${backersOf(s)} backers put in $${fmt(raisedOf(s))}${mt ? `, plus a $${fmt(mt)} bonus from the mission` : ""}. ${mt ? `$${fmt(paid)} is paid out so far; the rest unlocks as the plan hits checkpoints.` : ""}</p>
+        <div class="eyebrow">Money it needs</div>
+        <div class="mgoal">$${fmt(Math.min(a.money, have))} of $${fmt(a.money)}</div>
+        <div class="meter"><i style="width:${Math.min(100, have / a.money * 100)}%;background:var(--gold)"></i></div>
+        <p class="small muted">${backersOf(s)} ${backersOf(s) === 1 ? "backer" : "backers"} put in $${fmt(raisedOf(s))}.${mt ? ` The mission adds $${fmt(mt)} more because so many people back it.` : ""}</p>
         ${s.status === "review" ? "" : Button(backLabel, { variant: stakeOf(s) ? "gold" : "red", block: true, action: "backsheet", value: s.id })}
-        ${stakeOf(s) ? `<div class="small muted" style="text-align:center;margin-top:-2px">You hold a $${fmt(stakeOf(s))} stake in ${esc(s.squad)}</div>` : ""}
       </div>
-      ${qs.length ? `<div class="eyebrow">Quests in this strategy · ${qs.length}</div><div class="list">${ranked.map(q => questItem(q, m)).join("")}</div>` : ""}
+      ${qs.length ? `<div class="eyebrow">Quests in this plan · ${qs.length}</div><div class="list">${ranked.map(q => questItem(q, m)).join("")}</div>` : ""}
     </div>
-    <form class="composer" id="stratBar"><input id="stratsay" placeholder="Ask ${esc(S.agentName)} about this strategy…" autocomplete="off"><button class="btn sm red" type="submit">Ask</button></form>
+    <form class="composer" id="stratBar"><input id="stratsay" placeholder="Ask ${esc(S.agentName)} about this plan…" autocomplete="off"><button class="btn sm red" type="submit">Ask</button></form>
   </div>`;
 }
-// Back a thesis with money or your voice. The live match estimate teaches the rule.
+// Back a plan with money or for free. The live estimate shows what your money brings.
 export function backSheet(sid) {
   const m = mission(), s = strats(m).find(x => x.id === sid);
   let amt = 10;
@@ -312,21 +267,20 @@ export function backSheet(sid) {
     return `<div class="grab"></div>
     <div class="row">${stratBadge(s, 36)}<div style="flex:1;min-width:0"><h2 class="display" style="font-size:20px;color:var(--navy)">Back ${esc(s.name)}</h2><div class="small muted ellip">${esc(s.squad)} · ${backersOf(s)} backers</div></div>${CloseButton()}</div>
     <div class="amounts">${amounts.map(a => `<button data-b="amt" data-v="${a}" aria-pressed="${amt === a}">$${a}</button>`).join("")}</div>
-    <div class="estimate">${amt ? `<span>You give $${amt}</span><b>${esc(s.squad)} gets ${extra > 0 ? `about $${fmt(amt + extra)}` : `$${amt}`}</b>` : `<span>You give $0</span><b>Its bonus grows ${extra > 0 ? `about $${fmt(extra)}` : "a little"}</b>`}</div>
-    <div class="small muted">${amt ? `${extra > 0 ? `The mission's bonus adds $${fmt(extra)} because one more person backs it.` : "Its bonus is already at the cap, so it gets exactly your amount."} You get a stake in ${esc(s.squad)}: a share of what it builds.` : "Free backers count toward the bonus once you've played a quest. No stake, but you get credit if it ships."}</div>
+    <div class="estimate">${amt ? `<span>Your $${amt}</span><b>${extra > 0 ? `brings the squad about $${fmt(amt + extra)}` : `goes straight to the squad`}</b>` : `<span>Free</span><b>More backers means more money for the squad</b>`}</div>
     ${Button(amt ? `Back with $${amt}` : "Back it for free", { variant: "red", block: true, "data-b": "go" })}
     ${amt ? `<button class="linkbtn" data-b="amt" data-v="0" style="align-self:center">No money? <b>Back it for free</b></button>` : `<button class="linkbtn" data-b="amt" data-v="10" style="align-self:center">Back it with money instead</button>`}`;
   }, onClick: (e, close, draw) => {
     const b = e.target.closest("[data-b]");
     if (!b) return;
     if (b.dataset.b === "amt") { amt = +b.dataset.v; return draw(); }
-    const before = matchOf(m, s), first = !stakeOf(s) && amt;
-    if (amt) { S.stakes[s.id] = stakeOf(s) + amt; S.coins = Math.max(0, S.coins - amt); S.backed = { ...(S.backed || {}), [m.id]: s.id }; }
+    const first = !stakeOf(s) && amt;
+    if (amt) { S.stakes[s.id] = stakeOf(s) + amt; S.coins = Math.max(0, S.coins - amt); S.backed = { ...(S.backed || {}), [m.id]: s.id }; contribute(m, { money: amt }); }
     else s.voices = (s.voices || 0) + 1;
     if (first || (!amt && s.status === "proposed")) s.backers++;
     close();
-    if (s.status === "proposed" && s.backers >= s.need) { s.status = null; titleCard("Your backing tipped it", "LAUNCHED!", esc(s.name), null, 1300); }
-    else toast(`${amt ? `Backed $${amt}` : "Backed for free"} · bonus <b>+$${fmt(Math.max(0, matchOf(m, s) - before))}</b>`);
+    if (s.status === "proposed" && s.backers >= s.need) { s.status = null; titleCard("Your backing tipped it", "IT'S ON!", esc(s.name), null, 1300); }
+    else toast(`${amt ? `Backed ${esc(s.name)} with $${amt}` : `Backed ${esc(s.name)} for free`} ✓`);
     render();
   } });
 }
@@ -338,8 +292,8 @@ export function roomScreen() {
     return `<div class="chat">
       <div class="chat-head">${backBtn("back", "stage", "Back")}${botAv("av big")}<div style="min-width:0"><div class="display chan-name">${esc(c.title)}</div><div class="small muted">${esc(chName(m))} · chat</div></div></div>
       <div class="msgs" id="msgs">${c.msgs.map(msgHTML).join("")}</div>
-      ${quickBar([`@${S.agentName} what's next?`, `@${S.agentName} sum up`, "Need a Critic"])}
-      <form class="composer" id="roomComposer"><input id="roomsay" placeholder="${c.proposing ? "Or type your own strategy…" : "Message"}" autocomplete="off"><button class="btn sm red" type="submit">Send</button></form>
+      ${quickBar([`@${S.agentName} what's next?`, `@${S.agentName} sum up`, "Can someone check this?"])}
+      <form class="composer" id="roomComposer"><input id="roomsay" placeholder="${c.proposing ? "Or type your own plan…" : "Message"}" autocomplete="off"><button class="btn sm red" type="submit">Send</button></form>
     </div>`;
   }
   const [q] = findQuest(S.questId);
@@ -358,7 +312,7 @@ export function roomScreen() {
     </div>
     ${tab === "brief" ? `<div class="stage-list">${briefDoc(q, m)}</div>` : `<div class="msgs" id="msgs">${q.feed.map(msgHTML).join("")}</div>`}
     ${actions}
-    ${tab === "chat" ? `${q.state || q.done ? quickBar([`@${S.agentName} sum up`, "Nice work all", "Need a Critic"]) : ""}
+    ${tab === "chat" ? `${q.state || q.done ? quickBar([`@${S.agentName} sum up`, "Nice work all", "Can someone check this?"]) : ""}
     <form class="composer" id="roomComposer"><input id="roomsay" placeholder="${multi ? "Message the squad…" : "Message " + esc(S.agentName) + "…"}" autocomplete="off"><button class="btn sm red" type="submit">Send</button></form>` : ""}
   </div>`;
 }
@@ -366,7 +320,7 @@ export function roomScreen() {
 function blockBar(q) {
   const dep = lockedBy(q), s = stratOf(q);
   const bar = (txt, btn) => `<div class="room-bar note"><span class="small">${txt}</span>${btn}</div>`;
-  if (s && s.status) return bar(s.status === "review" ? "Strategy is waiting for the creator's OK" : s.status === "queued" ? `Strategy is queued · ${esc(s.when || "later")}` : `Strategy needs ${s.need - s.backers} more backers to launch`, Button("View", { size: "sm", action: "strategy", value: s.id }));
+  if (s && s.status) return bar(`Plan is waiting · ${esc(waitWhy(s))}`, Button("View", { size: "sm", action: "strategy", value: s.id }));
   if (dep) return bar(`🔒 Unlocks when <b>${esc(short(dep.title))}</b> clears`, Button("Notify me", { size: "sm", action: "watchq" }));
   if (q.claimed) return bar(`Claimed by <button class="info" data-a="person" data-x="${esc(q.claimed[0])}">${esc(q.claimed[0])}</button> · ${q.claimed[1]} left, then it reopens`, Button("Ask to pair", { size: "sm", action: "pair", value: esc(q.claimed[0]) }));
   if (q.blocked) return bar(`⏳ Waiting on ${esc(q.blocked)}`, Button("Nudge", { size: "sm", action: "nudge" }));
@@ -399,15 +353,15 @@ export const IDEAS = {
   reef: ["Drones over shallow reefs", "Partner with dive schools"],
   tutor: ["Parents photograph textbooks", "Partner with education ministries"],
 };
+// Suggesting a plan and asking about a stage both happen in the one chat with your agent
+const pipThread = () => threads.find(x => x.id === "partner");
 export function proposeStrategy() {
   const m = mission();
   m.sessions = m.sessions || [];
-  const c = { id: "s" + Date.now(), title: "New strategy", proposing: true, msgs: [
-    { me: true, text: `@${S.agentName} I want to try another way to hit this stage` },
-    { agent: true, text: `Goal: ${m.stages[m.current].goal}. A few angles nobody's racing yet:`, ideas: IDEAS[m.id] || ["A smaller first step", "Partner with experts", "Crowdsource it"] },
-  ] };
-  m.sessions.unshift(c);
-  go("session", { sessionId: c.id });
+  const t = pipThread();
+  t.msgs.push({ me: true, text: `I want to try another way to win stage ${m.current + 1} of ${chName(m)}` },
+    { agent: true, text: `Goal: ${m.stages[m.current].goal}. A few ideas nobody's trying yet. Tap one to start it as a plan:`, ideas: IDEAS[m.id] || ["A smaller first step", "Partner with experts", "Crowdsource it"] });
+  go("thread", { thread: "partner" });
 }
 export function launchStrategy(name) {
   const m = mission();
@@ -417,11 +371,11 @@ export function launchStrategy(name) {
   m.quests.push(
     Q(id + "a", `Write the brief: ${short(name)}`, "strategist", "S", 160, 15, ["outlining the bet…", "risks listed", "brief posted ✓"], { q: "What's the first thing to test?", opts: ["Cheapest test", "Fastest test"] }, { strat: id, gain: 0, out: "strategy-brief.md" }),
     Q(id + "b", `Run a small test of the idea`, "implementer", "M", 300, 30, ["setting up the test…", "first results in", "results posted ✓"], { q: "Results are mixed. Keep going?", opts: ["Double down", "Tweak and re-run"] }, { strat: id, gain: 1, out: "test-results.csv" }),
-    Q(id + "c", `Recruit 2 players to the strategy`, "connector", "S", 150, 10, ["posting to the channel…", "4 interested", "2 joined ✓"], { q: "Who do we take?", opts: ["Specialists", "Fast movers"] }, { strat: id, gain: 0, out: "2 players joined" }),
+    Q(id + "c", `Recruit 2 players to the plan`, "connector", "S", 150, 10, ["posting to the channel…", "4 interested", "2 joined ✓"], { q: "Who do we take?", opts: ["Specialists", "Fast movers"] }, { strat: id, gain: 0, out: "2 players joined" }),
   );
   S.backed = { ...(S.backed || {}), [m.id]: id };
   award("trail");
-  titleCard("New strategy", "IT'S A RACE!", esc(name), () => go("strategy", { stratId: id }), 1500);
+  titleCard("New plan", "IT'S A RACE!", esc(name), () => go("strategy", { stratId: id }), 1500);
 }
 // What your agent says inside a mission (quest rooms and chats)
 export function stageAgentReply(m, text) {
@@ -442,13 +396,11 @@ export function stageAgentReply(m, text) {
   learn(`You said: “${text.replace(/@\S+\s*/, "")}”`);
   return { agent: true, text: "Got it. I'll do it your way." };
 }
-export function startSession(text, title) {
-  const m = mission();
-  m.sessions = m.sessions || [];
-  const c = { id: "s" + Date.now(), title: title || text.replace(/@\S+\s*/, "").slice(0, 36) || "New chat", msgs: [{ me: true, text }, { typing: true }] };
-  m.sessions.unshift(c);
-  go("session", { sessionId: c.id });
-  setTimeout(() => { c.msgs = c.msgs.filter(x => !x.typing); c.msgs.push(stageAgentReply(m, text)); if (S.screen === "session") render(); }, 800);
+export function startSession(text) {
+  const m = mission(), t = pipThread();
+  t.msgs.push({ me: true, text }, { typing: true });
+  go("thread", { thread: "partner" });
+  setTimeout(() => { t.msgs = t.msgs.filter(x => !x.typing); t.msgs.push(stageAgentReply(m, text)); if (S.screen === "thread") render(); }, 800);
 }
 export function sendInRoom(text) {
   const m = mission();
@@ -484,28 +436,21 @@ export function stageCleared(m) {
     <p class="small" style="font-weight:600;margin-top:-6px">Every approved quest paid, win or lose</p>
     <div class="rewards">
       <div class="reward" style="background:${FUELS.money.color}">${fuelIcon("money", 22)}<b>+$${fmt(released + bonus)}</b><span>paid to you</span></div>
-      <div class="reward" style="background:${FUELS.time.color}">${fuelIcon("time", 22)}<b>${S.wallet.timeCredits}h</b><span>time credits</span></div>
-      <div class="reward" style="background:${FUELS.know.color}">${fuelIcon("know", 22)}<b>${S.wallet.insights}</b><span>insights · rep</span></div>
-      <div class="reward" style="background:var(--white)">${fuelIcon("compute", 22).replace(FUELS.compute.icon, '<path d="M4 18l5-6 4 3 7-9"/><path d="M15 6h5v5"/>')}<b>${fmt(S.wallet.shares[m.id] || 0)}</b><span>${tok(m)} held</span></div>
+      ${ownPct(m) ? `<div class="reward" style="background:var(--white)">${fuelIcon("compute", 22).replace(FUELS.compute.icon, '<path d="M4 18l5-6 4 3 7-9"/><path d="M15 6h5v5"/>')}<b>${ownPct(m).toFixed(2)}%</b><span>of ${esc(chName(m))} is yours</span></div>` : ""}
     </div>
-    <div class="row wrap" style="justify-content:center">${called ? `<span class="chip" style="font-size:14px;padding:6px 12px;background:var(--gold)">Called it! +$100</span>` : ""}<button class="chip crate" data-crate style="font-size:14px;padding:6px 12px">? Open crate</button></div>
+    ${called ? `<div class="row wrap" style="justify-content:center"><span class="chip" style="font-size:14px;padding:6px 12px;background:var(--gold)">Called it! +$100</span></div>` : ""}
     <button class="btn gold" data-a="onward">${nextStage ? `On to ${esc(nextStage.name)}` : "Mission won!"}</button>`;
   $("#app").appendChild(el);
   award("gate");
   gain(0, released + bonus + (called ? 100 : 0));
-  el.querySelector("[data-crate]").addEventListener("click", e => {
-    const loot = [["+$40", () => { S.coins += 40; }], ["Night Owl badge", () => award("owl")], ["+100 XP", () => gain(100)]][Math.floor(Math.random() * 3)];
-    loot[1](); renderHud();
-    e.currentTarget.outerHTML = `<span class="chip" style="font-size:14px;padding:6px 12px;background:var(--gold)">${loot[0]}</span>`;
-  }, { once: true });
   el.querySelector("[data-a=onward]").addEventListener("click", () => {
     if (nextStage) m.current++;
     const goal = nextStage ? nextStage.goal : "Celebrate";
     const p = m.id + Date.now();
     m.target = 6; m.unit = "results";
     m.strategies = [
-      { id: p + "A", name: "Proven path", squad: "Veterans", lead: "Rosa", color: "var(--green)", score: 0, backers: 40, raised: 900, tags: ["Fast track"], bet: "Do what worked last stage, faster." },
-      { id: p + "B", name: "Bold bet", squad: "Moonshots", lead: "Kenji", color: "var(--blue)", score: 0, backers: 25, need: 26, status: "proposed", raised: 400, tags: ["Open science"], rel: [["competes", p + "A"]], bet: "Try the risky idea everyone kept talking about." },
+      { id: p + "A", name: "Proven path", squad: "Veterans", lead: "Rosa", color: "var(--green)", score: 0, backers: 40, raised: 900, bet: "Do what worked last stage, faster." },
+      { id: p + "B", name: "Bold bet", squad: "Moonshots", lead: "Kenji", color: "var(--blue)", score: 0, backers: 25, need: 26, status: "proposed", raised: 400, bet: "Try the risky idea everyone kept talking about." },
     ];
     m.quests = [
       Q(p + "a", `Gather everything known about “${goal}”`, "explorer", "S", 180, 15, ["searching 18k sources…", "brief drafted", "brief posted ✓"], { q: "Where should we dig first?", opts: ["Recent papers", "What other squads tried", "Talk to practitioners"] }, { strat: p + "A", gain: 1, out: "research-brief.md" }),
@@ -517,27 +462,13 @@ export function stageCleared(m) {
     m.gv = null;
     if (S.backed) S.backed[m.id] = null;
     el.remove();
-    titleCard(`Stage ${m.current + 1}`, esc(m.stages[m.current].name), "Planning window: back a strategy", () => go("stage", { missionId: m.id }));
+    titleCard(`Stage ${m.current + 1}`, esc(m.stages[m.current].name), "Pick a plan to back", () => go("stage", { missionId: m.id }));
   });
 }
 
-// Add fuel to a mission any time; it mints shares at today's multiplier
+// The one way to put money in: back a plan. Opens your plan if you have one, otherwise the list of plans.
 export function fuelSheet(mid) {
-  const m = mission(mid);
-  const opts = [["money", 100, "Back with $100", "from your wallet"], ["time", 5, "+5h this week", "pledge to play quests"], ["compute", 50, "+50 GPU-h", `${S.agentName} works overnight`], ["know", 1, "+1 insight", "share what you know in the brief"]];
-  openSheet({ label: "Back this mission", render: () => `
-    <div class="grab"></div>
-    <div class="row"><h2 class="display" style="font-size:22px;color:var(--navy)">Back ${esc(short(m.title))}</h2><span class="spacer"></span>${CloseButton()}</div>
-    <div class="small muted">Early backers get ×${mult(m)} ${tok(m)}</div>
-    <div class="list">${opts.map(([k, v, l, d]) => `<button class="card fuelopt" data-f="${k}" data-v="${v}"><span class="fi" style="background:${FUELS[k].color}">${fuelIcon(k, 18)}</span><span style="text-align:left"><b>${l}</b><span class="small muted" style="display:block">${d}</span></span><span class="small" style="white-space:nowrap"><b>+${fmt(tokFor(m, { [k]: v }))}</b> ${tok(m)}</span></button>`).join("")}</div>`,
-  onClick: (e, close) => {
-    const b = e.target.closest("[data-f]");
-    if (!b) return;
-    const k = b.dataset.f, v = +b.dataset.v;
-    if (k === "money") S.coins = Math.max(0, S.coins - v);
-    if (k === "know") S.wallet.insights++;
-    const sh = contribute(m, { [k]: v });
-    close(); render();
-    toast(`${FUELS[k].name} added · <b>+${fmt(sh)} ${tok(m)}</b>`);
-  } });
+  const m = mission(mid), mine = S.backed?.[m.id] && shown(m).find(s => s.id === S.backed[m.id]);
+  if (mine && S.missionId === m.id) return backSheet(mine.id);
+  go("mission", { missionId: m.id, tab: "squads" });
 }

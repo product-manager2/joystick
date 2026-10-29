@@ -87,10 +87,10 @@ export function reqSheet(q) {
     ${Group([
       q.human ? Row("✋", "In person", `${esc(S.agentName)} preps, you do the real-world step, then add proof: ${q.evidence.join(", ").toLowerCase()}.`) : "",
       Row("⏱", "Time", esc(q.eta || SIZE[q.size].label)),
-      q.spend ? Row(`<span class="coin"></span>`, "Spend", `About $${q.spend} of GPU from the strategy budget. ${q.spend > S.spendCap ? "You'll be asked first." : "Under your auto-approve limit."}`) : "",
+      q.spend ? Row(`<span class="coin"></span>`, "Computer money", `About $${q.spend}, from the plan's budget`) : "",
       q.safety ? Row("⚠", "Safety check", "Designs are screened for toxicity and dual-use before anyone sees them.") : "",
       q.after ? Row("🔒", "Order", `Starts after “${esc(short(findQuest(q.after)[0].title))}”`) : "",
-      Row("✓", "2 Critics review", `${esc(S.agentName)} ships under your name. 2 Critics from other squads must approve it.`),
+      Row("✓", "2 checkers", "Two players from other squads check it before it counts."),
     ])}`, esc(q.title), () => reqSheet(q));
 }
 export function verifySheet(k) {
@@ -118,33 +118,22 @@ export function historySheet(q) {
 export function proofSheet(q) {
   q.proof = q.proof || [];
   const ready = q.evidence.every((_, i) => q.proof[i]);
-  drill("Add proof", `<div class="small muted">A Critic checks these before it counts.</div>
+  drill("Add proof", `<div class="small muted">A checker looks at these before it counts.</div>
     ${Group(q.evidence.map((e, i) => Row(Tick(q.proof[i], "✓", "○"), esc(e), q.proof[i] ? esc(q.proof[i]) : "Photo, PDF or link", q.proof[i] ? "" : `<button class="btn sm" data-a="attach" data-x="${i}" data-q="${q.id}" data-keep="1">Attach</button>`)))}
     <button class="btn red block" data-a="submitproof" data-x="${q.id}" ${ready ? "" : "disabled"}>Submit for review</button>`, esc(short(q.title)), () => proofSheet(q));
 }
-export function disputeSheet(q) {
-  drill("Dispute the review", `<p class="small">3 Referees from squads not racing this stage re-run the work. They decide within 24h.</p>
-    ${Group([Row(Tick(1), "If they side with you", "It's approved. The reviewer's score drops."), Row(Tick(0), "If they don't", "You fix it and lose 5 rep. This stops spam disputes.")])}
-    <div class="qbtns"><button class="btn red" data-a="filedispute" data-x="${q.id}">File dispute</button><button class="btn" data-a="fixq" data-x="${q.id}">Fix it instead</button></div>`, esc(short(q.title)));
-}
 export function reviewInfo() {
-  drill("How review works", Group([
-    Row("1", `You and ${esc(S.agentName)} ship it`, `${esc(S.agentName)} works on your authority, so its work counts as yours`),
-    Row("2", "2 Critics from other squads", "Nobody reviews their own squad's work"),
-    Row("3", "They re-run it", "Checked against the brief's “Done when” list"),
-    Row("4", "Both approve, it counts", "Pay is held until the stage is cleared"),
-    Row("$", "Critics get paid too", "$8 per review. Overruled reviews cost them score"),
-    Row("⚑", "Spam guard", "3 rejected submissions in a day pauses your agent"),
+  drill("How checking works", Group([
+    Row("1", `You and ${esc(S.agentName)} finish it`, "It goes out under your name"),
+    Row("2", "2 players from other squads check it", "Nobody checks their own squad's work"),
+    Row("3", "Both say yes, it counts", "You get paid when the stage clears"),
   ]));
 }
 export function refereeSheet() {
   drill("Who are the Referees?", `<p class="small">9 players with high review scores, picked at random from squads that aren't racing this stage. They check the evidence and vote on whether the stage is really done.</p>
-    ${Group([Row("✓", "Paid per stage", "From the 15% Referee share of the bounty"), Row("24h", "Challenge window", "Any token holder can flag evidence before payouts"), Row("⚖", "Disputes", "Referees also settle review disputes")])}`);
+    ${Group([Row("✓", "Paid per stage", "From the 15% Referee share of the prize"), Row("⚖", "Disagreements", "Referees also settle review disagreements")])}`);
 }
-export function challengeSheet(m) {
-  drill("Challenge the result", `<div class="small muted">Flag evidence you think is wrong. Referees re-check it before payouts.</div>
-    ${Group(strats(m).filter(s => s.score).map(s => Row(stratBadge(s, 28), esc(s.name), `+${s.score} ${m.unit}`, `<button class="btn sm" data-a="flag">Flag</button>`)))}`, esc(m.title));
-}
+
 
 // ---- Account (from the Profile)
 export function skillsSheet() {
@@ -158,11 +147,6 @@ export function toolsSheet() {
   drill("Connected tools", `<div class="small muted">The real work happens in these. ${esc(S.agentName)} uses them for you, and results sync back.</div>
     ${Group(Object.keys(TOOLS).map(t => Row(Tick(S.tools[t]), esc(t), esc(TOOLS[t]), `<button class="btn sm ${S.tools[t] ? "" : "blue"}" data-a="tool" data-x="${esc(t)}" data-keep="1">${S.tools[t] ? "Disconnect" : "Connect"}</button>`)))}`, "", toolsSheet);
 }
-export function spendSheet() {
-  drill("Spending limit", `<p class="small">${esc(S.agentName)} asks before spending more than this from a strategy's budget. Every spend is logged in the mission's ledger.</p>
-    <div class="amounts">${[0, 10, 25, 100].map(a => `<button data-a="cap" data-x="${a}" data-keep="1" aria-pressed="${S.spendCap === a}">$${a}</button>`).join("")}</div>
-    <p class="small muted">${S.spendCap ? `Up to $${S.spendCap} without asking.` : "Always asks."}</p>`, "", spendSheet);
-}
 export function creditsSheet() {
   drill("Credits", `<div class="small muted">When a mission ships a paper, dataset or release, everyone here gets named, ordered by approved work.</div>
     ${S.credits.length ? Group(S.credits.map(c => { const mm = mission(c.m); return Row(mm ? chanIcon(mm, 28) : "★", esc(c.what), esc([mm && mm.title, c.out].filter(Boolean).join(" · "))); })) : `<p class="small muted">Clear a quest to earn your first credit.</p>`}
@@ -170,14 +154,10 @@ export function creditsSheet() {
     <div class="row wrap" style="gap:8px">${["ORCID", "GitHub", "LinkedIn", "CV (PDF)"].map(x => `<button class="btn sm" data-a="export" data-x="${x}">${x}</button>`).join("")}</div>`);
 }
 export function payoutSheet() {
-  drill("Payouts", `${Group([
-      Row(`<span class="coin"></span>`, "Available", "Yours to withdraw", `<b>$${fmt(S.coins)}</b>`),
-      Row("⏳", "Pending", "Approved work, paid when each stage clears", `<b>$${fmt(S.wallet.pending)}</b>`),
-      Row(Tick(S.kyc, "✓", "!"), "Identity", S.kyc ? "Verified · tax form on file" : "Needed once before your first withdrawal"),
-    ])}
-    <div class="eyebrow">How you get paid</div>
-    <ul class="news"><li>Quest approved by 2 Critics, then pay is pending</li><li>Stage clears, then pending becomes available</li><li>Withdraw to bank or USDC · 1–2 days</li></ul>
-    <button class="btn red block" data-a="withdraw" ${S.coins ? "" : "disabled"}>${S.kyc ? `Withdraw $${fmt(S.coins)}` : "Verify identity to withdraw"}</button>`, "", payoutSheet);
+  drill("Your money", `<div style="text-align:center"><div class="display" style="font-size:40px">$${fmt(S.coins)}</div><div class="small muted">ready to take out</div></div>
+    ${S.wallet.pending ? `<p class="small muted" style="text-align:center">+ $${fmt(S.wallet.pending)} more when your stages clear</p>` : ""}
+    <button class="btn red block" data-a="withdraw" ${S.coins ? "" : "disabled"}>${S.kyc ? `Take out $${fmt(S.coins)}` : "Check your ID to take it out"}</button>
+    <p class="small muted" style="text-align:center">To your bank in 1–2 days.</p>`, "", payoutSheet);
 }
 export function kycSheet() {
   drill("Verify once", `${Group([Row("1", "Photo of your ID", "Passport or driving licence"), Row("2", "Quick selfie", "Matched to the ID"), Row("3", "Tax form", "Filled in for you from the ID")])}
@@ -189,7 +169,7 @@ export function kycSheet() {
 export function prizeSheet(m) {
   drill(`The $${fmt(m.bounty)} prize`, `${Group(m.split.map(([k, v]) => Row(`${v}%`, esc(k), "")))}
     <div class="eyebrow">How you get paid</div>
-    <ul class="news"><li>Every quest that passes review pays, even if its strategy loses</li><li>You get paid when the stage is cleared</li><li>If you back a team, you own a small share of what it makes</li></ul>
+    <ul class="news"><li>Every quest that passes review pays, even if its plan loses</li><li>You get paid when the stage is cleared</li></ul>
     <div class="eyebrow">If it stops</div><p class="small">${esc(trustOf(m).fail)}</p>
     <button class="info" data-a="trust" data-x="${m.id}">Who runs it, and is it safe? →</button>`, esc(m.title));
 }

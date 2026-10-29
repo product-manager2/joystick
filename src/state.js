@@ -12,7 +12,7 @@ export const S = {
   thread: null,
   forge: null,
   pendingQuest: null,
-  botColor: "var(--white)", raid: 0, from: null, styleOpen: false, home: "deck",
+  botShape: "blob", from: null, styleOpen: false, home: "deck",
   skills: [], tools: { "Shared drive": true, "GPU pool": true }, credits: [], notifs: [], spendCap: 25, kyc: false,
   wallet: { shares: {}, timeCredits: 0, insights: 0, pending: 0 }, stakes: {}, voiced: {}, mergeSeen: {}, pledge: { time: 5, money: 25, compute: 20 }, showAll: {},
 };

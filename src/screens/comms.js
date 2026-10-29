@@ -1,6 +1,5 @@
 import { ROLES, missions } from "../data/content.js";
 import { PEOPLE } from "../data/world.js";
-import { spendOpts } from "../game/questflow.js";
 import { playable } from "../game/strategies.js";
 import { forgeCard } from "./forge.js";
 import { AGENT_TAG, chName, chanIcon, crewAv, short } from "./quests.js";
@@ -11,7 +10,7 @@ import { backBtn, bot, botAv, esc, face, findQuest, learn, mission, mono, thread
 // ===================== Chats =====================
 export function threadTitle(t) { return t.kind === "agent" ? S.agentName : t.kind === "squad" ? `${chName(mission(t.mission))} squad` : t.title; }
 export function threadAv(t) {
-  if (t.kind === "agent") return `<span class="av" style="width:44px;height:44px">${bot(S.botColor)}</span>`;
+  if (t.kind === "agent") return `<span class="av" style="width:44px;height:44px">${bot(S.botShape)}</span>`;
   if (t.kind === "dm") return `<span class="av" style="width:44px;height:44px">${face(PEOPLE[t.person].color, t.person.length)}</span>`;
   return chanIcon(mission(t.mission), 44);
 }
@@ -69,27 +68,17 @@ export function msgHTML(msg) {
   }
   if (msg.form) extra = forgeCard(msg.form);
   if (msg.file) extra = `<div class="filechip"><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 2h7l4 4v12H5z"/><path d="M12 2v4h4"/></svg>${esc(msg.file)}</div>`;
-  if (msg.split) {
-    const [q] = findQuest(msg.split);
-    extra = msg.splitDone || q.parts ? `<div class="small muted" style="margin-top:4px">→ Split into 3 parts</div>`
-      : `<ol class="splitlist"><li>Scope it <span class="muted">· Strategist</span></li><li>Do it <span class="muted">· ${ROLES[q.role].name}</span></li><li>Check it <span class="muted">· Critic</span></li></ol><button class="btn sm red" data-a="dosplit" data-x="${q.id}">Split it</button>`;
-  }
-  if (msg.spend) {
-    const [q] = findQuest(msg.spend);
-    extra = msg.answered ? `<div class="small muted" style="margin-top:4px">→ ${esc(msg.answered)}</div>`
-      : `<div class="call" style="margin-top:8px"><div class="opts">${spendOpts(q).map((o, i) => `<button data-a="spend" data-x="${q.id}" data-i="${i}">${o}</button>`).join("")}</div><div class="small muted">${esc(S.agentName)} can spend up to $${S.spendCap} without asking · <button class="info" data-a="acct" data-x="spendcap">change</button></div></div>`;
-  }
   if (msg.review) {
     const [q] = findQuest(msg.review);
     const ST = { checking: ["Checking…", ""], ok: ["✓ Approved", "done"], changes: ["Needs fixes", "call"], waiting: ["Waiting", ""], overruled: ["Outvoted", ""] };
     extra = `<div class="review"><div class="row small"><b>2 checkers from other squads</b><span class="spacer"></span><button class="info" data-a="reviewinfo" data-x="${q.id}">How?</button></div>${(q.rv || []).map(r => `<div class="rv"><button class="avbtn" data-a="person" data-x="${esc(r.n)}">${crewAv({ who: r.n, color: PEOPLE[r.n].color })}</button><span style="min-width:0"><b>${esc(r.n)}</b><span class="small muted" style="display:block">${esc(PEOPLE[r.n].squad)}</span></span><span class="qstat ${ST[r.st][1]}">${ST[r.st][0]}</span></div>`).join("")}</div>`;
   }
   if (msg.fix) extra = msg.answered ? `<div class="small muted" style="margin-top:4px">→ ${esc(msg.answered)}</div>`
-    : `<div class="qbtns" style="margin-top:8px"><button class="btn sm red" data-a="fixq" data-x="${msg.fix}">Fix it, ${esc(S.agentName)}</button><button class="btn sm" data-a="dispute" data-x="${msg.fix}">I disagree</button></div>`;
+    : `<div class="qbtns" style="margin-top:8px"><button class="btn sm red" data-a="fixq" data-x="${msg.fix}">Fix it, ${esc(S.agentName)}</button></div>`;
   if (msg.proof) extra = msg.answered ? `<div class="small muted" style="margin-top:4px">→ Proof added</div>`
     : `<button class="btn sm red" data-a="proof" data-x="${msg.proof}" style="margin-top:8px">Add proof</button>`;
   if (msg.ideas) extra = `<div class="mini-roles" style="margin-top:8px">${msg.ideas.map(t => `<button data-a="newstrat" data-x="${esc(t)}">${esc(t)}</button>`).join("")}</div>`;
-  const wide = msg.form || msg.quest || msg.run || msg.split || msg.ideas || msg.review || (msg.call && !msg.answered) || (msg.spend && !msg.answered) || (msg.fix && !msg.answered);
+  const wide = msg.form || msg.quest || msg.run || msg.ideas || msg.review || (msg.call && !msg.answered) || (msg.fix && !msg.answered);
   const atMe = !me && msg.text && S.name && msg.text.includes("@" + S.name);
   return `<div class="msg ${me ? "me" : ""} ${wide ? "wide" : ""} ${atMe ? "atme" : ""}">${av}<div class="bubble">${from}${msg.text ? `<div>${msg.html ? msg.text : esc(msg.text)}</div>` : ""}${extra}</div></div>`;
 }

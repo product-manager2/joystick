@@ -9,7 +9,6 @@ import { findQuest, gain } from "../ui/helpers.js";
 // hit it, with its own backers and money. Results from every strategy count, and any quest can be split.
 // status: none = running · "proposed" = raising backers to launch · "review" = awaiting the creator's OK
 //         "queued" = waits on another strategy · "merged" = folded into another squad
-// rel: how it connects to the others · feeds = its output funds or unlocks · needs = waits on · competes = same goal
 export const STRATS = {
   glio: { goal: "Shortlist 10 verified drug candidates", target: 10, unit: "candidates",
     strategies: [
@@ -37,7 +36,7 @@ export const STRATS = {
     strategies: [
       { id: "cad-occ", name: "Build on OpenCascade", squad: "Kernel Crew", lead: "@kitbash", color: "var(--peach)", score: 3, backers: 88, raised: 3800, tags: ["Fast track"], rel: [["feeds", "cad-rust", "Beta revenue funds the Rust kernel"]], bet: "Wrap the proven OpenCascade kernel. Ship fast, inherit its quirks.", quests: ["c2", "c3", "c5"] },
       { id: "cad-users", name: "Users first", squad: "Field Team", lead: "Ade", color: "var(--green)", score: 1, backers: 41, raised: 600, tags: ["Low cost"], bet: "Talk to engineers and build only the features they use every day.", quests: ["c4", "c1"] },
-      { id: "cad-rust", name: "New kernel in Rust", squad: "Rustaceans", lead: "Kenji", color: "var(--blue)", score: 0, backers: 63, raised: 2100, status: "queued", when: "After beta revenue hits $20k", tags: ["Open science"], rel: [["needs", "cad-occ", "Starts on beta revenue"]], bet: "Write a clean kernel from scratch. Slower start, faster forever. Needs $40k upfront.", quests: ["c6"] },
+      { id: "cad-rust", name: "New kernel in Rust", squad: "Rustaceans", lead: "Kenji", color: "var(--blue)", score: 0, backers: 63, raised: 2100, status: "queued", when: "Starts when the beta makes $20k", tags: ["Open science"], rel: [["needs", "cad-occ", "Starts on beta revenue"]], bet: "Write a clean kernel from scratch. Slower start, faster forever. Needs $40k upfront.", quests: ["c6"] },
     ],
     extra: [Q("c6", "Prototype NURBS surfaces in Rust", "implementer", "M", 320, 30, ["setting up the crate…", "first surface renders", "benchmarks posted ✓"], { q: "It's 3× faster but has no fillets yet. Next?", opts: ["Add fillets next", "Benchmark more shapes first"] })],
     q: { c1: [1, "toolbar-prototype · Figma"], c2: [1, "step-import-report.md"], c3: [2, "fix-nurbs-booleans · PR #88"], c4: [1, "interviews-5.md"], c5: [2, "test-suite · 1000/1000"], c6: [2, "nurbs-rs · PR #12"] },
@@ -88,6 +87,8 @@ export const playable = q => !q.done && !q.state && !q.parts && !q.claimed && !q
 // A quest can wait on another quest, and on its strategy being live
 export const lockedBy = q => { if (!q.after) return null; const [d] = findQuest(q.after); return d && !d.done ? d : null; };
 export const stratLive = q => { if (!q.strat) return true; const [, m] = findQuest(q.id); const s = m && m.strategies && m.strategies.find(x => x.id === q.strat); return !s || !s.status; };
-export const STATUS = { proposed: s => `Raising · ${s.backers}/${s.need} backers`, review: () => "Awaiting creator OK", queued: s => `Queued · ${s.when || "later"}`, merged: s => `Merged into ${s.into}` };
-export const REL = { feeds: "Feeds", needs: "Needs", competes: "Competes with" };
+// Players see three states: Racing, Waiting (with one short reason) and Won. Merged plans are hidden.
+export const waitWhy = s => s.status === "proposed" ? `Needs ${Math.max(1, s.need - s.backers)} more backers` : s.status === "review" ? "Waiting for the mission's OK" : s.status === "queued" ? (s.when || "Starts later") : "";
+export const STATUS = { proposed: s => `Waiting · ${waitWhy(s)}`, review: s => `Waiting · ${waitWhy(s)}`, queued: s => `Waiting · ${waitWhy(s)}`, merged: s => `Merged into ${s.into}` };
+export const shown = m => strats(m).filter(s => s.status !== "merged");
 export const leaderOf = m => [...strats(m)].sort((a, b) => b.score - a.score)[0];

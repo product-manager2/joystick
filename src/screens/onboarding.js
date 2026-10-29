@@ -1,66 +1,14 @@
 import { ROLES, SUITS, medal, missions } from "../data/content.js";
 import { color } from "../design/tokens.js";
 import { playable, strats } from "../game/strategies.js";
-import { homeDeck, homeMap, homeSwitch, startForm } from "./home.js";
+import { homeDeck, startForm } from "./home.js";
 import { S } from "../state.js";
-import { BOT_PAINT, bot, botAv, esc, face, fmt, glyph, mission, mono, youAv, youColor } from "../ui/helpers.js";
+import { SHAPES, bot, botAv, esc, face, fmt, glyph, mission, mono, youAv, youColor } from "../ui/helpers.js";
 
 // ===================== Onboarding =====================
 export function onboard() {
   const dots = `<div class="dots">${[0, 1, 2, 3].map(i => `<i class="${i <= S.ob ? "on" : ""}"></i>`).join("")}</div>`;
-  if (S.ob === 0 && S.home !== "classic") return S.home === "map" ? homeMap() : homeDeck();
-  if (S.ob === 0) {
-    const glio = missions[0];
-    return `<div class="title-screen">
-    ${homeSwitch()}
-    <div class="hero">
-      <div class="live-pill"><i></i>${missions.reduce((a, m) => a + m.players, 0).toLocaleString()} playing now</div>
-      <div class="logo-big">Joystick</div>
-      <div class="hero-stage">
-        <span class="sticker s1"><span class="coin"></span>$250k bounty</span>
-        <span class="sticker s2">+2 candidates</span>
-        <span class="sticker s3">CLEARED!</span>
-        <span class="sticker s4 medal-st">${medal("slayer", 54, true)}</span>
-        <div class="bubble hero-bubble">Ready, partner?</div>
-        <div class="hero-duo"><span class="av bounce">${face(youColor, 2)}</span><span class="av bounce" style="animation-delay:.2s">${bot(S.botColor, true)}</span></div>
-        <div class="podium"></div>
-      </div>
-      <div class="ribbon"><span>Hard problems. Played like a game.</span></div>
-      <div class="hero-stats">
-        <span><b>${missions.length}</b> missions</span>
-        <span><b>$${fmt(missions.reduce((a, m) => a + m.bounty, 0))}</b> in bounties</span>
-        <span><b>${missions.reduce((a, m) => a + strats(m).length, 0)}</b> strategies racing</span>
-      </div>
-    ${startForm()}
-      <a class="howto-link" href="#howto">How it works ↓</a>
-    </div>
-    <div class="ticker" aria-hidden="true"><span>${"&nbsp;★&nbsp; Rosa & Dot cleared “Verify docking” +$25 &nbsp;★&nbsp; Fold Gang is 1 quest from clearing a stage &nbsp;★&nbsp; Kenji & Byte joined Open CAD &nbsp;★&nbsp; @dr.amara added $10k to the bounty ".repeat(2)}</span></div>
-    <div class="howto-wrap">
-      <div class="howto" id="howto">
-        <div class="panel"><div class="card panel-card">
-          <div class="step"><span class="num">1</span>Pick a problem.</div>
-          <div class="mini-poster"><div class="band" style="background:${glio.color}">${glyph(glio)}<b>${esc(glio.title)}</b></div>
-            <div class="mini-row"><span class="chip"><span class="coin"></span> $250k bounty</span><span class="chip">${glio.players.toLocaleString()} playing</span></div></div>
-          <p class="panel-cap">Cure a disease. Ship a product. Or start your own.</p>
-        </div></div>
-        <div class="panel"><div class="card panel-card">
-          <div class="step"><span class="num">2</span>Play your part.</div>
-          <div class="mini-chat">
-            <div class="msg">${botAv()}<div class="bubble"><div class="from">Pip <span class="via">via you</span></div>Which engine do we bet on?<div class="mini-opts"><span>Fast & free</span><span>Slow & exact</span></div></div></div>
-            <div class="msg me">${youAv()}<div class="bubble">Fast & free</div></div>
-          </div>
-          <p class="panel-cap">Your AI partner does the legwork. You make the calls.</p>
-        </div></div>
-        <div class="panel"><div class="card panel-card">
-          <div class="step"><span class="num">3</span>Own a piece of the win.</div>
-          <div class="mini-win"><div class="gate"><i style="width:100%"></i></div><div class="cup" style="font-size:26px">Stage cleared!</div><span class="chip" style="background:var(--gold)"><span class="coin"></span> +$600</span><span class="chip" style="background:var(--navy);color:var(--white)">+120 $GLIO</span></div>
-          <p class="panel-cap">Put in time or money. Earn the mission’s token: your vote, and your cut of what it builds.</p>
-        </div></div>
-      </div>
-      <div class="dots" id="howdots"><i class="on"></i><i></i><i></i></div>
-    </div>
-  </div>`;
-  }
+  if (S.ob === 0) return homeDeck();
   if (S.ob === 1) {
     return `<div class="onboard">
       <div><h1 class="display" style="font-size:30px">What are you great at?</h1><div class="eyebrow" style="margin-top:6px">Pick up to three</div></div>
@@ -93,19 +41,19 @@ export function onboard() {
   return `<div class="onboard meet">
     <h1 class="display" style="font-size:30px">Meet your agent.</h1>
     <div class="meet-stage">
-      <div class="say">Hi! I'm <b data-botname>${esc(S.agentName)}</b>. You call the shots. I do the legwork.</div>
-      <div class="meet-pod"><span class="av bounce meet-bot">${bot(S.botColor, true)}</span><div class="podium"></div></div>
+      <div class="say">Hi! I'm <b data-botname>${esc(S.agentName)}</b>. ${SHAPES[S.botShape].line}. You call the shots, I do the legwork.</div>
+      <div class="meet-pod"><span class="av bounce meet-bot">${bot(S.botShape, true)}</span><div class="podium"></div></div>
     </div>
     <div class="field nameplate"><label for="aname">Name it</label><input class="inp" id="aname" value="${esc(S.agentName)}" maxlength="12" autocomplete="off"></div>
     <div class="chips wrap">${["Pip", "Bolt", "Sprout", "Mochi", "Rex"].map(n => `<button class="chip" data-a="botname" data-x="${n}" aria-pressed="${S.agentName === n}">${n}</button>`).join("")}</div>
-    <div class="field"><label>Paint it</label>${swatches()}</div>
+    <div class="field"><label>Pick a look</label>${shapePicker()}</div>
     <div class="perks">${[["⚙", "Does the legwork", "Research, code, outreach"], ["✎", "Learns your calls", "Asks you on the big ones"], ["✓", "Works for you", "Ships under your name"]].map(([i, t, d]) => `<div class="perk"><span class="perk-i">${i}</span><b>${t}</b><span>${d}</span></div>`).join("")}</div>
     <div class="field"><label for="pname">And what should it call you?</label><input class="inp" id="pname" value="${esc(S.name)}" placeholder="nova" maxlength="16" autocomplete="off"></div>
     <div class="sticky-cta">${dots}
     <button class="btn red block" data-a="ob-next" style="font-size:18px;padding:15px">Team up with <span data-botname>${esc(S.agentName)}</span></button></div>
   </div>`;
 }
-export const swatches = () => `<div class="swatches">${BOT_PAINT.map(c => `<button class="swatch" data-a="paint" data-x="${c}" style="background:${c}" aria-label="Paint ${c}" aria-pressed="${S.botColor === c}"></button>`).join("")}</div>`;
+export const shapePicker = (keep = false) => `<div class="shapes">${Object.entries(SHAPES).map(([k, sh]) => `<button class="shape-pick" data-a="shape" data-x="${k}"${keep ? ' data-keep="1"' : ""} aria-pressed="${S.botShape === k}" aria-label="${sh.name}: ${sh.line}"><span class="av">${bot(k)}</span><b>${sh.name}</b></button>`).join("")}</div>`;
 export function rolePicker(selected, action, max = 3) {
   return Object.entries(SUITS).map(([sk, s]) => `
     <div class="suit">

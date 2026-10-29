@@ -3,9 +3,8 @@ import { ROLES, missions, roleColor } from "../data/content.js";
 import { Button, Stats, Tabs } from "../design/components.js";
 import { color } from "../design/tokens.js";
 import { DEMAND } from "../data/world.js";
-import { fuelGauges, fuelOf, ledgerOf, mult, tok, tokenCard } from "../game/economy.js";
-import { matches, poolOf } from "../game/matching.js";
-import { STATUS, gateOf, leaderOf, playable, strats } from "../game/strategies.js";
+import { fuelOf, ledgerOf, tokenCard } from "../game/economy.js";
+import { STATUS, gateOf, playable, shown, strats } from "../game/strategies.js";
 import { MISSION_WHY, chName, chanIcon, gateBar, short } from "./quests.js";
 import { trustOf } from "./sheets.js";
 import { S } from "../state.js";
@@ -57,7 +56,7 @@ export function missionScreen() {
   const m = mission();
   const signed = S.joined[m.id];
   const f = fuelOf(m), dry = f.money[0] < f.money[1];
-  const tabs = [["map", "Map"], ["squads", "Strategies"], ["fuel", "Money"], ["rules", "About"]];
+  const tabs = [["map", "Map"], ["squads", "Plans"], ["fuel", "Money"], ["rules", "About"]];
   const body = S.tab === "map" ? mapView(m) : S.tab === "squads" ? strategiesView(m) : S.tab === "fuel" ? treasuryView(m) : rulesView(m);
   // The squad you race with matters more than who posted the mission (that lives in the trust sheet)
   const mine = S.backed?.[m.id] && strats(m).find(s => s.id === S.backed[m.id]);
@@ -73,16 +72,15 @@ export function missionScreen() {
     ${Tabs(tabs, S.tab, "tab")}
     ${body}
     <div class="sticky-cta">${signed
-      ? `${Button(`Pick a strategy for stage ${m.current + 1} →`, { variant: "blue", block: true, action: "mission-ch", value: m.id })}`
+      ? `${Button(`Pick a plan for stage ${m.current + 1} →`, { variant: "blue", block: true, action: "mission-ch", value: m.id })}`
       : `${Button("Join mission", { variant: "red", block: true, action: "contract", value: m.id })}`}</div>
   </div>`;
 }
-// Treasury: who funds the mission, where the fuel stands, how the matching pool splits, where money went
+// Money: how much this stage needs, who pays for it, what you own, where the money went
 export const demandOf = m => DEMAND[m.id] || { asks: 1, pledged: 0, revenue: 0 };
-// The header stays short and shared by every tab; the pitch lives in Brief, demand in Treasury
-const demand = m => `<button class="demand" data-a="needit" data-x="${m.id}" aria-pressed="${!!S.voiced[m.id]}"><span class="small"><b>${fmt(demandOf(m).asks)}</b> people need this · <b>$${fmt(demandOf(m).pledged)}</b> pledged</span><span class="chip">${S.voiced[m.id] ? "✓ You too" : "+1 Me too"}</span></button>`;
 export function treasuryView(m) {
-  const f = fuelOf(m), t = trustOf(m), d = demandOf(m), mt = matches(m);
+  const f = fuelOf(m), t = trustOf(m), d = demandOf(m);
+  const mine = S.backed?.[m.id] && shown(m).find(s => s.id === S.backed[m.id]);
   const sources = [["Big sponsors", t.funders.filter(([n]) => !/backers/.test(n)).reduce((a, [, v]) => a + v, 0)], ["Players like you", t.funders.filter(([n]) => /backers/.test(n)).reduce((a, [, v]) => a + v, 0) + strats(m).reduce((a, s) => a + (s.raised || 0), 0)], ["People who want it", d.pledged], ["Sales", d.revenue]].filter(([, v]) => v);
   const total = sources.reduce((a, [, v]) => a + v, 0);
   const left = f.money[1] - f.money[0];
@@ -91,35 +89,29 @@ export function treasuryView(m) {
       <div class="mgoal">$${fmt(f.money[0])} of $${fmt(f.money[1])}</div>
       <div class="meter"><i style="width:${Math.min(100, f.money[0] / f.money[1] * 100)}%;background:var(--gold)"></i></div>
       <div class="small muted">${left > 0 ? `It needs $${fmt(left)} more to finish this stage.` : "This stage has all the money it needs."}</div>
-      ${Button("Chip in", { variant: "gold", block: true, action: "fuelit", value: m.id })}
+      ${mine ? Button(`Back ${mine.name}`, { variant: "gold", block: true, action: "backsheet", value: mine.id }) : Button("Back a plan", { variant: "gold", block: true, action: "tab", value: "squads" })}
     </div>
     <div class="card milestone">
       <div class="eyebrow">Who pays for it</div>
       ${sources.map(([k, v]) => `<div class="statline"><span>${k}</span><span class="meter"><i style="width:${v / total * 100}%"></i></span><span class="display" style="font-size:13px">$${fmt(v)}</span></div>`).join("")}
-      <div class="small muted">${fmt(d.asks)} people want this. They only pay if it gets built.</div>
-    </div>
-    <div class="card milestone">
-      <div class="row"><div class="eyebrow">Bonus round · $${fmt(poolOf(m))}</div><span class="spacer"></span><button class="info small" data-a="mission-ch" data-x="${m.id}">Back a strategy</button></div>
-      ${[...strats(m)].sort((a, b) => (mt[b.id] || 0) - (mt[a.id] || 0)).map(s => `<div class="statline"><span>${esc(s.name)}</span><span class="meter"><i style="width:${(mt[s.id] || 0) / poolOf(m) * 100}%;background:${s.color}"></i></span><span class="display" style="font-size:13px">$${fmt(mt[s.id] || 0)}</span></div>`).join("")}
-      <div class="small muted">More backers means a bigger bonus.</div>
+      ${d.pledged ? `<div class="small muted">People who want it promise $${fmt(d.pledged)}, paid only when it works.</div>` : ""}
     </div>
     ${tokenCard(m)}
     <div class="card milestone"><div class="row"><div class="eyebrow">What the money paid for</div><span class="spacer"></span><button class="info small" data-a="ledger">See all</button></div>
       ${ledgerOf(m).slice(0, 3).map(x => `<div class="kvrow"><span>${esc(x.what)}<span class="small muted" style="display:block">${esc(x.squad)} · ${esc(x.when)}</span></span><b>$${fmt(x.amt)}</b></div>`).join("")}</div>`;
 }
-// The map is a graph: each milestone runs parallel tracks that converge on a ◆ checkpoint.
-// The current milestone's tracks are its live strategies; a queued strategy shows as a dashed track.
+// The map: one checkpoint per stage. Only the current stage opens up to show the plans racing to its goal.
 export function mapView(m) {
   return `<div class="gmap" id="map"><svg class="trail" id="trail"></svg>${m.stages.map((st, i) => {
     const state = i < m.current ? "done" : i === m.current ? "now" : "locked";
     const prev = i ? `c-${i - 1}` : "";
-    const tracks = i === m.current ? strats(m).filter(s => s.status !== "merged").map(s => ({ name: s.name, s }))
+    const tracks = i === m.current ? shown(m).map(s => ({ name: s.name, s }))
       : (st.tracks || [st.name]).map(name => ({ name }));
     const ids = tracks.map((_, j) => `t-${i}-${j}`);
-    // In the current stage, your strategy carries a YOU flag; with none yet, the caption asks you to pick
+    // In the current stage, your plan carries a YOU flag; with none yet, the caption asks you to pick
     const isMine = s => S.backed?.[m.id] === s.id || (S.contrib?.[s.id] || 0) > 0;
     const mineS = i === m.current ? tracks.map(t => t.s).find(s => s && isMine(s)) : null;
-    const cap = i === m.current ? `<div class="trow-cap"><b>Stage ${i + 1} · ${esc(st.name)}:</b> ${tracks.length} strategies racing to the goal. ${mineS ? `You're on <b>${esc(mineS.name)}</b>.` : "Tap one to join it."}</div>` : "";
+    const cap = i === m.current ? `<div class="trow-cap"><b>Stage ${i + 1} · ${esc(st.name)}:</b> ${tracks.length} plans racing to the goal. ${mineS ? `You're on <b>${esc(mineS.name)}</b>.` : "Tap one to join it."}</div>` : "";
     // Finished and future stages collapse to one checkpoint each; only the current stage shows its tracks
     if (i !== m.current) return `<div class="crow"><button class="cp ${state} ${st.finish ? "finish" : ""}" id="c-${i}" data-from="${prev}" data-a="stage" data-x="${i}">
       <span class="cdisc"><span>${state === "done" ? "✓" : st.finish ? "★" : i + 1}</span></span><span class="lbl">${esc(st.name)}</span></button></div>`;
@@ -127,7 +119,7 @@ export function mapView(m) {
       const tst = t.s ? (t.s.status === "queued" ? "queued" : t.s.status ? "raising" : "now") : state;
       const inner = tst === "done" ? "✓" : t.s ? (t.s.score ? "+" + t.s.score : "·") : "";
       return `<button class="tnode ${tst}" id="${ids[j]}" data-from="${prev}" ${t.s ? `data-a="strategy" data-x="${t.s.id}"` : `data-a="stage" data-x="${i}"`} ${t.s ? `style="--track:${t.s.color}"` : ""}>
-        ${t.s && t.s === mineS ? `<span class="flag you">YOU</span>` : ""}<span class="tdisc">${inner}</span><span class="tl">${esc(t.name)}${t.s && t.s.status ? `<i>${esc(t.s.status === "queued" ? "queued" : "raising")}</i>` : ""}</span></button>`;
+        ${t.s && t.s === mineS ? `<span class="flag you">YOU</span>` : ""}<span class="tdisc">${inner}</span><span class="tl">${esc(t.name)}${t.s && t.s.status ? `<i>waiting</i>` : ""}</span></button>`;
     }).join("")}</div>
     <div class="crow"><button class="cp ${state} ${st.finish ? "finish" : ""}" id="c-${i}" data-from="${ids.join(" ")}" data-a="stage" data-x="${i}">
       ${state === "now" ? `<span class="flag">STAGE ${i + 1} GOAL</span>` : ""}
@@ -159,7 +151,7 @@ export function drawTrail() {
 }
 export function strategiesView(m) {
   const g = gateOf(m);
-  const all = [...strats(m)].sort((a, b) => b.score - a.score);
+  const all = [...shown(m)].sort((a, b) => b.score - a.score);
   return `<div class="card milestone"><div class="eyebrow">Stage ${m.current + 1}: ${esc(m.stages[m.current].name)}</div><div class="mgoal">${esc(m.stages[m.current].goal)}</div>${gateBar(m)}<div class="small"><b>${g.have}/${g.need} ${g.unit}</b></div></div>
     <div class="list">${all.map((s, i) => `<button class="card squad" data-a="strategy-from-map" data-x="${s.id}">
       <div class="rank">${i + 1}</div>

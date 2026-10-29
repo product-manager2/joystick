@@ -21,8 +21,6 @@ export const questScore = (q, m) => questWhy(q, m).reduce((a, [w]) => a + w, 0) 
 export function stratWhy(s, m) {
   const r = [];
   if (S.backed?.[m.id] === s.id) r.push([5, "You backed it"]);
-  const v = (s.tags || []).find(t => (S.values || []).includes(t));
-  if (v) r.push([3, `${v}, like you`]);
   if ((S.contrib?.[s.id] || 0) > 0) r.push([4, "You've played here"]);
   const fit = m.quests.filter(q => q.strat === s.id && playable(q) && S.roles.includes(q.role)).length;
   if (fit) r.push([2 + fit, `${fit} quest${fit > 1 ? "s" : ""} fit you`]);

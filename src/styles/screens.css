@@ -255,9 +255,11 @@
 .callrow b { display: block; font-size: 14px; line-height: 1.25; }
 .firstrun { display: flex; gap: 12px; align-items: flex-start; padding: 14px; background: var(--cream); }
 .av.big { width: 56px; height: 56px; }
-.swatches { display: flex; gap: 10px; }
-.swatch { width: 38px; height: 38px; border-radius: 12px; border: 3px solid var(--ink); box-shadow: var(--pop-sm); }
-.swatch[aria-pressed="true"] { outline: 3px solid var(--blue); outline-offset: 2px; }
+.shapes { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.shape-pick { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 2px 6px; border-radius: 14px; border: 2px solid var(--paper-2); background: var(--card); color: var(--ink); font: inherit; font-size: 11px; cursor: pointer; }
+.shape-pick .av { width: 40px; height: 40px; }
+.shape-pick[aria-pressed="true"] { border-color: var(--blue); background: color-mix(in srgb, var(--blue), var(--white) 88%); }
+.shape-pick:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
 .titlecard .tap { font-size: 11px; font-weight: 600; opacity: .8; letter-spacing: .08em; text-transform: uppercase; }
 .crate { cursor: pointer; background: var(--card); }
 
@@ -523,3 +525,7 @@ button.chip.trust { background: var(--mint); color: var(--green-d); border-color
 .tnode { position: relative; }
 .tnode .flag.you { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); z-index: 2; white-space: nowrap; background: var(--blue); color: var(--white); border: var(--line-1); border-radius: 6px; font-family: var(--type); font-size: 11px; font-weight: 800; padding: 1px 6px; }
 .trow-cap { position: relative; z-index: 2; margin: 4px auto 10px; max-width: 320px; text-align: center; font-size: 13px; line-height: 1.35; background: var(--cream); border: var(--line-2); border-radius: 12px; padding: 6px 10px; box-shadow: var(--pop-sm); }
+
+/* Join sheet: one tap to join a mission */
+.join { background: var(--card); border: var(--line); border-radius: var(--r-lg, 16px); padding: 16px; box-shadow: var(--pop); display: flex; flex-direction: column; gap: 10px; }
+.join p { margin: 0; }

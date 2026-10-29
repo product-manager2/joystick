@@ -2,7 +2,8 @@ import { ROLES } from "../data/content.js";
 import { LEDGER } from "../data/world.js";
 import { strats } from "./strategies.js";
 import { S } from "../state.js";
-import { fmt } from "../ui/helpers.js";
+import { esc, fmt } from "../ui/helpers.js";
+import { chName } from "../screens/quests.js";
 
 // ===================== Economy =====================
 // Missions run on four fuels and pay out four rewards. Every contribution turns into
@@ -32,20 +33,14 @@ export function fuelOf(m) {
 export const fuelIcon = (k, size = 18) => `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${FUELS[k].icon}</svg>`;
 export const fuelNum = (k, v) => k === "money" ? "$" + fmt(v) : k === "time" ? fmt(v) + "h" : k === "know" ? fmt(v) : fmt(v);
 export const fuelUnit = k => ({ money: "", time: "", know: "", compute: " GPU-h" })[k];
-export function fuelGauges(m) {
-  const f = fuelOf(m);
-  return `<div class="fuels">${Object.keys(FUELS).map(k => {
-    const [have, need] = f[k], pct = Math.min(100, have / need * 100);
-    return `<div class="fuel"><span class="fi" style="background:${FUELS[k].color}">${fuelIcon(k, 16)}</span><span class="fbody"><span class="fname">${FUELS[k].name}</span><span class="meter"><i style="width:${pct}%;background:${FUELS[k].color}"></i></span><span class="fnum">${fuelNum(k, have)} / ${fuelNum(k, need)}${fuelUnit(k)}</span></span></div>`;
-  }).join("")}</div>`;
-}
+// Your piece of the mission, in plain words: no ticker, no supply, no holder counts
 export function tokenCard(m) {
-  const mine = S.wallet.shares[m.id] || 0, t = TOKEN[m.id] || { pays: ["Bounty payouts"] };
+  const pct = ownPct(m), name = chName(m), x = mult(m);
   return `<div class="tokcard">
-    <div class="row"><span class="tokcoin">${tok(m).slice(1, 2)}</span><span style="flex:1;min-width:0"><b class="tokname">${tok(m)}</b><span class="small muted" style="display:block">${fmt(fuelOf(m).supply + mine)} minted · ${fmt(holders(m))} holders</span></span>
-      ${mine ? `<span class="tokmine"><b>${fmt(mine)}</b><span>${ownPct(m).toFixed(2)}%</span></span>` : ""}</div>
-    <p class="small">${mine ? `You own <b>${ownPct(m).toFixed(2)}%</b> of this mission.` : "Own a small piece of this mission."} Owners vote on how the money is spent, and get paid if it makes money.</p>
-    <div class="row" style="gap:8px"><button class="btn gold sm" style="flex:1" data-a="fuelit" data-x="${m.id}">Get more</button><span class="small muted" style="flex:1">$100 gets you <b>${fmt(Math.round(100 * mult(m) / 10))} ${tok(m)}</b></span></div>
+    <div class="row"><span class="tokcoin">%</span><span style="flex:1;min-width:0"><b class="tokname">Your piece of ${esc(name)}</b><span class="small muted" style="display:block">Owners get paid if it makes money</span></span>
+      ${pct ? `<span class="tokmine"><b>${pct.toFixed(2)}%</b><span>yours</span></span>` : ""}</div>
+    <p class="small">${pct ? `You own <b>${pct.toFixed(2)}%</b> of ${esc(name)}.` : `Own a small piece of ${esc(name)}.`} Back a plan to get a bigger piece${x > 1 ? `. Early players get ${x}× more` : ""}.</p>
+    <button class="btn gold sm" data-a="fuelit" data-x="${m.id}">Get a bigger piece</button>
   </div>`;
 }
 // Credit a contribution: fuel goes in, mission tokens come out
@@ -69,8 +64,6 @@ export const holders = m => Math.round(m.players * .62 + fuelOf(m).more[1]);
 export const ownPct = m => { const mine = S.wallet.shares[m.id] || 0; return mine ? (mine / (fuelOf(m).supply + mine) * 100) : 0; };
 export const tokFor = (m, parts) => Math.round(Object.entries(parts).reduce((a, [k, v]) => a + (v || 0) * RATE[k], 0) * mult(m) / 10);
 export const questFuel = q => ({ time: { S: 1, M: 4, L: 8 }[q.size] || 1, know: ["seekers", "guardians", "architects"].includes(ROLES[q.role].suit) ? 1 : 0, compute: /shard|dock|train|screen/i.test(q.title) ? 200 : 0 });
-// Your weight in mission votes (treasury draws, the final check) grows with the mission tokens you hold
-export const votePower = m => 1 + Math.floor((S.wallet.shares[m.id] || 0) / 200);
 // Team stakes: money you put straight into a strategy. They pay from that team's product, not the mission's.
 export const stakeOf = s => (S.stakes || {})[s.id] || 0;
 export const askOf = s => { const a = ASK[s.id] || [3000, 80, 300]; return { money: a[0], time: a[1], compute: a[2] }; };

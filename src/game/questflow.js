@@ -1,6 +1,6 @@
-import { Q, ROLES, award } from "../data/content.js";
+import { award } from "../data/content.js";
 import { PEOPLE } from "../data/world.js";
-import { askOf, contribute, ledgerOf, questFuel, tok } from "./economy.js";
+import { contribute, ledgerOf, questFuel } from "./economy.js";
 import { hasSkill } from "./personalise.js";
 import { gateOf, playable, stratOf } from "./strategies.js";
 import { contractSheet } from "../screens/contract.js";
@@ -8,16 +8,16 @@ import { animate, crewOf, postQ, short } from "../screens/quests.js";
 import { reqSheet } from "../screens/sheets.js";
 import { S, TEAMMATES } from "../state.js";
 import { go, render, renderHud } from "../ui/chrome.js";
-import { duoName, esc, findQuest, fmt, gain, learn, titleCard, toast } from "../ui/helpers.js";
+import { duoName, esc, findQuest, gain, learn, titleCard, toast } from "../ui/helpers.js";
 
 // ===================== Playing a quest =====================
 // One Start button. You and your agent always play together: it does the legwork, you make the calls,
 // and it works on your authority, so what it ships goes out under your name. Then 2 Critics from other squads review it.
-// start → (spend OK?) → your call → agent works → Critics → approved (or fix / dispute)
+// start → your call → agent works → Critics → approved (or fix)
 
 // What a quest is waiting on you for
-export const NEEDS = { call: q => q.call.q, spend: q => `Approve ~$${q.spend} of GPU time?`, proof: () => "Add proof to finish", changes: () => "A reviewer asked for changes" };
-export const NEED_BTN = { call: "Answer", spend: "Approve", proof: "Add proof", changes: "Fix" };
+export const NEEDS = { call: q => q.call.q, proof: () => "Add proof to finish", changes: () => "A reviewer asked for changes" };
+export const NEED_BTN = { call: "Answer", proof: "Add proof", changes: "Fix" };
 export const needsYou = q => !!NEEDS[q.state];
 
 export function playQuest(id) {
@@ -31,7 +31,7 @@ export function playQuest(id) {
   q.state = "run"; q.mine = true;
   postQ(q, m, { me: true, text: `@${S.agentName} let's go` });
   postQ(q, m, { sys: `Claimed by ${duoName()} · 3 days to finish, then it reopens` });
-  if (q.spend) return spendGate(q, m);
+  if (q.spend) { const s = stratOf(q); logSpend(m, s, q, q.spend); postQ(q, m, { sys: `${S.agentName} used $${q.spend} of ${s.squad}'s computer money` }); }
   startRun(q, m);
 }
 function startRun(q, m) {
@@ -44,33 +44,6 @@ function startRun(q, m) {
   });
 }
 
-// The agent asks before spending a strategy's money above your limit
-function spendGate(q, m) {
-  const s = stratOf(q);
-  if (q.spend <= S.spendCap) {
-    logSpend(m, s, q, q.spend);
-    postQ(q, m, { sys: `${S.agentName} spent $${q.spend} from ${s.squad}'s budget · under your $${S.spendCap} limit` });
-    return startRun(q, m);
-  }
-  q.state = "spend";
-  postQ(q, m, { agent: true, spend: q.id, text: `This needs about $${q.spend} of GPU time from ${s.squad}'s budget ($${fmt(askOf(s).money)} total). OK to spend it?` });
-}
-export const spendOpts = q => [`Approve $${q.spend}`, `Cheaper: $${Math.round(q.spend * .6)}, slower`, "Not now"];
-export function pickSpend(id, i) {
-  const [q, m] = findQuest(id);
-  if (q.state !== "spend") return;
-  const s = stratOf(q), cheap = Math.round(q.spend * .6), label = spendOpts(q)[i];
-  q.feed.forEach(x => { if (x.spend === id) x.answered = label; });
-  postQ(q, m, { me: true, text: label });
-  if (i === 2) { q.state = null; q.mine = false; return postQ(q, m, { sys: "Paused · nothing spent · claim released" }); }
-  const amt = i ? cheap : q.spend;
-  if (i) q.eta = "about twice as long on spare GPUs";
-  logSpend(m, s, q, amt);
-  learn(i ? "Spending → picks the cheaper, slower option" : `Approves GPU spend up to $${amt}`);
-  postQ(q, m, { sys: `$${amt} spent from ${s.squad}'s budget · logged in the Treasury` });
-  q.state = "run";
-  startRun(q, m);
-}
 function logSpend(m, s, q, amt) { ledgerOf(m).unshift({ what: `GPU · ${short(q.title)}`, squad: `${s.squad} · ${duoName()}`, amt, when: "just now" }); }
 
 export function pickCall(id, i) {
@@ -109,14 +82,14 @@ function submitQuest(q, m, fromAgent) {
   q.state = "review";
   if (fromAgent) postQ(q, m, { agent: true, text: "Done. Submitted under your name:", file: q.out || `${short(q.title)} · notes.md` });
   q.rv = reviewersFor(q).map(n => ({ n, st: "checking" }));
-  postQ(q, m, { agent: true, text: "Sent to 2 Critics from other squads:", review: q.id });
-  const reject = q.reject && !q.reworked && !q.disputed;
+  postQ(q, m, { agent: true, text: "Sent to 2 checkers from other squads:", review: q.id });
+  const reject = q.reject && !q.reworked;
   setTimeout(() => { q.rv[0].st = reject ? "changes" : "ok"; refreshRoom(q); }, 1200);
   setTimeout(() => {
     if (!reject) { q.rv[1].st = "ok"; return approveQuest(q, m); }
     q.rv[1].st = "waiting"; q.state = "changes";
     postQ(q, m, { who: q.rv[0].n, color: PEOPLE[q.rv[0].n].color, text: q.reject });
-    postQ(q, m, { agent: true, fix: q.id, text: "Want me to fix it? If you think they're wrong, dispute it." });
+    postQ(q, m, { agent: true, fix: q.id, text: "Want me to fix it?" });
     notify(`${q.rv[0].n} asked for changes on “${short(q.title)}”`, q.id);
   }, 2300);
 }
@@ -136,19 +109,6 @@ export function fixQuest(id) {
   postQ(q, m, run);
   animate(run, 0, 1, 1800, [`reading ${q.rv[0].n}'s notes…`, "re-running with the shared config", "fixed ✓"], () => submitQuest(q, m, true));
 }
-export function fileDispute(id) {
-  const [q, m] = findQuest(id);
-  if (q.state !== "changes") return;
-  q.disputed = true; q.state = "dispute";
-  q.feed.forEach(x => { if (x.fix === id) x.answered = "Disputed"; });
-  postQ(q, m, { sys: "Dispute filed · 3 Referees from other squads re-check it" });
-  setTimeout(() => {
-    postQ(q, m, { sys: "Referees ruled 2–1 for you: the cutoff changed after you started" });
-    q.rv[0].st = "overruled"; q.rv[1].st = "ok";
-    approveQuest(q, m);
-  }, 2600);
-}
-
 function approveQuest(q, m) {
   q.done = true; q.state = null; q.mine = false;
   const s = stratOf(q);
@@ -161,16 +121,15 @@ function approveQuest(q, m) {
   gain(xp);
   S.wallet.pending += q.coins;
   S.credits.unshift({ m: m.id, what: q.title, out: q.out || "" });
-  const qf = questFuel(q), shares = contribute(m, qf);
+  const qf = questFuel(q);
+  contribute(m, qf);
   S.wallet.timeCredits += qf.time; S.wallet.insights += qf.know + 1;
   award("spark");
   if (S.together === 3) award("sync");
   m.news = [`${duoName()} cleared “${q.title}”${q.gain ? ` · +${q.gain} ${m.unit}` : ""}`, ...(m.news || [])];
-  postQ(q, m, { sys: `✓ Approved by 2 Critics · +${xp} XP · $${q.coins} pending till the stage clears · +${shares} ${tok(m)}${q.gain ? ` · ${s.name} +${q.gain} ${m.unit}` : ""}`, win: true });
+  postQ(q, m, { sys: `✓ Approved by 2 checkers · $${q.coins} is yours when the stage clears${q.gain ? ` · +${q.gain} ${m.unit} for ${s.squad}` : ""}`, win: true });
   notify(`Approved: “${short(q.title)}” · $${q.coins} pending`, q.id);
   m.quests.filter(x => x.after === q.id).forEach(x => notify(`Unlocked: “${short(x.title)}”`, x.id));
-  S.raid++;
-  if (S.raid === 3) { S.coins += 50; award("raider"); setTimeout(() => titleCard("Daily raid", "RAID CLEARED!", "+$50 · crate unlocked", null, 1600), 80); }
   // A finished part may finish its parent
   let big = null;
   if (q.parent) {
@@ -192,21 +151,4 @@ export function notify(text, qid) {
   S.notifs.unshift({ text, q: qid, when: "just now", read: here });
   if (!here && S.screen !== "onboard") toast(`🔔 ${esc(text)}`);
   if (S.screen !== "onboard") renderHud();
-}
-
-// Break a big quest into parts anyone can pick up. Your agent offers this in the room.
-export function doSplit(id) {
-  const [q, m] = findQuest(id);
-  const t = short(q.title), xp = Math.round(q.xp / 3), coins = Math.round(q.coins / 3);
-  const mk = (suffix, title, role, gain, out, call) => Q(`${id}-${suffix}`, title, role, "S", xp, coins, ["reading the brief…", "halfway", "done ✓"], call, { strat: q.strat, parent: id, gain, out });
-  const parts = [
-    mk("a", `Scope it: ${t}`, "strategist", 0, "scope.md", { q: "How narrow should we go?", opts: ["Smallest useful version", "Cover the edge cases"] }),
-    mk("b", `Do it: ${t}`, q.role, q.gain, q.out, q.call),
-    mk("c", `Check it: ${t}`, "critic", 0, "review.md", { q: "One result looks off. What now?", opts: ["Send it back", "Note it and approve"] }),
-  ];
-  m.quests.push(...parts);
-  q.parts = parts.map(p => p.id); q.gain = 0;
-  q.feed.forEach(x => { if (x.split === id) x.splitDone = true; });
-  toast("Split into 3 parts");
-  go("strategy", { stratId: q.strat });
 }

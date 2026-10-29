@@ -23,15 +23,27 @@ export function face(color, i = 0) {
                 '<path d="M9 12c2-7 16-8 19-1-5-2-12-2-19 1z" fill="var(--ink)"/>'][i % 3];
   return `<svg viewBox="0 0 36 36"><circle cx="18" cy="19" r="14" fill="${color}" stroke="var(--ink)" stroke-width="2.6"/>${hair}${pie(13.5, 18)}${pie(22.5, 18)}<path d="M11 24c4 5 10 5 14 0" stroke="var(--ink)" stroke-width="2.4" fill="var(--white)" stroke-linejoin="round"/></svg>`;
 }
-// Rubber-hose agent partner
-export function bot(color = "var(--white)", big = false) {
-  const hands = big ? '<circle cx="3.5" cy="25" r="3.2" fill="var(--white)" stroke="var(--ink)" stroke-width="2"/><circle cx="32.5" cy="22" r="3.2" fill="var(--white)" stroke="var(--ink)" stroke-width="2"/>' : "";
-  return `<svg viewBox="0 0 36 36">${hands}<path d="M18 9V4" stroke="var(--ink)" stroke-width="2.6"/><circle cx="18" cy="4" r="2.6" fill="var(--red)" stroke="var(--ink)" stroke-width="2"/><rect x="5" y="9" width="26" height="23" rx="9" fill="${color}" stroke="var(--ink)" stroke-width="2.6"/>${pie(13.5, 18)}${pie(22.5, 18)}<path d="M11 24c4 4.5 10 4.5 14 0" stroke="var(--ink)" stroke-width="2.4" fill="var(--red)" stroke-linejoin="round"/></svg>`;
+// Agent companions: flat geometric characters, each with its own shape and colour
+const starPts = () => Array.from({ length: 10 }, (_, i) => { const a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 6.6 : 13.5; return `${(18 + r * Math.cos(a)).toFixed(1)},${(19 + r * Math.sin(a)).toFixed(1)}`; }).join(" ");
+export const SHAPES = {
+  blob:  { name: "Blob",  line: "Calm and careful",  color: "var(--sky)",   eye: 18,   body: c => `<path d="M18 6c8 0 13 5.5 13 13 0 7-5 11-13 11S5 26 5 19C5 11.5 10 6 18 6z" fill="${c}"/>` },
+  cube:  { name: "Cube",  line: "Steady and tidy",   color: "var(--gold)",  eye: 18,   body: c => `<rect x="6" y="8" width="24" height="22" rx="7" fill="${c}"/>` },
+  cone:  { name: "Cone",  line: "Sharp and curious", color: "var(--leaf)",  eye: 21,   body: c => `<path d="M18 5c1.4 0 2.4.8 3.2 2.2l9.4 17.6c1.3 2.6-.3 5.2-3.2 5.2H8.6c-2.9 0-4.5-2.6-3.2-5.2l9.4-17.6C15.6 5.8 16.6 5 18 5z" fill="${c}"/>` },
+  star:  { name: "Star",  line: "Bright and bold",   color: "var(--pink)",  eye: 18.5, body: c => `<polygon points="${starPts()}" fill="${c}" stroke="${c}" stroke-width="3.5" stroke-linejoin="round"/>` },
+  drop:  { name: "Drop",  line: "Quick and clever",  color: "var(--coral)", eye: 21,   body: c => `<path d="M18 4c5 6 12 11 12 17a12 12 0 0 1-24 0C6 15 13 10 18 4z" fill="${c}"/>` },
+  pill:  { name: "Pill",  line: "Chill and helpful", color: "var(--lilac)", eye: 15.5, body: c => `<rect x="9" y="4" width="18" height="27" rx="9" fill="${c}"/>` },
+};
+// Your own agent passes a shape key; other players' agents get a stable shape from whatever identifies them
+const shapeKey = k => SHAPES[k] ? k : Object.keys(SHAPES)[[...String(k || "")].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) >>> 0, 7) % 6];
+export function bot(shape = "blob", big = false) {
+  const sh = SHAPES[shapeKey(shape)], y = sh.eye;
+  const eye = x => `<ellipse cx="${x}" cy="${y}" rx="1.9" ry="2.5" fill="var(--ink)"/><circle cx="${x + .6}" cy="${y - .9}" r=".6" fill="var(--white)"/>`;
+  const cheeks = big ? `<ellipse cx="11.5" cy="${y + 3.2}" rx="1.8" ry="1.1" fill="var(--white)" opacity=".45"/><ellipse cx="24.5" cy="${y + 3.2}" rx="1.8" ry="1.1" fill="var(--white)" opacity=".45"/>` : "";
+  return `<svg viewBox="0 0 36 36"><ellipse cx="18" cy="34" rx="9" ry="1.6" fill="var(--ink)" opacity=".14"/>${sh.body(sh.color)}<ellipse cx="12.5" cy="${y - 6}" rx="3" ry="1.8" fill="var(--white)" opacity=".4" transform="rotate(-25 12.5 ${y - 6})"/>${cheeks}${eye(14.5)}${eye(21.5)}<path d="M16 ${y + 4}q2 1.6 4 0" stroke="var(--ink)" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>`;
 }
 export const youColor = "var(--gold)";
-export const BOT_PAINT = ["var(--white)", "var(--sky)", "var(--gold)", "var(--leaf)", "var(--pink)"];
 export const youAv = (cls = "av") => `<span class="${cls}">${face(youColor, 2)}</span>`;
-export const botAv = (cls = "av", big = false) => `<span class="${cls}">${bot(S.botColor, big)}</span>`;
+export const botAv = (cls = "av", big = false) => `<span class="${cls}">${bot(S.botShape, big)}</span>`;
 // Ink or white, whichever reads better on a fill
 export const textOn = color => {
   const hex = cssColor(color);
@@ -80,8 +92,8 @@ export function learn(text) {
 
 // A returning player, for demoing the "already playing" experience
 export function loadReturning() {
-  Object.assign(S, { name: "nova", agentName: "Pip", roles: ["implementer", "critic", "strategist"], level: 9, xp: 1450, xpMax: 2600, coins: 1240, streak: 12, together: 14, shipped: 9, raid: 1, botColor: "var(--sky)", lobbyTab: "mine" });
-  S.badges = ["spark", "squad", "sync", "raider", "slayer", "gate"];
+  Object.assign(S, { name: "nova", agentName: "Pip", roles: ["implementer", "critic", "strategist"], level: 9, xp: 1450, xpMax: 2600, coins: 1240, streak: 12, together: 14, shipped: 9, botShape: "cube", lobbyTab: "mine" });
+  S.badges = ["spark", "squad", "sync", "slayer", "gate"];
   S.wallet = { shares: { glio: 1240, cad: 410 }, timeCredits: 46, insights: 18, pending: 90 };
   S.stakes = { "glio-dock": 100 };
   S.values = ["Open science", "Holistic"];

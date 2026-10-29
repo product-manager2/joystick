@@ -1,8 +1,8 @@
 import { POOL, stakeOf } from "./economy.js";
 import { strats } from "./strategies.js";
 
-// ===================== Matching rounds =====================
-// Each milestone the treasury's matching pool is shared across strategies by quadratic funding:
+// ===================== The bonus =====================
+// Each stage the mission adds a bonus pot, shared across plans by quadratic funding:
 // a strategy's raw score is (Σ√cᵢ)² − Σcᵢ over its backers, so breadth of belief beats size of wallet.
 // Each backer's signals are combined first, so giving time and money still counts as one person.
 // Mock data stores only backers and money raised per strategy, so other backers are treated as giving the average.
