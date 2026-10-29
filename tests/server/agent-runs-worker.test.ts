@@ -12,6 +12,30 @@ const idle={type:'session.status_idle',id:'sevt_idle_1',stop_reason:{type:'end_t
 const result={type:'user.custom_tool_result',id:'sevt_result_1',custom_tool_use_id:tool.id};
 const rows=(data:Record<string,unknown>[])=>({rowCount:data.length,rows:data});
 
+test('new workflow sessions use the current system prompt and the saved agent name',async()=>{
+  const job={...run,status:'queued',provider_session_id:null};
+  let created=false;
+  const query=async(sql:string)=>{
+    if(['BEGIN','COMMIT','ROLLBACK'].includes(sql))return rows([]);
+    if(sql.startsWith('SELECT pg_advisory_xact_lock'))return rows([]);
+    if(sql.startsWith('SELECT count(*)::int AS total FROM agent_runs'))return rows([{total:0}]);
+    if(sql.includes("FROM agent_runs WHERE status='queued'"))return rows([job]);
+    if(sql.startsWith('SELECT agent_name FROM game_profiles'))return rows([{agent_name:'Nova'}]);
+    if(sql.startsWith('SELECT pg_notify')||sql.startsWith('UPDATE agent_runs'))return rows([]);
+    throw Error(`Unexpected query: ${sql}`);
+  };
+  const pool={query,connect:async()=>({query,release:()=>{}})} as unknown as Pool;
+  const provider:RunProvider={
+    create:async input=>{created=true;assert.equal(typeof input.agent,'object');if(typeof input.agent==='object'){
+      assert.equal(input.agent.id,'agent_test');assert.equal(input.agent.type,'agent_with_overrides');assert.match(input.agent.system,/agent name supplied in the request context/);
+    }assert.match(input.initial_events[0].content[0].text,/Your agent name: "Nova"/);return{id:'sess_new'};},
+    list:async function*(){},sendTool:async()=>{},interrupt:async()=>{},status:async()=> 'idle',
+  };
+  const config={anthropicWorkflowAgentId:'agent_test',anthropicEnvironmentId:'env_test'} as Config;
+  assert.equal(await startNextRun(pool,config,provider),true);
+  assert.equal(created,true);
+});
+
 test('custom tool result is sent once and completion waits for provider acknowledgement',async()=>{
   let receipt:{result:unknown;is_error:boolean;send_state:string}|null=null;
   let status='running',response:string|null=null,sendCount=0,history:RunEvent[]=[tool,idle];

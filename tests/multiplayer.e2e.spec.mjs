@@ -100,12 +100,12 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
 
     const makerMessage = `Maker room message ${suffix}`;
     const ownerMessage = `Owner room reply ${suffix}`;
-    await makerPage.getByPlaceholder("Message this room…").fill(makerMessage);
+    await makerPage.locator('#live-composer [name="text"]').fill(makerMessage);
     await makerPage.getByRole("button", { name: "Send", exact: true }).click();
     await expect.poll(() => makerSentFrames.some(frame => frame.text === makerMessage), { timeout: 10_000 }).toBe(true);
     await expect(ownerPage.getByText(makerMessage, { exact: true })).toBeVisible({ timeout: 12_000 });
 
-    await ownerPage.getByPlaceholder("Message this room…").fill(ownerMessage);
+    await ownerPage.locator('#live-composer [name="text"]').fill(ownerMessage);
     await ownerPage.getByRole("button", { name: "Send", exact: true }).click();
     await expect.poll(() => ownerSentFrames.some(frame => frame.text === ownerMessage), { timeout: 10_000 }).toBe(true);
     await expect(makerPage.getByText(ownerMessage, { exact: true })).toBeVisible({ timeout: 12_000 });
@@ -219,15 +219,15 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
 
     await makerPage.getByRole("button", { name: "Back", exact: true }).click();
     await makerPage.getByRole("button", { name: "Profile" }).click();
-    await makerPage.getByText("Wallet history and actions").click();
-    const walletHistory = makerPage.locator(".wallet-details");
+    await makerPage.locator('[data-live="wallet-sheet"]').click();
+    const walletHistory = makerPage.getByRole("dialog", { name: "Our money" });
     await expect(walletHistory.getByText("earning", { exact: true })).toBeVisible();
     await expect(walletHistory).toContainText(/\+10/);
-    await makerPage.getByRole("button", { name: "Record payout · Review funding flow" }).click();
-    await expect(makerPage.getByText("Payout recorded")).toBeVisible();
+    await walletHistory.getByRole("button", { name: "Record payout", exact: true }).click();
+    await expect(walletHistory).toContainText("Payout recorded");
 
     const downloadPromise = makerPage.waitForEvent("download");
-    await makerPage.getByRole("button", { name: "Export credits CSV" }).click();
+    await walletHistory.getByRole("button", { name: "Export CSV" }).click();
     const download = await downloadPromise;
     const csv = await readFile(await download.path(), "utf8");
     expect(csv).toContain("earning");

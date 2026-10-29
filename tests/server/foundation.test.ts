@@ -75,7 +75,7 @@ test('foundation authorization, challenge replay, idempotency, provider dedup, a
 
     const providerSessionId=`sesn_${randomUUID()}`;
     const providerEventId=`evt_${randomUUID()}`;
-    await pool.query('UPDATE rooms SET provider_session_id=$2 WHERE id=$1',[a.room.id,providerSessionId]);
+    await pool.query('UPDATE rooms SET provider_session_id=$2,agent_prompt_revision=1 WHERE id=$1',[a.room.id,providerSessionId]);
     const event={type:'agent.message',id:providerEventId,content:[{type:'text',text:'Agent reply'}]};
     assert.equal(await persistAgentEvent(pool,a.room.id,providerSessionId,event),true);
     assert.equal(await persistAgentEvent(pool,a.room.id,providerSessionId,event),false);
@@ -215,4 +215,195 @@ test('foundation authorization, challenge replay, idempotency, provider dedup, a
     const final=await history(pool,a.user.id,a.room.id,0);
     assert.equal(final.messages.filter(m=>m.text==='Forbidden').length,0);
   } finally { await app.close(); await pool.end(); }
+});
+
+test('old private agent session rotates on an idle turn with scoped history and no duplicate dispatch', async () => {
+  const pool=createPool(config);
+  try {
+    const a=await fixture(pool);
+    const b=await fixture(pool);
+    const oldSession=`sesn_${randomUUID()}`;
+    const newSession=`sesn_${randomUUID()}`;
+    const oldUser=await saveUserMessage(pool,a.user.id,a.room.id,randomUUID(),'What should I do first?',true);
+    await pool.query(`UPDATE agent_dispatches SET status='completed',provider_session_id=$2 WHERE message_id=$1`,[oldUser.message.id,oldSession]);
+    await pool.query(`UPDATE rooms SET provider_session_id=$2 WHERE id=$1`,[a.room.id,oldSession]);
+    await saveUserMessage(pool,b.user.id,b.room.id,randomUUID(),'Secret in another room',false);
+    const first=await saveUserMessage(pool,a.user.id,a.room.id,randomUUID(),'Show me a useful task',true);
+    const second=await saveUserMessage(pool,a.user.id,a.room.id,randomUUID(),'And help me plan it',true);
+    const agentConfig={...config,anthropicApiKey:'fake',anthropicAgentId:'agent_fake',anthropicEnvironmentId:'env_fake'};
+    let creates=0;
+    let sends=0;
+    let oldLists=0;
+    const fake:ManagedAgentClient={
+      create:async input=>{
+        creates++;
+        assert.equal(typeof input.agent,'object');
+        if(typeof input.agent==='object'){
+          assert.equal(input.agent.type,'agent_with_overrides');
+          assert.match(input.agent.system,/profile\.agentName/);
+          assert.doesNotMatch(input.agent.system,/Joystick agent/);
+        }
+        const text=input.initial_events[0].content[0].text;
+        assert.match(text,/What should I do first\?/);
+        assert.match(text,/Old reply from Pip/);
+        assert.match(text,/Show me a useful task/);
+        assert.equal(text.match(/Show me a useful task/g)?.length,1);
+        assert.ok(!text.includes('Secret in another room'));
+        assert.ok(!text.includes('And help me plan it'));
+        return {id:newSession};
+      },
+      send:async(sessionId,text)=>{assert.equal(sessionId,newSession);assert.match(text,/And help me plan it/);sends++;},
+      stream:async()=>({async *[Symbol.asyncIterator](){yield {type:'session.status_idle'};}}),
+      list:async function*(sessionId){if(sessionId===oldSession){oldLists++;yield {type:'agent.message',id:'old-reply',content:[{type:'text',text:'Old reply from Pip'}]};}},
+      status:async()=> 'idle',
+    };
+    assert.equal(await dispatchNext(pool,agentConfig,fake),true);
+    assert.equal(oldLists,1);
+    assert.equal(creates,1);
+    assert.equal((await pool.query('SELECT provider_session_id,agent_prompt_revision FROM rooms WHERE id=$1',[a.room.id])).rows[0].provider_session_id,newSession);
+    assert.equal((await history(pool,a.user.id,a.room.id,0)).messages.filter(m=>m.text==='Old reply from Pip').length,1);
+    assert.equal(await dispatchNext(pool,agentConfig,fake),true);
+    assert.equal(sends,1);
+    assert.equal(creates,1);
+    assert.equal((await pool.query('SELECT status FROM agent_dispatches WHERE message_id=$1',[second.message.id])).rows[0].status,'completed');
+    assert.equal((await pool.query('SELECT status FROM agent_dispatches WHERE message_id=$1',[first.message.id])).rows[0].status,'completed');
+  } finally {await pool.end();}
+});
+
+test('old session preflight failure preserves pending work and ambiguous create blocks later turns', async () => {
+  const pool=createPool(config);
+  try {
+    const a=await fixture(pool);
+    const oldSession=`sesn_${randomUUID()}`;
+    await pool.query('UPDATE rooms SET provider_session_id=$2 WHERE id=$1',[a.room.id,oldSession]);
+    const first=await saveUserMessage(pool,a.user.id,a.room.id,randomUUID(),'First pending turn',true);
+    const second=await saveUserMessage(pool,a.user.id,a.room.id,randomUUID(),'Second pending turn',true);
+    const agentConfig={...config,anthropicApiKey:'fake',anthropicAgentId:'agent_fake',anthropicEnvironmentId:'env_fake'};
+    let failPreflight=true;
+    let creates=0;
+    const fake:ManagedAgentClient={
+      create:async()=>{creates++;throw new Error('Unknown create outcome');},
+      send:async()=>{throw new Error('Must not send to old session');},
+      stream:async()=>{throw new Error('Must not stream old session');},
+      list:async function*(){},
+      status:async()=>{if(failPreflight)throw new Error('Temporary status failure');return 'idle';},
+    };
+    assert.equal(await dispatchNext(pool,agentConfig,fake),true);
+    assert.equal(creates,0);
+    assert.equal((await pool.query('SELECT status FROM agent_dispatches WHERE message_id=$1',[first.message.id])).rows[0].status,'pending');
+    failPreflight=false;
+    await pool.query(`UPDATE agent_dispatches SET next_attempt_at=now()-interval '1 second' WHERE message_id=$1`,[first.message.id]);
+    assert.equal(await dispatchNext(pool,agentConfig,fake),true);
+    assert.equal(creates,1);
+    assert.equal((await pool.query('SELECT status FROM agent_dispatches WHERE message_id=$1',[first.message.id])).rows[0].status,'uncertain');
+    assert.equal(await dispatchNext(pool,agentConfig,fake),false);
+    assert.equal((await pool.query('SELECT status FROM agent_dispatches WHERE message_id=$1',[second.message.id])).rows[0].status,'pending');
+    assert.equal((await pool.query('SELECT provider_session_id FROM rooms WHERE id=$1',[a.room.id])).rows[0].provider_session_id,oldSession);
+  } finally {await pool.end();}
+});
+
+test('terminated private session is reconciled once and rotated before the pending turn',async()=>{
+  const pool=createPool(config);
+  try{
+    const a=await fixture(pool),oldSession=`sesn_${randomUUID()}`,newSession=`sesn_${randomUUID()}`;
+    await pool.query('UPDATE rooms SET provider_session_id=$2 WHERE id=$1',[a.room.id,oldSession]);
+    const pending=await saveUserMessage(pool,a.user.id,a.room.id,randomUUID(),'Continue here',true);
+    const agentConfig={...config,anthropicApiKey:'fake',anthropicAgentId:'agent_fake',anthropicEnvironmentId:'env_fake'};
+    let created=0,oldLists=0;
+    const fake:ManagedAgentClient={
+      create:async input=>{created++;assert.match(input.initial_events[0].content[0].text,/Recovered old reply/);return{id:newSession};},
+      send:async()=>{throw Error('Old terminated session must not receive a turn');},
+      stream:async()=>({async *[Symbol.asyncIterator](){yield {type:'session.status_idle'};}}),
+      list:async function*(id){if(id===oldSession){oldLists++;yield {type:'agent.message',id:'recovered-on-termination',content:[{type:'text',text:'Recovered old reply'}]};}},
+      status:async id=>id===oldSession?'terminated':'idle',
+    };
+    assert.equal(await dispatchNext(pool,agentConfig,fake),true);
+    assert.equal(created,1);assert.equal(oldLists,1);
+    assert.equal((await pool.query('SELECT status FROM agent_dispatches WHERE message_id=$1',[pending.message.id])).rows[0].status,'completed');
+    assert.equal((await history(pool,a.user.id,a.room.id,0)).messages.filter(m=>m.text==='Recovered old reply').length,1);
+  }finally{await pool.end();}
+});
+
+test('transient preflight delay lets another room run while permanent missing session becomes unavailable',async()=>{
+  const pool=createPool(config);
+  try{
+    const a=await fixture(pool),b=await fixture(pool),oldSession=`sesn_${randomUUID()}`;
+    await pool.query('UPDATE rooms SET provider_session_id=$2 WHERE id=$1',[a.room.id,oldSession]);
+    const stalled=await saveUserMessage(pool,a.user.id,a.room.id,randomUUID(),'Stalled turn',true);
+    const next=await saveUserMessage(pool,a.user.id,a.room.id,randomUUID(),'Later turn',true);
+    const other=await saveUserMessage(pool,b.user.id,b.room.id,randomUUID(),'Other room turn',true);
+    const agentConfig={...config,anthropicApiKey:'fake',anthropicAgentId:'agent_fake',anthropicEnvironmentId:'env_fake'};
+    let missing=false,creates=0;
+    const fake:ManagedAgentClient={
+      create:async input=>{creates++;assert.equal(input.metadata.joystick_room_id,b.room.id);return{id:`sesn_${randomUUID()}`};},
+      send:async()=>{throw Error('Unexpected send');},
+      stream:async()=>({async *[Symbol.asyncIterator](){yield {type:'session.status_idle'};}}),
+      list:async function*(){},
+      status:async id=>{if(id!==oldSession)return 'idle';if(missing)throw Object.assign(new Error('Session missing'),{status:404});throw Error('Temporary provider outage');},
+    };
+    assert.equal(await dispatchNext(pool,agentConfig,fake),true);
+    const delayed=(await pool.query('SELECT status,next_attempt_at>now() AS delayed FROM agent_dispatches WHERE message_id=$1',[stalled.message.id])).rows[0];
+    assert.deepEqual(delayed,{status:'pending',delayed:true});
+    assert.equal(await dispatchNext(pool,agentConfig,fake),true);
+    assert.equal(creates,1);
+    assert.equal((await pool.query('SELECT status FROM agent_dispatches WHERE message_id=$1',[other.message.id])).rows[0].status,'completed');
+    assert.equal((await pool.query('SELECT status FROM agent_dispatches WHERE message_id=$1',[next.message.id])).rows[0].status,'pending');
+    missing=true;
+    await pool.query(`UPDATE agent_dispatches SET next_attempt_at=now()-interval '1 second' WHERE message_id=$1`,[stalled.message.id]);
+    assert.equal(await dispatchNext(pool,agentConfig,fake),true);
+    assert.equal((await pool.query('SELECT status FROM agent_dispatches WHERE message_id=$1',[stalled.message.id])).rows[0].status,'unavailable');
+    assert.equal((await pool.query('SELECT status FROM agent_dispatches WHERE message_id=$1',[next.message.id])).rows[0].status,'unavailable');
+    assert.equal(creates,1);
+  }finally{await pool.end();}
+});
+
+test('multi-member rooms keep their existing session without private account context', async () => {
+  const pool=createPool(config);
+  try {
+    const a=await fixture(pool);
+    const b=await fixture(pool);
+    await pool.query('INSERT INTO room_members(room_id,user_id) VALUES($1,$2)',[a.room.id,b.user.id]);
+    const oldSession=`sesn_${randomUUID()}`;
+    await pool.query('UPDATE rooms SET provider_session_id=$2 WHERE id=$1',[a.room.id,oldSession]);
+    const pending=await saveUserMessage(pool,a.user.id,a.room.id,randomUUID(),'Shared hello',true);
+    const agentConfig={...config,anthropicApiKey:'fake',anthropicAgentId:'agent_fake',anthropicEnvironmentId:'env_fake'};
+    let sent=false;
+    const fake:ManagedAgentClient={
+      create:async()=>{throw new Error('Shared room must not rotate');},
+      send:async(sessionId,text)=>{assert.equal(sessionId,oldSession);assert.equal(text,'Shared hello');sent=true;},
+      stream:async()=>({async *[Symbol.asyncIterator](){yield {type:'session.status_idle'};}}),
+      list:async function*(){},
+      status:async()=> 'idle',
+    };
+    assert.equal(await dispatchNext(pool,agentConfig,fake),true);
+    assert.equal(sent,true);
+    assert.equal((await pool.query('SELECT provider_session_id,agent_prompt_revision FROM rooms WHERE id=$1',[a.room.id])).rows[0].provider_session_id,oldSession);
+    assert.equal((await pool.query('SELECT status FROM agent_dispatches WHERE message_id=$1',[pending.message.id])).rows[0].status,'completed');
+  } finally {await pool.end();}
+});
+
+test('lost sender access only stops that sender while another member can dispatch',async()=>{
+  const pool=createPool(config);
+  try{
+    const a=await fixture(pool),b=await fixture(pool);
+    await pool.query('INSERT INTO room_members(room_id,user_id) VALUES($1,$2)',[a.room.id,b.user.id]);
+    const revoked=await saveUserMessage(pool,a.user.id,a.room.id,randomUUID(),'Revoked sender secret',true);
+    const healthy=await saveUserMessage(pool,b.user.id,a.room.id,randomUUID(),'Healthy sender request',true);
+    await pool.query('DELETE FROM room_members WHERE room_id=$1 AND user_id=$2',[a.room.id,a.user.id]);
+    const agentConfig={...config,anthropicApiKey:'fake',anthropicAgentId:'agent_fake',anthropicEnvironmentId:'env_fake'};
+    let creates=0;
+    const fake:ManagedAgentClient={
+      create:async input=>{creates++;const text=input.initial_events[0].content[0].text;assert.match(text,/Healthy sender request/);assert.ok(!text.includes('Revoked sender secret'));return{id:`sesn_${randomUUID()}`};},
+      send:async()=>{throw Error('Unexpected send');},
+      stream:async()=>({async *[Symbol.asyncIterator](){yield{type:'session.status_idle'};}}),
+      list:async function*(){},
+      status:async()=> 'idle',
+    };
+    assert.equal(await dispatchNext(pool,agentConfig,fake),true);
+    assert.equal((await pool.query('SELECT status FROM agent_dispatches WHERE message_id=$1',[revoked.message.id])).rows[0].status,'unavailable');
+    assert.equal((await pool.query('SELECT status FROM agent_dispatches WHERE message_id=$1',[healthy.message.id])).rows[0].status,'pending');
+    assert.equal(await dispatchNext(pool,agentConfig,fake),true);
+    assert.equal(creates,1);
+    assert.equal((await pool.query('SELECT status FROM agent_dispatches WHERE message_id=$1',[healthy.message.id])).rows[0].status,'completed');
+  }finally{await pool.end();}
 });

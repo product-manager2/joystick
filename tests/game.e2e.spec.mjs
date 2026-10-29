@@ -13,8 +13,29 @@ async function passkey(context, page) {
   } });
 }
 
+async function stubQuestExecution(page) {
+  const id=randomUUID(), artifactId=randomUUID(), decisionId=randomUUID();
+  let posts=0, reads=0, failures=0, failNext=false, phase="needs_input", scope={};
+  await page.route(url => new URL(url).pathname.endsWith("/api/v1/agent/runs"), async route => {
+    if(route.request().method()==="GET")return route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({runs:[{id,kind:"quest-execute",status:phase,...scope}],nextCursor:null})});
+    if(route.request().method()!=="POST")return route.fallback();
+    const body=route.request().postDataJSON();
+    if(body.kind!=="quest-execute")return route.fallback();
+    posts++; scope={missionId:body.missionId,planId:body.planId||null,questId:body.questId};
+    await new Promise(resolve=>setTimeout(resolve,200));
+    await route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({run:{id,kind:"quest-execute",status:"queued",...scope}})});
+  });
+  await page.route(`**/api/v1/agent/runs/${id}`, async route => {
+    reads++;
+    if(failNext){failNext=false;failures++;return route.fulfill({status:503,contentType:"application/json",body:JSON.stringify({error:{code:"temporary",message:"Temporary run refresh failure"}})});}
+    await route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({run:{id,kind:"quest-execute",status:phase,...scope,response:phase==="running"?"Draft work is **ready** to edit.":null,error:null},drafts:[],decisions:phase==="needs_input"?[{id:decisionId,prompt:"Which source should I use?",options:[{id:"local",label:"Local guide"},{id:"open",label:"Open source"}]}]:[],artifacts:phase==="running"?[{id:artifactId,title:"Agent research draft",content:"Draft from local guide",version:1}]:[]})});
+  });
+  await page.route(`**/api/v1/agent/runs/${id}/decisions`, async route => {expect(route.request().postDataJSON().optionId).toBe("local");phase="running";await route.fulfill({status:200,contentType:"application/json",body:"{}"});});
+  return {posts:()=>posts,reads:()=>reads,failures:()=>failures,failNext:()=>{failNext=true;}};
+}
+
 test("mission, plan, task, submission, and account state survive reload", async ({ browser }) => {
-  test.setTimeout(90_000);
+  test.setTimeout(120_000);
   const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
   await passkey(context, page);
@@ -35,8 +56,12 @@ test("mission, plan, task, submission, and account state survive reload", async 
     await page.reload();
     await expect(page.getByRole("heading", { name: "Missions" })).toBeVisible();
     await page.getByRole("button", { name: "Profile" }).click();
-    await expect(page.getByText("Sprout · star")).toBeVisible();
+    await page.getByRole("button", { name: /Sprout's name and look/ }).click();
+    await expect(page.getByText("Sprout · Star")).toBeVisible();
+    await page.locator('[data-live="sheet-close"]').click();
+    await page.getByRole("button", { name: /What we're good at/ }).click();
     await expect(page.getByText("Maker", { exact: true })).toBeVisible();
+    await page.locator('[data-live="sheet-close"]').click();
     await page.getByRole("button", { name: "Missions" }).click();
     const missionDraft = await stubAgentDraft(page, "mission", { title: "Agent's first cut", pitch: "A working open source garden planner.", tag: "Community", stages: [{ name: "Research", goal: "Collect planting facts", target: 1000, gateTarget: 1, unit: "users" }, { name: "Build", goal: "Make the planner", target: 1, unit: "approved tasks" }], rules: ["Gardeners can plan a season"] });
     await page.getByRole("button", { name: "+ New" }).click();
@@ -138,8 +163,34 @@ test("mission, plan, task, submission, and account state survive reload", async 
     await page.getByRole("button", { name: /Map the growing season/ }).click();
     await page.getByRole("button", { name: /List local planting dates/ }).click();
     await page.getByRole("button", { name: "Start task" }).click();
-    await page.getByRole("button", { name: "Submit work" }).click();
+    await expect(page.locator('[data-live="agent-execute"]')).toBeVisible();
+    const execution=await stubQuestExecution(page);
+    await page.evaluate(() => {const start=document.querySelector('[data-live="agent-execute"]');start.click();start.click();});
+    await expect(page.getByText("Which source should I use?")).toBeVisible();
+    expect(execution.posts()).toBe(1);
+    await expect(page.locator('[data-live="agent-execute"]')).toHaveCount(0);
+    await page.locator('#live-composer [name="text"]').fill("Keep this task message draft");
+    const chatReads=execution.reads();
+    await expect.poll(()=>execution.reads()).toBeGreaterThan(chatReads);
+    await expect(page.locator('#live-composer [name="text"]')).toHaveValue("Keep this task message draft");
+    await page.getByRole("tab", { name: "Brief" }).click();
+    await expect(page.getByRole("tab", { name: "Brief" })).toHaveAttribute("aria-selected","true");
+    await page.getByRole("tab", { name: "Chat" }).click();
+    await page.getByRole("button", { name: "Local guide" }).click();
+    await expect(page.getByText("Draft work is ready to edit.")).toBeVisible();
+    await page.locator('.task-chat .chat-head [data-a="back"]').click();
+    await expect(page.locator('.chat-head')).toContainText("Map the growing season");
+    await page.getByRole("button", { name: /List local planting dates/ }).click();
+    await expect(page.getByText("Draft work is ready to edit.")).toBeVisible();
+    await expect(page.locator("#msgs")).toHaveCount(1);
+    await page.getByRole("button", { name: "Edit and submit" }).click();
+    await page.getByLabel("Artifact title").fill("Edited research");
     await page.getByLabel("Work and evidence").fill("Tomatoes: March; beans: April. Source: local gardening guide.");
+    const beforeFailure=execution.reads();execution.failNext();
+    await expect.poll(()=>execution.failures()).toBe(1);
+    await expect.poll(()=>execution.reads()).toBeGreaterThanOrEqual(beforeFailure+2);
+    await expect(page.getByLabel("Artifact title")).toHaveValue("Edited research");
+    await expect(page.getByLabel("Work and evidence")).toHaveValue("Tomatoes: March; beans: April. Source: local gardening guide.");
     await page.getByRole("button", { name: "Submit for review" }).click();
     await expect(page.getByText("Waiting for two independent reviews")).toBeVisible();
     await page.reload();
