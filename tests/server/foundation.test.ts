@@ -148,16 +148,27 @@ test('foundation authorization, challenge replay, idempotency, provider dedup, a
     const blocked=await saveUserMessage(pool,a.user.id,a.room.id,randomUUID(),'Blocked during overlap',true);
     await pool.query(`UPDATE agent_dispatches SET status='sending' WHERE message_id=$1`,[blocked.message.id]);
     const secondPool=createPool(config);
+    let recoveredLock:Awaited<ReturnType<typeof startWorker>>=null;
     try {
-      const secondLock=await startWorker(secondPool);
-      assert.equal(secondLock,null);
-      assert.equal((await pool.query('SELECT status FROM agent_dispatches WHERE message_id=$1',[blocked.message.id])).rows[0].status,'sending');
-    } finally {firstLock.release(true);}
-    const recoveredLock=await startWorker(secondPool);
-    assert.ok(recoveredLock);
-    assert.equal((await pool.query('SELECT status FROM agent_dispatches WHERE message_id=$1',[blocked.message.id])).rows[0].status,'uncertain');
-    recoveredLock.release(true);
-    await secondPool.end();
+      try {
+        const secondLock=await startWorker(secondPool);
+        try {
+          assert.equal(secondLock,null);
+          assert.equal((await pool.query('SELECT status FROM agent_dispatches WHERE message_id=$1',[blocked.message.id])).rows[0].status,'sending');
+        } finally {secondLock?.release(true);}
+      } finally {firstLock.release(true);}
+      // Connection destruction is asynchronous; retry the real lock until PostgreSQL observes it.
+      const deadline=Date.now()+5000;
+      do {
+        recoveredLock=await startWorker(secondPool);
+        if (!recoveredLock && Date.now()<deadline) await new Promise(resolve=>setTimeout(resolve,25));
+      } while (!recoveredLock && Date.now()<deadline);
+      assert.ok(recoveredLock,'The worker lock was not released within five seconds');
+      assert.equal((await pool.query('SELECT status FROM agent_dispatches WHERE message_id=$1',[blocked.message.id])).rows[0].status,'uncertain');
+    } finally {
+      recoveredLock?.release(true);
+      await secondPool.end();
+    }
 
     const address=await app.listen({port:0,host:'127.0.0.1'});
     const wsUrl=address.replace('http:','ws:')+'/api/v1/ws';
