@@ -517,3 +517,9 @@ button.chip.trust { background: var(--mint); color: var(--green-d); border-color
 .need .meter { height: 9px; border-width: 2px; }
 .need b { font-size: 12px; white-space: nowrap; }
 .ctag { font-size: 11px; font-weight: 800; color: var(--ink-2); border: 2px solid var(--paper-2); border-radius: 99px; padding: 1px 8px; white-space: nowrap; }
+.okind { font-family: var(--display); font-size: 13px; width: 30px; height: 30px; display: grid; place-items: center; border: var(--line-2); border-radius: 8px; background: var(--gold-soft); }
+.done-tag { background: var(--green-d); color: var(--white); }
+.mstones li span + span { color: var(--ink); }
+.tnode { position: relative; }
+.tnode .flag.you { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); z-index: 2; white-space: nowrap; background: var(--blue); color: var(--white); border: var(--line-1); border-radius: 6px; font-family: var(--type); font-size: 11px; font-weight: 800; padding: 1px 6px; }
+.trow-cap { position: relative; z-index: 2; margin: 4px auto 10px; max-width: 320px; text-align: center; font-size: 13px; line-height: 1.35; background: var(--cream); border: var(--line-2); border-radius: 12px; padding: 6px 10px; box-shadow: var(--pop-sm); }

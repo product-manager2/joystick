@@ -312,10 +312,10 @@ export function backSheet(sid) {
     return `<div class="grab"></div>
     <div class="row">${stratBadge(s, 36)}<div style="flex:1;min-width:0"><h2 class="display" style="font-size:20px;color:var(--navy)">Back ${esc(s.name)}</h2><div class="small muted ellip">${esc(s.squad)} · ${backersOf(s)} backers</div></div>${CloseButton()}</div>
     <div class="amounts">${amounts.map(a => `<button data-b="amt" data-v="${a}" aria-pressed="${amt === a}">$${a}</button>`).join("")}</div>
-    <button class="chip voice" data-b="amt" data-v="0" aria-pressed="${amt === 0}">+1 · Add my voice</button>
-    <div class="estimate">${amt ? `<span>$${amt} now</span><b>→ about $${fmt(amt + extra)} with the bonus</b>` : `<span>Free</span><b>→ +$${fmt(extra)} bonus</b>`}</div>
-    <div class="small muted">${amt ? `You get a stake in ${esc(s.squad)}: a share of what it builds.` : "Counts once you've played. Earns a little if it ships."}</div>
-    ${Button(amt ? `Back with $${amt}` : "Add my voice", { variant: "red", block: true, "data-b": "go" })}`;
+    <div class="estimate">${amt ? `<span>You give $${amt}</span><b>${esc(s.squad)} gets ${extra > 0 ? `about $${fmt(amt + extra)}` : `$${amt}`}</b>` : `<span>You give $0</span><b>Its bonus grows ${extra > 0 ? `about $${fmt(extra)}` : "a little"}</b>`}</div>
+    <div class="small muted">${amt ? `${extra > 0 ? `The mission's bonus adds $${fmt(extra)} because one more person backs it.` : "Its bonus is already at the cap, so it gets exactly your amount."} You get a stake in ${esc(s.squad)}: a share of what it builds.` : "Free backers count toward the bonus once you've played a quest. No stake, but you get credit if it ships."}</div>
+    ${Button(amt ? `Back with $${amt}` : "Back it for free", { variant: "red", block: true, "data-b": "go" })}
+    ${amt ? `<button class="linkbtn" data-b="amt" data-v="0" style="align-self:center">No money? <b>Back it for free</b></button>` : `<button class="linkbtn" data-b="amt" data-v="10" style="align-self:center">Back it with money instead</button>`}`;
   }, onClick: (e, close, draw) => {
     const b = e.target.closest("[data-b]");
     if (!b) return;
@@ -326,7 +326,7 @@ export function backSheet(sid) {
     if (first || (!amt && s.status === "proposed")) s.backers++;
     close();
     if (s.status === "proposed" && s.backers >= s.need) { s.status = null; titleCard("Your backing tipped it", "LAUNCHED!", esc(s.name), null, 1300); }
-    else toast(`${amt ? `Backed $${amt}` : "Voice added"} · bonus <b>+$${fmt(Math.max(0, matchOf(m, s) - before))}</b>`);
+    else toast(`${amt ? `Backed $${amt}` : "Backed for free"} · bonus <b>+$${fmt(Math.max(0, matchOf(m, s) - before))}</b>`);
     render();
   } });
 }

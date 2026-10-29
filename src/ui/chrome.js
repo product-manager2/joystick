@@ -1,3 +1,4 @@
+import { recapScreen } from "../screens/recap.js";
 import { missions } from "../data/content.js";
 import { commsScreen, threadScreen } from "../screens/comms.js";
 import { duoScreen } from "../screens/duo.js";
@@ -29,9 +30,9 @@ export function renderHud() {
 export const FULL = ["stage", "strategy", "quest", "session", "thread", "forge", "gate"];
 // History: each move to a different screen (or a different mission, strategy, quest or chat) is
 // remembered, so Back returns to exactly where you came from, tab included. The bottom nav starts fresh.
-const PLACE = ["missionId", "tab", "stratId", "questId", "thread", "sessionId", "roomTab", "lobbyTab"];
+const PLACE = ["recapId", "missionId", "tab", "stratId", "questId", "thread", "sessionId", "roomTab", "lobbyTab"];
 export function go(screen, extra = {}, remember = true) {
-  const moved = screen !== S.screen || ["missionId", "stratId", "questId", "thread", "sessionId"].some(k => k in extra && extra[k] !== S[k]);
+  const moved = screen !== S.screen || ["recapId", "missionId", "stratId", "questId", "thread", "sessionId"].some(k => k in extra && extra[k] !== S[k]);
   if (remember && moved && S.screen !== "onboard") S.hist = [...(S.hist || []), Object.fromEntries([["screen", S.screen], ...PLACE.map(k => [k, S[k]])])].slice(-30);
   Object.assign(S, extra, { screen });
   closeDrill();
@@ -48,9 +49,9 @@ export function render() {
   const inGame = S.screen !== "onboard";
   const fullChat = FULL.includes(S.screen);
   // The mission page has its own header, so the HUD steps aside there
-  $("#hud").hidden = !inGame || fullChat || S.screen === "mission";
+  $("#hud").hidden = !inGame || fullChat || ["mission", "recap"].includes(S.screen);
   $("#nav").hidden = !inGame || fullChat;
-  const views = { onboard, play: playScreen, lobby, mission: missionScreen, stage: stageScreen, strategy: strategyScreen, quest: roomScreen, session: roomScreen, comms: commsScreen, thread: threadScreen, forge: forgeScreen, duo: duoScreen, gate: gateScreen };
+  const views = { onboard, play: playScreen, lobby, mission: missionScreen, stage: stageScreen, strategy: strategyScreen, quest: roomScreen, session: roomScreen, comms: commsScreen, thread: threadScreen, forge: forgeScreen, duo: duoScreen, gate: gateScreen, recap: recapScreen };
   const main = $("#main");
   main.style.display = fullChat ? "flex" : "";
   main.style.flexDirection = fullChat ? "column" : "";

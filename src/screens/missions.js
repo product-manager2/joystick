@@ -1,3 +1,4 @@
+import { FINISHED } from "../data/history.js";
 import { ROLES, missions, roleColor } from "../data/content.js";
 import { Button, Stats, Tabs } from "../design/components.js";
 import { color } from "../design/tokens.js";
@@ -5,13 +6,16 @@ import { DEMAND } from "../data/world.js";
 import { fuelGauges, fuelOf, ledgerOf, mult, tok, tokenCard } from "../game/economy.js";
 import { matches, poolOf } from "../game/matching.js";
 import { STATUS, gateOf, leaderOf, playable, strats } from "../game/strategies.js";
-import { MISSION_WHY, chName, gateBar, short } from "./quests.js";
+import { MISSION_WHY, chName, chanIcon, gateBar, short } from "./quests.js";
 import { trustOf } from "./sheets.js";
 import { S } from "../state.js";
 import { go } from "../ui/chrome.js";
 import { $, backBtn, esc, fmt, glyph, mission } from "../ui/helpers.js";
 
 // ===================== Missions =====================
+// Finished missions: what they produced is one tap away
+const finishedList = (list, title) => list.length ? `<h2 class="sec-title">${title}</h2><div class="list">${list.map(f => `
+  <button class="card qitem" data-a="recap" data-x="${f.id}">${chanIcon(f, 40)}<span style="min-width:0"><b class="qt">${esc(f.title)}</b><span class="small muted" style="display:block">${esc(f.result)}</span></span><span class="qstat done">✓ Done</span></button>`).join("")}</div>` : "";
 export function lobby() {
   const mine = missions.filter(m => S.joined[m.id]);
   const tab = mine.length ? (S.lobbyTab || "mine") : "explore";
@@ -34,6 +38,7 @@ export function lobby() {
     <div class="row"><h2 class="sec-title">Missions</h2><span class="spacer"></span><button class="btn sm" data-a="forge">+ New</button></div>
     ${mine.length ? Tabs([["mine", `Mine · ${mine.length}`], ["explore", "Explore"]], tab, "ltab") : ""}
     ${tab === "mine" ? `<div class="list" style="gap:16px">${mine.map(mineCard).join("")}</div>
+      ${finishedList(FINISHED.filter(f => f.yours && S.together > 0), "You helped finish")}
       <button class="card explore-nudge" data-a="ltab" data-x="explore"><b>Find another mission</b><span class="small muted">${missions.length - mine.length} more looking for players</span><span class="display" style="font-size:22px">→</span></button>`
     : `<div class="chips">${tags.map(t => `<button class="chip" data-a="filter" data-x="${t}" aria-pressed="${S.filter === t}">${t}</button>`).join("")}</div>
     <div class="list" style="gap:16px">${others.length ? others.map(m => { const n = fitN(m); return `
@@ -43,7 +48,8 @@ export function lobby() {
           <div class="pfacts"><span><b>$${fmt(m.bounty)}</b>bounty</span><span><b>${m.players.toLocaleString()}</b>playing</span><span><b>${m.current + 1}/${m.stages.length}</b>stage</span></div>
           <div class="row wrap" style="gap:6px">${n ? `<span class="chip fitchip">${n} quest${n === 1 ? "" : "s"} fit you</span>` : ""}<span class="chip" style="background:var(--navy);color:var(--white)">${tok(m)} ×${mult(m)}</span>${m.players === hot ? `<span class="chip" style="background:var(--red);color:var(--white)">Hot</span>` : ""}<span class="chip">${m.tag}</span></div>
         </div>
-      </button>`; }).join("") : `<div class="card muted" style="padding:14px">Nothing here yet. Start one?</div>`}</div>`}
+      </button>`; }).join("") : `<div class="card muted" style="padding:14px">Nothing here yet. Start one?</div>`}</div>
+    ${finishedList(FINISHED, "Finished missions")}`}
   </div>`;
 }
 
@@ -106,14 +112,18 @@ export function mapView(m) {
     const tracks = i === m.current ? strats(m).filter(s => s.status !== "merged").map(s => ({ name: s.name, s }))
       : (st.tracks || [st.name]).map(name => ({ name }));
     const ids = tracks.map((_, j) => `t-${i}-${j}`);
-    return `<div class="trow">${tracks.map((t, j) => {
+    // In the current stage, your strategy carries a YOU flag; with none yet, the caption asks you to pick
+    const isMine = s => S.backed?.[m.id] === s.id || (S.contrib?.[s.id] || 0) > 0;
+    const mineS = i === m.current ? tracks.map(t => t.s).find(s => s && isMine(s)) : null;
+    const cap = i === m.current ? `<div class="trow-cap"><b>Stage ${i + 1} · ${esc(st.name)}:</b> ${tracks.length} strategies racing to the goal. ${mineS ? `You're on <b>${esc(mineS.name)}</b>.` : "Tap one to join it."}</div>` : "";
+    return `${cap}<div class="trow">${tracks.map((t, j) => {
       const tst = t.s ? (t.s.status === "queued" ? "queued" : t.s.status ? "raising" : "now") : state;
       const inner = tst === "done" ? "✓" : t.s ? (t.s.score ? "+" + t.s.score : "·") : "";
       return `<button class="tnode ${tst}" id="${ids[j]}" data-from="${prev}" ${t.s ? `data-a="strategy" data-x="${t.s.id}"` : `data-a="stage" data-x="${i}"`} ${t.s ? `style="--track:${t.s.color}"` : ""}>
-        <span class="tdisc">${inner}</span><span class="tl">${esc(t.name)}${t.s && t.s.status ? `<i>${esc(t.s.status === "queued" ? "queued" : "raising")}</i>` : ""}</span></button>`;
+        ${t.s && t.s === mineS ? `<span class="flag you">YOU</span>` : ""}<span class="tdisc">${inner}</span><span class="tl">${esc(t.name)}${t.s && t.s.status ? `<i>${esc(t.s.status === "queued" ? "queued" : "raising")}</i>` : ""}</span></button>`;
     }).join("")}</div>
     <div class="crow"><button class="cp ${state} ${st.finish ? "finish" : ""}" id="c-${i}" data-from="${ids.join(" ")}" data-a="stage" data-x="${i}">
-      ${state === "now" ? `<span class="flag">${S.joined[m.id] ? "YOU ARE HERE" : `${m.players.toLocaleString()} HERE`}</span>` : ""}
+      ${state === "now" ? `<span class="flag">STAGE ${i + 1} GOAL</span>` : ""}
       <span class="cdisc"><span>${state === "done" ? "✓" : st.finish ? "★" : i + 1}</span></span><span class="lbl">${esc(st.name)}</span></button></div>`;
   }).join("")}</div>`;
 }

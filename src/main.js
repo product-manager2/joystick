@@ -1,3 +1,4 @@
+import { askPip, outputSheet, stageRecapSheet } from "./screens/recap.js";
 import "./design/tokens.css";
 import "./design/base.css";
 import "./design/components.css";
@@ -59,6 +60,9 @@ document.addEventListener("click", e => {
     case "ob-next": if (S.ob === 2 && !S.name) S.name = "nova"; S.ob++; return render();
     case "ob-role": S.roles = toggle(S.roles, x, 3); return render();
     case "botname": S.agentName = x; return render();
+    case "recap": return go("recap", { recapId: x });
+    case "output": return outputSheet(x);
+    case "askpip": return askPip(x);
     case "ob-mission": S.picks = toggle(S.picks || [], x); return render();
     case "ob-done": {
       (S.picks || []).forEach(id => { S.joined[id] = [...S.roles]; mission(id).players++; });
@@ -82,7 +86,8 @@ document.addEventListener("click", e => {
       const m = mission(), i = +x;
       if (i === m.current) return titleCard(`Stage ${i + 1}`, esc(m.stages[i].name), "Ready? Go!", () => go("stage"), 1200);
       if (i > m.current && (m.stages[i].tracks || []).length > 1) return toast(`${esc(m.stages[i].name)}: ${m.stages[i].tracks.length} tracks run in parallel, once ${esc(m.stages[m.current].name)} clears`);
-      return toast(i < m.current ? `${esc(m.stages[i].name)} · cleared` : `Clear ${esc(m.stages[m.current].name)} first`);
+      if (i < m.current) return stageRecapSheet(m, i);
+      return toast(`Clear ${esc(m.stages[m.current].name)} first`);
     }
     case "openq": S.roomTab = "chat"; return go("quest", { missionId: x, questId: b.dataset.q, stratId: findQuest(b.dataset.q)[0].strat });
     case "quest": { const [q, mm] = findQuest(x); q.unread = 0; S.roomTab = q.visited ? "chat" : "brief"; q.visited = true; return go("quest", { missionId: mm.id, questId: x, stratId: q.strat }); }
