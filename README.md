@@ -2,7 +2,7 @@
 
 **Change the world. Multiplayer.** Team up and take on the world's hardest problems, and earn the prize and a piece of what you build.
 
-A mobile-first PWA demo of [getjoystick.xyz](https://getjoystick.xyz). All data is mocked in the browser for now; the backend comes later.
+A mobile-first PWA with real email-and-passkey accounts and persistent private agent chat at `/chat.html`. The mission experience at `/` remains a browser demo; quest execution, reviews, balances, and payments are not connected to the backend yet. See the [foundation guide](docs/running-the-foundation.md) and [technical architecture](docs/technical-architecture.md).
 
 **Contents**
 
@@ -127,6 +127,14 @@ Results from every plan count toward the stage goal, not just the leader's, and 
 
 ## 10. Status and roadmap
 
+**Implemented foundation**
+
+- Email identifier and passkey signup/login, without passwords or email verification.
+- Persistent private chat, WebSockets, and Anthropic-hosted Claude Managed Agents.
+- Standalone Fastify API and worker on Fly, managed PostgreSQL, and a Vercel frontend.
+
+**Next backend milestone:** persist one mission and its quests, then connect claims, agent work, saved outputs, and real review decisions to the existing screens. See the [delivery sequence](docs/technical-architecture.md#delivery-sequence).
+
 **In the demo now**
 
 - Onboarding for new and returning players, roles, and a meet-your-agent step.
@@ -147,7 +155,7 @@ Results from every plan count toward the stage goal, not just the leader's, and 
 2. **Trust weights** in the bonus (new accounts count less until they've played).
 3. **Team-up nudges** between squads.
 
-**Later:** a backend with real accounts, real mission funds and an on-chain record of who owns what, plus collusion-resistant matching.
+**Later:** real mission funds and payouts, an agreed ownership model, and collusion-resistant matching.
 
 ## 11. Open questions
 
@@ -166,7 +174,7 @@ npm run build      # production build in dist/
 npm run preview    # serve the build at http://localhost:4173 (service worker + install prompt work here)
 ```
 
-- The app is at `/`, and the living style guide is at `/design.html`.
+- The mission demo is at `/`, real accounts and private chat are at `/chat.html`, and the living style guide is at `/design.html`. Follow the [foundation guide](docs/running-the-foundation.md) to start the API and local database.
 - In dev, `window.jq` gives you the state and router for poking at screens: `jq.go("lobby")`, `jq.S`, `jq.loadReturning()`.
 
 ### Clickable prototype

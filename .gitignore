@@ -4,3 +4,10 @@ dist
 *.log
 .playwright-mcp
 .vercel
+.env
+.env.*
+!.env.example
+!.env.local
+test-results/
+playwright-report/
+build/

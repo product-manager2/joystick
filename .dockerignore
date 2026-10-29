@@ -1,0 +1,12 @@
+.git
+node_modules
+dist
+build
+.env
+.env.*
+test-results
+playwright-report
+.playwright-mcp
+.vercel
+.DS_Store
+*.log
