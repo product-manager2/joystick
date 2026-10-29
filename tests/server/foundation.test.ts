@@ -7,6 +7,7 @@ import { createPool } from '../../server/db.js';
 import { saveUserMessage, history } from '../../server/chat.js';
 import { persistAgentEvent, dispatchNext, refreshDispatchStatus, recoverInterruptedDispatches, type ManagedAgentClient } from '../../server/agent.js';
 import { privateAgentContext } from '../../server/agent-context.js';
+import { PRIVATE_AGENT_PROMPT_REVISION } from '../../server/private-agent-prompt.js';
 import type { Config } from '../../server/config.js';
 import { startWorker } from '../../server/worker-lock.js';
 
@@ -75,7 +76,7 @@ test('foundation authorization, challenge replay, idempotency, provider dedup, a
 
     const providerSessionId=`sesn_${randomUUID()}`;
     const providerEventId=`evt_${randomUUID()}`;
-    await pool.query('UPDATE rooms SET provider_session_id=$2,agent_prompt_revision=1 WHERE id=$1',[a.room.id,providerSessionId]);
+    await pool.query('UPDATE rooms SET provider_session_id=$2,agent_prompt_revision=$3 WHERE id=$1',[a.room.id,providerSessionId,PRIVATE_AGENT_PROMPT_REVISION]);
     const event={type:'agent.message',id:providerEventId,content:[{type:'text',text:'Agent reply'}]};
     assert.equal(await persistAgentEvent(pool,a.room.id,providerSessionId,event),true);
     assert.equal(await persistAgentEvent(pool,a.room.id,providerSessionId,event),false);
@@ -114,7 +115,7 @@ test('foundation authorization, challenge replay, idempotency, provider dedup, a
       create:async()=>{throw new Error('Existing session should be reused');},
       send:async(_sessionId,text)=>{assert.equal(streamOpened,true);streamOpened=false;sends++; if(sends===1){assert.ok(text.includes('Available research task'));assert.ok(!text.includes('Other account private task'));assert.ok(text.endsWith('User message (reply to this):\nFirst turn'));} if(failSend) throw new Error('Unknown provider outcome');},
       stream:async()=>{streamOpened=true;return {async *[Symbol.asyncIterator]() { yield {type:'session.status_idle'}; }};},
-      list:async function*(){},
+      list:async function*(){if(providerStatus==='idle'){for(let i=0;i<sends;i++)yield {type:'user.message',id:`sent-${i}`};yield {type:'session.status_idle',id:'end_turn',stop_reason:{type:'end_turn'}};}},
       status:async()=>providerStatus,
     };
     const pendingA=await saveUserMessage(pool,a.user.id,a.room.id,randomUUID(),'First turn',true);
@@ -254,7 +255,7 @@ test('old private agent session rotates on an idle turn with scoped history and 
       },
       send:async(sessionId,text)=>{assert.equal(sessionId,newSession);assert.match(text,/And help me plan it/);sends++;},
       stream:async()=>({async *[Symbol.asyncIterator](){yield {type:'session.status_idle'};}}),
-      list:async function*(sessionId){if(sessionId===oldSession){oldLists++;yield {type:'agent.message',id:'old-reply',content:[{type:'text',text:'Old reply from Pip'}]};}},
+      list:async function*(sessionId){if(sessionId===oldSession){oldLists++;yield {type:'agent.message',id:'old-reply',content:[{type:'text',text:'Old reply from Pip'}]};}else{for(let i=0;i<creates+sends;i++)yield {type:'user.message',id:`new-turn-${i}`};yield {type:'session.status_idle',id:'new-end',stop_reason:{type:'end_turn'}};}},
       status:async()=> 'idle',
     };
     assert.equal(await dispatchNext(pool,agentConfig,fake),true);
@@ -314,7 +315,7 @@ test('terminated private session is reconciled once and rotated before the pendi
       create:async input=>{created++;assert.match(input.initial_events[0].content[0].text,/Recovered old reply/);return{id:newSession};},
       send:async()=>{throw Error('Old terminated session must not receive a turn');},
       stream:async()=>({async *[Symbol.asyncIterator](){yield {type:'session.status_idle'};}}),
-      list:async function*(id){if(id===oldSession){oldLists++;yield {type:'agent.message',id:'recovered-on-termination',content:[{type:'text',text:'Recovered old reply'}]};}},
+      list:async function*(id){if(id===oldSession){oldLists++;yield {type:'agent.message',id:'recovered-on-termination',content:[{type:'text',text:'Recovered old reply'}]};}else{yield {type:'user.message',id:'new-turn'};yield {type:'session.status_idle',id:'new-end',stop_reason:{type:'end_turn'}};}},
       status:async id=>id===oldSession?'terminated':'idle',
     };
     assert.equal(await dispatchNext(pool,agentConfig,fake),true);
@@ -338,7 +339,7 @@ test('transient preflight delay lets another room run while permanent missing se
       create:async input=>{creates++;assert.equal(input.metadata.joystick_room_id,b.room.id);return{id:`sesn_${randomUUID()}`};},
       send:async()=>{throw Error('Unexpected send');},
       stream:async()=>({async *[Symbol.asyncIterator](){yield {type:'session.status_idle'};}}),
-      list:async function*(){},
+      list:async function*(){if(creates){yield {type:'user.message',id:'other-turn'};yield {type:'session.status_idle',id:'other-end',stop_reason:{type:'end_turn'}};}},
       status:async id=>{if(id!==oldSession)return 'idle';if(missing)throw Object.assign(new Error('Session missing'),{status:404});throw Error('Temporary provider outage');},
     };
     assert.equal(await dispatchNext(pool,agentConfig,fake),true);
@@ -372,7 +373,7 @@ test('multi-member rooms keep their existing session without private account con
       create:async()=>{throw new Error('Shared room must not rotate');},
       send:async(sessionId,text)=>{assert.equal(sessionId,oldSession);assert.equal(text,'Shared hello');sent=true;},
       stream:async()=>({async *[Symbol.asyncIterator](){yield {type:'session.status_idle'};}}),
-      list:async function*(){},
+      list:async function*(){yield {type:'user.message',id:'shared-turn'};yield {type:'session.status_idle',id:'shared-end',stop_reason:{type:'end_turn'}};},
       status:async()=> 'idle',
     };
     assert.equal(await dispatchNext(pool,agentConfig,fake),true);
@@ -396,7 +397,7 @@ test('lost sender access only stops that sender while another member can dispatc
       create:async input=>{creates++;const text=input.initial_events[0].content[0].text;assert.match(text,/Healthy sender request/);assert.ok(!text.includes('Revoked sender secret'));return{id:`sesn_${randomUUID()}`};},
       send:async()=>{throw Error('Unexpected send');},
       stream:async()=>({async *[Symbol.asyncIterator](){yield{type:'session.status_idle'};}}),
-      list:async function*(){},
+      list:async function*(){yield {type:'user.message',id:'healthy-turn'};yield {type:'session.status_idle',id:'healthy-end',stop_reason:{type:'end_turn'}};},
       status:async()=> 'idle',
     };
     assert.equal(await dispatchNext(pool,agentConfig,fake),true);

@@ -4,6 +4,7 @@ import { readConfig, agentAvailable } from './config.js';
 import { anthropicClient, dispatchNext, reconcileSession } from './agent.js';
 import { startWorker, monitorWorkerLock } from './worker-lock.js';
 import { runProvider, recoverRunDispatches, startNextRun, reconcileActiveRuns, interruptCancelledRuns } from './agent-runs/worker.js';
+import { recoverPrivateToolSends } from './private-agent-tools.js';
 
 const config = readConfig();
 if (!agentAvailable(config)) { console.error('Agent worker requires ANTHROPIC_API_KEY, ANTHROPIC_AGENT_ID, and ANTHROPIC_ENVIRONMENT_ID'); process.exit(1); }
@@ -15,6 +16,7 @@ const heartbeat=setInterval(()=>{void lock.query('SELECT 1').catch(()=>{console.
 const client = anthropicClient(config);
 const runs = config.anthropicWorkflowAgentId ? runProvider(config) : null;
 if(runs)await recoverRunDispatches(pool);
+await recoverPrivateToolSends(pool);
 let running = true;
 process.on('SIGINT',()=>{running=false;});
 process.on('SIGTERM',()=>{running=false;});
@@ -32,7 +34,7 @@ async function reconcileLoop() {
       const sessions = await pool.query(`SELECT id,provider_session_id FROM rooms WHERE provider_session_id IS NOT NULL`);
       for (const row of sessions.rows) {
         if (!running) break;
-        try { await reconcileSession(pool,client,row.id,row.provider_session_id); }
+        try { await reconcileSession(pool,client,row.id,row.provider_session_id,config); }
         catch (error) { console.error('Could not reconcile managed session',row.id,error); }
       }
     } catch (error) { console.error('Could not list managed sessions',error); }

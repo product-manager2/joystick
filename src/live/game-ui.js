@@ -21,6 +21,7 @@ function syncThreadSummaries(summaries) {
   if (S.live) renderHud();
 }
 onRoomsChanged(message => {
+  if (message?.type === "agent.activity" && message.completed) refreshGame();
   if(message?.sequence){const t=live.snapshot?.threads.find(x=>x.id===message.roomId);if(t){const seq=Number(message.sequence);t.lastMessage={text:message.text,createdAt:message.createdAt||message.created_at,senderName:message.senderName};if(t._liveSequence!==undefined&&seq>t._liveSequence&&message.senderId!==live.user?.id&&!((S.screen==="thread"&&S.thread===t.id)||(S.screen==="quest"&&t.kind==="quest"&&S.questId===t.scopeId)))t.unread=(t.unread||0)+1;t._liveSequence=Math.max(t._liveSequence||0,seq);}}
   if (live.snapshot?.threads) syncThreadSummaries(live.snapshot.threads);
   if (!S.live || ui.editor || ui.creation || ui.context || ui.preview || (ui.run && !(S.screen==="quest"&&ui.runData?.run?.kind==="quest-execute")) || ui.runHistory) return;
@@ -264,8 +265,18 @@ function agentSuggestion() {
 }
 function roomMessages(k, scopeId, roomId) {
   const room = roomId ? live.snapshot.threads.find(t => t.id === roomId) : roomFor(k, scopeId); if (!room) return `<p class="small muted">Open this room to start a conversation.</p>`;
-  const messages = roomState(room.id).messages;
-  const history = messages.map(m => {const me=m.role==="user"&&(m.senderId===live.user?.id||m.pending);return `<div class="msg ${me ? "me" : ""}">${me ? "" : botAv()}<div class="bubble"><div class="from">${esc(me ? "You" : m.role === "assistant" ? S.agentName : m.senderName || "Member")}</div><div>${agentText(m.text)}</div>${m.pending ? '<span class="small muted">Sending…</span>' : ""}${m.error ? `<span class="small no">${esc(m.error)}</span>` : ""}</div></div>`}).join("");
+  const state = roomState(room.id);
+  const messages = state.messages;
+  const events = messages.map(m => ({at:m.createdAt||m.created_at||"",order:Number(m.sequence)||0,html:(()=>{const me=m.role==="user"&&(m.senderId===live.user?.id||m.pending);return `<div class="msg ${me ? "me" : ""}">${me ? "" : botAv()}<div class="bubble"><div class="from">${esc(me ? "You" : m.role === "assistant" ? S.agentName : m.senderName || "Member")}</div><div>${agentText(m.text)}</div>${m.pending ? '<span class="small muted">Sending…</span>' : ""}${m.error ? `<span class="small no">${esc(m.error)}</span>` : ""}</div></div>`;})()}));
+  if (k === "agent") {
+    for (const activity of [...state.activities].reverse()) {
+      const label = activity.handoff?.type === "download" ? "Download" : activity.handoff?.screen === "run" ? "Open work" : activity.handoff?.screen === "security" ? "Manage passkeys" : activity.handoff?.screen === "wallet" ? "Open money" : "Open";
+      const handoff = activity.status === "completed" && activity.handoff ? button(label,"agent-handoff",activity.id,"btn sm blue") : "";
+      events.push({at:activity.createdAt||"",order:0,html:`<div class="agent-activity card" data-activity-id="${esc(activity.id)}"><span class="agent-activity-mark" aria-hidden="true">${activity.status === "completed" ? "✓" : activity.status === "failed" ? "!" : "…"}</span><span class="agent-activity-copy"><b>${esc(activity.summary || (activity.status === "running" ? "Working on it…" : activity.status === "failed" ? "That didn't work" : "Done"))}</b><small>${esc(activity.status === "completed" ? "Done" : activity.status === "failed" ? "Could not finish" : "In progress")}</small></span>${handoff}</div>`});
+    }
+    if (state.preview?.text) events.push({at:"~",order:0,html:`<div class="msg">${botAv()}<div class="bubble"><div class="from">${esc(S.agentName)}</div><div>${agentText(state.preview.text)}</div></div></div>`});
+  }
+  const history = events.sort((a,b)=>String(a.at).localeCompare(String(b.at))||a.order-b.order).map(e=>e.html).join("");
   if (k === "agent") return history + agentSuggestion() || '<p class="small muted">No messages yet. Start the conversation.</p>';
   return history || '<p class="small muted">No messages yet. Start the conversation.</p>';
 }
@@ -513,6 +524,32 @@ export async function handleLiveClick(event) {
   const b = event.target.closest("[data-live]"); if (!b) return false;
   event.preventDefault();
   const a = b.dataset.live, id = b.dataset.id;
+  if (a === "agent-handoff") {
+    const room = live.snapshot?.threads?.find(t => t.id === S.thread && t.kind === "agent");
+    const activity = room && roomState(room.id).activities.find(item => item.id === id && item.status === "completed");
+    const handoff = activity?.handoff;
+    if (!handoff) return true;
+    if (handoff.type === "download") {
+      const path = handoff.path;
+      if (!/^\/api\/v1\/game\/(?:artifacts\/[0-9a-f-]{36}|credits\.(?:csv|json))$/.test(path)) return true;
+      const response = await fetch(new URL(path, apiOrigin), {credentials:"include",cache:"no-store"}).catch(() => null);
+      if (!response?.ok) { ui.error="Download unavailable"; updateVisibleMessages(); return true; }
+      const blob = await response.blob(), url = URL.createObjectURL(blob), link = document.createElement("a");
+      link.href = url; link.download = path.endsWith("credits.csv") ? "joystick-test-credits.csv" : path.endsWith("credits.json") ? "joystick-test-credits.json" : "artifact.txt"; link.click(); setTimeout(() => URL.revokeObjectURL(url),1000);
+      return true;
+    }
+    if (handoff.type !== "navigate") return true;
+    const screen = handoff.screen, entityId = handoff.entityId;
+    if (screen === "security") { ui.editor="security"; ui.codes=null; ui.error=""; render(); refreshSecurity().catch(error=>{ui.error=error.message;render();}); return true; }
+    if (screen === "wallet") { nav("profile"); ui.sheet={kind:"wallet"}; render(); return true; }
+    if (screen === "run" && entityId) { ui.run=entityId; ui.runData=null; await pollRun(entityId); return true; }
+    const extras = {mission:"missionId",stage:"stageId",strategy:"stratId",quest:"questId",thread:"thread"};
+    if (["lobby","comms","profile"].includes(screen)) { nav(screen); return true; }
+    if (screen === "thread" && entityId && live.snapshot.threads.some(t => t.id === entityId)) { nav("thread",{thread:entityId}); loadRoom(entityId).catch(()=>{}); return true; }
+    const target = missions.find(m => screen === "mission" ? m.id === entityId : screen === "stage" ? m.stages.some(s => s.id === entityId) : screen === "strategy" ? m.strategies.some(p => p.id === entityId) : screen === "quest" ? m.quests.some(q => q.id === entityId) : false);
+    if (target && extras[screen] && entityId) { const extra = {[extras[screen]]:entityId,missionId:target.id}; if (screen === "strategy") extra.stageId=target.strategies.find(p=>p.id===entityId)?.stageId; if (screen === "quest") { const q=target.quests.find(q=>q.id===entityId); extra.stageId=q?.stageId; extra.stratId=q?.strat; } nav(screen,extra); return true; }
+    return true;
+  }
   if (a === "creation-start" || a === "forge") { openCreation("mission"); return true; }
   if (a === "creation-resume") { resumeCreation(); return true; }
   if (a === "plan-new") { const m=current(); openCreation("plan",{missionId:m?.id,stageId:id}); return true; }

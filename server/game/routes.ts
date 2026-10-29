@@ -3,6 +3,7 @@ import type { Pool } from '../db.js';
 import { requireUser, ApiError } from '../auth.js';
 import { applyGameAction, getGameSnapshot } from './service.js';
 import type { GameActionInput } from '../../contracts/game.js';
+import { getGameArtifact, getCreditsCsv } from './exports.js';
 export function registerGameRoutes(app:FastifyInstance,pool:Pool){
   app.get('/api/v1/game',async request=>getGameSnapshot(pool,(await requireUser(pool,request)).id));
   app.post('/api/v1/game/actions',{bodyLimit:300_000},async request=>{
@@ -14,18 +15,20 @@ export function registerGameRoutes(app:FastifyInstance,pool:Pool){
   });
   app.get('/api/v1/game/artifacts/:artifactId',async(request,reply)=>{
     const user=await requireUser(pool,request);
-    const id=(request.params as {artifactId:string}).artifactId;
-    if(!/^[0-9a-f-]{36}$/i.test(id))throw new ApiError(404,'not_found','Artifact not found');
-    const row=await pool.query(`SELECT a.content,a.title,a.content_type FROM game_artifacts a JOIN game_quests q ON q.id=a.quest_id JOIN game_memberships m ON m.mission_id=q.mission_id WHERE a.id=$1 AND m.user_id=$2`,[id,user.id]);
-    if(!row.rowCount)throw new ApiError(404,'not_found','Artifact not found');
-    reply.header('Content-Type',row.rows[0].content_type).header('Content-Disposition',`attachment; filename="artifact.txt"`).header('X-Content-Type-Options','nosniff');
-    return reply.send(row.rows[0].content);
+    const artifact=await getGameArtifact(pool,user.id,(request.params as {artifactId:string}).artifactId);
+    reply.header('Content-Type',artifact.contentType).header('Content-Disposition',`attachment; filename="artifact.txt"`).header('X-Content-Type-Options','nosniff');
+    return reply.send(artifact.content);
   });
   app.get('/api/v1/game/credits.csv',async(request,reply)=>{
     const user=await requireUser(pool,request);
-    const rows=await pool.query(`SELECT l.created_at,l.kind,l.amount,l.metadata,l.mission_id,l.quest_id,q.stage_id FROM game_ledger l LEFT JOIN game_quests q ON q.id=l.quest_id WHERE l.user_id=$1 ORDER BY l.created_at,l.id`,[user.id]);
-    const csv=['date,kind,test_credits,simulated_amount,mission_id,stage_id,quest_id',...rows.rows.map(r=>[new Date(r.created_at).toISOString(),r.kind,r.amount,r.metadata?.simulatedAmount??'',r.mission_id??'',r.stage_id??'',r.quest_id??''].join(','))].join('\n');
+    const csv=await getCreditsCsv(pool,user.id);
     reply.header('Content-Type','text/csv; charset=utf-8').header('Content-Disposition','attachment; filename="joystick-test-credits.csv"').header('X-Content-Type-Options','nosniff');
     return csv;
+  });
+  app.get('/api/v1/game/credits.json',async(request,reply)=>{
+    const user=await requireUser(pool,request);
+    const snapshot=await getGameSnapshot(pool,user.id);
+    reply.header('Content-Type','application/json; charset=utf-8').header('Content-Disposition','attachment; filename="joystick-test-credits.json"').header('X-Content-Type-Options','nosniff');
+    return {kind:'test-credits',exportedAt:new Date().toISOString(),userId:user.id,wallet:snapshot.wallet};
   });
 }

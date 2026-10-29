@@ -6,6 +6,7 @@ import { randomUUID } from 'node:crypto';
 import { selectedEnvPath } from './env.js';
 import { AGENT_RUN_SYSTEM, AGENT_RUN_TOOLS } from './agent-runs/tools.js';
 import { PRIVATE_AGENT_SYSTEM } from './private-agent-prompt.js';
+import { PRIVATE_AGENT_TOOLS } from './private-agent-tools.js';
 
 if (!process.env.JOYSTICK_ENV_FILE || basename(selectedEnvPath) !== '.env.production') throw new Error('Set JOYSTICK_ENV_FILE to the absolute path of the private .env.production file');
 const key=process.env.ANTHROPIC_API_KEY;
@@ -62,7 +63,7 @@ async function main() {
   if (!agentId) {
     await setEnv('ANTHROPIC_SETUP_AGENT_STATE','creating');
     try {
-      const agent=await client.beta.agents.create({name:'Joystick private agent',model,system:PRIVATE_AGENT_SYSTEM,tools:[],workspace_id:workspaceId},{maxRetries:0});
+      const agent=await client.beta.agents.create({name:'Joystick private agent',model,system:PRIVATE_AGENT_SYSTEM,tools:PRIVATE_AGENT_TOOLS,workspace_id:workspaceId},{maxRetries:0});
       agentId=agent.id;
       await setEnv('ANTHROPIC_AGENT_ID',agentId);
       await setEnv('ANTHROPIC_SETUP_AGENT_STATE','ready');
@@ -73,10 +74,11 @@ async function main() {
     }
   } else {
     const existing=await client.beta.agents.retrieve(agentId,{workspace_id:workspaceId});
-    if(existing.system!==PRIVATE_AGENT_SYSTEM){
+    const privateConfigured=existing.system===PRIVATE_AGENT_SYSTEM&&PRIVATE_AGENT_TOOLS.every(t=>existing.tools.some(actual=>actual.type==='custom'&&actual.name===t.name&&actual.description===t.description&&JSON.stringify(actual.input_schema)===JSON.stringify(t.input_schema)));
+    if(!privateConfigured){
       await setEnv('ANTHROPIC_SETUP_AGENT_STATE','updating');
       try{
-        await client.beta.agents.update(agentId,{system:PRIVATE_AGENT_SYSTEM,version:existing.version,workspace_id:workspaceId},{maxRetries:0});
+        await client.beta.agents.update(agentId,{system:PRIVATE_AGENT_SYSTEM,tools:PRIVATE_AGENT_TOOLS,version:existing.version,workspace_id:workspaceId},{maxRetries:0});
         await setEnv('ANTHROPIC_SETUP_AGENT_STATE','ready');
         console.log(`Updated private agent ${agentId}`);
       }catch(error){
