@@ -23,19 +23,19 @@ const docs:Record<GameAction,[string,string,string?]>={
   'stage.approve':['Approve an eligible stage you own','stage ID'], 'stage.advance':['Open the next stage of a mission you own','mission ID'],
   'plan.create':['Propose a plan in an active stage','stage ID','name, squad, bet?'],
   'plan.update':['Edit a plan you created or own','plan ID','name?, squad?, bet?'], 'plan.join':['Join an active plan','plan ID'],
-  'plan.back':['Back a plan, optionally reserving test credits','plan ID','testCredits? (0 is free backing)'], 'plan.approve':['Approve a proposed plan you own','plan ID'],
+  'plan.back':['Back a plan, optionally reserving credits','plan ID','testCredits? (0 is free backing)'], 'plan.approve':['Approve a proposed plan you own','plan ID'],
   'merge.propose':['Propose merging two plans','source plan ID','targetPlanId, reason?'], 'merge.decide':['Approve a merge proposal you own','merge proposal ID'], 'merge.dismiss':['Dismiss a merge proposal you own','merge proposal ID'],
-  'quest.create':['Create a quest in an active stage','stage ID','title, description?, role?, size?, planId?, parentId?, dependencies?, rewardCredits?, call?'],
+  'quest.create':['Create a quest in an active stage','stage ID','title, description?, role?, size?: S|M|L, planId?, parentId?, dependencies?, rewardCredits?, call?'],
   'quest.update':['Edit an open quest in a mission you own','quest ID','title?, description?, planId?, parentId?, dependencies?, rewardCredits?'],
   'quest.claim':['Claim an available quest','quest ID'], 'quest.release':['Release your claimed quest','quest ID'], 'quest.watch':['Watch a quest','quest ID'],
   'quest.assign':['Assign an open quest as mission owner','quest ID','userId'], 'quest.decide':['Record a choice for your claimed quest','quest ID','choice, reason?'],
   'quest.submit':['Submit a text artifact for your claimed quest','quest ID','title, content'], 'quest.review':['Review another member’s submitted artifact','quest ID',"verdict:'approve'|'changes_requested', note?"],
   'quest.nudge':['Nudge the claimant of a quest','quest ID','message'], 'pair.request':['Ask a mission member to collaborate','quest ID','userId'],
   'need.create':['Post a mission need','mission ID','title, detail?'], 'need.support':['Support a posted need','need ID'],
-  'pledge.create':['Pledge time, compute, or test credits','mission ID',"kind:'time'|'compute'|'test_credits', amount, note?"],
+  'pledge.create':['Pledge time, compute, or credits','mission ID',"kind:'time'|'compute'|'test_credits', amount, note?"],
   'invite.create':['Invite a registered user to a mission','mission ID','email'], 'invite.accept':['Accept your invitation','invite ID'], 'invite.decline':['Decline your invitation','invite ID'],
-  'notification.read':['Mark your notification read','notification ID'], 'funding.reserve':['Reserve your test credits for a mission','mission ID','amount'],
-  'payout.simulate':['Record a test-credit payout simulation for your approved quest','quest ID'],
+  'notification.read':['Mark your notification read','notification ID'], 'funding.reserve':['Reserve your credits for a mission','mission ID','amount'],
+  'payout.simulate':['Record a payout entry for your approved quest','quest ID'],
   'spend.flag':['Flag a spending concern on a mission','mission ID','reason'],
   'tool.preference':['Set a tool preference; this does not connect an account','—','key, enabled'], 'skill.assert':['Add a self-declared skill','—','skill'],
   'room.create':['Open a direct or scoped room','—',"{kind:'dm',userId} or {kind:'mission'|'stage'|'plan'|'quest',scopeId}"],
@@ -43,12 +43,12 @@ const docs:Record<GameAction,[string,string,string?]>={
 const extra:AgentCommandInfo[]=[
   {name:'chat.send',description:'Send a message as you to a room you can access',entityId:'room ID',payload:'text',kind:'write'},
   {name:'chat.read',description:'Mark a room read up to a message sequence',entityId:'room ID',payload:'sequence',kind:'write'},
-  {name:'agent_run.create',description:'Start an in-app work run',payload:'kind, prompt, missionId?, planId?, questId?',kind:'write'},
+  {name:'agent_run.create',description:'Start an in-app work run',payload:'kind: mission-draft|plan-draft|quest-draft|quest-execute|context-chat, prompt, missionId?, planId?, questId?',kind:'write'},
   {name:'agent_run.decide',description:'Choose an option requested by your work run',entityId:'run ID',payload:'decisionId, optionId',kind:'write'},
   {name:'agent_run.cancel',description:'Cancel your work run',entityId:'run ID',kind:'write'},
   {name:'artifact.download',description:'Open a member-authorized submitted artifact download',entityId:'artifact ID',kind:'handoff'},
-  {name:'credits.export',description:'Download your test-credit journal as CSV or JSON',payload:"format?:'csv'|'json'",kind:'handoff'},
-  {name:'ui.open',description:'Open an app screen for you',payload:'screen, entityId?',kind:'handoff'},
+  {name:'credits.export',description:'Download your credit journal as CSV or JSON',payload:"format?:'csv'|'json'",kind:'handoff'},
+  {name:'ui.open',description:'Open an app screen for you; a plan opens the strategy screen',entityId:'target item ID for mission, stage, strategy (plan), quest, thread, or run',payload:'screen: lobby|mission|stage|strategy|quest|thread|comms|profile|wallet|security|run',kind:'handoff'},
   {name:'passkeys.manage',description:'Open device-bound passkey management',kind:'handoff'},
 ];
 export function listAgentCommands():{commands:AgentCommandInfo[]}{
@@ -145,7 +145,7 @@ export async function executeAgentCommand(pool:Pool,config:Config,userId:string,
   if(command==='credits.export'){
     const format=p.format??'csv';
     if(format!=='csv'&&format!=='json')fail('Choose CSV or JSON');
-    return {ok:true,command,summary:'Test-credit journal ready to download',handoff:{type:'download',path:`/api/v1/game/credits.${format}`,label:`Download ${String(format).toUpperCase()}`}};
+    return {ok:true,command,summary:'Credit journal ready to download',handoff:{type:'download',path:`/api/v1/game/credits.${format}`,label:`Download ${String(format).toUpperCase()}`}};
   }
   if(command==='passkeys.manage'){
     return {ok:true,command,summary:'Open passkey settings on your device',handoff:{type:'navigate',screen:'security'}};
@@ -154,7 +154,8 @@ export async function executeAgentCommand(pool:Pool,config:Config,userId:string,
     const screen=p.screen;
     if(typeof screen!=='string'||!screens.has(screen))fail('Unknown screen');
     const selectedScreen=screen as string;
-    const id=p.entityId;
+    if(input.entityId!==undefined&&p.entityId!==undefined&&input.entityId!==p.entityId)fail('Conflicting screen item IDs');
+    const id=input.entityId??p.entityId;
     if(id!==undefined&&!validId(id))fail('Invalid screen item');
     if(['mission','stage','strategy','quest','thread','run'].includes(selectedScreen)){
       if(!validId(id))fail('Choose an item to open');

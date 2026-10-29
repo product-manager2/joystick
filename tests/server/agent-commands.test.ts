@@ -19,6 +19,10 @@ test('Pip catalog includes every UI game command with payload guidance',()=>{
   }
   assert.ok(names.has('chat.send'));
   assert.ok(names.has('agent_run.create'));
+  const open=listAgentCommands().commands.find(c=>c.name==='ui.open')!;
+  assert.match(open.entityId??'',/target item ID/);
+  assert.match(open.payload??'',/strategy/);
+  assert.match(listAgentCommands().commands.find(c=>c.name==='agent_run.create')?.payload??'',/quest-execute/);
 });
 
 test('a saved run decision replays after completion and rejects a different choice',async()=>{
@@ -58,6 +62,11 @@ test('Pip game commands share durable replay and actor authorization',async()=>{
     assert.equal(count.rows[0].n,1);
     await assert.rejects(()=>executeAgentCommand(pool,config,users[0],{command:'mission.create',payload:{title:'Different',stages:[{name:'Start'}]}},requestId),/different action/);
     const stageId=((await queryAgentApp(pool,users[0],{view:'mission',entityId:missionId})) as {stages:Array<{id:string}>}).stages[0].id;
+    const opened=await executeAgentCommand(pool,config,users[0],{command:'ui.open',entityId:missionId,payload:{screen:'mission'}},randomUUID());
+    assert.deepEqual(opened.handoff,{type:'navigate',screen:'mission',entityId:missionId});
+    await assert.rejects(()=>executeAgentCommand(pool,config,users[0],{command:'ui.open',entityId:randomUUID(),payload:{screen:'mission'}},randomUUID()),/Item not found/);
+    await assert.rejects(()=>executeAgentCommand(pool,config,users[0],{command:'ui.open',entityId:missionId,payload:{screen:'mission',entityId:randomUUID()}},randomUUID()),/Conflicting screen item IDs/);
+    await assert.rejects(()=>executeAgentCommand(pool,config,users[0],{command:'ui.open',payload:{screen:'invented'}},randomUUID()),/Unknown screen/);
     await assert.rejects(()=>executeAgentCommand(pool,config,users[1],{command:'stage.create',entityId:missionId,payload:{name:'Intrusion'}},randomUUID()),/Join this mission/);
     const stage=await queryAgentApp(pool,users[0],{view:'stage',entityId:stageId}) as {stage:{id:string};missionId:string};
     assert.equal(stage.stage.id,stageId);
