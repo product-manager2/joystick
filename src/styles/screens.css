@@ -482,3 +482,7 @@ button.chip.trust { background: var(--mint); color: var(--green-d); border-color
 .chip.voice { align-self: flex-start; }
 .chip.voice[aria-pressed="true"] { background: var(--gold); }
 .linkrow { width: 100%; background: none; border: 0; padding: 0; color: var(--ink); }
+
+/* Pitch cards: one title per card. The headline is the title; the mission name above it is a small tag. */
+.deckcard h3 { font-family: var(--body); font-weight: 700; font-size: 13px; line-height: 1.2; letter-spacing: .08em; text-transform: uppercase; }
+.deck-home .punch { font-size: 27px; letter-spacing: 0; line-height: 1.05; }

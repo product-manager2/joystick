@@ -224,7 +224,7 @@ Players never see the formula. On a strategy card:
 
 ## 10. Design principles
 
-- **It's a game.** The look is inspired by Cuphead, in Joystick's colours and fonts (Lilita One and Lexend).
+- **It's a game.** The look is inspired by Cuphead, in Joystick's colours and fonts (Baloo 2 ExtraBold and Lexend).
 - **Show, don't explain.** Copy is short and in the style of Steve Jobs; the system is learned by playing. If a sentence explains how the system works, cut it and let the UI show it instead.
 - **Personal first.** Every list starts with what fits you, and says why.
 - **Mobile-first.** Primary actions sit at the bottom, within thumb reach, with 44px tap targets.
