@@ -57,11 +57,22 @@ def number(value: str, default: int = 1) -> int:
         return default
 
 
+def bullets(value: str) -> list[str]:
+    return [re.sub(r'^(•|\d+\.)\s*', '', x).strip() for x in (value or '').split('\n') if x.strip()]
+
+
+def call_of(q: dict, old: dict):
+    if q.get('Decision mid-quest'):
+        return {'q': q['Decision mid-quest'], 'opts': [o.strip() for o in q.get('Options', '').split('|') if o.strip()]}
+    return old.get('call')
+
+
 def main():
     data = sheets(SOURCE)
     older = {m['id']: m for m in json.loads(DEST.read_text())} if DEST.exists() else {}
     categories = {'Health': ('Science', 'helix', 'var(--pink)'), 'AI': ('Product', 'cube', 'var(--gold)'), 'Planet': ('Planet', 'wave', 'var(--sky)'), 'Learning': ('Education', 'book', 'var(--leaf)'), 'Society': ('Community', 'spark', 'var(--blue)')}
     finished = {r['Mission ID']: r for r in data['Finished']}
+    role_map = {(r['Mission ID'], r['#']): {k: v for k, v in r.items() if k not in ('Mission ID', '#', 'Stage', 'Status') and v} for r in data.get('Role map', [])}
     missions = []
     for row in data['Missions']:
         key = row['Mission ID']
@@ -74,13 +85,19 @@ def main():
         result = {
             'id': key, 'title': row['Title'], 'pitch': row['One-line pitch'],
             'tag': tag, 'glyph': glyph, 'color': color,
-            'rules': old.get('rules', []),
+            'rules': bullets(row.get('Rules', '')) or old.get('rules', []),
             'seedNotice': 'Illustrative workbook mission. People, progress, prizes, and outcomes shown as examples are not verified live activity.',
-            'stages': [{'name': s['Stage'], 'goal': s['Goal (countable)'], 'target': number(s['Target']), 'unit': s['Unit'] or 'results', 'plainWords': s['In plain words']} for s in stages],
-            'strategies': [{'id': s['Squad ID'], 'name': s['Plan'], 'squad': s['Squad'], 'bet': s['The bet'], 'color': color, 'sampleStatus': s['State'], 'sampleBlocker': s['Main blocker']} for s in plans],
-            'quests': [{'id': q['Quest ID'], 'title': q['Quest'], 'role': q['Role'].lower() or 'user', 'size': q['Size'] if q['Size'] in ('S', 'M', 'L') else 'S', 'xp': 0, 'coins': 0, 'strat': q['Squad ID'], 'call': older_quests.get(q['Quest ID'], {}).get('call'), 'sampleReward': q['Reward'], 'sampleCurrency': q['Currency'], 'safetyNote': q['Safety note']} for q in quests],
+            'stages': [{'name': s['Stage'], 'goal': s['Goal (countable)'], 'target': number(s['Target']), 'unit': s['Unit'] or 'results', 'plainWords': s['In plain words'], 'tracks': bullets(s.get('Workstreams', '')), 'why': s.get('Why this stage', ''), 'howItFits': s.get('How the roles fit together', ''), 'doneWhen': s.get('Done when', ''), 'approves': s.get('Who approves', ''), 'roles': role_map.get((key, s['#']), {}), 'sampleStatus': s.get('Status', '')} for s in stages],
+            'strategies': [{'id': s['Squad ID'], 'name': s['Plan'], 'squad': s['Squad'], 'bet': s['The bet'], 'color': color, 'sampleStatus': s['State'], 'sampleBlocker': s['Main blocker'], 'howItWorks': bullets(s.get('How the plan works', '')), 'rolesNeeded': s.get('Roles needed', ''), 'relations': s.get('Relations', '')} for s in plans],
+            'quests': [{'id': q['Quest ID'], 'title': q['Quest'], 'role': q['Role'].lower() or 'user', 'size': q['Size'] if q['Size'] in ('S', 'M', 'L') else 'S', 'xp': 0, 'coins': 0, 'strat': q['Squad ID'], 'call': call_of(q, older_quests.get(q['Quest ID'], {})), 'sampleReward': q['Reward'], 'sampleCurrency': q['Currency'], 'safetyNote': q['Safety note'],
+                        'stage': number(q.get('Stage #', ''), 0) or None, 'sampleState': q.get('State', ''), 'where': q.get('Where', ''), 'fit': q.get('Good for you if…', ''), 'dependsOn': [d.strip() for d in q.get('Depends on', '').split(',') if d.strip()],
+                        'detail': {'brief': q.get('Brief', ''), 'steps': bullets(q.get('Steps', '')), 'handIn': q.get('You hand in', ''), 'doneWhen': q.get('Done when', ''), 'checkedBy': q.get("How it's checked", ''), 'agentDoes': q.get('Your agent does', ''), 'humanDoes': q.get('You do', ''), 'tools': q.get('Tools & data', ''), 'skills': q.get('Skills', '')}} for q in quests],
             'sample': {
                 'state': row['State'], 'teachingPoint': row['What a visitor learns'],
+                'detail': {'problem': row.get('The problem today', ''), 'whoItHelps': row.get('Who it helps', ''), 'whyUnsolved': row.get("Why it isn't solved yet", ''), 'winning': bullets(row.get('What winning looks like', '')), 'hardParts': bullets(row.get('Hard parts', '')), 'partners': bullets(row.get('Partners needed', '')), 'dataTools': bullets(row.get('Data, laws & tools', '')), 'timeline': row.get('Timeline', '')},
+                'budget': [b for b in data.get('Budget', []) if b['Mission ID'] == key],
+                'risks': [r for r in data.get('Risks', []) if r['Mission ID'] == key],
+                'facts': [f for f in data.get('Facts', []) if f['Mission ID'] == key],
                 'creator': row['Creator'], 'creatorDescription': row['Creator is…'],
                 'place': row['Where'], 'prize': row['Prize'], 'currency': row['Currency'],
                 'players': row['Players'], 'squads': row['Squads'],
