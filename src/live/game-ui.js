@@ -711,7 +711,19 @@ export async function handleLiveClick(event) {
   if (a === "agent-decision") { const split=id.indexOf(":"),decisionId=id.slice(0,split),optionId=id.slice(split+1); try { await api(`/agent/runs/${ui.run}/decisions`,{method:"POST",body:JSON.stringify({decisionId,optionId,requestId:crypto.randomUUID()})}); pollRun(ui.run); } catch(error) { ui.error=error.message; render(); } return true; }
   if (a === "draft-edit") { const draft=ui.runData?.drafts.find(d=>d.id===id); if (!draft) return true; const run=ui.runData.run; ui.creation=acceptCreationDraft(ui.creation || beginCreation(draft.kind,{missionId:run.missionId,planId:run.planId}),draft,run); ui.run=null; ui.runData=null; ui.runHistory=null; ui.editor=null; if(run.missionId)S.missionId=run.missionId; if(draft.data.stageId)S.stageId=draft.data.stageId; if(draft.data.planId)S.stratId=draft.data.planId; render(); return true; }
   if (a === "agent-submit") { const artifact=ui.runData?.artifacts.find(x=>x.id===id); if (!artifact) return true; const run=ui.runData.run,m=missions.find(x=>x.id===run.missionId),q=m?.quests.find(x=>x.id===run.questId);if(!q)return true;ui.draft={title:artifact.title,content:artifact.content};ui.questDraft=q.id;ui.questSubmitAttempt=null;ui.runHistory=null;ui.editor=null;S.screen="quest";S.roomTab="chat";S.missionId=m.id;S.stageId=q.stageId;S.stratId=q.strat;S.questId=q.id;render();focusQuestDraft();return true; }
-  if (a === "list-more" || a === "list-less") { ui.listExpansion ||= {}; ui.listExpansion[id] = a === "list-more" ? (ui.listExpansion[id] || 0) + 1 : 0; render(); return true; }
+  if (a === "list-more" || a === "list-less") {
+    const main=document.querySelector("#main"), mainTop=main?.scrollTop || 0;
+    const stageTop=main?.querySelector(".stage-list")?.scrollTop || 0;
+    ui.listExpansion ||= {};
+    ui.listExpansion[id] = a === "list-more" ? (ui.listExpansion[id] || 0) + 1 : 0;
+    render();
+    if (main) main.scrollTop=mainTop;
+    const nextStage=main?.querySelector(".stage-list");
+    if (nextStage) nextStage.scrollTop=stageTop;
+    const controls=[...document.querySelectorAll('[data-live="list-more"],[data-live="list-less"]')].filter(node=>node.dataset.id===id);
+    (controls.find(node=>node.dataset.live===a) || controls[0])?.focus({preventScroll:true});
+    return true;
+  }
   if (a === "lobby-tab") { S.lobbyTab = id; render(); return true; }
   if (a === "filter") { ui.exploreFilter = id; render(); return true; }
   if (a === "mission-tab") { S.tab = id; render(); return true; }
