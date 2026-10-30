@@ -75,3 +75,6 @@
   .live-agent-mark { width: 48px; height: 48px; font-size: 24px; }
   .live-composer .btn { padding: 8px 12px; }
 }
+
+/* Typed answer under an agent question, inside its bubble */
+.composer.decision-own { border-top: 0; background: transparent; padding: 10px 0 0; }

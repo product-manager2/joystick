@@ -116,7 +116,7 @@ export async function executeTool(pool:Pool,run:Row,event:RunEvent):Promise<{res
     }
     if(event.name==='request_decision'){
       const prompt=text(input.prompt,1000),options=list(input.options,5);
-      if(!prompt||!options||options.length<2||!options.every(o=>text(obj(o).id,80)&&text(obj(o).label,160))||new Set(options.map(o=>obj(o).id)).size!==options.length)throw Error('Invalid decision');
+      if(!prompt||!options||options.length<2||!options.every(o=>text(obj(o).id,80)&&text(obj(o).label,160))||new Set(options.map(o=>obj(o).id)).size!==options.length||options.some(o=>obj(o).id==='own_words'))throw Error('Invalid decision');
       const saved=await pool.query('INSERT INTO agent_run_decisions(run_id,tool_use_id,prompt,options) VALUES($1,$2,$3,$4) ON CONFLICT(run_id,tool_use_id) DO UPDATE SET prompt=agent_run_decisions.prompt RETURNING id',[run.id,event.id,prompt,JSON.stringify(options)]);
       await pool.query("UPDATE agent_runs SET status='needs_input',updated_at=now() WHERE id=$1 AND status='running'",[run.id]);
       await notify(pool,run.id);
@@ -160,17 +160,17 @@ export async function reconcileRun(pool:Pool,provider:RunProvider,run:Row){
     else if(event.type==='session.status_running'||event.type==='session.status_rescheduled')idleStop=null;
     else if(event.type==='session.error'){await pool.query("UPDATE agent_runs SET status='failed',error='Provider reported a session error',updated_at=now() WHERE id=$1 AND status IN ('running','needs_input')",[run.id]);await notify(pool,run.id);return;}
   }
-  const waiting=await pool.query('SELECT id,tool_use_id,selected_option_id,result_sent_at FROM agent_run_decisions WHERE run_id=$1 AND result_sent_at IS NULL ORDER BY created_at',[run.id]);
+  const waiting=await pool.query('SELECT id,tool_use_id,selected_option_id,answer_text,result_sent_at FROM agent_run_decisions WHERE run_id=$1 AND result_sent_at IS NULL ORDER BY created_at',[run.id]);
   for(const d of waiting.rows){
     if(!d.selected_option_id)continue;
     try{await runContext(pool,run.user_id,run.kind,run.mission_id,run.plan_id,run.quest_id);}
     catch{await pool.query("UPDATE agent_runs SET status='failed',error='Access to the selected work was revoked',updated_at=now() WHERE id=$1",[run.id]);await notify(pool,run.id);return;}
     const receipt=await pool.query('SELECT send_state FROM agent_run_tool_receipts WHERE run_id=$1 AND tool_use_id=$2',[run.id,d.tool_use_id]);
-    if(!receipt.rowCount)await pool.query('INSERT INTO agent_run_tool_receipts(run_id,tool_use_id,name,result) VALUES($1,$2,$3,$4) ON CONFLICT DO NOTHING',[run.id,d.tool_use_id,'request_decision',JSON.stringify({selectedOptionId:d.selected_option_id})]);
+    if(!receipt.rowCount)await pool.query('INSERT INTO agent_run_tool_receipts(run_id,tool_use_id,name,result) VALUES($1,$2,$3,$4) ON CONFLICT DO NOTHING',[run.id,d.tool_use_id,'request_decision',JSON.stringify((d.answer_text?{selectedOptionId:d.selected_option_id,answerInOwnWords:d.answer_text}:{selectedOptionId:d.selected_option_id}))]);
     const state=(await pool.query('SELECT send_state FROM agent_run_tool_receipts WHERE run_id=$1 AND tool_use_id=$2',[run.id,d.tool_use_id])).rows[0].send_state;
     if(state==='pending'){
       await pool.query("UPDATE agent_run_tool_receipts SET send_state='sending' WHERE run_id=$1 AND tool_use_id=$2",[run.id,d.tool_use_id]);
-      try{await provider.sendTool(run.provider_session_id,d.tool_use_id,{selectedOptionId:d.selected_option_id},false);await pool.query("UPDATE agent_run_tool_receipts SET send_state='sent' WHERE run_id=$1 AND tool_use_id=$2",[run.id,d.tool_use_id]);await pool.query('UPDATE agent_run_decisions SET result_sent_at=now() WHERE id=$1',[d.id]);await pool.query("UPDATE agent_runs SET status='running',updated_at=now() WHERE id=$1 AND status='needs_input'",[run.id]);}
+      try{await provider.sendTool(run.provider_session_id,d.tool_use_id,(d.answer_text?{selectedOptionId:d.selected_option_id,answerInOwnWords:d.answer_text}:{selectedOptionId:d.selected_option_id}),false);await pool.query("UPDATE agent_run_tool_receipts SET send_state='sent' WHERE run_id=$1 AND tool_use_id=$2",[run.id,d.tool_use_id]);await pool.query('UPDATE agent_run_decisions SET result_sent_at=now() WHERE id=$1',[d.id]);await pool.query("UPDATE agent_runs SET status='running',updated_at=now() WHERE id=$1 AND status='needs_input'",[run.id]);}
       catch{await pool.query("UPDATE agent_run_tool_receipts SET send_state='uncertain' WHERE run_id=$1 AND tool_use_id=$2",[run.id,d.tool_use_id]);await pool.query("UPDATE agent_runs SET status='uncertain',error='Could not confirm decision delivery',updated_at=now() WHERE id=$1",[run.id]);await notify(pool,run.id);return;}
     }
   }

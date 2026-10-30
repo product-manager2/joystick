@@ -40,6 +40,25 @@ test('a saved run decision replays after completion and rejects a different choi
   }finally{await pool.query('DELETE FROM users WHERE id=$1',[user.id]);await pool.end();}
 });
 
+test('a waiting question can be answered in the person\'s own words',async()=>{
+  const databaseUrl=process.env.TEST_DATABASE_URL;
+  if(!databaseUrl)throw new Error('TEST_DATABASE_URL is required for server integration tests');
+  const pool=new pg.Pool({connectionString:databaseUrl});
+  const user=(await pool.query("INSERT INTO users(email,name) VALUES($1,'Own words tester') RETURNING id",[`${randomUUID()}@example.test`])).rows[0];
+  try{
+    const run=(await pool.query("INSERT INTO agent_runs(user_id,request_id,request_hash,kind,status,prompt) VALUES($1,$2,'test','context-chat','needs_input','Choose') RETURNING id",[user.id,randomUUID()])).rows[0];
+    const decision=(await pool.query("INSERT INTO agent_run_decisions(run_id,tool_use_id,prompt,options) VALUES($1,'tool-own','Which problem?',$2) RETURNING id",[run.id,JSON.stringify([{id:'notes',label:'Clinics lose notes'},{id:'queues',label:'Long queues'}])])).rows[0];
+    await assert.rejects(()=>decideAgentRun(pool,user.id,run.id,{decisionId:decision.id,optionId:'own_words',answer:'   ',requestId:randomUUID()}),{code:'invalid_input'});
+    const detail=await decideAgentRun(pool,user.id,run.id,{decisionId:decision.id,optionId:'own_words',answer:' Rural pharmacies run out of insulin ',requestId:randomUUID()});
+    assert.equal(detail.run.status,'running');
+    assert.equal(detail.decisions[0].selectedOptionId,'own_words');
+    assert.equal(detail.decisions[0].answer,'Rural pharmacies run out of insulin');
+    await decideAgentRun(pool,user.id,run.id,{decisionId:decision.id,optionId:'own_words',answer:'Rural pharmacies run out of insulin',requestId:randomUUID()});
+    await assert.rejects(()=>decideAgentRun(pool,user.id,run.id,{decisionId:decision.id,optionId:'own_words',answer:'Something else',requestId:randomUUID()}),{code:'decision_conflict'});
+    await assert.rejects(()=>decideAgentRun(pool,user.id,run.id,{decisionId:decision.id,optionId:'notes',requestId:randomUUID()}),{code:'decision_conflict'});
+  }finally{await pool.query('DELETE FROM users WHERE id=$1',[user.id]);await pool.end();}
+});
+
 test('Pip game commands share durable replay and actor authorization',async()=>{
   const databaseUrl=process.env.TEST_DATABASE_URL;
   if(!databaseUrl)throw new Error('TEST_DATABASE_URL is required for server integration tests');

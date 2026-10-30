@@ -101,6 +101,37 @@ test('a requested decision pauses, then resumes only with the selected option',a
   assert.equal(sent.length,1);
 });
 
+test('a typed answer reaches the agent with the question\'s result',async()=>{
+  const ask:RunEvent={type:'agent.custom_tool_use',id:'sevt_ask_1',name:'request_decision',input:{prompt:'Which format?',options:[{id:'brief',label:'Brief'},{id:'full',label:'Full'}]}};
+  let status='running',selected:string|null=null,resultSent=false,receipt:{result:unknown;is_error:boolean;send_state:string}|null=null;
+  const sent:unknown[]=[];
+  const pool={query:async(sql:string,args:unknown[]=[])=>{
+    if(sql.startsWith('SELECT status FROM agent_runs'))return rows([{status}]);
+    if(sql.startsWith('SELECT result,is_error,send_state FROM agent_run_tool_receipts'))return rows(receipt?[receipt]:[]);
+    if(sql.startsWith('INSERT INTO agent_run_decisions'))return rows([{id:'decision_1'}]);
+    if(sql.startsWith('SELECT id,tool_use_id,selected_option_id'))return rows(resultSent?[]:[{id:'decision_1',tool_use_id:ask.id,selected_option_id:selected,answer_text:selected?'Rural pharmacies':null,result_sent_at:null}]);
+    if(sql.startsWith('SELECT send_state FROM agent_run_tool_receipts'))return rows(receipt?[{send_state:receipt.send_state}]:[]);
+    if(sql.startsWith('INSERT INTO agent_run_tool_receipts')){receipt={result:JSON.parse(String(args[3])),is_error:false,send_state:'pending'};return rows([]);}
+    if(sql.includes("SET send_state='sending'")){receipt!.send_state='sending';return rows([]);}
+    if(sql.includes("SET send_state='sent'")){receipt!.send_state='sent';return rows([]);}
+    if(sql.startsWith('UPDATE agent_run_decisions SET result_sent_at')){resultSent=true;return rows([]);}
+    if(sql.includes("SET status='needs_input'")){if(status==='running')status='needs_input';return rows([]);}
+    if(sql.includes("SET status='running'")){if(status==='needs_input')status='running';return rows([]);}
+    if(sql.includes("send_state IN ('pending','sending','uncertain')"))return rows(receipt&&receipt.send_state!=='sent'?[{one:1}]:[]);
+    if(sql.startsWith('SELECT 1 FROM agent_run_decisions'))return rows(selected?[]:[{one:1}]);
+    if(sql.startsWith('SELECT pg_notify'))return rows([]);
+    throw Error(`Unexpected query: ${sql}`);
+  }} as unknown as Pool;
+  const provider:RunProvider={create:async()=>({id:'sess_test'}),list:async function*(){yield ask;yield {type:'session.status_idle',id:'idle',stop_reason:{type:'requires_action',event_ids:[ask.id]}};},sendTool:async(_id,_toolId,value)=>{sent.push(value);},interrupt:async()=>{},status:async()=> 'idle'};
+  await reconcileRun(pool,provider,run);
+  assert.equal(status,'needs_input');assert.deepEqual(sent,[]);
+  selected='own_words';
+  await reconcileRun(pool,provider,run);
+  assert.equal(status,'running');assert.deepEqual(sent,[{selectedOptionId:'own_words',answerInOwnWords:'Rural pharmacies'}]);
+  await reconcileRun(pool,provider,run);
+  assert.equal(sent.length,1);
+});
+
 test('an acknowledged custom tool result can precede the next decision in provider history',async()=>{
   const context:RunEvent={type:'agent.custom_tool_use',id:'sevt_context',name:'get_context',input:{}};
   const ack:RunEvent={type:'user.custom_tool_result',id:'sevt_context_ack',custom_tool_use_id:context.id};

@@ -76,9 +76,9 @@ export async function getRunDetail(pool:Pool,userId:string,id:string){
     const [drafts,artifacts,decisions]=await Promise.all([
       db.query('SELECT id,kind,data,created_at FROM agent_run_drafts WHERE run_id=$1 ORDER BY created_at,id',[id]),
       db.query('SELECT id,title,content,content_type,version,created_at FROM agent_run_artifacts WHERE run_id=$1 ORDER BY version',[id]),
-      db.query('SELECT id,prompt,options,selected_option_id,created_at FROM agent_run_decisions WHERE run_id=$1 ORDER BY created_at,id',[id]),
+      db.query('SELECT id,prompt,options,selected_option_id,answer_text,created_at FROM agent_run_decisions WHERE run_id=$1 ORDER BY created_at,id',[id]),
     ]);
-    return {run:publicRun(row),drafts:drafts.rows.map(d=>({id:d.id,kind:d.kind,data:d.data,createdAt:d.created_at})),artifacts:artifacts.rows.map(a=>({id:a.id,title:a.title,content:a.content,contentType:a.content_type,version:a.version,createdAt:a.created_at})),decisions:decisions.rows.map(d=>({id:d.id,prompt:d.prompt,options:d.options,selectedOptionId:d.selected_option_id,createdAt:d.created_at}))};
+    return {run:publicRun(row),drafts:drafts.rows.map(d=>({id:d.id,kind:d.kind,data:d.data,createdAt:d.created_at})),artifacts:artifacts.rows.map(a=>({id:a.id,title:a.title,content:a.content,contentType:a.content_type,version:a.version,createdAt:a.created_at})),decisions:decisions.rows.map(d=>({id:d.id,prompt:d.prompt,options:d.options,selectedOptionId:d.selected_option_id,answer:d.answer_text,createdAt:d.created_at}))};
   });
 }
 
@@ -107,20 +107,24 @@ export async function listAgentRuns(pool:Pool,userId:string,q:{missionId?:string
   return {runs:page.map(publicRun),nextCursor:r.rows.length>limit?page.at(-1)?.id??null:null};
 }
 
-export async function decideAgentRun(pool:Pool,userId:string,id:string,body:{decisionId?:unknown;optionId?:unknown;requestId?:unknown}){
+// The reserved option for an answer typed in the person's own words.
+export const OWN_WORDS='own_words';
+export async function decideAgentRun(pool:Pool,userId:string,id:string,body:{decisionId?:unknown;optionId?:unknown;answer?:unknown;requestId?:unknown}){
   if(!validId(id)||!validId(body?.decisionId)||!validId(body?.requestId)||typeof body?.optionId!=='string'||body.optionId.length>80)throw new ApiError(400,'invalid_input','Invalid decision');
+  const answer=body.optionId===OWN_WORDS&&typeof body.answer==='string'?body.answer.trim():null;
+  if(body.optionId===OWN_WORDS&&(!answer||answer.length>1000))throw new ApiError(400,'invalid_input','Write an answer of up to 1,000 characters');
   await transaction(pool,async db=>{
     const run=await db.query('SELECT * FROM agent_runs WHERE id=$1 AND user_id=$2 FOR UPDATE',[id,userId]);
     if(!run.rowCount)fail();
     await assertRunReadScope(db,userId,run.rows[0] as RunRow);
-    const found=await db.query('SELECT id,options,selected_option_id FROM agent_run_decisions WHERE id=$1 AND run_id=$2 FOR UPDATE',[body.decisionId,id]);
+    const found=await db.query('SELECT id,options,selected_option_id,answer_text FROM agent_run_decisions WHERE id=$1 AND run_id=$2 FOR UPDATE',[body.decisionId,id]);
     if(!found.rowCount)fail();
-    const decision=found.rows[0] as {id:string;options:Array<{id:string}>;selected_option_id:string|null};
-    if(!Array.isArray(decision.options)||!decision.options.some(o=>o.id===body.optionId))throw new ApiError(400,'invalid_input','Unknown option');
-    if(decision.selected_option_id&&decision.selected_option_id!==body.optionId)throw new ApiError(409,'decision_conflict','Decision already answered');
+    const decision=found.rows[0] as {id:string;options:Array<{id:string}>;selected_option_id:string|null;answer_text:string|null};
+    if(body.optionId!==OWN_WORDS&&(!Array.isArray(decision.options)||!decision.options.some(o=>o.id===body.optionId)))throw new ApiError(400,'invalid_input','Unknown option');
+    if(decision.selected_option_id&&(decision.selected_option_id!==body.optionId||decision.answer_text!==answer))throw new ApiError(409,'decision_conflict','Decision already answered');
     if(!decision.selected_option_id){
       if(!['needs_input','running'].includes(run.rows[0].status))throw new ApiError(409,'run_not_waiting','This run is no longer waiting for a decision');
-      await db.query('UPDATE agent_run_decisions SET selected_option_id=$2,selected_at=now() WHERE id=$1',[body.decisionId,body.optionId]);
+      await db.query('UPDATE agent_run_decisions SET selected_option_id=$2,answer_text=$3,selected_at=now() WHERE id=$1',[body.decisionId,body.optionId,answer]);
       await db.query("UPDATE agent_runs SET status='running',updated_at=now() WHERE id=$1 AND status='needs_input'",[id]);
     }
   });
@@ -147,7 +151,7 @@ export function registerAgentRunRoutes(app:FastifyInstance,pool:Pool,config:Conf
   });
   app.get('/api/v1/agent/runs/:id',async request=>getRunDetail(pool,(await requireUser(pool,request)).id,(request.params as {id:string}).id));
   app.post('/api/v1/agent/runs/:id/decisions',async request=>{
-    const user=await requireUser(pool,request),id=(request.params as {id:string}).id,body=request.body as {decisionId?:string;optionId?:string;requestId?:string}|null;
+    const user=await requireUser(pool,request),id=(request.params as {id:string}).id,body=request.body as {decisionId?:string;optionId?:string;answer?:string;requestId?:string}|null;
     return decideAgentRun(pool,user.id,id,body!);
   });
   app.post('/api/v1/agent/runs/:id/cancel',async request=>{
