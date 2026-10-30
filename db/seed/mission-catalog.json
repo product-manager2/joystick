@@ -1,8 +1,8 @@
 [
   {
     "id": "glio",
-    "title": "Find a drug for glioblastoma",
-    "pitch": "Find a drug that kills this brain tumour and get it to a first human trial, fully open.",
+    "title": "Make glioblastoma survivable",
+    "pitch": "Most people with this brain tumour die within 15 months, and that has barely changed in 20 years. Find a treatment that gives them years, fully open.",
     "tag": "Science",
     "glyph": "helix",
     "color": "var(--pink)",
@@ -137,6 +137,20 @@
           "Storyteller": "Writes the patient summary",
           "Patron": "Funds consulting"
         },
+        "sampleStatus": "Locked"
+      },
+      {
+        "name": "Patients",
+        "goal": "First 20 patients treated in a trial",
+        "target": 20,
+        "unit": "patients",
+        "plainWords": "The treatment reaches real people",
+        "tracks": [],
+        "why": "A filing is a promise; patients treated is the win.",
+        "howItFits": "",
+        "doneWhen": "20 patients dosed under an approved trial protocol, reported publicly",
+        "approves": "Trial sponsor + mission creator",
+        "roles": {},
         "sampleStatus": "Locked"
       }
     ],
@@ -838,6 +852,7 @@
         "whoItHelps": "People with glioblastoma and their families: about 3 new cases per 100,000 people each year, roughly 12,000–14,000 a year in the US alone and many more worldwide. It also helps researchers, who get open, re-checked data.",
         "whyUnsolved": "It is a small market with a high failure rate, so few companies invest. Tumours vary a lot between and within patients, and lab models often don't predict results in people. Data sits in many separate datasets, and closed patents stop groups from building on each other's work.",
         "winning": [
+          "A new treatment reaches its first patients in a trial",
           "40 open datasets catalogued with licence and access notes",
           "50 targets ranked with public evidence for each",
           "10 candidates shortlisted, each with re-checked computer results and a written evidence summary",
@@ -1126,8 +1141,8 @@
   },
   {
     "id": "aid",
-    "title": "First-aid guides in 50 languages",
-    "pitch": "20 life-saving first-aid guides, checked by nurses and native speakers, free in 50 languages.",
+    "title": "No one dies waiting for help",
+    "pitch": "In the minutes before an ambulance comes, the person next to you decides if you live. Help every bystander know what to do, in their own language.",
     "tag": "Science",
     "glyph": "helix",
     "color": "var(--pink)",
@@ -1141,11 +1156,11 @@
     "seedNotice": "Illustrative workbook mission. People, progress, prizes, and outcomes shown as examples are not verified live activity.",
     "stages": [
       {
-        "name": "Pick",
-        "goal": "Choose the 20 guides that save the most lives",
+        "name": "Know what kills",
+        "goal": "Choose the 20 emergencies where a bystander saves the most lives",
         "target": 20,
-        "unit": "guides",
-        "plainWords": "Agree which 20 guides matter most: choking, burns, CPR…",
+        "unit": "emergencies",
+        "plainWords": "Find the emergencies where the first few minutes decide who lives",
         "tracks": [
           "Choose and justify the 20 topics",
           "Write plain English master text",
@@ -1221,11 +1236,11 @@
         "sampleStatus": "Locked"
       },
       {
-        "name": "Share",
-        "goal": "Free app and printable cards",
-        "target": 1,
-        "unit": "launch",
-        "plainWords": "Anyone can download or print them.",
+        "name": "Ready",
+        "goal": "10,000 people have the guides on their phone or wall",
+        "target": 10000,
+        "unit": "people",
+        "plainWords": "Put the help where people will be when it happens",
         "tracks": [
           "Offline app",
           "Print-ready cards",
@@ -1243,6 +1258,20 @@
           "Patron": "Pays for sample printing",
           "User": "Installs and shares"
         },
+        "sampleStatus": "Locked"
+      },
+      {
+        "name": "Act",
+        "goal": "Bystanders step in during 100 real emergencies",
+        "target": 100,
+        "unit": "emergencies",
+        "plainWords": "People act when it counts",
+        "tracks": [],
+        "why": "Guides only matter if someone uses them in the moment.",
+        "howItFits": "",
+        "doneWhen": "100 reports of a bystander using a guide, each confirmed by a nurse Checker",
+        "approves": "Mission creator + 2 nurse Checkers",
+        "roles": {},
         "sampleStatus": "Locked"
       }
     ],
@@ -1264,6 +1293,40 @@
         ],
         "rolesNeeded": "3 Experts (native speakers of Hausa, Amharic, Quechua), 2 Checkers (nurse or doctor), 1 Maker (illustrator)",
         "relations": "The only squad. Welcomes merges from any translator group."
+      },
+      {
+        "id": "aid-cpr",
+        "name": "CPR in every school",
+        "squad": "Pulse Club",
+        "bet": "Teach every 12-year-old CPR. Kids teach their families.",
+        "color": "var(--pink)",
+        "sampleStatus": "Proposed",
+        "sampleBlocker": "Needs one school to say yes",
+        "howItWorks": [
+          "Write a 45-minute CPR lesson a teacher can run",
+          "Pilot it in one school",
+          "Each pupil teaches 2 family members",
+          "Count who can still do it 3 months later"
+        ],
+        "rolesNeeded": "1 Expert (resuscitation trainer)",
+        "relations": "Competes with First Aiders; can use their guides"
+      },
+      {
+        "id": "aid-line",
+        "name": "A helper on the phone",
+        "squad": "Line Lift",
+        "bet": "A free number where a trained volunteer talks you through it until help comes.",
+        "color": "var(--pink)",
+        "sampleStatus": "Proposed",
+        "sampleBlocker": "Needs trained volunteers for nights",
+        "howItWorks": [
+          "Pick one city and one language",
+          "Train 20 volunteers with the guides",
+          "Run the line for 4 weeks",
+          "Check every call log"
+        ],
+        "rolesNeeded": "2 Experts (nurses), 1 Checker",
+        "relations": "Uses First Aiders' guides as its script"
       }
     ],
     "quests": [
@@ -1877,6 +1940,72 @@
           "tools": "Typst or Scribus",
           "skills": "Layout"
         }
+      },
+      {
+        "id": "a18",
+        "title": "Write a 45-minute CPR lesson for 12-year-olds",
+        "role": "expert",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "aid-cpr",
+        "call": null,
+        "sampleReward": "80",
+        "sampleCurrency": "$",
+        "safetyNote": "",
+        "stage": 1,
+        "sampleState": "Open",
+        "where": "Online",
+        "fit": "Good for you if you teach first aid",
+        "dependsOn": [],
+        "detail": {
+          "brief": "Pulse Club bets that kids can teach their families. It starts with one lesson a teacher can run.",
+          "steps": [
+            "Follow current CPR guidelines",
+            "Plan 45 minutes: watch, try, teach back",
+            "List what a school needs"
+          ],
+          "handIn": "Lesson plan",
+          "doneWhen": "A teacher can run it without help",
+          "checkedBy": "A nurse Checker reviews it",
+          "agentDoes": "Drafts the plan",
+          "humanDoes": "Checks it against guidelines",
+          "tools": "Current CPR guidelines",
+          "skills": "First-aid training"
+        }
+      },
+      {
+        "id": "a19",
+        "title": "Write the call script for a choking emergency",
+        "role": "expert",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "aid-line",
+        "call": null,
+        "sampleReward": "30",
+        "sampleCurrency": "$",
+        "safetyNote": "",
+        "stage": 1,
+        "sampleState": "Open",
+        "where": "Online",
+        "fit": "Good for you if you have worked in emergency care",
+        "dependsOn": [],
+        "detail": {
+          "brief": "Line Lift bets on a voice on the phone. Each emergency needs a short, clear script.",
+          "steps": [
+            "Start with the local emergency number",
+            "Write short spoken steps",
+            "Add what to say if it doesn't work"
+          ],
+          "handIn": "Call script",
+          "doneWhen": "Every step fits in one sentence",
+          "checkedBy": "A nurse Checker reviews it",
+          "agentDoes": "Drafts the script",
+          "humanDoes": "Makes it sound human",
+          "tools": "First Aiders' choking guide",
+          "skills": "Emergency care"
+        }
       }
     ],
     "sample": {
@@ -1887,6 +2016,7 @@
         "whoItHelps": "Families, teachers, drivers and community health volunteers who speak languages with little medical content: first wave includes Tagalog, Cebuano, Hausa, Yoruba, Amharic, Bengali, Odia, Nepali, Haitian Creole and Quechua, across Asia, Africa and Latin America.",
         "whyUnsolved": "Translating medical text well costs money and nobody earns it back from small languages. Machine translation alone is risky for medical steps, and finding a native speaker who also understands first aid is slow. Large guideline bodies update in English first, so local versions go out of date.",
         "winning": [
+          "Bystanders step in and help in 100 real emergencies",
           "20 guides agreed and signed off by at least 2 licensed nurses or doctors",
           "All 20 guides live in 50 languages (1,000 guide-language pairs)",
           "Every pair checked by a native speaker, and 1 in 10 back-translated to English with zero safety-changing errors",
@@ -2043,7 +2173,7 @@
       "prize": "20000",
       "currency": "$",
       "players": "38",
-      "squads": "1",
+      "squads": "3",
       "finished": null,
       "people": [
         {
@@ -2070,8 +2200,8 @@
   },
   {
     "id": "llm",
-    "title": "An open AI that speaks India",
-    "pitch": "A free AI model that understands 22 Indian languages and runs on one laptop.",
+    "title": "Every Indian can use AI in their language",
+    "pitch": "Most AI barely works in Odia, Bodo or Santali. Build a free model that does, and runs on one laptop.",
     "tag": "Product",
     "glyph": "cube",
     "color": "var(--gold)",
@@ -2183,6 +2313,20 @@
           "Storyteller": "Writes the model card in 22 languages",
           "User": "Teachers try it offline in the pilot schools"
         },
+        "sampleStatus": "Locked"
+      },
+      {
+        "name": "Use",
+        "goal": "10,000 people use it every week in their own language",
+        "target": 10000,
+        "unit": "people",
+        "plainWords": "People use it in their language, every week",
+        "tracks": [],
+        "why": "A model nobody uses fixes nothing.",
+        "howItFits": "",
+        "doneWhen": "10,000 weekly users for 4 weeks, counted without personal data",
+        "approves": "Mission creator + 2 Checkers",
+        "roles": {},
         "sampleStatus": "Locked"
       }
     ],
@@ -2863,6 +3007,7 @@
         "whoItHelps": "Speakers of India's 22 scheduled languages, about 1.3 billion people. The first users are teachers, small government offices, local news desks and app makers in places like Odisha, Assam and Kashmir. They need an offline model that reads and writes their language and does not send data to a foreign cloud.",
         "whyUnsolved": "Low-resource languages earn little money, so big labs rank them last and test them least. The text that does exist is scattered across old government PDFs, legacy non-Unicode fonts and sites with unclear licences, and cleaning it takes paid native speakers, not just scripts. Open benchmarks are thin for the smallest languages, so nobody can prove progress and nobody gets credit for it.",
         "winning": [
+          "10,000 people use it every week in their own language",
           "22 of 22 languages have at least 5 million clean, licence-checked words each, and the corpus totals 20 billion or more words",
           "The tokenizer uses no more than 1.5× as many tokens per word in any Indic language as in English, measured on the FLORES-200 sentences",
           "The model matches or beats open models of the same size (1–3B) in at least 15 of 22 languages on a held-out test, with all 22 scores published, including losses",
@@ -3188,8 +3333,8 @@
   },
   {
     "id": "harness",
-    "title": "Build Joystick's open agent engine",
-    "pitch": "The open-source engine that lets every player's agent plan, do and check quests safely.",
+    "title": "Agents you can trust with real work",
+    "pitch": "Nobody lets an agent touch real money or code unwatched. Build the open engine that makes Joystick's agents safe to trust.",
     "tag": "Product",
     "glyph": "cube",
     "color": "var(--gold)",
@@ -4286,8 +4431,8 @@
   },
   {
     "id": "reef",
-    "title": "Map every coral reef from space",
-    "pitch": "A free weekly map that shows where coral is dying.",
+    "title": "Catch dying reefs in time to save them",
+    "pitch": "Reefs bleach in weeks, and most are never checked. Warn the people who look after them early enough to act.",
     "tag": "Planet",
     "glyph": "wave",
     "color": "var(--sky)",
@@ -4377,11 +4522,11 @@
         "sampleStatus": "Locked"
       },
       {
-        "name": "Public map",
-        "goal": "Weekly heat-stress map, reef cover updated monthly",
-        "target": 1,
-        "unit": "launch",
-        "plainWords": "Clouds block satellites, so cover updates come when the sky is clear.",
+        "name": "Warn",
+        "goal": "50 reef keepers get a weekly heat-stress warning",
+        "target": 50,
+        "unit": "reef keepers",
+        "plainWords": "Tell the people who look after reefs, every week, before it's too late",
         "tracks": [
           "Weekly pipeline: heat stress + new images → map",
           "Public web map and download",
@@ -5025,6 +5170,7 @@
         "whoItHelps": "Coastal fishers, reef managers and marine-park rangers. The first focus is the central Philippines (Cebu, Bohol) and Fiji, where reefs feed and protect millions of people. A free map shows them where to look first after a heatwave.",
         "whyUnsolved": "Satellite images that see coral detail cost money, and free 10 m images blur coral, algae and sand together. Turning images into health maps needs thousands of ground checks by divers, timed close to a cloud-free satellite pass, and dive trips are expensive. Funders pay for one-off surveys, not for the slow, boring work of keeping a map up to date every week.",
         "winning": [
+          "50 reef keepers get a weekly warning they trust",
           "200 survey sites scored on site with photo-quadrats, each within 30 days of a cloud-free satellite image",
           "Model reaches 80% or better balanced accuracy on 3 classes (healthy / bleached / dead or algae) on 40 held-back sites",
           "Public map updates its heat-stress layer weekly and its reef-cover layer within 7 days of each usable image, for at least 6 months",
@@ -5343,8 +5489,8 @@
   },
   {
     "id": "lead",
-    "title": "Find every lead pipe in one city",
-    "pitch": "Find every lead water pipe in Dayton so the city can replace them.",
+    "title": "No child in Dayton drinks lead",
+    "pitch": "Thousands of Dayton homes may still get water through lead pipes. Find them and get them replaced, homes with kids first.",
     "tag": "Planet",
     "glyph": "wave",
     "color": "var(--sky)",
@@ -5434,11 +5580,11 @@
         "sampleStatus": "Locked"
       },
       {
-        "name": "Replace",
-        "goal": "City publishes a dated plan to replace 500 lead lines first",
+        "name": "Plan",
+        "goal": "The city publishes a dated plan to replace 500 lead lines first",
         "target": 500,
         "unit": "pipes",
-        "plainWords": "Not just a promise: a public plan with dates.",
+        "plainWords": "Get a promise with dates, homes with kids first",
         "tracks": [
           "Share data with the water department",
           "Public comment at a City Commission meeting",
@@ -5455,6 +5601,20 @@
           "Storyteller": "Gives public comment",
           "Patron": "Funds the tracking"
         },
+        "sampleStatus": "Locked"
+      },
+      {
+        "name": "Replaced",
+        "goal": "500 lead lines replaced",
+        "target": 500,
+        "unit": "pipes",
+        "plainWords": "The lead pipes are gone",
+        "tracks": [],
+        "why": "A plan is a promise; a replaced pipe is safe water.",
+        "howItFits": "",
+        "doneWhen": "500 replacements confirmed in the city's public records",
+        "approves": "Mission creator + 2 Checkers",
+        "roles": {},
         "sampleStatus": "Locked"
       }
     ],
@@ -5475,6 +5635,22 @@
         ],
         "rolesNeeded": "Anyone; especially 1 Maker (forms/maps), 2 Checkers, 1 Storyteller in Dayton",
         "relations": "No competing squad yet"
+      },
+      {
+        "id": "lead-filter",
+        "name": "Filters while pipes wait",
+        "squad": "Filter First",
+        "bet": "Get a certified filter into every home with kids now, while the pipes wait their turn.",
+        "color": "var(--sky)",
+        "sampleStatus": "Proposed",
+        "sampleBlocker": "Needs filter money",
+        "howItWorks": [
+          "Find homes with kids on suspected lead lines",
+          "Hand out certified filters with a 1-page guide",
+          "Check filters are used after 30 days"
+        ],
+        "rolesNeeded": "1 Planner, 1 Storyteller",
+        "relations": "Works next to Pipe Finders and uses their map"
       }
     ],
     "quests": [
@@ -6039,6 +6215,39 @@
           "tools": "Map, data",
           "skills": "Civic engagement"
         }
+      },
+      {
+        "id": "l15",
+        "title": "Count homes with kids on suspected lead lines",
+        "role": "planner",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "lead-filter",
+        "call": null,
+        "sampleReward": "60",
+        "sampleCurrency": "$",
+        "safetyNote": "",
+        "stage": 1,
+        "sampleState": "Open",
+        "where": "Online",
+        "fit": "Good for you if you like public data",
+        "dependsOn": [],
+        "detail": {
+          "brief": "Filter First needs to know how many filters to buy before raising money.",
+          "steps": [
+            "Use the city's public lead inventory",
+            "Join it with public school-age counts by block",
+            "Never use names or private data"
+          ],
+          "handIn": "Count by block",
+          "doneWhen": "Every block has a count and a source",
+          "checkedBy": "1 Checker re-runs 5 blocks",
+          "agentDoes": "Joins the data",
+          "humanDoes": "Checks it makes sense",
+          "tools": "Dayton lead inventory, census blocks",
+          "skills": "Spreadsheets"
+        }
       }
     ],
     "sample": {
@@ -6049,6 +6258,7 @@
         "whoItHelps": "Households in Dayton's older neighbourhoods, mainly homes built before the 1950s–60s, where lead lines are most likely. Families with young children and renters, who often don't know what pipe they have, benefit first. It also helps the city's water department, which needs confirmed lines to plan and fund replacement.",
         "whyUnsolved": "Confirming each line means someone has to look at the pipe in a basement, and a city crew visit to every home is slow and costly. The pipe is often split in ownership (the city owns one side, the homeowner the other), so nobody owns the whole problem. Residents can identify their own pipe in 5 minutes with a magnet and a coin, but there is no simple, trusted way to collect what they find.",
         "winning": [
+          "500 lead lines replaced, homes with children first",
           "Every address in the public inventory is matched to a block on the map, and 'unknown' lines are counted by block",
           "1,000 resident photos of 'unknown' lines are checked, with each one called lead, galvanised, copper or plastic",
           "Photo calls match a licensed plumber's check on at least 90% of 40 randomly picked homes",
@@ -6319,7 +6529,7 @@
       "prize": "30000",
       "currency": "$",
       "players": "0",
-      "squads": "1",
+      "squads": "2",
       "finished": null,
       "people": [
         {
@@ -6346,8 +6556,8 @@
   },
   {
     "id": "tutor",
-    "title": "Offline maths tutor for kids",
-    "pitch": "A maths tutor that works on a $50 phone with no internet, in 10 languages.",
+    "title": "Every child can do basic maths",
+    "pitch": "Many children finish primary school without basic maths. Get them there, even where there's no internet.",
     "tag": "Education",
     "glyph": "book",
     "color": "var(--leaf)",
@@ -6484,6 +6694,23 @@
         ],
         "rolesNeeded": "1 Checker (education statistics), 1 User in Nairobi or Kisumu to help run the test",
         "relations": "Only squad; may later feed a larger follow-up study run by the partner university."
+      },
+      {
+        "id": "tutor-front",
+        "name": "Help the teacher, not the phone",
+        "squad": "Front Row",
+        "bet": "Give teachers a 10-minute daily routine that finds who is behind and helps them catch up.",
+        "color": "var(--leaf)",
+        "sampleStatus": "Proposed",
+        "sampleBlocker": "Needs a class to try it",
+        "howItWorks": [
+          "Write a 10-minute daily check",
+          "Group kids by what they can do, not their age",
+          "Try it for 4 weeks in one class",
+          "Compare with Chalk Squad's test"
+        ],
+        "rolesNeeded": "1 Expert (primary teacher)",
+        "relations": "Competes with Chalk Squad; same end test"
       }
     ],
     "quests": [
@@ -7077,6 +7304,39 @@
           "tools": "Dashboard, stories",
           "skills": "Clear writing"
         }
+      },
+      {
+        "id": "t17",
+        "title": "Try the 10-minute daily check in one class",
+        "role": "user",
+        "size": "L",
+        "xp": 0,
+        "coins": 0,
+        "strat": "tutor-front",
+        "call": null,
+        "sampleReward": "200",
+        "sampleCurrency": "$",
+        "safetyNote": "Teachers run it in their own class only, with the head teacher's OK.",
+        "stage": 4,
+        "sampleState": "Open",
+        "where": "On ground",
+        "fit": "Good for you if you teach primary maths",
+        "dependsOn": [],
+        "detail": {
+          "brief": "Front Row bets on helping the teacher instead of the phone. One class for 4 weeks shows if it sticks.",
+          "steps": [
+            "Run the check each morning",
+            "Group kids by what they can do",
+            "Log 4 weeks of results"
+          ],
+          "handIn": "4-week log",
+          "doneWhen": "Log covers 18 of 20 school days",
+          "checkedBy": "A Checker samples 5 days",
+          "agentDoes": "Keeps the log tidy",
+          "humanDoes": "Teaches the class",
+          "tools": "Paper and pencil",
+          "skills": "Teaching"
+        }
       }
     ],
     "sample": {
@@ -7252,7 +7512,7 @@
       "prize": "120000",
       "currency": "$",
       "players": "180",
-      "squads": "1",
+      "squads": "2",
       "finished": null,
       "people": [
         {
@@ -8378,8 +8638,8 @@
   },
   {
     "id": "candidate",
-    "title": "Know your candidate before you vote",
-    "pitch": "Plain facts on every candidate in Pune district's 21 Assembly seats, straight from their sworn affidavits.",
+    "title": "Every Pune voter chooses with facts",
+    "pitch": "Candidates' sworn facts are public but buried in long PDFs. Put them in front of voters in Pune district before they vote.",
     "tag": "Community",
     "glyph": "spark",
     "color": "var(--blue)",
@@ -8512,6 +8772,22 @@
         ],
         "rolesNeeded": "3 Experts (Marathi), 4 Checkers",
         "relations": "The only squad. It borrows second Checkers from other missions' Checker pool to stay independent."
+      },
+      {
+        "id": "cand-talk",
+        "name": "Read it out where people meet",
+        "squad": "Chai Charcha",
+        "bet": "Read the one-pagers aloud at chai stalls and housing societies. People trust a face more than a link.",
+        "color": "var(--blue)",
+        "sampleStatus": "Proposed",
+        "sampleBlocker": "Needs Vote Clear's checked profiles",
+        "howItWorks": [
+          "Take checked one-pagers only",
+          "Read every candidate in a seat, same order, no comments",
+          "Log how many people listened"
+        ],
+        "rolesNeeded": "2 Storytellers (Marathi)",
+        "relations": "Builds on Vote Clear's profiles"
       }
     ],
     "quests": [
@@ -9133,6 +9409,39 @@
           "tools": "Visit counter, group list",
           "skills": "Community outreach"
         }
+      },
+      {
+        "id": "k17",
+        "title": "Write the neutral read-aloud rules",
+        "role": "leader",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "cand-talk",
+        "call": null,
+        "sampleReward": "400",
+        "sampleCurrency": "₹",
+        "safetyNote": "",
+        "stage": 2,
+        "sampleState": "Open",
+        "where": "Online",
+        "fit": "Good for you if people trust you to be fair",
+        "dependsOn": [],
+        "detail": {
+          "brief": "Reading profiles aloud only works if every candidate gets the same time and words.",
+          "steps": [
+            "Same order for every seat",
+            "Read the checked one-pager word for word",
+            "No opinions, no answers about who to vote for"
+          ],
+          "handIn": "One-page rules",
+          "doneWhen": "Two Checkers agree it is neutral",
+          "checkedBy": "2 Checkers",
+          "agentDoes": "Drafts the rules",
+          "humanDoes": "Decides the hard cases",
+          "tools": "Vote Clear profiles",
+          "skills": "Fairness"
+        }
       }
     ],
     "sample": {
@@ -9432,7 +9741,7 @@
       "prize": "500000",
       "currency": "₹",
       "players": "120",
-      "squads": "1",
+      "squads": "2",
       "finished": null,
       "people": [
         {
@@ -9469,8 +9778,8 @@
   },
   {
     "id": "pothole",
-    "title": "Fix every pothole in Bengaluru",
-    "pitch": "Pin every pothole, file it with the city, and chase it until it's fixed.",
+    "title": "No rider hurt by a Bengaluru pothole",
+    "pitch": "Potholes throw Bengaluru's riders off their bikes every week. Get the worst ones fixed fast, and keep them fixed.",
     "tag": "Community",
     "glyph": "spark",
     "color": "var(--blue)",
@@ -9583,6 +9892,20 @@
           "Patron": "Funds the verification visits"
         },
         "sampleStatus": "Locked"
+      },
+      {
+        "name": "Safer",
+        "goal": "Pothole crashes on mapped roads fall by half",
+        "target": 50,
+        "unit": "% fewer",
+        "plainWords": "Fewer riders get hurt",
+        "tracks": [],
+        "why": "Fixed potholes only matter if fewer people fall.",
+        "howItFits": "",
+        "doneWhen": "Crash reports on mapped roads down 50% against the same months last year",
+        "approves": "Mission creator + 2 Checkers",
+        "roles": {},
+        "sampleStatus": "Locked"
       }
     ],
     "strategies": [
@@ -9602,6 +9925,22 @@
         ],
         "rolesNeeded": "Anyone with a phone; 2 Checkers; 1 Expert (road ownership)",
         "relations": "The only squad for now. It may split into one squad per city corporation once filing starts."
+      },
+      {
+        "id": "pot-crash",
+        "name": "Worst first",
+        "squad": "Crash Map",
+        "bet": "Start where riders actually crash, not where potholes are. Fix those first.",
+        "color": "var(--blue)",
+        "sampleStatus": "Proposed",
+        "sampleBlocker": "Needs crash records by road",
+        "howItWorks": [
+          "Gather public crash reports by road",
+          "Match them to pinned potholes",
+          "Push the top 100 to the front of the queue"
+        ],
+        "rolesNeeded": "1 Expert (road safety)",
+        "relations": "Feeds Pothole Patrol's filing order"
       }
     ],
     "quests": [
@@ -10220,6 +10559,39 @@
           "tools": "Phone",
           "skills": "A good eye"
         }
+      },
+      {
+        "id": "p17",
+        "title": "Match 200 crash reports to pinned potholes",
+        "role": "expert",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "pot-crash",
+        "call": null,
+        "sampleReward": "1200",
+        "sampleCurrency": "₹",
+        "safetyNote": "",
+        "stage": 1,
+        "sampleState": "Open",
+        "where": "Online",
+        "fit": "Good for you if you work with maps",
+        "dependsOn": [],
+        "detail": {
+          "brief": "Crash Map wants to fix the potholes that hurt people first.",
+          "steps": [
+            "Gather public crash reports with a road name",
+            "Match each to pins within 50 metres",
+            "Rank roads by crashes"
+          ],
+          "handIn": "Ranked road list",
+          "doneWhen": "Every match has a source",
+          "checkedBy": "1 Checker re-matches 20",
+          "agentDoes": "Matches by location",
+          "humanDoes": "Judges unclear cases",
+          "tools": "Public crash reports, Pothole Patrol pins",
+          "skills": "Maps"
+        }
       }
     ],
     "sample": {
@@ -10230,6 +10602,7 @@
         "whoItHelps": "Bengaluru's 1.3 crore or so residents, above all two-wheeler riders, delivery workers, cyclists and pedestrians. The pilot covers 20 wards in the east and south of the city, then expands.",
         "whyUnsolved": "Roads belong to different owners: the city corporation, BDA, NHAI, metro works, and water or power utilities that dig trenches. Each can point at another. Contractors are paid per job, and defect-liability clauses that should force free re-repair are rarely enforced. The complaint system measures closure, not repair, and city governance and ward maps are being reorganised, so it's often unclear which officer is responsible.",
         "winning": [
+          "Pothole crashes on mapped roads fall by half",
           "5,000 unique potholes pinned, each with a photo, GPS, time, size and road owner",
           "At least 95% of verified pins filed through an official channel, each with a complaint ID",
           "80% of filed potholes show a verified repair (after-photo) within 90 days",
@@ -10479,7 +10852,7 @@
       "prize": "800000",
       "currency": "₹",
       "players": "340",
-      "squads": "1",
+      "squads": "2",
       "finished": null,
       "people": [
         {
@@ -10523,8 +10896,8 @@
   },
   {
     "id": "rti",
-    "title": "Ask where the school money went",
-    "pitch": "Use RTI requests to see what 100 Bihar government schools were given, then check what is really there.",
+    "title": "Every rupee reaches Bihar's schools",
+    "pitch": "Money for toilets, books and teachers is sent, but often never arrives. Follow it to 100 schools and get the gaps fixed.",
     "tag": "Community",
     "glyph": "spark",
     "color": "var(--blue)",
@@ -10665,6 +11038,20 @@
           "User": "Parents read their school's card and say if it is clear"
         },
         "sampleStatus": "Locked"
+      },
+      {
+        "name": "Fixed",
+        "goal": "50 schools get what was missing",
+        "target": 50,
+        "unit": "schools",
+        "plainWords": "The money turns into toilets, books and teachers",
+        "tracks": [],
+        "why": "A report card shows the gap; the win is closing it.",
+        "howItFits": "",
+        "doneWhen": "50 schools show the missing items in place, with dated photos",
+        "approves": "Mission creator + 2 Checkers",
+        "roles": {},
+        "sampleStatus": "Locked"
       }
     ],
     "strategies": [
@@ -10685,6 +11072,22 @@
         ],
         "rolesNeeded": "4 Experts in Bihar for appeals (1 each in Gaya, Muzaffarpur, Purnia, Patna), 2 Checkers to code replies",
         "relations": "Only squad on this mission. Its tracker and appeal templates are reused by later squads."
+      },
+      {
+        "id": "rti-parents",
+        "name": "Parents ask at the school",
+        "squad": "Parent Panel",
+        "bet": "Help parents on School Management Committees read the school's own accounts at their meetings.",
+        "color": "var(--blue)",
+        "sampleStatus": "Proposed",
+        "sampleBlocker": "Needs committee members willing to try",
+        "howItWorks": [
+          "Make a one-page guide to the school grant",
+          "Train 10 committee parents",
+          "They ask at the next meeting and note the answers"
+        ],
+        "rolesNeeded": "1 Expert (school grants)",
+        "relations": "Uses School Watch's replies"
       }
     ],
     "quests": [
@@ -11302,6 +11705,39 @@
           "tools": "UDISE+ portal",
           "skills": "none"
         }
+      },
+      {
+        "id": "s18",
+        "title": "Write a one-page Hindi guide to the school grant",
+        "role": "expert",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "rti-parents",
+        "call": null,
+        "sampleReward": "1500",
+        "sampleCurrency": "₹",
+        "safetyNote": "",
+        "stage": 3,
+        "sampleState": "Open",
+        "where": "Online",
+        "fit": "Good for you if you know how school grants work",
+        "dependsOn": [],
+        "detail": {
+          "brief": "Parents can ask about money at every committee meeting, if they know what to ask.",
+          "steps": [
+            "List the grant heads",
+            "Say what each should buy",
+            "Add 5 polite questions to ask"
+          ],
+          "handIn": "One-page guide",
+          "doneWhen": "A parent understands it on first read",
+          "checkedBy": "1 Checker and 2 parents",
+          "agentDoes": "Drafts the guide",
+          "humanDoes": "Makes it plain",
+          "tools": "Samagra Shiksha grant rules",
+          "skills": "School finance"
+        }
       }
     ],
     "sample": {
@@ -11312,6 +11748,7 @@
         "whoItHelps": "Parents, School Management Committee (Vidyalaya Shiksha Samiti) members and teachers at 100 government primary and middle schools in Patna, Gaya, Muzaffarpur and Purnia districts. Roughly 25,000 to 35,000 children study there.",
         "whyUnsolved": "The money flows through block and district offices, so no one at the school level sees the whole picture. RTI replies often come late, appeals take many months, and one parent asking alone is easy to ignore. Comparing paper with reality takes 100 site visits, and nobody is paid to do them.",
         "winning": [
+          "50 schools get what was missing",
           "100 RTI replies received (or a Commission order for each missing one)",
           "100 school visits done with a 12-item checklist and timestamped photos",
           "100 one-page report cards published in Hindi, each with the school's right of reply attached",
@@ -11586,7 +12023,7 @@
       "prize": "600000",
       "currency": "₹",
       "players": "55",
-      "squads": "1",
+      "squads": "2",
       "finished": null,
       "people": [
         {
@@ -11605,8 +12042,8 @@
   },
   {
     "id": "flood",
-    "title": "Flood alerts by text for Lagos",
-    "pitch": "River and rain gauges that text families in Yoruba, Pidgin or English before the water comes.",
+    "title": "No Lagos family caught by a flood",
+    "pitch": "Floods hit Lagos streets with no warning. Give families two hours to move people and things to safety.",
     "tag": "Community",
     "glyph": "spark",
     "color": "var(--blue)",
@@ -11740,6 +12177,22 @@
         ],
         "rolesNeeded": "1 Maker (electronics), 1 Expert (hydrology), 1 Leader with CDA contacts",
         "relations": "Only squad. Its open hardware and alert text can feed later squads in other cities."
+      },
+      {
+        "id": "flood-street",
+        "name": "Street captains",
+        "squad": "Street Watch",
+        "bet": "One trained captain per street who warns neighbours by phone and loudspeaker.",
+        "color": "var(--blue)",
+        "sampleStatus": "Proposed",
+        "sampleBlocker": "Needs captains on 20 streets",
+        "howItWorks": [
+          "Find one captain per flood-prone street",
+          "Teach the 3 warning signs",
+          "Practise one warning drill a month"
+        ],
+        "rolesNeeded": "1 Leader (community)",
+        "relations": "Can carry Flood Watch's alerts the last 100 metres"
       }
     ],
     "quests": [
@@ -12305,6 +12758,39 @@
           "tools": "Agreement template",
           "skills": "Negotiation"
         }
+      },
+      {
+        "id": "f16",
+        "title": "Find a street captain on 5 flood-prone streets",
+        "role": "leader",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "flood-street",
+        "call": null,
+        "sampleReward": "80",
+        "sampleCurrency": "$",
+        "safetyNote": "Daytime only, in pairs, and never near fast water.",
+        "stage": 1,
+        "sampleState": "Open",
+        "where": "On ground",
+        "fit": "Good for you if you know your neighbours",
+        "dependsOn": [],
+        "detail": {
+          "brief": "Street Watch bets on people, not just phones.",
+          "steps": [
+            "Pick 5 streets that flood first",
+            "Meet residents",
+            "Agree one captain per street"
+          ],
+          "handIn": "5 named captains, with consent",
+          "doneWhen": "Each captain has agreed in writing",
+          "checkedBy": "1 Checker calls each captain",
+          "agentDoes": "Plans the visits",
+          "humanDoes": "Meets people",
+          "tools": "Flood Watch street map",
+          "skills": "Community work"
+        }
       }
     ],
     "sample": {
@@ -12584,7 +13070,7 @@
       "prize": "25000",
       "currency": "$",
       "players": "12",
-      "squads": "1",
+      "squads": "2",
       "finished": null,
       "people": [
         {
@@ -12603,8 +13089,8 @@
   },
   {
     "id": "renter",
-    "title": "Free legal letters for renters",
-    "pitch": "Lawyer-checked letters Atlanta renters can fill in and send: repairs, deposits, notices.",
+    "title": "Atlanta renters get the repairs they're owed",
+    "pitch": "Atlanta renters live with broken heat and lose deposits, because a lawyer costs too much. Help them get what the law already gives them.",
     "tag": "Community",
     "glyph": "spark",
     "color": "var(--blue)",
@@ -12716,6 +13202,20 @@
           "User": "Sends a letter and reports back"
         },
         "sampleStatus": "Locked"
+      },
+      {
+        "name": "Fixed",
+        "goal": "500 repairs made or deposits returned",
+        "target": 500,
+        "unit": "renters",
+        "plainWords": "Renters get the repair or the money back",
+        "tracks": [],
+        "why": "Sending a letter is a step; the repair is the win.",
+        "howItFits": "",
+        "doneWhen": "500 renters confirm the repair or refund, with a photo or receipt",
+        "approves": "Mission creator + 2 Checkers",
+        "roles": {},
+        "sampleStatus": "Locked"
       }
     ],
     "strategies": [
@@ -12736,6 +13236,23 @@
         ],
         "rolesNeeded": "1 Patron, 1 Checker (Georgia-licensed lawyer), 1 Expert (Spanish)",
         "relations": "Only squad. Will refer court cases to the legal aid clinic partner."
+      },
+      {
+        "id": "renter-block",
+        "name": "Renters act together",
+        "squad": "Block by Block",
+        "bet": "All the renters in one building ask together. Landlords answer a group faster.",
+        "color": "var(--blue)",
+        "sampleStatus": "Proposed",
+        "sampleBlocker": "Needs one building to start",
+        "howItWorks": [
+          "Pick one building with many repair problems",
+          "Hold one meeting",
+          "Send one group letter",
+          "Follow up together"
+        ],
+        "rolesNeeded": "1 Expert (tenant law)",
+        "relations": "Uses Rent Right's letters"
       }
     ],
     "quests": [
@@ -13300,6 +13817,39 @@
           "tools": "Flyers, phone",
           "skills": "Public speaking"
         }
+      },
+      {
+        "id": "n15",
+        "title": "Hold one building meeting about repairs",
+        "role": "leader",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "renter-block",
+        "call": null,
+        "sampleReward": "80",
+        "sampleCurrency": "$",
+        "safetyNote": "Meet in a public room, not in a unit, and tell no one's landlord who came.",
+        "stage": 1,
+        "sampleState": "Open",
+        "where": "On ground",
+        "fit": "Good for you if you organise people",
+        "dependsOn": [],
+        "detail": {
+          "brief": "Block by Block bets that a group letter gets answered faster.",
+          "steps": [
+            "Pick a building with many repair problems",
+            "Invite every renter",
+            "List the shared problems"
+          ],
+          "handIn": "Meeting notes without names",
+          "doneWhen": "At least 5 households came",
+          "checkedBy": "1 Checker reviews the notes",
+          "agentDoes": "Drafts the invite",
+          "humanDoes": "Runs the meeting",
+          "tools": "Rent Right letters",
+          "skills": "Organising"
+        }
       }
     ],
     "sample": {
@@ -13310,6 +13860,7 @@
         "whoItHelps": "Renters in Atlanta and the wider Fulton and DeKalb counties, starting with 1,000 households. Many are low-income and do not have a lawyer.",
         "whyUnsolved": "Legal aid groups have long waiting lists and cannot write a letter for every repair dispute. Generic online templates ignore Georgia rules, and a non-lawyer giving individual advice risks the unauthorized practice of law. Keeping templates current as Georgia law changes (as with the 2024 Safe at Home Act) costs money that nobody pays for.",
         "winning": [
+          "500 repairs made or deposits returned",
           "10 letters, each signed off in writing by a Georgia-licensed lawyer, in English and Spanish",
           "Each letter readable at a 6th to 8th grade level (tested with 5 renters per letter)",
           "1,000 renters create a letter within 6 months of launch",
@@ -13587,7 +14138,7 @@
       "prize": "8000",
       "currency": "$",
       "players": "24",
-      "squads": "1",
+      "squads": "2",
       "finished": null,
       "people": [
         {
@@ -13606,8 +14157,8 @@
   },
   {
     "id": "fountains",
-    "title": "Map every water fountain in Berlin",
-    "pitch": "Map Berlin's public drinking fountains and street pumps, and get the broken ones fixed.",
+    "title": "Free water on every Berlin street",
+    "pitch": "In a heatwave, people need free water nearby. Map every public fountain and pump, and get the broken ones running.",
     "tag": "Community",
     "glyph": "spark",
     "color": "var(--blue)",
@@ -14156,8 +14707,8 @@
   },
   {
     "id": "ramp",
-    "title": "Open design for a $40 wheelchair ramp",
-    "pitch": "A ramp anyone can build from one sheet of plywood.",
+    "title": "Every doorstep open to wheelchairs",
+    "pitch": "One step at the door keeps wheelchair users out of many shops. Design a $40 ramp anyone can build, and get it built.",
     "tag": "Science",
     "glyph": "helix",
     "color": "var(--pink)",
@@ -14683,8 +15234,8 @@
   },
   {
     "id": "pumps",
-    "title": "Fix Barmer's broken hand pumps",
-    "pitch": "Report every broken village hand pump in four Barmer blocks, and keep at it until it pumps water again.",
+    "title": "Water within reach in Barmer",
+    "pitch": "When the village hand pump breaks, women in Barmer walk far for water. Find every broken pump in four blocks and get it pumping again.",
     "tag": "Community",
     "glyph": "spark",
     "color": "var(--blue)",
@@ -15293,8 +15844,8 @@
   },
   {
     "id": "air",
-    "title": "Low-cost air sensor for classrooms",
-    "pitch": "A $20 sensor that tells teachers when to open a window.",
+    "title": "Fresh air in every classroom",
+    "pitch": "Stale air makes kids sleepy and sick. Tell teachers when to open a window, with a sensor schools can afford.",
     "tag": "Planet",
     "glyph": "wave",
     "color": "var(--sky)",

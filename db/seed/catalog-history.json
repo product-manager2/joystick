@@ -2,10 +2,12 @@
  "glio": {
   "mission": {
    "title": [
-    "Find a drug for glioblastoma"
+    "Find a drug for glioblastoma",
+    "Make glioblastoma survivable"
    ],
    "pitch": [
-    "Find a drug that kills this brain tumour and get it to a first human trial, fully open."
+    "Find a drug that kills this brain tumour and get it to a first human trial, fully open.",
+    "Most people with this brain tumour die within 15 months, and that has barely changed in 20 years. Find a treatment that gives them years, fully open."
    ],
    "rules": [
     [
@@ -92,6 +94,20 @@
     ],
     "unit": [
      "filing"
+    ]
+   },
+   "5": {
+    "name": [
+     "Patients"
+    ],
+    "goal": [
+     "First 20 patients treated in a trial"
+    ],
+    "target": [
+     20
+    ],
+    "unit": [
+     "patients"
     ]
    }
   },
@@ -385,11 +401,13 @@
  "aid": {
   "mission": {
    "title": [
-    "First-aid guides in 50 languages"
+    "First-aid guides in 50 languages",
+    "No one dies waiting for help"
    ],
    "pitch": [
     "Turn the 20 first-aid guides that save the most lives into 50 languages, free.",
-    "20 life-saving first-aid guides, checked by nurses and native speakers, free in 50 languages."
+    "20 life-saving first-aid guides, checked by nurses and native speakers, free in 50 languages.",
+    "In the minutes before an ambulance comes, the person next to you decides if you live. Help every bystander know what to do, in their own language."
    ],
    "rules": [
     [],
@@ -405,16 +423,19 @@
   "stages": {
    "0": {
     "name": [
-     "Pick"
+     "Pick",
+     "Know what kills"
     ],
     "goal": [
-     "Choose the 20 guides that save the most lives"
+     "Choose the 20 guides that save the most lives",
+     "Choose the 20 emergencies where a bystander saves the most lives"
     ],
     "target": [
      20
     ],
     "unit": [
-     "guides"
+     "guides",
+     "emergencies"
     ]
    },
    "1": {
@@ -447,16 +468,34 @@
    },
    "3": {
     "name": [
-     "Share"
+     "Share",
+     "Ready"
     ],
     "goal": [
-     "Free app and printable cards"
+     "Free app and printable cards",
+     "10,000 people have the guides on their phone or wall"
     ],
     "target": [
-     1
+     1,
+     10000
     ],
     "unit": [
-     "launch"
+     "launch",
+     "people"
+    ]
+   },
+   "4": {
+    "name": [
+     "Act"
+    ],
+    "goal": [
+     "Bystanders step in during 100 real emergencies"
+    ],
+    "target": [
+     100
+    ],
+    "unit": [
+     "emergencies"
     ]
    }
   },
@@ -470,6 +509,28 @@
     ],
     "bet": [
      "Nurses pick and write the guides, agents draft translations, native speakers fix them."
+    ]
+   },
+   "aid-cpr": {
+    "name": [
+     "CPR in every school"
+    ],
+    "squad": [
+     "Pulse Club"
+    ],
+    "bet": [
+     "Teach every 12-year-old CPR. Kids teach their families."
+    ]
+   },
+   "aid-line": {
+    "name": [
+     "A helper on the phone"
+    ],
+    "squad": [
+     "Line Lift"
+    ],
+    "bet": [
+     "A free number where a trained volunteer talks you through it until help comes."
     ]
    }
   },
@@ -700,6 +761,34 @@
     "stage": [
      4
     ]
+   },
+   "a18": {
+    "title": [
+     "Write a 45-minute CPR lesson for 12-year-olds"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "a19": {
+    "title": [
+     "Write the call script for a choking emergency"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
    }
   }
  },
@@ -707,10 +796,12 @@
   "mission": {
    "title": [
     "Build an open AI that speaks India",
-    "An open AI that speaks India"
+    "An open AI that speaks India",
+    "Every Indian can use AI in their language"
    ],
    "pitch": [
-    "A free AI model that understands 22 Indian languages and runs on one laptop."
+    "A free AI model that understands 22 Indian languages and runs on one laptop.",
+    "Most AI barely works in Odia, Bodo or Santali. Build a free model that does, and runs on one laptop."
    ],
    "rules": [
     [],
@@ -783,6 +874,20 @@
     ],
     "unit": [
      "launch"
+    ]
+   },
+   "4": {
+    "name": [
+     "Use"
+    ],
+    "goal": [
+     "10,000 people use it every week in their own language"
+    ],
+    "target": [
+     10000
+    ],
+    "unit": [
+     "people"
     ]
    }
   },
@@ -1053,10 +1158,12 @@
   "mission": {
    "title": [
     "Build the agent engine Joystick runs on",
-    "Build Joystick's open agent engine"
+    "Build Joystick's open agent engine",
+    "Agents you can trust with real work"
    ],
    "pitch": [
-    "The open-source engine that lets every player's agent plan, do and check quests safely."
+    "The open-source engine that lets every player's agent plan, do and check quests safely.",
+    "Nobody lets an agent touch real money or code unwatched. Build the open engine that makes Joystick's agents safe to trust."
    ],
    "rules": [
     [],
@@ -1392,10 +1499,12 @@
  "reef": {
   "mission": {
    "title": [
-    "Map every coral reef from space"
+    "Map every coral reef from space",
+    "Catch dying reefs in time to save them"
    ],
    "pitch": [
-    "A free weekly map that shows where coral is dying."
+    "A free weekly map that shows where coral is dying.",
+    "Reefs bleach in weeks, and most are never checked. Warn the people who look after them early enough to act."
    ],
    "rules": [
     [
@@ -1460,17 +1569,21 @@
    },
    "3": {
     "name": [
-     "Public map"
+     "Public map",
+     "Warn"
     ],
     "goal": [
      "Weekly public reef map online",
-     "Weekly heat-stress map, reef cover updated monthly"
+     "Weekly heat-stress map, reef cover updated monthly",
+     "50 reef keepers get a weekly heat-stress warning"
     ],
     "target": [
-     1
+     1,
+     50
     ],
     "unit": [
-     "launch"
+     "launch",
+     "reef keepers"
     ]
    }
   },
@@ -1719,10 +1832,12 @@
  "lead": {
   "mission": {
    "title": [
-    "Find every lead pipe in one city"
+    "Find every lead pipe in one city",
+    "No child in Dayton drinks lead"
    ],
    "pitch": [
-    "Find every lead water pipe in Dayton so the city can replace them."
+    "Find every lead water pipe in Dayton so the city can replace them.",
+    "Thousands of Dayton homes may still get water through lead pipes. Find them and get them replaced, homes with kids first."
    ],
    "rules": [
     [],
@@ -1782,11 +1897,27 @@
    },
    "3": {
     "name": [
-     "Replace"
+     "Replace",
+     "Plan"
     ],
     "goal": [
      "City commits to replace 500 pipes",
-     "City publishes a dated plan to replace 500 lead lines first"
+     "City publishes a dated plan to replace 500 lead lines first",
+     "The city publishes a dated plan to replace 500 lead lines first"
+    ],
+    "target": [
+     500
+    ],
+    "unit": [
+     "pipes"
+    ]
+   },
+   "4": {
+    "name": [
+     "Replaced"
+    ],
+    "goal": [
+     "500 lead lines replaced"
     ],
     "target": [
      500
@@ -1806,6 +1937,17 @@
     ],
     "bet": [
      "Start from city records, then people photo the pipe at home."
+    ]
+   },
+   "lead-filter": {
+    "name": [
+     "Filters while pipes wait"
+    ],
+    "squad": [
+     "Filter First"
+    ],
+    "bet": [
+     "Get a certified filter into every home with kids now, while the pipes wait their turn."
     ]
    }
   },
@@ -2020,16 +2162,32 @@
     "stage": [
      4
     ]
+   },
+   "l15": {
+    "title": [
+     "Count homes with kids on suspected lead lines"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
    }
   }
  },
  "tutor": {
   "mission": {
    "title": [
-    "Offline maths tutor for kids"
+    "Offline maths tutor for kids",
+    "Every child can do basic maths"
    ],
    "pitch": [
-    "A maths tutor that works on a $50 phone with no internet, in 10 languages."
+    "A maths tutor that works on a $50 phone with no internet, in 10 languages.",
+    "Many children finish primary school without basic maths. Get them there, even where there's no internet."
    ],
    "rules": [
     [
@@ -2115,6 +2273,17 @@
     ],
     "bet": [
      "One small app that works without internet, tested in real classes."
+    ]
+   },
+   "tutor-front": {
+    "name": [
+     "Help the teacher, not the phone"
+    ],
+    "squad": [
+     "Front Row"
+    ],
+    "bet": [
+     "Give teachers a 10-minute daily routine that finds who is behind and helps them catch up."
     ]
    }
   },
@@ -2330,6 +2499,20 @@
     ],
     "size": [
      "S"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "t17": {
+    "title": [
+     "Try the 10-minute daily check in one class"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "L"
     ],
     "stage": [
      4
@@ -2691,11 +2874,13 @@
  "candidate": {
   "mission": {
    "title": [
-    "Know your candidate before you vote"
+    "Know your candidate before you vote",
+    "Every Pune voter chooses with facts"
    ],
    "pitch": [
     "Plain facts on every candidate in the Pune city election, from public records only.",
-    "Plain facts on every candidate in Pune district's 21 Assembly seats, straight from their sworn affidavits."
+    "Plain facts on every candidate in Pune district's 21 Assembly seats, straight from their sworn affidavits.",
+    "Candidates' sworn facts are public but buried in long PDFs. Put them in front of voters in Pune district before they vote."
    ],
    "rules": [
     [],
@@ -2776,6 +2961,17 @@
     ],
     "bet": [
      "Turn every affidavit into the same plain one-page profile."
+    ]
+   },
+   "cand-talk": {
+    "name": [
+     "Read it out where people meet"
+    ],
+    "squad": [
+     "Chai Charcha"
+    ],
+    "bet": [
+     "Read the one-pagers aloud at chai stalls and housing societies. People trust a face more than a link."
     ]
    }
   },
@@ -3009,16 +3205,32 @@
     "stage": [
      3
     ]
+   },
+   "k17": {
+    "title": [
+     "Write the neutral read-aloud rules"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     2
+    ]
    }
   }
  },
  "pothole": {
   "mission": {
    "title": [
-    "Fix every pothole in Bengaluru"
+    "Fix every pothole in Bengaluru",
+    "No rider hurt by a Bengaluru pothole"
    ],
    "pitch": [
-    "Pin every pothole, file it with the city, and chase it until it's fixed."
+    "Pin every pothole, file it with the city, and chase it until it's fixed.",
+    "Potholes throw Bengaluru's riders off their bikes every week. Get the worst ones fixed fast, and keep them fixed."
    ],
    "rules": [
     [],
@@ -3087,6 +3299,20 @@
     "unit": [
      "% fixed"
     ]
+   },
+   "4": {
+    "name": [
+     "Safer"
+    ],
+    "goal": [
+     "Pothole crashes on mapped roads fall by half"
+    ],
+    "target": [
+     50
+    ],
+    "unit": [
+     "% fewer"
+    ]
    }
   },
   "plans": {
@@ -3099,6 +3325,17 @@
     ],
     "bet": [
      "Delivery riders and commuters pin potholes on routes they already take."
+    ]
+   },
+   "pot-crash": {
+    "name": [
+     "Worst first"
+    ],
+    "squad": [
+     "Crash Map"
+    ],
+    "bet": [
+     "Start where riders actually crash, not where potholes are. Fix those first."
     ]
    }
   },
@@ -3327,17 +3564,33 @@
     "stage": [
      4
     ]
+   },
+   "p17": {
+    "title": [
+     "Match 200 crash reports to pinned potholes"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
    }
   }
  },
  "rti": {
   "mission": {
    "title": [
-    "Ask where the school money went"
+    "Ask where the school money went",
+    "Every rupee reaches Bihar's schools"
    ],
    "pitch": [
     "Use information requests to see what 100 government schools got, and check what's really there.",
-    "Use RTI requests to see what 100 Bihar government schools were given, then check what is really there."
+    "Use RTI requests to see what 100 Bihar government schools were given, then check what is really there.",
+    "Money for toilets, books and teachers is sent, but often never arrives. Follow it to 100 schools and get the gaps fixed."
    ],
    "rules": [
     [],
@@ -3420,6 +3673,20 @@
     "unit": [
      "report cards"
     ]
+   },
+   "5": {
+    "name": [
+     "Fixed"
+    ],
+    "goal": [
+     "50 schools get what was missing"
+    ],
+    "target": [
+     50
+    ],
+    "unit": [
+     "schools"
+    ]
    }
   },
   "plans": {
@@ -3432,6 +3699,17 @@
     ],
     "bet": [
      "File every request, and appeal in person when replies are late."
+    ]
+   },
+   "rti-parents": {
+    "name": [
+     "Parents ask at the school"
+    ],
+    "squad": [
+     "Parent Panel"
+    ],
+    "bet": [
+     "Help parents on School Management Committees read the school's own accounts at their meetings."
     ]
    }
   },
@@ -3664,17 +3942,33 @@
     "stage": [
      3
     ]
+   },
+   "s18": {
+    "title": [
+     "Write a one-page Hindi guide to the school grant"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     3
+    ]
    }
   }
  },
  "flood": {
   "mission": {
    "title": [
-    "Flood alerts by text for Lagos"
+    "Flood alerts by text for Lagos",
+    "No Lagos family caught by a flood"
    ],
    "pitch": [
     "River sensors that text families 2 hours before a flood.",
-    "River and rain gauges that text families in Yoruba, Pidgin or English before the water comes."
+    "River and rain gauges that text families in Yoruba, Pidgin or English before the water comes.",
+    "Floods hit Lagos streets with no warning. Give families two hours to move people and things to safety."
    ],
    "rules": [
     [],
@@ -3756,6 +4050,17 @@
     ],
     "bet": [
      "Cheap river sensors that text families when water rises fast."
+    ]
+   },
+   "flood-street": {
+    "name": [
+     "Street captains"
+    ],
+    "squad": [
+     "Street Watch"
+    ],
+    "bet": [
+     "One trained captain per street who warns neighbours by phone and loudspeaker."
     ]
    }
   },
@@ -3972,17 +4277,33 @@
     "stage": [
      4
     ]
+   },
+   "f16": {
+    "title": [
+     "Find a street captain on 5 flood-prone streets"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
    }
   }
  },
  "renter": {
   "mission": {
    "title": [
-    "Free legal letters for renters"
+    "Free legal letters for renters",
+    "Atlanta renters get the repairs they're owed"
    ],
    "pitch": [
     "Lawyer-checked letters renters can send in one tap: repairs, deposits, eviction.",
-    "Lawyer-checked letters Atlanta renters can fill in and send: repairs, deposits, notices."
+    "Lawyer-checked letters Atlanta renters can fill in and send: repairs, deposits, notices.",
+    "Atlanta renters live with broken heat and lose deposits, because a lawyer costs too much. Help them get what the law already gives them."
    ],
    "rules": [
     [],
@@ -4051,6 +4372,20 @@
     "unit": [
      "renters"
     ]
+   },
+   "4": {
+    "name": [
+     "Fixed"
+    ],
+    "goal": [
+     "500 repairs made or deposits returned"
+    ],
+    "target": [
+     500
+    ],
+    "unit": [
+     "renters"
+    ]
    }
   },
   "plans": {
@@ -4063,6 +4398,17 @@
     ],
     "bet": [
      "10 letters that cover most problems, each checked by a lawyer."
+    ]
+   },
+   "renter-block": {
+    "name": [
+     "Renters act together"
+    ],
+    "squad": [
+     "Block by Block"
+    ],
+    "bet": [
+     "All the renters in one building ask together. Landlords answer a group faster."
     ]
    }
   },
@@ -4277,17 +4623,33 @@
     "stage": [
      4
     ]
+   },
+   "n15": {
+    "title": [
+     "Hold one building meeting about repairs"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
    }
   }
  },
  "fountains": {
   "mission": {
    "title": [
-    "Map every water fountain in Berlin"
+    "Map every water fountain in Berlin",
+    "Free water on every Berlin street"
    ],
    "pitch": [
     "Find every public fountain and get the broken ones fixed.",
-    "Map Berlin's public drinking fountains and street pumps, and get the broken ones fixed."
+    "Map Berlin's public drinking fountains and street pumps, and get the broken ones fixed.",
+    "In a heatwave, people need free water nearby. Map every public fountain and pump, and get the broken ones running."
    ],
    "rules": [
     [],
@@ -4447,10 +4809,12 @@
  "ramp": {
   "mission": {
    "title": [
-    "Open design for a $40 wheelchair ramp"
+    "Open design for a $40 wheelchair ramp",
+    "Every doorstep open to wheelchairs"
    ],
    "pitch": [
-    "A ramp anyone can build from one sheet of plywood."
+    "A ramp anyone can build from one sheet of plywood.",
+    "One step at the door keeps wheelchair users out of many shops. Design a $40 ramp anyone can build, and get it built."
    ],
    "rules": [
     [],
@@ -4610,11 +4974,13 @@
   "mission": {
    "title": [
     "Find every broken hand pump in one district",
-    "Fix Barmer's broken hand pumps"
+    "Fix Barmer's broken hand pumps",
+    "Water within reach in Barmer"
    ],
    "pitch": [
     "Report every broken village hand pump in Barmer and get it fixed.",
-    "Report every broken village hand pump in four Barmer blocks, and keep at it until it pumps water again."
+    "Report every broken village hand pump in four Barmer blocks, and keep at it until it pumps water again.",
+    "When the village hand pump breaks, women in Barmer walk far for water. Find every broken pump in four blocks and get it pumping again."
    ],
    "rules": [
     [],
@@ -4788,10 +5154,12 @@
  "air": {
   "mission": {
    "title": [
-    "Low-cost air sensor for classrooms"
+    "Low-cost air sensor for classrooms",
+    "Fresh air in every classroom"
    ],
    "pitch": [
-    "A $20 sensor that tells teachers when to open a window."
+    "A $20 sensor that tells teachers when to open a window.",
+    "Stale air makes kids sleepy and sick. Tell teachers when to open a window, with a sensor schools can afford."
    ],
    "rules": [
     [],
