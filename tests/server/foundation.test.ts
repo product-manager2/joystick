@@ -8,6 +8,7 @@ import { saveUserMessage, history } from '../../server/chat.js';
 import { persistAgentEvent, dispatchNext, refreshDispatchStatus, recoverInterruptedDispatches, type ManagedAgentClient } from '../../server/agent.js';
 import { privateAgentContext } from '../../server/agent-context.js';
 import { PRIVATE_AGENT_PROMPT_REVISION } from '../../server/private-agent-prompt.js';
+import { ROOM_AGENT_PROMPT_REVISION } from '../../server/room-agent-prompt.js';
 import type { Config } from '../../server/config.js';
 import { startWorker } from '../../server/worker-lock.js';
 
@@ -407,4 +408,37 @@ test('lost sender access only stops that sender while another member can dispatc
     assert.equal(creates,1);
     assert.equal((await pool.query('SELECT status FROM agent_dispatches WHERE message_id=$1',[healthy.message.id])).rows[0].status,'completed');
   }finally{await pool.end();}
+});
+
+test('task rooms give the shared agent the task brief and move old sessions to the room prompt', async () => {
+  const pool=createPool(config);
+  try {
+    const a=await fixture(pool);
+    const mission=(await pool.query(`INSERT INTO game_missions(title,pitch,sample) VALUES('Basic maths for every child','Every child can do basic maths','{"detail":{"problem":"Many Grade 5 pupils cannot divide"}}') RETURNING id`)).rows[0];
+    await pool.query(`INSERT INTO game_memberships(mission_id,user_id) VALUES($1,$2)`,[mission.id,a.user.id]);
+    const stage=(await pool.query(`INSERT INTO game_stages(mission_id,ordinal,name,goal,status) VALUES($1,0,'Map the curriculum','Know what is taught','active') RETURNING id`,[mission.id])).rows[0];
+    const brief={catalog:{detail:{brief:'Teachers need a skill map',handIn:'A spreadsheet of skills by grade',doneWhen:'Every Grade 3-5 outcome is mapped',steps:['Find the official curriculum','List each outcome']}}};
+    const quest=(await pool.query(`INSERT INTO game_quests(mission_id,stage_id,title,brief,state,claimed_by) VALUES($1,$2,'Map the maths curriculum',$3,'claimed',$4) RETURNING id`,[mission.id,stage.id,JSON.stringify(brief),a.user.id])).rows[0];
+    const oldSession=`sesn_${randomUUID()}`;
+    const room=(await pool.query(`INSERT INTO rooms(title,kind,scope_id,provider_session_id) VALUES('quest room','quest',$1,$2) RETURNING id`,[quest.id,oldSession])).rows[0];
+    await saveUserMessage(pool,a.user.id,room.id,randomUUID(),'what is the context?',true);
+    const agentConfig={...config,anthropicApiKey:'fake',anthropicAgentId:'agent_fake',anthropicEnvironmentId:'env_fake'};
+    let created='';
+    const fake:ManagedAgentClient={
+      create:async input=>{
+        assert.ok(typeof input.agent!=='string');
+        assert.match(input.agent.system,/shared room for a mission, stage, plan, or task/);
+        assert.deepEqual(input.agent.tools,[]);
+        created=input.initial_events[0].content[0].text;
+        return {id:`sesn_${randomUUID()}`};
+      },
+      send:async()=>{throw new Error('An old shared session must rotate to the room prompt');},
+      stream:async()=>({async *[Symbol.asyncIterator](){yield {type:'session.status_idle'};}}),
+      list:async function*(){yield {type:'user.message',id:'task-turn'};yield {type:'session.status_idle',id:'task-end',stop_reason:{type:'end_turn'}};},
+      status:async()=> 'idle',
+    };
+    assert.equal(await dispatchNext(pool,agentConfig,fake),true);
+    for (const expected of ['what is the context?','Map the maths curriculum','A spreadsheet of skills by grade','Every Grade 3-5 outcome is mapped','Find the official curriculum','Many Grade 5 pupils cannot divide','Map the curriculum','"senderIsClaimant":true','Test person']) assert.ok(created.includes(expected),expected);
+    assert.equal((await pool.query('SELECT agent_prompt_revision FROM rooms WHERE id=$1',[room.id])).rows[0].agent_prompt_revision,ROOM_AGENT_PROMPT_REVISION);
+  } finally {await pool.end();}
 });

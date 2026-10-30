@@ -3,7 +3,8 @@ import type { Pool } from './db.js';
 import { transaction } from './db.js';
 import type { Config } from './config.js';
 import { agentAvailable } from './config.js';
-import { contextualMessage, privateAgentContext } from './agent-context.js';
+import { contextualMessage, privateAgentContext, roomScopeContext, scopedRoomMessage } from './agent-context.js';
+import { ROOM_AGENT_PROMPT_REVISION, ROOM_AGENT_SYSTEM } from './room-agent-prompt.js';
 import { PRIVATE_AGENT_PROMPT_REVISION, PRIVATE_AGENT_SYSTEM } from './private-agent-prompt.js';
 import { PRIVATE_AGENT_TOOLS, processPrivateTool, acknowledgePrivateTool, sendPrivateToolResult } from './private-agent-tools.js';
 
@@ -65,9 +66,12 @@ export async function dispatchNext(pool: Pool, config: Config, client: ManagedAg
   let providerMutationStarted = false;
   try {
     const context=await privateAgentContext(pool,job.room_id,job.user_id);
-    let providerText=contextualMessage(job.text,context);
     const privateRoom=context!==null;
-    const rotate=privateRoom && !!sessionId && job.agent_prompt_revision < PRIVATE_AGENT_PROMPT_REVISION;
+    const scope=privateRoom?null:await roomScopeContext(pool,job.room_id,job.user_id);
+    const scopedRoom=scope!==null;
+    let providerText=privateRoom?contextualMessage(job.text,context):scopedRoomMessage(job.text,scope);
+    const promptRevision=privateRoom?PRIVATE_AGENT_PROMPT_REVISION:scopedRoom?ROOM_AGENT_PROMPT_REVISION:null;
+    const rotate=promptRevision!==null && !!sessionId && job.agent_prompt_revision < promptRevision;
     if (rotate) {
       // A session snapshots its system prompt. Complete old work before moving this
       // room to a new session; uncertain work remains blocked by admission above.
@@ -86,11 +90,11 @@ export async function dispatchNext(pool: Pool, config: Config, client: ManagedAg
     }
     if (!sessionId || rotate) {
       providerMutationStarted=true;
-      const agent={type:'agent_with_overrides' as const,id:config.anthropicAgentId!,system:privateRoom?PRIVATE_AGENT_SYSTEM:'You are an assistant in a shared Joystick room. Reply to the people in this room using only their conversation.',tools:privateRoom?PRIVATE_AGENT_TOOLS:[]};
+      const agent={type:'agent_with_overrides' as const,id:config.anthropicAgentId!,system:privateRoom?PRIVATE_AGENT_SYSTEM:scopedRoom?ROOM_AGENT_SYSTEM:'You are an assistant in a shared Joystick room. Reply to the people in this room using only their conversation.',tools:privateRoom?PRIVATE_AGENT_TOOLS:[]};
       const session = await client.create({agent,environment_id:config.anthropicEnvironmentId!,initial_events:[{type:'user.message',content:[{type:'text',text:providerText}]}],metadata:{joystick_room_id:job.room_id,joystick_message_id:job.message_id}});
       sessionId = session.id;
       await transaction(pool, async db => {
-        const changed=await db.query(`UPDATE rooms SET provider_session_id=$2,agent_prompt_revision=$3 WHERE id=$1 AND provider_session_id IS NOT DISTINCT FROM $4 AND agent_prompt_revision=$5`, [job.room_id,sessionId,privateRoom ? PRIVATE_AGENT_PROMPT_REVISION : job.agent_prompt_revision,job.provider_session_id,job.agent_prompt_revision]);
+        const changed=await db.query(`UPDATE rooms SET provider_session_id=$2,agent_prompt_revision=$3 WHERE id=$1 AND provider_session_id IS NOT DISTINCT FROM $4 AND agent_prompt_revision=$5`, [job.room_id,sessionId,promptRevision ?? job.agent_prompt_revision,job.provider_session_id,job.agent_prompt_revision]);
         if (changed.rowCount!==1) throw new Error('Room session changed during agent dispatch');
         await db.query(`UPDATE agent_dispatches SET status='sent',provider_session_id=$2,updated_at=now() WHERE id=$1`, [job.id,sessionId]);
       });
