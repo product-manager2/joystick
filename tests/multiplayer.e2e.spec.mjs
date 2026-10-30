@@ -212,6 +212,7 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await makerPage.getByRole("button", { name: new RegExp(missionTitle) }).click();
     await openCheckpoint(makerPage, 1);
     await makerPage.getByRole("button", { name: /Review funding flow/ }).click();
+    await makerPage.locator(".task-play-cta [data-live='quest-play']").click();
     await expect(makerPage.locator(".task-token-reward").first()).toHaveText(/Expected 15 J[A-F0-9]{8}/);
     await makerPage.getByRole("button", { name: "Claim task" }).click();
     await makerPage.getByRole("button", { name: "Submit work" }).click();
@@ -224,6 +225,7 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await reviewerPage.getByRole("button", { name: new RegExp(missionTitle) }).click();
     await openCheckpoint(reviewerPage, 1);
     await reviewerPage.getByRole("button", { name: /Review funding flow/ }).click();
+    await reviewerPage.locator(".task-play-cta [data-live='quest-play']").click();
     await reviewerPage.getByRole("button", { name: "Review this work" }).click();
     await reviewerPage.getByLabel("Verdict").selectOption("changes_requested");
     await reviewerPage.getByLabel("Review notes").fill("Please include a concrete source in the revised artifact.");
@@ -233,6 +235,7 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await makerPage.getByRole("button", { name: new RegExp(missionTitle) }).click();
     await openCheckpoint(makerPage, 1);
     await makerPage.getByRole("button", { name: /Review funding flow/ }).click();
+    await makerPage.locator(".task-play-cta [data-live='quest-play']").click();
     await expect(makerPage.getByRole("button", { name: "Revise and resubmit" })).toBeVisible({ timeout: 12_000 });
 
     await makerPage.getByRole("button", { name: "Revise and resubmit" }).click();
@@ -293,6 +296,7 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await makerPage.getByRole("button", { name: new RegExp(missionTitle) }).click();
     await openCheckpoint(makerPage, 1);
     await makerPage.getByRole("button", { name: /Review funding flow/ }).click();
+    await makerPage.locator(".task-play-cta [data-live='quest-play']").click();
     checkStatus = "needs_attention";
     await refreshFixture();
     await expect(makerPage.locator(".instant-check")).toContainText("Add a source for the date <script>alert(1)</script>");
@@ -309,11 +313,13 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await makerPage.getByRole("button", { name: new RegExp(missionTitle) }).click();
     await openCheckpoint(makerPage, 1);
     await makerPage.getByRole("button", { name: /Review funding flow/ }).click();
+    await makerPage.locator(".task-play-cta [data-live='quest-play']").click();
 
     await ownerPage.reload();
     await ownerPage.getByRole("button", { name: new RegExp(missionTitle) }).click();
     await openCheckpoint(ownerPage, 1);
     await ownerPage.getByRole("button", { name: /Review funding flow/ }).click();
+    await ownerPage.locator(".task-play-cta [data-live='quest-play']").click();
     await ownerPage.getByRole("button", { name: "Review this work" }).click();
     await ownerPage.getByLabel("Verdict").selectOption("approve");
     await ownerPage.getByLabel("Review notes").fill("Latest revision approved by the owner.");
@@ -323,6 +329,7 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await reviewerPage.getByRole("button", { name: new RegExp(missionTitle) }).click();
     await openCheckpoint(reviewerPage, 1);
     await reviewerPage.getByRole("button", { name: /Review funding flow/ }).click();
+    await reviewerPage.locator(".task-play-cta [data-live='quest-play']").click();
     await reviewerPage.getByRole("button", { name: "Review this work" }).click();
     await reviewerPage.getByLabel("Verdict").selectOption("approve");
     await reviewerPage.getByLabel("Review notes").fill("Latest revision approved by a second member.");
