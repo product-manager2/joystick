@@ -5,6 +5,8 @@ import { dirname, join, basename } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { selectedEnvPath } from './env.js';
 import { AGENT_RUN_SYSTEM, AGENT_RUN_TOOLS } from './agent-runs/tools.js';
+import { BUILT_IN_TOOLS } from './agent-toolset.js';
+import { APP_TOOLS } from './composio.js';
 import { PRIVATE_AGENT_SYSTEM } from './private-agent-prompt.js';
 import { PRIVATE_AGENT_TOOLS } from './private-agent-tools.js';
 
@@ -14,14 +16,7 @@ if (!key) throw new Error('Set ANTHROPIC_API_KEY in the selected private environ
 const workspaceId=process.env.ANTHROPIC_WORKSPACE_ID;
 const model=process.env.ANTHROPIC_MODEL || 'claude-haiku-5-5';
 const client=new Anthropic({apiKey:key,maxRetries:0});
-const agentTools=[...AGENT_RUN_TOOLS,{type:'agent_toolset_20260401' as const,default_config:{enabled:false},configs:[
-  {name:'bash' as const,enabled:true,permission_policy:{type:'always_allow' as const}},
-  {name:'read' as const,enabled:true,permission_policy:{type:'always_allow' as const}},
-  {name:'write' as const,enabled:true,permission_policy:{type:'always_allow' as const}},
-  {name:'edit' as const,enabled:true,permission_policy:{type:'always_allow' as const}},
-  {name:'glob' as const,enabled:true,permission_policy:{type:'always_allow' as const}},
-  {name:'grep' as const,enabled:true,permission_policy:{type:'always_allow' as const}},
-]}];
+const agentTools=[...AGENT_RUN_TOOLS,...APP_TOOLS,BUILT_IN_TOOLS];
 async function setEnv(name:string,value:string) {
   if (!/^[A-Z_]+$/.test(name) || /[\r\n]/.test(value)) throw new Error('Invalid environment field');
   const source=await readFile(selectedEnvPath,'utf8');
@@ -103,7 +98,7 @@ async function main() {
   } else {
     const existing=await client.beta.agents.retrieve(workflowAgentId,{workspace_id:workspaceId});
     const customTools=existing.tools.filter(t=>t.type==='custom');
-    const configured=existing.system===AGENT_RUN_SYSTEM&&AGENT_RUN_TOOLS.every(t=>customTools.some(existingTool=>existingTool.name===t.name&&existingTool.description===t.description&&JSON.stringify(existingTool.input_schema)===JSON.stringify(t.input_schema)))&&existing.tools.some(t=>t.type==='agent_toolset_20260401');
+    const configured=existing.system===AGENT_RUN_SYSTEM&&[...AGENT_RUN_TOOLS,...APP_TOOLS].every(t=>customTools.some(existingTool=>existingTool.name===t.name&&existingTool.description===t.description&&JSON.stringify(existingTool.input_schema)===JSON.stringify(t.input_schema)))&&existing.tools.some(t=>t.type==='agent_toolset_20260401');
     if(!configured){
       await setEnv('ANTHROPIC_SETUP_WORKFLOW_AGENT_STATE','updating');
       try{

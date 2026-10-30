@@ -45,3 +45,4 @@
 @media(max-width:410px){.push-controls{grid-template-columns:44px minmax(0,1fr)}.push-controls .push-action{grid-column:2}.push-controls .push-action .btn{width:100%}}
 @media(max-width:550px){.medals{gap:4px}.medal{padding:10px 4px}.squad{grid-template-columns:25px minmax(0,1fr) auto}.map-stage{padding-left:13px}.map-tracks{margin-left:8px}}
 .task-intro .quick{padding-inline:0}
+.app-logo{width:20px;height:20px;border-radius:4px;object-fit:contain}
