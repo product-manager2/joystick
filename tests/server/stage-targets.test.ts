@@ -30,9 +30,10 @@ test('stage outcome targets and approved-task gates keep their distinct meanings
     const withTask=await action(owner,'quest.create',stage.id,{title:'First reviewed result'});
     const quest=(withTask.missions.find(m=>m.id===mission.id)!.quests as Array<{id:string;title:string}>).find(q=>q.title==='First reviewed result')!;
     await action(worker,'quest.claim',quest.id);
-    await action(worker,'quest.submit',quest.id,{title:'Evidence',content:'A documented result with a reproducible method'});
-    await action(reviewerA,'quest.review',quest.id,{verdict:'approve'});
-    await action(reviewerB,'quest.review',quest.id,{verdict:'approve'});
+    const submission=await action(worker,'quest.submit',quest.id,{title:'Evidence',content:'A documented result with a reproducible method'});
+    const artifactId=((submission.missions.find(m=>m.id===mission.id)!.quests as any[]).find(q=>q.id===quest.id).artifacts as any[]).at(-1).id;
+    await action(reviewerA,'quest.review',quest.id,{artifactId,verdict:'approve'});
+    await action(reviewerB,'quest.review',quest.id,{artifactId,verdict:'approve'});
     const approved=await action(owner,'stage.approve',stage.id);
     assert.equal((approved.missions.find(m=>m.id===mission.id)!.stages as Array<{id:string;status:string}>).find(s=>s.id===stage.id)?.status,'approved');
   }finally{

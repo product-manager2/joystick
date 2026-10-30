@@ -6,9 +6,9 @@ import { startWorker, monitorWorkerLock } from './worker-lock.js';
 import { runProvider, recoverRunDispatches, startNextRun, reconcileActiveRuns, interruptCancelledRuns } from './agent-runs/worker.js';
 import { recoverPrivateToolSends } from './private-agent-tools.js';
 import { deliverNextPush, webPushSender } from './push.js';
+import { processNextSubmissionCheck } from './game/submission-checks.js';
 
 const config = readConfig();
-if (!agentAvailable(config) && !pushAvailable(config)) { console.error('Worker requires agent or Web Push configuration'); process.exit(1); }
 const pool = createPool(config);
 const lock=await startWorker(pool);
 if (!lock) { console.error('Another Joystick agent worker holds the singleton lock'); await pool.end(); process.exit(1); }
@@ -59,5 +59,11 @@ async function runLoop(){
     catch(error){console.error('Agent run processing failed',error);await sleep(2000);}
   }
 }
-try { await Promise.all([dispatchLoop(),dispatchLoop(),dispatchLoop(),dispatchLoop(),reconcileLoop(),runLoop(),pushLoop()]); }
+async function submissionCheckLoop(){
+  while(running){
+    try{if(!await processNextSubmissionCheck(pool,config))await sleep(500);}
+    catch(error){console.error('Submission check processing failed',error);await sleep(2000);}
+  }
+}
+try { await Promise.all([dispatchLoop(),dispatchLoop(),dispatchLoop(),dispatchLoop(),reconcileLoop(),runLoop(),pushLoop(),submissionCheckLoop()]); }
 finally { clearInterval(heartbeat); stopMonitoring(); lock.release(true); await pool.end(); }

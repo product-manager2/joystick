@@ -244,6 +244,72 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await expect(makerPage.getByText("Evidence v1")).toBeVisible();
     await expect(makerPage.getByText("Evidence v2")).toBeVisible();
 
+    // Exercise the quick-check UI with a real submitted task and deterministic
+    // snapshot overlays. The live server and player reviews remain unchanged.
+    let checkStatus = "queued", checkArtifact = "latest", fixtureRevision = 1_000_000;
+    await makerPage.route("**/api/v1/game", async route => {
+      const response = await route.fetch();
+      const snapshot = await response.json();
+      const mission = snapshot.missions.find(m => m.title === missionTitle);
+      const task = mission?.quests.find(q => q.title === "Review funding flow");
+      if (!task || task.state !== "submitted") return route.fulfill({ response });
+      const latest = task.artifacts.at(-1), previous = task.artifacts.at(-2);
+      task.instantCheck = {
+        artifactId: checkArtifact === "previous" ? previous.id : latest.id,
+        status: checkStatus,
+        source: checkStatus === "queued" ? null : "jev",
+        feedback: checkStatus === "needs_attention" ? "Add a source for the date <script>alert(1)</script>" : "",
+        provisionalTokens: checkStatus === "passed" ? 15 : 0,
+      };
+      snapshot.wallet.pendingMissionTokens = checkStatus === "passed" ? [{ missionId: mission.id, symbol: mission.token.symbol, amount: 15 }] : [];
+      snapshot.revision = fixtureRevision++;
+      await route.fulfill({ response, json: snapshot });
+    });
+    const refreshFixture = async () => {
+      await makerPage.evaluate(() => window.dispatchEvent(new Event("focus")));
+    };
+    await refreshFixture();
+    await expect(makerPage.getByText("Checking your work…")).toBeVisible();
+    checkStatus = "passed";
+    await refreshFixture();
+    await expect(makerPage.getByText("Looks ready!")).toBeVisible();
+    await expect(makerPage.locator(".instant-check")).toContainText(/\+15 J[A-F0-9]{8} provisional/);
+    await makerPage.getByRole("button", { name: "Profile" }).click();
+    await makerPage.locator('[data-live="wallet-sheet"]').click();
+    const pendingWallet = makerPage.getByRole("dialog", { name: "Wallet" });
+    await expect(pendingWallet.locator(".wallet-pending-tokens")).toContainText(/\+15 J[A-F0-9]{8}/);
+    await expect(pendingWallet.locator(".wallet-token-row").filter({ hasText: missionTitle })).toHaveCount(0);
+    await expect(pendingWallet.locator(".mission-token-history")).toHaveCount(0);
+    await pendingWallet.getByRole("button", { name: "×" }).focus();
+    checkStatus = "unavailable";
+    await refreshFixture();
+    await expect(pendingWallet.locator(".wallet-pending-tokens")).toHaveCount(0);
+    await expect(pendingWallet.getByRole("button", { name: "×" })).toBeFocused();
+    checkStatus = "passed";
+    await refreshFixture();
+    await expect(pendingWallet.locator(".wallet-pending-tokens")).toBeVisible();
+    await pendingWallet.getByRole("button", { name: "×" }).click();
+    await makerPage.locator('#nav button[data-x="lobby"]').click();
+    await makerPage.getByRole("button", { name: new RegExp(missionTitle) }).click();
+    await openCheckpoint(makerPage, 1);
+    await makerPage.getByRole("button", { name: /Review funding flow/ }).click();
+    checkStatus = "needs_attention";
+    await refreshFixture();
+    await expect(makerPage.locator(".instant-check")).toContainText("Add a source for the date <script>alert(1)</script>");
+    await expect(makerPage.locator(".instant-check script")).toHaveCount(0);
+    await expect(makerPage.getByRole("button", { name: "Improve and resubmit" })).toBeVisible();
+    checkStatus = "unavailable";
+    await refreshFixture();
+    await expect(makerPage.getByText("Work saved. Players can review it.")).toBeVisible();
+    checkArtifact = "previous";
+    await refreshFixture();
+    await expect(makerPage.locator(".instant-check")).toHaveCount(0);
+    await makerPage.unroute("**/api/v1/game");
+    await makerPage.reload();
+    await makerPage.getByRole("button", { name: new RegExp(missionTitle) }).click();
+    await openCheckpoint(makerPage, 1);
+    await makerPage.getByRole("button", { name: /Review funding flow/ }).click();
+
     await ownerPage.reload();
     await ownerPage.getByRole("button", { name: new RegExp(missionTitle) }).click();
     await openCheckpoint(ownerPage, 1);
