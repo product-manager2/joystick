@@ -1,0 +1,4923 @@
+{
+ "glio": {
+  "mission": {
+   "title": [
+    "Find a drug for glioblastoma"
+   ],
+   "pitch": [
+    "Find a drug that kills this brain tumour and get it to a first human trial, fully open."
+   ],
+   "rules": [
+    [
+     "Top 10 compounds kill more than 60% of tumour cells in vitro",
+     "3 independent Critics reproduce every result",
+     "All data and code published open-access"
+    ],
+    [
+     "Everything is open: data under CC BY 4.0, code under MIT. No patents that block others.",
+     "Only public or properly licensed data. No patient-identifiable data ever enters the game.",
+     "Players do no lab work. All lab testing is done by trained staff at accredited partner labs.",
+     "No medical advice to patients. The diet + drug squad shares research only, never personal plans.",
+     "Every result counts only after two Checkers have re-run or reviewed it, and negative results are published too."
+    ]
+   ]
+  },
+  "stages": {
+   "0": {
+    "name": [
+     "Recon"
+    ],
+    "goal": [
+     "Map every open brain tumour dataset"
+    ],
+    "target": [
+     40
+    ],
+    "unit": [
+     "datasets"
+    ]
+   },
+   "1": {
+    "name": [
+     "Hypothesis"
+    ],
+    "goal": [
+     "Rank the top 50 drug targets"
+    ],
+    "target": [
+     50
+    ],
+    "unit": [
+     "targets"
+    ]
+   },
+   "2": {
+    "name": [
+     "Simulate"
+    ],
+    "goal": [
+     "Shortlist 10 drug candidates"
+    ],
+    "target": [
+     10
+    ],
+    "unit": [
+     "candidates"
+    ]
+   },
+   "3": {
+    "name": [
+     "Wet lab"
+    ],
+    "goal": [
+     "Test the top 10 in a partner lab"
+    ],
+    "target": [
+     10
+    ],
+    "unit": [
+     "drugs tested"
+    ]
+   },
+   "4": {
+    "name": [
+     "Trial"
+    ],
+    "goal": [
+     "File for a first human trial",
+     "Request a pre-IND meeting with a trial sponsor"
+    ],
+    "target": [
+     1
+    ],
+    "unit": [
+     "filing"
+    ]
+   }
+  },
+  "plans": {
+   "glio-dock": {
+    "name": [
+     "Brute-force docking"
+    ],
+    "squad": [
+     "Fold Gang"
+    ],
+    "bet": [
+     "Test all 1 million molecules on rented computers. Wide net, fast."
+    ]
+   },
+   "glio-repurpose": {
+    "name": [
+     "Repurpose approved drugs"
+    ],
+    "squad": [
+     "Wet Hands"
+    ],
+    "bet": [
+     "Screen 2,800 drugs that are already safe in people."
+    ]
+   },
+   "glio-gen": {
+    "name": [
+     "Generate new molecules"
+    ],
+    "squad": [
+     "Swarm 404"
+    ],
+    "bet": [
+     "200 small agents design brand-new molecules and vote on the best."
+    ]
+   },
+   "glio-whole": {
+    "name": [
+     "Diet + drug combos"
+    ],
+    "squad": [
+     "Whole Health"
+    ],
+    "bet": [
+     "Pair approved drugs with diets that slow tumours."
+    ]
+   }
+  },
+  "quests": {
+   "g6c": {
+    "title": [
+     "Test 250,000 molecules (part 3 of 4)",
+     "Launch and monitor compute batch 3 of 4"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     3
+    ]
+   },
+   "g3": {
+    "title": [
+     "Check 20 docking results from Fold Gang"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     3
+    ]
+   },
+   "g8": {
+    "title": [
+     "Check which of 40 drugs can reach the brain"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1,
+     3
+    ]
+   },
+   "g11": {
+    "title": [
+     "Run the top 3 drugs in a partner lab",
+     "Book the partner lab run and sign its budget"
+    ],
+    "role": [
+     "maker",
+     "planner"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1,
+     4
+    ]
+   },
+   "g9": {
+    "title": [
+     "Train a model on known tumour drugs"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1,
+     3
+    ]
+   },
+   "g10": {
+    "title": [
+     "Filter 5,000 designs for toxicity",
+     "Review the safety-screen report for 5,000 designs"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     3
+    ]
+   },
+   "glio-whole-back": {
+    "title": [
+     "Back Whole Health"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     3
+    ]
+   },
+   "g5": {
+    "title": [
+     "Write this week's progress post"
+    ],
+    "role": [
+     "storyteller",
+     "champion"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     3
+    ]
+   },
+   "g7": {
+    "title": [
+     "Pull the list of approved drugs"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     3
+    ]
+   },
+   "g12": {
+    "title": [
+     "Catalogue 10 open brain tumour datasets"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "g13": {
+    "title": [
+     "Re-check citations for the top 20 targets"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "g17": {
+    "title": [
+     "Set the rule for choosing the final 10"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "g18": {
+    "title": [
+     "Get 3 quotes from partner labs"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "g20": {
+    "title": [
+     "Recruit a chemistry Checker for Swarm 404"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "g19": {
+    "title": [
+     "Read the progress post and ask 3 questions"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "g15": {
+    "title": [
+     "Hire a regulatory consultant and plan the filing"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     5
+    ]
+   }
+  }
+ },
+ "aid": {
+  "mission": {
+   "title": [
+    "First-aid guides in 50 languages"
+   ],
+   "pitch": [
+    "Turn the 20 first-aid guides that save the most lives into 50 languages, free.",
+    "20 life-saving first-aid guides, checked by nurses and native speakers, free in 50 languages."
+   ],
+   "rules": [
+    [],
+    [
+     "Medical content only from current published resuscitation and first-aid guidelines; no home remedies, no product names.",
+     "A machine draft never ships unchecked: a native speaker fixes it, a Checker approves it.",
+     "Only adapt source text whose licence allows it; otherwise write fresh text. Everything we publish is CC BY 4.0.",
+     "Every guide starts with 'Call your local emergency number' and the right number for the reader's country.",
+     "No patient stories, photos or data of real people."
+    ]
+   ]
+  },
+  "stages": {
+   "0": {
+    "name": [
+     "Pick"
+    ],
+    "goal": [
+     "Choose the 20 guides that save the most lives"
+    ],
+    "target": [
+     20
+    ],
+    "unit": [
+     "guides"
+    ]
+   },
+   "1": {
+    "name": [
+     "Translate"
+    ],
+    "goal": [
+     "Translate them into 50 languages"
+    ],
+    "target": [
+     50
+    ],
+    "unit": [
+     "languages"
+    ]
+   },
+   "2": {
+    "name": [
+     "Check"
+    ],
+    "goal": [
+     "A native speaker checks every guide"
+    ],
+    "target": [
+     1000
+    ],
+    "unit": [
+     "guides checked"
+    ]
+   },
+   "3": {
+    "name": [
+     "Share"
+    ],
+    "goal": [
+     "Free app and printable cards"
+    ],
+    "target": [
+     1
+    ],
+    "unit": [
+     "launch"
+    ]
+   }
+  },
+  "plans": {
+   "aid-first": {
+    "name": [
+     "Nurses write, agents translate"
+    ],
+    "squad": [
+     "First Aiders"
+    ],
+    "bet": [
+     "Nurses pick and write the guides, agents draft translations, native speakers fix them."
+    ]
+   }
+  },
+  "quests": {
+   "a1": {
+    "title": [
+     "Suggest 3 guides and say why they matter"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "a2": {
+    "title": [
+     "Translate the burns guide into Tagalog",
+     "Pilot: translate the burns guide into Tagalog"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "a3": {
+    "title": [
+     "Check the Spanish choking guide for mistakes",
+     "Pilot: check the Spanish choking guide for mistakes"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "a4": {
+    "title": [
+     "Draw simple pictures for the CPR guide"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "a5": {
+    "title": [
+     "Find 5 people who speak a language we don't have"
+    ],
+    "role": [
+     "storyteller",
+     "champion"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "a6": {
+    "title": [
+     "Agree which guidelines our guides follow"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "a7": {
+    "title": [
+     "Back First Aiders"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "a15": {
+    "title": [
+     "Freeze the final list of 20 guides"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "a16": {
+    "title": [
+     "Plan the 50 languages in three waves"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "a17": {
+    "title": [
+     "Read the burns guide and mark confusing words"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "a8": {
+    "title": [
+     "Build the 30-word Hausa first-aid glossary"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "a9": {
+    "title": [
+     "Fix agent drafts of all 20 guides in Amharic"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "a10": {
+    "title": [
+     "Check the 20 Yoruba guides line by line"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "a11": {
+    "title": [
+     "Back-translate 10% of guides and compare"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "a12": {
+    "title": [
+     "Build the offline app under 30 MB"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "a13": {
+    "title": [
+     "Lay out printable A5 cards for all languages"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   }
+  }
+ },
+ "llm": {
+  "mission": {
+   "title": [
+    "Build an open AI that speaks India",
+    "An open AI that speaks India"
+   ],
+   "pitch": [
+    "A free AI model that understands 22 Indian languages and runs on one laptop."
+   ],
+   "rules": [
+    [],
+    [
+     "Use only text we have the right to use: public domain, government works covered by Copyright Act 1957 Sec. 52, or openly licensed (CC-BY, CC-BY-SA, CC0). Every source gets a line in the licence log, or it is dropped.",
+     "No personal data. Strip phone numbers, Aadhaar-like numbers, emails and names from private chats or forums, in line with the DPDP Act 2023. Do not scrape social media or private groups.",
+     "Test questions are written and frozen before training starts, and they are kept out of the training data. A leaked test means the result does not count.",
+     "Native speakers are paid at the same quest rate for every language. Rare-language Experts are not paid less because their text is 'small'.",
+     "Publish losses as well as wins: every language's score goes in the model card, including the ones where we lose."
+    ]
+   ]
+  },
+  "stages": {
+   "0": {
+    "name": [
+     "Data"
+    ],
+    "goal": [
+     "Gather 20 billion words of open text in 22 languages"
+    ],
+    "target": [
+     22
+    ],
+    "unit": [
+     "languages"
+    ]
+   },
+   "1": {
+    "name": [
+     "Train"
+    ],
+    "goal": [
+     "Train a small model on 64 GPUs",
+     "Train a 1–2 billion-parameter model on 64 GPUs"
+    ],
+    "target": [
+     1
+    ],
+    "unit": [
+     "trained model"
+    ]
+   },
+   "2": {
+    "name": [
+     "Test"
+    ],
+    "goal": [
+     "Beat today's open models on an Indian-language test",
+     "Match or beat same-size open models in 15 of 22 languages"
+    ],
+    "target": [
+     22,
+     15
+    ],
+    "unit": [
+     "languages won",
+     "languages"
+    ]
+   },
+   "3": {
+    "name": [
+     "Ship"
+    ],
+    "goal": [
+     "Free download that runs on one laptop",
+     "Free download that runs on an 8 GB laptop, no GPU"
+    ],
+    "target": [
+     1
+    ],
+    "unit": [
+     "launch"
+    ]
+   }
+  },
+  "plans": {
+   "llm-base": {
+    "name": [
+     "Train our own from scratch"
+    ],
+    "squad": [
+     "Bharat Base"
+    ],
+    "bet": [
+     "Build a small model from zero, trained only on Indian text."
+    ]
+   },
+   "llm-tune": {
+    "name": [
+     "Tune an existing open model"
+    ],
+    "squad": [
+     "Fine-Tune Force"
+    ],
+    "bet": [
+     "Start from a good open model and teach it Indian languages."
+    ]
+   },
+   "llm-data": {
+    "name": [
+     "Best data wins"
+    ],
+    "squad": [
+     "Data Desh"
+    ],
+    "bet": [
+     "Spend all effort on clean, checked text. Hand it to whoever trains."
+    ]
+   }
+  },
+  "quests": {
+   "m1": {
+    "title": [
+     "Clean 10,000 lines of Odia text"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "m2": {
+    "title": [
+     "Write 50 test questions in Kannada"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "m3": {
+    "title": [
+     "Check 100 model answers in Hindi"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "llm-base-back": {
+    "title": [
+     "Back Bharat Base's GPU bill"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "m4": {
+    "title": [
+     "Set up the training run on 64 GPUs"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "m5": {
+    "title": [
+     "Plan how Fine-Tune Force joins Bharat Base"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "m6": {
+    "title": [
+     "Find 5 free sources of Tamil text"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "m15": {
+    "title": [
+     "Decide which languages get extra repeats"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "m7": {
+    "title": [
+     "Build and test one tokenizer for 12 scripts"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "m8": {
+    "title": [
+     "Remove duplicates and test leaks from the corpus"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "m9": {
+    "title": [
+     "Log licences for the first 40 text sources"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "m10": {
+    "title": [
+     "Type 200 sentences in your mother tongue"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "m11": {
+    "title": [
+     "Choose final model size and token budget"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "m12": {
+    "title": [
+     "Score the model in all 22 languages"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "m13": {
+    "title": [
+     "Shrink the model to run on an 8 GB laptop"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "m16": {
+    "title": [
+     "Recruit Bodo and Santali speakers with a short video"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   }
+  }
+ },
+ "harness": {
+  "mission": {
+   "title": [
+    "Build the agent engine Joystick runs on",
+    "Build Joystick's open agent engine"
+   ],
+   "pitch": [
+    "The open-source engine that lets every player's agent plan, do and check quests safely."
+   ],
+   "rules": [
+    [],
+    [
+     "Default deny: a tool can only do what its manifest allows. Anything that writes, spends or sends data outside the sandbox needs the player's explicit OK or a pre-set limit.",
+     "Text from tools (web pages, issues, files) is data, never instructions. It can never grant a permission or raise a limit.",
+     "Payments use test mode and test accounts until Stage 4 passes. Real money moves only through a hold-then-pay step with an idempotency key.",
+     "No secrets in prompts or logs. API tokens live in a vault, are scoped per tool, and expire after the quest.",
+     "Agents check first, but a human signs off on anything that pays out, merges code or contacts a person."
+    ]
+   ]
+  },
+  "stages": {
+   "0": {
+    "name": [
+     "Loop"
+    ],
+    "goal": [
+     "An agent finishes a 15-min quest on its own"
+    ],
+    "target": [
+     1
+    ],
+    "unit": [
+     "working loop"
+    ]
+   },
+   "1": {
+    "name": [
+     "Tools"
+    ],
+    "goal": [
+     "Agents use 10 tools safely",
+     "10 tools pass an attack test with zero unapproved actions"
+    ],
+    "target": [
+     10
+    ],
+    "unit": [
+     "tools"
+    ]
+   },
+   "2": {
+    "name": [
+     "Review"
+    ],
+    "goal": [
+     "A second agent checks every result before a human sees it",
+     "A checker agent catches 9 of 10 planted bad results"
+    ],
+    "target": [
+     1,
+     90
+    ],
+    "unit": [
+     "review step",
+     "% caught"
+    ]
+   },
+   "3": {
+    "name": [
+     "Scale"
+    ],
+    "goal": [
+     "1,000 agents work at once with no money mistakes",
+     "1,000 agents run for 72 hours, money right to the cent"
+    ],
+    "target": [
+     1000
+    ],
+    "unit": [
+     "agents"
+    ]
+   }
+  },
+  "plans": {
+   "har-loop": {
+    "name": [
+     "One strong agent"
+    ],
+    "squad": [
+     "Loop Lab"
+    ],
+    "bet": [
+     "One capable agent loop with strict limits on money and tools."
+    ]
+   },
+   "har-crew": {
+    "name": [
+     "Many small agents"
+    ],
+    "squad": [
+     "Small Crew"
+    ],
+    "bet": [
+     "Lots of small agents that each do one job and check each other."
+    ]
+   }
+  },
+  "quests": {
+   "h1": {
+    "title": [
+     "Add a GitHub tool the agent can use safely"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "h2": {
+    "title": [
+     "Try to make the agent spend money it shouldn't"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "h3": {
+    "title": [
+     "Write the rules for when an agent must ask its human"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "h4": {
+    "title": [
+     "Run the engine on a real quest and log what broke"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "h5": {
+    "title": [
+     "Explain the engine in a 2-minute video"
+    ],
+    "role": [
+     "storyteller",
+     "champion"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "h6": {
+    "title": [
+     "Build the quest loop: pick, do, hand in"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "h7": {
+    "title": [
+     "Record 20 real quests as a replay test set"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "h8": {
+    "title": [
+     "Approve the permission model for all tools"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "h15": {
+    "title": [
+     "Make the browser tool check before it clicks"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "h10": {
+    "title": [
+     "Add spend caps with hold-then-pay"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "h11": {
+    "title": [
+     "Run every tool call in a throwaway sandbox"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "h9": {
+    "title": [
+     "Write 30 prompt-injection attacks for the tools"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "har-crew-back": {
+    "title": [
+     "Back Small Crew's model bill"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "h12": {
+    "title": [
+     "Build the checker agent that reviews before humans"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "h13": {
+    "title": [
+     "Plant 50 bad results to test the checker"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "h14": {
+    "title": [
+     "Load-test 1,000 agents against the ledger"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     4
+    ]
+   }
+  }
+ },
+ "reef": {
+  "mission": {
+   "title": [
+    "Map every coral reef from space"
+   ],
+   "pitch": [
+    "A free weekly map that shows where coral is dying."
+   ],
+   "rules": [
+    [
+     "Classifier is 90% accurate on dive-site data",
+     "Map refreshes weekly for 3 months",
+     "Free public API"
+    ],
+    [
+     "Dive safety comes first. Certified divers only, always with a buddy, no deeper than 18 m, with a local licensed operator and dive insurance. No dive in bad weather.",
+     "Touch nothing. Surveys are photo-only, with no sampling, no anchoring on coral, and fins kept off the reef.",
+     "Get permits and pay fees for marine protected areas, and ask local communities before surveying their fishing grounds.",
+     "No agent-only results count until a human Checker has reviewed them.",
+     "Open data: survey photos and scores are released under CC-BY. Exact locations of fragile or poached sites can be blurred on request from local managers."
+    ]
+   ]
+  },
+  "stages": {
+   "0": {
+    "name": [
+     "Pilot"
+    ],
+    "goal": [
+     "Label 1,000 satellite photos"
+    ],
+    "target": [
+     1000
+    ],
+    "unit": [
+     "photos"
+    ]
+   },
+   "1": {
+    "name": [
+     "Ground truth"
+    ],
+    "goal": [
+     "Check the health of 200 reefs on site"
+    ],
+    "target": [
+     200
+    ],
+    "unit": [
+     "reefs",
+     "survey sites"
+    ]
+   },
+   "2": {
+    "name": [
+     "Model"
+    ],
+    "goal": [
+     "Map guesses reef health 9 times out of 10",
+     "Map is right 8 times out of 10 (healthy, bleached, dead)"
+    ],
+    "target": [
+     90,
+     80
+    ],
+    "unit": [
+     "% right"
+    ]
+   },
+   "3": {
+    "name": [
+     "Public map"
+    ],
+    "goal": [
+     "Weekly public reef map online",
+     "Weekly heat-stress map, reef cover updated monthly"
+    ],
+    "target": [
+     1
+    ],
+    "unit": [
+     "launch"
+    ]
+   }
+  },
+  "plans": {
+   "reef-ops": {
+    "name": [
+     "Divers check, satellites scale"
+    ],
+    "squad": [
+     "Reef Ops"
+    ],
+    "bet": [
+     "Divers score 200 reefs, then the map learns from them."
+    ]
+   },
+   "reef-sky": {
+    "name": [
+     "Satellite only"
+    ],
+    "squad": [
+     "Sky Eyes"
+    ],
+    "bet": [
+     "Agents read satellite photos, no divers needed."
+    ]
+   }
+  },
+  "quests": {
+   "r1": {
+    "title": [
+     "Dive and score 5 reefs near Cebu"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "r2": {
+    "title": [
+     "Check 30 dive reports against their photos"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "reef-ops-back": {
+    "title": [
+     "Back Reef Ops"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "r3": {
+    "title": [
+     "Check 50 reef maps made by agents"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "r4": {
+    "title": [
+     "Find a dive shop in Fiji to join us"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "r5": {
+    "title": [
+     "Label 200 satellite photos"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "r6": {
+    "title": [
+     "Pick 200 survey sites near Cebu, Bohol and Fiji"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "r11": {
+    "title": [
+     "Write a scoring guide anyone can follow"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "r7": {
+    "title": [
+     "Decide where the last boat money goes"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "r8": {
+    "title": [
+     "Snorkel-check 3 shallow reef flats in Bohol"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "r10": {
+    "title": [
+     "Match each checked site to its satellite pixels"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "r9": {
+    "title": [
+     "Tell the story of why Reef Ops is stuck"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "r12": {
+    "title": [
+     "Train the reef health model on 160 sites"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "r13": {
+    "title": [
+     "Test the model on 40 held-back reefs"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "r14": {
+    "title": [
+     "Publish the weekly map with a heat-stress layer"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     4
+    ]
+   }
+  }
+ },
+ "lead": {
+  "mission": {
+   "title": [
+    "Find every lead pipe in one city"
+   ],
+   "pitch": [
+    "Find every lead water pipe in Dayton so the city can replace them."
+   ],
+   "rules": [
+    [],
+    [
+     "Strictly non-partisan: no candidates, parties or campaigns. Every ask goes to the city through public channels, such as records requests and public comment.",
+     "Public records and willing residents only. Photos come only from your own home, or a home whose owner says yes in writing. No door-to-door collection.",
+     "Privacy: the map shows status by block. A house appears only if its owner opts in. Photo metadata (GPS, faces) is stripped.",
+     "Never cut, unscrew or bend a pipe. A light scratch with a coin and a magnet test is the limit. Wash your hands afterwards.",
+     "No health advice beyond public guidance. Point people to the city's and EPA's lead guidance and filter information."
+    ]
+   ]
+  },
+  "stages": {
+   "0": {
+    "name": [
+     "Records"
+    ],
+    "goal": [
+     "Get the city's water pipe records"
+    ],
+    "target": [
+     1
+    ],
+    "unit": [
+     "record set"
+    ]
+   },
+   "1": {
+    "name": [
+     "Photos"
+    ],
+    "goal": [
+     "Photo 2,000 pipes where they enter homes",
+     "Photo 1,000 pipes at addresses the city marks 'unknown'"
+    ],
+    "target": [
+     2000,
+     1000
+    ],
+    "unit": [
+     "photos"
+    ]
+   },
+   "2": {
+    "name": [
+     "Map"
+    ],
+    "goal": [
+     "Public map of every lead pipe"
+    ],
+    "target": [
+     1
+    ],
+    "unit": [
+     "launch"
+    ]
+   },
+   "3": {
+    "name": [
+     "Replace"
+    ],
+    "goal": [
+     "City commits to replace 500 pipes",
+     "City publishes a dated plan to replace 500 lead lines first"
+    ],
+    "target": [
+     500
+    ],
+    "unit": [
+     "pipes"
+    ]
+   }
+  },
+  "plans": {
+   "lead-pipes": {
+    "name": [
+     "Records + home photos"
+    ],
+    "squad": [
+     "Pipe Finders"
+    ],
+    "bet": [
+     "Start from city records, then people photo the pipe at home."
+    ]
+   }
+  },
+  "quests": {
+   "lead-pipes-back": {
+    "title": [
+     "Back Pipe Finders so they can start"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "l1": {
+    "title": [
+     "Ask the city for its water pipe records"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "l2": {
+    "title": [
+     "Photo the pipe where water enters your home"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "l3": {
+    "title": [
+     "Write the mission's privacy and neutrality rules"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "l4": {
+    "title": [
+     "Summarise Dayton's public lead line inventory"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "l5": {
+    "title": [
+     "Draft the records request for unknown lines"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "l8": {
+    "title": [
+     "Write a 1-page magnet-and-coin pipe guide"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "l7": {
+    "title": [
+     "Test the pipe guide on 20 sample photos"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "l6": {
+    "title": [
+     "Build a pipe-photo form that hides addresses"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "l9": {
+    "title": [
+     "Win the 54 missing backers with a neighbourhood post"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "l10": {
+    "title": [
+     "Look up your address in the city's inventory"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "l11": {
+    "title": [
+     "Review 100 pipe photos the agent called"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "l12": {
+    "title": [
+     "Publish the block-level lead map"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "l13": {
+    "title": [
+     "Give public comment at a City Commission meeting"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "l14": {
+    "title": [
+     "Ask the city for a dated plan for 500 lines"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   }
+  }
+ },
+ "tutor": {
+  "mission": {
+   "title": [
+    "Offline maths tutor for kids"
+   ],
+   "pitch": [
+    "A maths tutor that works on a $50 phone with no internet, in 10 languages."
+   ],
+   "rules": [
+    [
+     "Pilot kids gain one grade level in 6 months",
+     "Runs fully offline on a $50 Android phone",
+     "Free forever"
+    ],
+    [
+     "Child safety first: an adult school staff member is always present, and no player is ever alone with a child.",
+     "Written consent from a parent or guardian, and agreement from the head teacher, before any child uses the app or takes a test.",
+     "No names, photos or voice of children are stored. Each child gets a code, and the key to the codes stays at the school.",
+     "Follow each country's data law (for example the Kenya Data Protection Act 2019, Nigeria Data Protection Act 2023, India DPDP Act 2023).",
+     "Report every country's result honestly, including ones that miss the target."
+    ]
+   ]
+  },
+  "stages": {
+   "0": {
+    "name": [
+     "Curriculum"
+    ],
+    "goal": [
+     "Write down what kids learn in maths in 10 countries"
+    ],
+    "target": [
+     10
+    ],
+    "unit": [
+     "countries"
+    ]
+   },
+   "1": {
+    "name": [
+     "App"
+    ],
+    "goal": [
+     "Tutor works on a $50 phone with no internet"
+    ],
+    "target": [
+     1
+    ],
+    "unit": [
+     "working app"
+    ]
+   },
+   "2": {
+    "name": [
+     "Pilot"
+    ],
+    "goal": [
+     "500 kids use it for 4 weeks"
+    ],
+    "target": [
+     500
+    ],
+    "unit": [
+     "kids"
+    ]
+   },
+   "3": {
+    "name": [
+     "Results"
+    ],
+    "goal": [
+     "Test scores rise 10% in all 10 countries",
+     "Scores rise 10% and beat comparison classes in all 10 countries"
+    ],
+    "target": [
+     10
+    ],
+    "unit": [
+     "countries"
+    ]
+   }
+  },
+  "plans": {
+   "tutor-chalk": {
+    "name": [
+     "Offline app on cheap phones"
+    ],
+    "squad": [
+     "Chalk Squad"
+    ],
+    "bet": [
+     "One small app that works without internet, tested in real classes."
+    ]
+   }
+  },
+  "quests": {
+   "t1": {
+    "title": [
+     "Give the 20-minute maths test to one class in Kenya"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1,
+     4
+    ]
+   },
+   "t2": {
+    "title": [
+     "Check test results from 9 countries"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1,
+     4
+    ]
+   },
+   "t3": {
+    "title": [
+     "Write the results report"
+    ],
+    "role": [
+     "storyteller",
+     "champion"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1,
+     4
+    ]
+   },
+   "t4": {
+    "title": [
+     "Translate the app into Swahili"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "t5": {
+    "title": [
+     "Make the app run on $50 phones"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "t6": {
+    "title": [
+     "Map Kenya's Grade 3–5 maths curriculum to skills"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "t7": {
+    "title": [
+     "Check the 10 curriculum maps against source documents"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "t8": {
+    "title": [
+     "Collect consent and run the start test in Lagos"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "t13": {
+    "title": [
+     "Enter and clean end-test scores for 9 countries"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "t10": {
+    "title": [
+     "Check the Kenya end test matches the curriculum"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "t12": {
+    "title": [
+     "Schedule the Kenya test day before term ends"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "t16": {
+    "title": [
+     "Build the results dashboard for 10 countries"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "t14": {
+    "title": [
+     "Decide how to report countries that miss 10%"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "t15": {
+    "title": [
+     "Interview 3 pilot teachers by phone"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "t11": {
+    "title": [
+     "Back Chalk Squad"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     4
+    ]
+   }
+  }
+ },
+ "benefits": {
+  "mission": {
+   "title": [
+    "Get families the benefits they're owed"
+   ],
+   "pitch": [
+    "Help poor families claim the pensions, scholarships and ration cards they already have a right to.",
+    "Help poor families in UP claim the pensions, scholarships and ration they already have a right to."
+   ],
+   "rules": [
+    [],
+    [
+     "Never collect, photograph or store Aadhaar numbers, OTPs, bank PINs or document copies. Families keep their own papers (Aadhaar Act 2016 Sec. 29, DPDP Act 2023).",
+     "Help is always free. Families pay only the official fee at a Common Service Centre (CSC), against a printed receipt.",
+     "Apply only through official portals, CSCs or block offices. Never through an agent who promises to 'get it sanctioned'.",
+     "Non-partisan: no party names, symbols or leaders' photos on any material, and never tell families a benefit comes from a party.",
+     "Any family story or photo needs that family's spoken consent in their own language, and it can be withdrawn at any time."
+    ]
+   ]
+  },
+  "stages": {
+   "0": {
+    "name": [
+     "Schemes"
+    ],
+    "goal": [
+     "List 50 schemes in plain words"
+    ],
+    "target": [
+     50
+    ],
+    "unit": [
+     "schemes"
+    ]
+   },
+   "1": {
+    "name": [
+     "Helper"
+    ],
+    "goal": [
+     "Families can ask about schemes in 6 languages"
+    ],
+    "target": [
+     6
+    ],
+    "unit": [
+     "languages"
+    ]
+   },
+   "2": {
+    "name": [
+     "Apply"
+    ],
+    "goal": [
+     "1,000 families in 2 districts apply"
+    ],
+    "target": [
+     1000
+    ],
+    "unit": [
+     "families"
+    ]
+   },
+   "3": {
+    "name": [
+     "Paid"
+    ],
+    "goal": [
+     "10,000 families get their money",
+     "750 families get their money"
+    ],
+    "target": [
+     10000,
+     750
+    ],
+    "unit": [
+     "families"
+    ]
+   }
+  },
+  "plans": {
+   "ben-haq": {
+    "name": [
+     "WhatsApp helper"
+    ],
+    "squad": [
+     "Haq Helpers"
+    ],
+    "bet": [
+     "A WhatsApp helper that answers in 6 languages."
+    ]
+   },
+   "ben-village": {
+    "name": [
+     "One volunteer per village"
+    ],
+    "squad": [
+     "Village Volunteers"
+    ],
+    "bet": [
+     "Train one trusted person in each village to help neighbours."
+    ]
+   },
+   "ben-ngo": {
+    "name": [
+     "Work through local NGOs"
+    ],
+    "squad": [
+     "NGO Bridge"
+    ],
+    "bet": [
+     "Partner with NGOs that already help families with forms."
+    ]
+   }
+  },
+  "quests": {
+   "b1": {
+    "title": [
+     "Write the widow pension rules in plain Hindi"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "b2": {
+    "title": [
+     "Ask the WhatsApp helper 5 questions in Tamil and report mistakes",
+     "Ask the helper 5 questions in Bhojpuri and report mistakes"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "b3": {
+    "title": [
+     "Teach the helper to answer about scholarships"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "b4": {
+    "title": [
+     "Sit with 3 families near you and check what they're missing"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "b5": {
+    "title": [
+     "Train 5 volunteers in Sitapur"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "b6": {
+    "title": [
+     "Check 20 forms before they're sent"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     3
+    ]
+   },
+   "b7": {
+    "title": [
+     "List the NGOs in 2 districts that help with forms",
+     "List the NGOs in Sitapur and Banda that help with forms"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "b8": {
+    "title": [
+     "List all 50 schemes in plain words"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "b9": {
+    "title": [
+     "Check 10 scheme cards against the official orders"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "b10": {
+    "title": [
+     "Add Awadhi voice-note answers to the helper"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "b11": {
+    "title": [
+     "Back Village Volunteers"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "b15": {
+    "title": [
+     "Score 20 Awadhi helper answers against the scheme cards"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "b16": {
+    "title": [
+     "Record a 60-second voice note inviting volunteers in Banda"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "b12": {
+    "title": [
+     "Take 5 families to the CSC for income certificates"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "b13": {
+    "title": [
+     "Confirm the first payment for 25 families"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "b14": {
+    "title": [
+     "Write 5 short stories of families who got paid"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   }
+  }
+ },
+ "candidate": {
+  "mission": {
+   "title": [
+    "Know your candidate before you vote"
+   ],
+   "pitch": [
+    "Plain facts on every candidate in the Pune city election, from public records only.",
+    "Plain facts on every candidate in Pune district's 21 Assembly seats, straight from their sworn affidavits."
+   ],
+   "rules": [
+    [],
+    [
+     "Public records only: Form 26 affidavits and the Returning Officer's list of contesting candidates (Form 7A). No social media, news reports or rumours.",
+     "Strictly non-partisan: no party logos or colours, no adjectives, no ranking, no 'best' or 'worst'. A pending case is written as 'case pending, not convicted'.",
+     "Never publish addresses, PAN, phone numbers, bank details or family members' names, even when the affidavit shows them.",
+     "All sharing stops when the 48-hour silence period begins (RP Act 1951 Sec. 126). No paid promotion at any time.",
+     "Anyone working for a party or campaign declares it and does not write or check profiles in that constituency."
+    ]
+   ]
+  },
+  "stages": {
+   "0": {
+    "name": [
+     "Collect"
+    ],
+    "goal": [
+     "Get the public affidavit of all 310 candidates"
+    ],
+    "target": [
+     310
+    ],
+    "unit": [
+     "affidavits"
+    ]
+   },
+   "1": {
+    "name": [
+     "One-pagers"
+    ],
+    "goal": [
+     "A plain one-page profile for every candidate"
+    ],
+    "target": [
+     310
+    ],
+    "unit": [
+     "profiles"
+    ]
+   },
+   "2": {
+    "name": [
+     "Check"
+    ],
+    "goal": [
+     "2 checkers verify every profile"
+    ],
+    "target": [
+     310
+    ],
+    "unit": [
+     "profiles"
+    ]
+   },
+   "3": {
+    "name": [
+     "Share"
+    ],
+    "goal": [
+     "Reach 1 lakh voters before voting day"
+    ],
+    "target": [
+     100000
+    ],
+    "unit": [
+     "voters"
+    ]
+   }
+  },
+  "plans": {
+   "cand-clear": {
+    "name": [
+     "Plain one-pagers"
+    ],
+    "squad": [
+     "Vote Clear"
+    ],
+    "bet": [
+     "Turn every affidavit into the same plain one-page profile."
+    ]
+   }
+  },
+  "quests": {
+   "k1": {
+    "title": [
+     "Turn 5 affidavits into plain one-page profiles"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "k2": {
+    "title": [
+     "Check 10 profiles against the original affidavit"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "k3": {
+    "title": [
+     "Translate 20 profiles into Marathi"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "k4": {
+    "title": [
+     "Plan how to reach 1 lakh voters by WhatsApp"
+    ],
+    "role": [
+     "storyteller",
+     "champion"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1,
+     4
+    ]
+   },
+   "k5": {
+    "title": [
+     "Design the profile so it reads well on a phone"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "k6": {
+    "title": [
+     "Download all affidavits and log their file hashes"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "k7": {
+    "title": [
+     "Match every affidavit to the final candidate list"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "k13": {
+    "title": [
+     "Build the OCR pre-fill for profile drafts"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "k14": {
+    "title": [
+     "Collect conflict-of-interest declarations from every player"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "k15": {
+    "title": [
+     "Schedule all 21 constituencies to finish by day 8"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "k8": {
+    "title": [
+     "Write a plain glossary of the 40 commonest sections"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "k9": {
+    "title": [
+     "Read 3 profiles on your phone and flag confusing lines"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "k16": {
+    "title": [
+     "Write a 1-minute call for Marathi Checkers"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "k10": {
+    "title": [
+     "Back Vote Clear"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "k11": {
+    "title": [
+     "Second-check 15 profiles you didn't write"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "k12": {
+    "title": [
+     "Handle candidate correction requests within 12 hours"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     3
+    ]
+   }
+  }
+ },
+ "pothole": {
+  "mission": {
+   "title": [
+    "Fix every pothole in Bengaluru"
+   ],
+   "pitch": [
+    "Pin every pothole, file it with the city, and chase it until it's fixed."
+   ],
+   "rules": [
+    [],
+    [
+     "Never photograph from a moving vehicle or while standing in traffic. Pull over first or skip it.",
+     "No faces or number plates in photos. Blur them before uploading.",
+     "One pin per pothole. File only through official channels, from your own account. No fake, duplicate or bulk bot complaints.",
+     "Publish ward and office numbers, never personal attacks on named engineers or workers.",
+     "Non-partisan: no party or candidate branding, and the data is shared equally with anyone who asks."
+    ]
+   ]
+  },
+  "stages": {
+   "0": {
+    "name": [
+     "Map"
+    ],
+    "goal": [
+     "Pin 5,000 potholes"
+    ],
+    "target": [
+     5000
+    ],
+    "unit": [
+     "potholes"
+    ]
+   },
+   "1": {
+    "name": [
+     "File"
+    ],
+    "goal": [
+     "File every pothole with the city"
+    ],
+    "target": [
+     5000
+    ],
+    "unit": [
+     "complaints"
+    ]
+   },
+   "2": {
+    "name": [
+     "Track"
+    ],
+    "goal": [
+     "Chase every complaint until it's fixed"
+    ],
+    "target": [
+     5000
+    ],
+    "unit": [
+     "complaints"
+    ]
+   },
+   "3": {
+    "name": [
+     "Fixed"
+    ],
+    "goal": [
+     "80% fixed within 90 days"
+    ],
+    "target": [
+     80
+    ],
+    "unit": [
+     "% fixed"
+    ]
+   }
+  },
+  "plans": {
+   "pot-patrol": {
+    "name": [
+     "Riders pin as they ride"
+    ],
+    "squad": [
+     "Pothole Patrol"
+    ],
+    "bet": [
+     "Delivery riders and commuters pin potholes on routes they already take."
+    ]
+   }
+  },
+  "quests": {
+   "p1": {
+    "title": [
+     "Photo and pin 5 potholes on your way home"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "p2": {
+    "title": [
+     "Check 50 pins for repeats"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "p3": {
+    "title": [
+     "Build the ward scoreboard"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "p4": {
+    "title": [
+     "Chase 10 complaints older than 30 days"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     3
+    ]
+   },
+   "p5": {
+    "title": [
+     "Pick which wards to map first"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "p6": {
+    "title": [
+     "Build the pin form with photo, GPS and size"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "p8": {
+    "title": [
+     "Tag 100 pins with who owns the road"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "p9": {
+    "title": [
+     "Re-check 10 random pins in your ward"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "p10": {
+    "title": [
+     "Bring 3 rider groups into the pinning drive"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "p11": {
+    "title": [
+     "Find the coverage gaps in the 20 wards"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "p12": {
+    "title": [
+     "Make a 30-second 'pin it safely' video in Kannada"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "p7": {
+    "title": [
+     "Back Pothole Patrol"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "p13": {
+    "title": [
+     "Draft a complaint for every verified pin"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "p14": {
+    "title": [
+     "File 10 drafted complaints from your own Sahaaya login"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "p16": {
+    "title": [
+     "Present the ward scoreboard at a ward committee meeting"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "p15": {
+    "title": [
+     "Verify 20 'closed' complaints are really fixed"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   }
+  }
+ },
+ "rti": {
+  "mission": {
+   "title": [
+    "Ask where the school money went"
+   ],
+   "pitch": [
+    "Use information requests to see what 100 government schools got, and check what's really there.",
+    "Use RTI requests to see what 100 Bihar government schools were given, then check what is really there."
+   ],
+   "rules": [
+    [],
+    [
+     "Strictly non-partisan. No party names, no politicians, no blame language. Report what the papers say and what we saw.",
+     "Public records only. No children's faces or names in photos. No staff personal data beyond name and post as given in the RTI reply.",
+     "On-ground visits only in school hours, in pairs, after the head teacher says yes. No entry if refused. Note the refusal and leave.",
+     "Each school gets 15 days to answer before its report card is published, and the answer is printed beside our findings.",
+     "No bribes and no 'speed money', ever. If someone asks for one, log it and leave."
+    ]
+   ]
+  },
+  "stages": {
+   "0": {
+    "name": [
+     "Pick"
+    ],
+    "goal": [
+     "Pick 100 government schools"
+    ],
+    "target": [
+     100
+    ],
+    "unit": [
+     "schools"
+    ]
+   },
+   "1": {
+    "name": [
+     "Ask"
+    ],
+    "goal": [
+     "File an information request for each school"
+    ],
+    "target": [
+     100
+    ],
+    "unit": [
+     "requests"
+    ]
+   },
+   "2": {
+    "name": [
+     "Replies"
+    ],
+    "goal": [
+     "Get answers from all 100 schools"
+    ],
+    "target": [
+     100
+    ],
+    "unit": [
+     "replies"
+    ]
+   },
+   "3": {
+    "name": [
+     "Visit"
+    ],
+    "goal": [
+     "Visit each school and compare"
+    ],
+    "target": [
+     100
+    ],
+    "unit": [
+     "visits"
+    ]
+   },
+   "4": {
+    "name": [
+     "Report"
+    ],
+    "goal": [
+     "A report card for every school"
+    ],
+    "target": [
+     100
+    ],
+    "unit": [
+     "report cards"
+    ]
+   }
+  },
+  "plans": {
+   "rti-watch": {
+    "name": [
+     "File and follow up in person"
+    ],
+    "squad": [
+     "School Watch"
+    ],
+    "bet": [
+     "File every request, and appeal in person when replies are late."
+    ]
+   }
+  },
+  "quests": {
+   "s1": {
+    "title": [
+     "File a first appeal for 5 late replies",
+     "File first appeals to the DEO for 5 late replies"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1,
+     3
+    ]
+   },
+   "s2": {
+    "title": [
+     "Read 20 replies and pull out the numbers"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     3
+    ]
+   },
+   "s3": {
+    "title": [
+     "Visit one school and photo the toilets and books"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1,
+     4
+    ]
+   },
+   "s4": {
+    "title": [
+     "Write the request letter for 100 schools"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "s5": {
+    "title": [
+     "Pick 100 schools across 4 districts from UDISE+"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "s7": {
+    "title": [
+     "Build the deadline tracker for replies and appeals"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "s8": {
+    "title": [
+     "Draft second appeals to the Bihar Information Commission"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "s9": {
+    "title": [
+     "Write a one-page Hindi guide to first appeals"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "s10": {
+    "title": [
+     "Back School Watch"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "s11": {
+    "title": [
+     "Build the 12-item visit checklist from grant heads"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "s12": {
+    "title": [
+     "Design the one-page report card for 100 schools"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "s13": {
+    "title": [
+     "Send each school its draft and log replies"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "s14": {
+    "title": [
+     "Assign 59 late replies to named district owners"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "s15": {
+    "title": [
+     "Group late appeals into district office trips"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "s16": {
+    "title": [
+     "Make a fill-in first-appeal form from the tracker"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "s17": {
+    "title": [
+     "Compare a school's UDISE+ card with what you know"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     3
+    ]
+   }
+  }
+ },
+ "flood": {
+  "mission": {
+   "title": [
+    "Flood alerts by text for Lagos"
+   ],
+   "pitch": [
+    "River sensors that text families 2 hours before a flood.",
+    "River and rain gauges that text families in Yoruba, Pidgin or English before the water comes."
+   ],
+   "rules": [
+    [],
+    [
+     "Never install or check sensors when water is rising or after dark. Two people at every river visit.",
+     "Opt-in only. Phone numbers are stored encrypted, used only for flood alerts, and deleted on 'STOP'.",
+     "Alerts say what the water is doing and what to do. They never blame anyone and never contradict official LASEMA or NEMA evacuation orders.",
+     "Every sensor site needs written OK from the landowner or community, plus the CDA chair.",
+     "Open hardware and open data. Water-level readings are published so others can reuse them."
+    ]
+   ]
+  },
+  "stages": {
+   "0": {
+    "name": [
+     "Sensors"
+    ],
+    "goal": [
+     "Put 20 water sensors on 3 rivers",
+     "Put 14 water gauges and 6 rain gauges in place"
+    ],
+    "target": [
+     20
+    ],
+    "unit": [
+     "sensors"
+    ]
+   },
+   "1": {
+    "name": [
+     "Alerts"
+    ],
+    "goal": [
+     "Text alerts reach 10,000 phones"
+    ],
+    "target": [
+     10000
+    ],
+    "unit": [
+     "phones"
+    ]
+   },
+   "2": {
+    "name": [
+     "Test"
+    ],
+    "goal": [
+     "Alerts arrive 2 hours before floods"
+    ],
+    "target": [
+     2
+    ],
+    "unit": [
+     "hours warning"
+    ]
+   },
+   "3": {
+    "name": [
+     "Hand over"
+    ],
+    "goal": [
+     "The local council runs it"
+    ],
+    "target": [
+     1
+    ],
+    "unit": [
+     "handover"
+    ]
+   }
+  },
+  "plans": {
+   "flood-watch": {
+    "name": [
+     "Sensors + text alerts"
+    ],
+    "squad": [
+     "Flood Watch"
+    ],
+    "bet": [
+     "Cheap river sensors that text families when water rises fast."
+    ]
+   }
+  },
+  "quests": {
+   "f1": {
+    "title": [
+     "Review the sensor plan",
+     "Review the sensor plan and site list"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "f2": {
+    "title": [
+     "Find 20 safe spots for sensors on the river"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "f3": {
+    "title": [
+     "Write the alert text in Yoruba and Pidgin",
+     "Write the alert text in Yoruba, Pidgin and English"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1,
+     2
+    ]
+   },
+   "f4": {
+    "title": [
+     "Draft the sensor plan for 3 rivers"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "f5": {
+    "title": [
+     "Pull 10 years of flood events for each river"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "f6": {
+    "title": [
+     "Build and bench-test 2 prototype gauges"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "f12": {
+    "title": [
+     "Pick 30 candidate sites from maps and reports"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "f9": {
+    "title": [
+     "Map who must approve each sensor site"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "f7": {
+    "title": [
+     "Meet 3 community associations to agree sensor hosts"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "f10": {
+    "title": [
+     "Collect 10 residents' flood stories by voice note"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "f11": {
+    "title": [
+     "Mark where your street floods first"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "f8": {
+    "title": [
+     "Back Flood Watch"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "f13": {
+    "title": [
+     "Wire thresholds to the SMS short code"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "f14": {
+    "title": [
+     "Compare alert times with 5 real flood events"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "f15": {
+    "title": [
+     "Sign the handover with the CDA and LCDA"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   }
+  }
+ },
+ "renter": {
+  "mission": {
+   "title": [
+    "Free legal letters for renters"
+   ],
+   "pitch": [
+    "Lawyer-checked letters renters can send in one tap: repairs, deposits, eviction.",
+    "Lawyer-checked letters Atlanta renters can fill in and send: repairs, deposits, notices."
+   ],
+   "rules": [
+    [],
+    [
+     "Legal information, not legal advice. Every letter and the tool say so, and anything involving a court date is sent to legal aid.",
+     "No letter goes live without a written sign-off from a Georgia-licensed lawyer, and it is re-checked whenever the law changes.",
+     "Renters' names, addresses and landlord details stay on their device by default. Nothing is sold or shared.",
+     "Calm, factual tone. Letters cite the law and the facts. No threats the law does not support.",
+     "Fair to landlords: letters ask for what the law gives, nothing more."
+    ]
+   ]
+  },
+  "stages": {
+   "0": {
+    "name": [
+     "Letters"
+    ],
+    "goal": [
+     "Write 10 letters for the most common problems"
+    ],
+    "target": [
+     10
+    ],
+    "unit": [
+     "letters"
+    ]
+   },
+   "1": {
+    "name": [
+     "Check"
+    ],
+    "goal": [
+     "A lawyer checks every letter"
+    ],
+    "target": [
+     10
+    ],
+    "unit": [
+     "letters"
+    ]
+   },
+   "2": {
+    "name": [
+     "Launch"
+    ],
+    "goal": [
+     "Free letter tool online"
+    ],
+    "target": [
+     1
+    ],
+    "unit": [
+     "launch"
+    ]
+   },
+   "3": {
+    "name": [
+     "Use"
+    ],
+    "goal": [
+     "1,000 renters send a letter"
+    ],
+    "target": [
+     1000
+    ],
+    "unit": [
+     "renters"
+    ]
+   }
+  },
+  "plans": {
+   "renter-right": {
+    "name": [
+     "Templates checked by lawyers"
+    ],
+    "squad": [
+     "Rent Right"
+    ],
+    "bet": [
+     "10 letters that cover most problems, each checked by a lawyer."
+    ]
+   }
+  },
+  "quests": {
+   "renter-right-back": {
+    "title": [
+     "Back Rent Right"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "n1": {
+    "title": [
+     "Write a letter asking for your deposit back"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "n2": {
+    "title": [
+     "Check 4 letters as a lawyer",
+     "Check 4 letters as a Georgia lawyer"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "n3": {
+    "title": [
+     "Tell us a problem you had as a renter"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "n4": {
+    "title": [
+     "Write a letter asking for repairs"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "n5": {
+    "title": [
+     "Rank the 10 most common renter problems"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "n6": {
+    "title": [
+     "Write the move-in damage list request"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "n7": {
+    "title": [
+     "Write a payment-plan reply to a 3-day notice"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "n11": {
+    "title": [
+     "Map each letter to the right moment and deadline"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "n9": {
+    "title": [
+     "Turn 4 finished letters into 3-box fill-in templates"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "n8": {
+    "title": [
+     "Recruit 2 volunteer Georgia lawyers for sign-off"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "n10": {
+    "title": [
+     "Test 4 letters with 5 renters for plain language"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "n12": {
+    "title": [
+     "Sign off all 10 final letters in writing"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "n13": {
+    "title": [
+     "Build the pick-a-problem letter tool"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "n14": {
+    "title": [
+     "Share the tool at 5 tenant meetings"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   }
+  }
+ },
+ "fountains": {
+  "mission": {
+   "title": [
+    "Map every water fountain in Berlin"
+   ],
+   "pitch": [
+    "Find every public fountain and get the broken ones fixed.",
+    "Map Berlin's public drinking fountains and street pumps, and get the broken ones fixed."
+   ],
+   "rules": [
+    [],
+    [
+     "Only public water points. No private wells or gardens.",
+     "Photos without faces. Don't photograph people using the pumps.",
+     "Don't try to repair or force a pump yourself. Report it.",
+     "Follow OpenStreetMap rules: survey on the ground, no copying from copyrighted maps.",
+     "Report politely through official channels, one report per point, no spamming."
+    ]
+   ]
+  },
+  "stages": {
+   "0": {
+    "name": [
+     "Map"
+    ],
+    "goal": [
+     "Map public drinking fountains and street pumps"
+    ],
+    "target": [
+     1100
+    ],
+    "unit": [
+     "water points"
+    ]
+   },
+   "1": {
+    "name": [
+     "Report"
+    ],
+    "goal": [
+     "Report every broken water point"
+    ],
+    "target": [
+     300
+    ],
+    "unit": [
+     "reports"
+    ]
+   },
+   "2": {
+    "name": [
+     "Fixed"
+    ],
+    "goal": [
+     "Broken points confirmed fixed"
+    ],
+    "target": [
+     200
+    ],
+    "unit": [
+     "fixed"
+    ]
+   }
+  },
+  "plans": {
+   "fnt-crew": {
+    "name": [
+     "Grid squares + one report format"
+    ],
+    "squad": [
+     "Small Crew"
+    ],
+    "bet": [
+     "Split Berlin into small squares anyone can finish in an hour, and send every office the same clean report."
+    ]
+   }
+  },
+  "quests": {
+   "fn1": {
+    "title": [
+     "Split Berlin into 120 survey squares"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "fn2": {
+    "title": [
+     "Survey one square and tag every water point"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "fn3": {
+    "title": [
+     "Find the right office for each point type"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "fn4": {
+    "title": [
+     "Generate one clean report per broken point"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "fn5": {
+    "title": [
+     "Re-visit 10 fixed points and photo running water"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "fn6": {
+    "title": [
+     "Back Small Crew"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   }
+  }
+ },
+ "ramp": {
+  "mission": {
+   "title": [
+    "Open design for a $40 wheelchair ramp"
+   ],
+   "pitch": [
+    "A ramp anyone can build from one sheet of plywood."
+   ],
+   "rules": [
+    [],
+    [
+     "Safety before cost: no design ships without load tests and anti-slip edges.",
+     "Each ramp carries a sticker with its maximum rise and slope. Do not use it on stairs taller than it is made for.",
+     "Open licence (CERN-OHL-P for the design, CC BY 4.0 for the guide).",
+     "Build photos show the ramp, not people's faces or house numbers, unless the owner agrees."
+    ]
+   ]
+  },
+  "stages": {
+   "0": {
+    "name": [
+     "Design"
+    ],
+    "goal": [
+     "Collect 12 designs and pick 1"
+    ],
+    "target": [
+     12
+    ],
+    "unit": [
+     "designs"
+    ]
+   },
+   "1": {
+    "name": [
+     "Test"
+    ],
+    "goal": [
+     "Load-test 10 prototypes"
+    ],
+    "target": [
+     10
+    ],
+    "unit": [
+     "tests passed"
+    ]
+   },
+   "2": {
+    "name": [
+     "Guide"
+    ],
+    "goal": [
+     "Build guide in 8 languages"
+    ],
+    "target": [
+     8
+    ],
+    "unit": [
+     "languages"
+    ]
+   },
+   "3": {
+    "name": [
+     "Build"
+    ],
+    "goal": [
+     "300 ramps built in 10+ countries"
+    ],
+    "target": [
+     300
+    ],
+    "unit": [
+     "ramps"
+    ]
+   }
+  },
+  "plans": {
+   "ramp-crew": {
+    "name": [
+     "One sheet, many hands"
+    ],
+    "squad": [
+     "Small Crew"
+    ],
+    "bet": [
+     "Split the design into 12 small jobs, test hard, then let people build it everywhere."
+    ]
+   }
+  },
+  "quests": {
+   "ramp1": {
+    "title": [
+     "Split the ramp design into 12 small jobs"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "ramp2": {
+    "title": [
+     "Check 6 designs against slope and width rules"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "ramp3": {
+    "title": [
+     "Load-test a prototype to 450 kg"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "ramp4": {
+    "title": [
+     "Write the picture-first build guide"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "ramp5": {
+    "title": [
+     "Build a ramp for a local shop and log it"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     4
+    ]
+   }
+  }
+ },
+ "pumps": {
+  "mission": {
+   "title": [
+    "Find every broken hand pump in one district",
+    "Fix Barmer's broken hand pumps"
+   ],
+   "pitch": [
+    "Report every broken village hand pump in Barmer and get it fixed.",
+    "Report every broken village hand pump in four Barmer blocks, and keep at it until it pumps water again."
+   ],
+   "rules": [
+    [],
+    [
+     "Never open borewell caps or climb on pump platforms, and never repair a pump yourself. Report it and leave it to trained mechanics.",
+     "No surveying between noon and 4 pm in summer. Carry water and work in pairs.",
+     "Photos show the pump, not people's faces, unless they give consent.",
+     "The mission never pays for repairs or 'speed money'. PHED and panchayats fund repairs through official budgets.",
+     "Non-partisan: credit the department and the panchayat, and use no party names or politicians' photos."
+    ]
+   ]
+  },
+  "stages": {
+   "0": {
+    "name": [
+     "Find"
+    ],
+    "goal": [
+     "Check every hand pump in 4 blocks"
+    ],
+    "target": [
+     2600
+    ],
+    "unit": [
+     "pumps"
+    ]
+   },
+   "1": {
+    "name": [
+     "Report"
+    ],
+    "goal": [
+     "Report every broken pump with a complaint number"
+    ],
+    "target": [
+     412
+    ],
+    "unit": [
+     "complaints"
+    ]
+   },
+   "2": {
+    "name": [
+     "Fix"
+    ],
+    "goal": [
+     "Get at least 300 broken pumps repaired"
+    ],
+    "target": [
+     300
+    ],
+    "unit": [
+     "pumps"
+    ]
+   },
+   "3": {
+    "name": [
+     "Prove"
+    ],
+    "goal": [
+     "Re-check fixed pumps 30 days later"
+    ],
+    "target": [
+     300
+    ],
+    "unit": [
+     "pumps"
+    ]
+   }
+  },
+  "plans": {
+   "pump-crew": {
+    "name": [
+     "One volunteer per gram panchayat"
+    ],
+    "squad": [
+     "Pump Watch"
+    ],
+    "bet": [
+     "Local women who already walk to the pumps can report them better than any outside survey team."
+    ]
+   }
+  },
+  "quests": {
+   "pu1": {
+    "title": [
+     "Check every hand pump in your panchayat"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "pu2": {
+    "title": [
+     "Re-check 30 survey entries against photos and GPS"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "pu3": {
+    "title": [
+     "Hand the broken-pump list to the PHED office"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "pu4": {
+    "title": [
+     "Get panchayats to fund 40 stuck pump repairs"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "pu6": {
+    "title": [
+     "Write the monthly fix count for the block meeting"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "pu5": {
+    "title": [
+     "Re-check 25 fixed pumps after 30 days"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   }
+  }
+ },
+ "air": {
+  "mission": {
+   "title": [
+    "Low-cost air sensor for classrooms"
+   ],
+   "pitch": [
+    "A $20 sensor that tells teachers when to open a window."
+   ],
+   "rules": [
+    [],
+    [
+     "No personal data: the sensor records CO2, temperature and time only, with no microphones and no cameras.",
+     "Open hardware and firmware under an open licence (CERN-OHL and MIT).",
+     "Safe power: USB power only and certified chargers. No mains wiring is done by players.",
+     "Classroom trials only with the school's written OK.",
+     "If the goal can't be met, stop and refund rather than quietly change it."
+    ]
+   ]
+  },
+  "stages": {
+   "0": {
+    "name": [
+     "Prototype"
+    ],
+    "goal": [
+     "Build 5 prototypes that read CO2 within ±100 ppm"
+    ],
+    "target": [
+     5
+    ],
+    "unit": [
+     "prototypes"
+    ]
+   },
+   "1": {
+    "name": [
+     "Pilot"
+    ],
+    "goal": [
+     "Build 50 sensors at $20 or less each for 10 classrooms"
+    ],
+    "target": [
+     50
+    ],
+    "unit": [
+     "sensors"
+    ]
+   }
+  },
+  "plans": {
+   "air-crew": {
+    "name": [
+     "Cheapest sensor that's still honest"
+    ],
+    "squad": [
+     "Fresh Air Crew"
+    ],
+    "bet": [
+     "A simple, open sensor with a traffic-light display can hit $20 at 50 units."
+    ]
+   }
+  },
+  "quests": {
+   "air1": {
+    "title": [
+     "Compare 3 CO2 sensors against a reference meter"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "air2": {
+    "title": [
+     "Build 5 NDIR prototypes with traffic-light display"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     1
+    ]
+   },
+   "air3": {
+    "title": [
+     "Get real quotes for a 50-unit batch"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "air4": {
+    "title": [
+     "Audit the $90 cost sheet"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "air5": {
+    "title": [
+     "Write the honest stop note for funders"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     2
+    ]
+   }
+  }
+ }
+}

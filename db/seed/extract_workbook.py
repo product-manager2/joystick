@@ -14,6 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / 'seed/joystick-seed-data.xlsx'
 DEST = ROOT / 'db/seed/mission-catalog.json'
+HISTORY = ROOT / 'db/seed/catalog-history.json'
 N = '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}'
 R = '{http://schemas.openxmlformats.org/officeDocument/2006/relationships}'
 
@@ -71,6 +72,30 @@ def call_of(q: dict, old: dict):
     return old.get('call')
 
 
+def remember(history: dict, catalog: list[dict]) -> dict:
+    """Record every value the catalog has shipped, so the server can tell an untouched seeded row from an edited one."""
+    def add(bucket: dict, field: str, value):
+        values = bucket.setdefault(field, [])
+        if value not in values:
+            values.append(value)
+    for m in catalog:
+        h = history.setdefault(m['id'], {'mission': {}, 'stages': {}, 'plans': {}, 'quests': {}})
+        for field in ('title', 'pitch', 'rules'):
+            add(h['mission'], field, m.get(field))
+        for i, st in enumerate(m.get('stages', [])):
+            for field in ('name', 'goal', 'target', 'unit'):
+                add(h['stages'].setdefault(str(i), {}), field, st.get(field))
+        for pl in m.get('strategies', []):
+            for field in ('name', 'squad', 'bet'):
+                add(h['plans'].setdefault(pl['id'], {}), field, pl.get(field))
+        for q in m.get('quests', []):
+            for field in ('title', 'role', 'size'):
+                add(h['quests'].setdefault(q['id'], {}), field, q.get(field))
+            # The first catalog had no stage numbers; those quests were all seeded into stage 1.
+            add(h['quests'][q['id']], 'stage', q.get('stage') or 1)
+    return history
+
+
 def main():
     data = sheets(SOURCE)
     older = {m['id']: m for m in json.loads(DEST.read_text())} if DEST.exists() else {}
@@ -111,6 +136,10 @@ def main():
             },
         }
         missions.append(result)
+    history = json.loads(HISTORY.read_text()) if HISTORY.exists() else {}
+    if older:
+        remember(history, list(older.values()))
+    HISTORY.write_text(json.dumps(remember(history, missions), indent=1, ensure_ascii=False) + '\n')
     DEST.write_text(json.dumps(missions, indent=2, ensure_ascii=False) + '\n')
     print(f'Wrote {len(missions)} missions, {sum(len(m["stages"]) for m in missions)} stages, {sum(len(m["strategies"]) for m in missions)} plans, {sum(len(m["quests"]) for m in missions)} quests')
 
