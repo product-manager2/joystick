@@ -75,3 +75,11 @@
 .task-head-context .rewardline { white-space: normal; overflow-wrap: anywhere; }
 
 .wallet-sheet .list-more { margin-top: 8px; }
+.instant-check { display: grid; grid-template-columns: 34px minmax(0,1fr); gap: 10px; align-items: start; padding: 12px; background: var(--cream); border: var(--line-1); border-radius: 12px; }
+.instant-check-mark { display: grid; place-items: center; width: 30px; height: 30px; border: var(--line-1); border-radius: 50%; background: var(--white); font-weight: 900; }
+.instant-check b, .instant-check strong { display: block; overflow-wrap: anywhere; }
+.instant-check strong { margin-top: 4px; color: var(--green-d); }
+.instant-check p { margin: 5px 0 0; white-space: pre-line; overflow-wrap: anywhere; }
+.instant-check-ready { background: var(--mint); }
+.wallet-pending-tokens { margin: 14px 0; padding: 12px; background: var(--cream); border: var(--line-1); border-radius: 12px; }
+.wallet-pending-tokens .wallet-token-entry { border-radius: 9px; }
