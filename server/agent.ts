@@ -4,7 +4,7 @@ import { transaction } from './db.js';
 import type { Config } from './config.js';
 import { agentAvailable } from './config.js';
 import { contextualMessage, privateAgentContext, roomScopeContext, scopedRoomMessage } from './agent-context.js';
-import { ROOM_AGENT_PROMPT_REVISION, ROOM_AGENT_SYSTEM } from './room-agent-prompt.js';
+import { ROOM_AGENT_PROMPT_REVISION, ROOM_AGENT_SYSTEM, ROOM_AGENT_TOOLS } from './room-agent-prompt.js';
 import { BUILT_IN_TOOLS } from './agent-toolset.js';
 import { APP_TOOLS } from './composio.js';
 import { PRIVATE_AGENT_PROMPT_REVISION, PRIVATE_AGENT_SYSTEM } from './private-agent-prompt.js';
@@ -12,7 +12,7 @@ import { PRIVATE_AGENT_TOOLS, processPrivateTool, acknowledgePrivateTool, sendPr
 
 export interface AgentEvent { type:string; id?:string; name?:string; input?:Record<string,unknown>; custom_tool_use_id?:string; stop_reason?:{type:string;event_ids?:string[]}; content?:Array<{type:string;text?:string}>; event_id?:string; delta?:{type:string;content?:{type:string;text?:string}} }
 export interface ManagedAgentClient {
-  create(input: {agent:string|{type:'agent_with_overrides';id:string;system:string;tools:Array<(typeof PRIVATE_AGENT_TOOLS)[number]|(typeof APP_TOOLS)[number]|typeof BUILT_IN_TOOLS>};environment_id:string;initial_events:Array<{type:'user.message';content:Array<{type:'text';text:string}>}>;metadata:{joystick_room_id:string;joystick_message_id:string}}): Promise<{id:string}>;
+  create(input: {agent:string|{type:'agent_with_overrides';id:string;system:string;tools:Array<(typeof PRIVATE_AGENT_TOOLS)[number]|(typeof APP_TOOLS)[number]|typeof BUILT_IN_TOOLS|(typeof ROOM_AGENT_TOOLS)[number]>};environment_id:string;initial_events:Array<{type:'user.message';content:Array<{type:'text';text:string}>}>;metadata:{joystick_room_id:string;joystick_message_id:string}}): Promise<{id:string}>;
   send(sessionId:string, text:string): Promise<unknown>;
   sendTool?(sessionId:string,toolUseId:string,result:unknown,isError:boolean):Promise<unknown>;
   stream(sessionId:string, signal:AbortSignal): Promise<AsyncIterable<AgentEvent>>;
@@ -92,7 +92,7 @@ export async function dispatchNext(pool: Pool, config: Config, client: ManagedAg
     }
     if (!sessionId || rotate) {
       providerMutationStarted=true;
-      const agent={type:'agent_with_overrides' as const,id:config.anthropicAgentId!,system:privateRoom?PRIVATE_AGENT_SYSTEM:scopedRoom?ROOM_AGENT_SYSTEM:'You are an assistant in a shared Joystick room. Reply to the people in this room using only their conversation.',tools:privateRoom?[...PRIVATE_AGENT_TOOLS,...APP_TOOLS,BUILT_IN_TOOLS]:[...APP_TOOLS,BUILT_IN_TOOLS]};
+      const agent={type:'agent_with_overrides' as const,id:config.anthropicAgentId!,system:privateRoom?PRIVATE_AGENT_SYSTEM:scopedRoom?ROOM_AGENT_SYSTEM:'You are an assistant in a shared Joystick room. Reply to the people in this room using only their conversation.',tools:privateRoom?[...PRIVATE_AGENT_TOOLS,...APP_TOOLS,BUILT_IN_TOOLS]:scopedRoom?[...APP_TOOLS,BUILT_IN_TOOLS,...ROOM_AGENT_TOOLS]:[...APP_TOOLS,BUILT_IN_TOOLS]};
       const session = await client.create({agent,environment_id:config.anthropicEnvironmentId!,initial_events:[{type:'user.message',content:[{type:'text',text:providerText}]}],metadata:{joystick_room_id:job.room_id,joystick_message_id:job.message_id}});
       sessionId = session.id;
       await transaction(pool, async db => {

@@ -432,6 +432,8 @@ test('task rooms give the shared agent the task brief and move old sessions to t
         assert.ok(input.agent.tools.some(tool=>tool.type==='agent_toolset_20260401'&&tool.default_config?.enabled===true));
         assert.ok(input.agent.tools.some(tool=>tool.type==='custom'&&tool.name==='app_execute'));
         assert.ok(!input.agent.tools.some(tool=>tool.type==='custom'&&tool.name==='execute_command'));
+        // Inside Joystick a shared room can only offer the asker a button.
+        assert.ok(input.agent.tools.some(tool=>tool.type==='custom'&&tool.name==='offer_action'));
         created=input.initial_events[0].content[0].text;
         return {id:`sesn_${randomUUID()}`};
       },

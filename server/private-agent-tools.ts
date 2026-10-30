@@ -5,6 +5,7 @@ import { privateAgentContext } from './agent-context.js';
 import { listAgentCommands, queryAgentApp, executeAgentCommand } from './agent-commands.js';
 import { isAppTool, runAppTool } from './composio.js';
 import { canAccessGameRoom } from './game/service.js';
+import { transaction } from './db.js';
 
 export const PRIVATE_AGENT_TOOLS = [
   {type:'custom' as const,name:'list_commands',description:'List the Joystick actions you can perform for this person. Use this before choosing a command.',input_schema:{type:'object' as const,properties:{},additionalProperties:false}},
@@ -22,7 +23,37 @@ export function toolRequestId(sessionId:string,eventId:string):string {
   const hex=createHash('sha256').update('joystick-private-tool\0').update(sessionId).update('\0').update(eventId).digest('hex');
   return `${hex.slice(0,8)}-${hex.slice(8,12)}-5${hex.slice(13,16)}-a${hex.slice(17,20)}-${hex.slice(20,32)}`;
 }
+// A shared-room agent only offers: the action is a button for the person whose message this turn answers.
+const OFFERS=new Set(['back_squad','claim_task','join_squad','draft_work']);
+async function offerRoomAction(pool:Pool,dispatch:PrivateDispatch,toolEventId:string,input:Record<string,unknown>):Promise<unknown>{
+  const kind=short(input.action,40);
+  if(!kind||!OFFERS.has(kind))throw Error('Unknown action');
+  const room=(await pool.query(`SELECT r.kind,r.scope_id FROM rooms r JOIN agent_dispatches d ON d.room_id=r.id JOIN messages m ON m.id=d.message_id AND m.user_id=$3
+    WHERE r.id=$1 AND r.provider_session_id=$2 AND d.id=$4 AND d.provider_session_id=$2 AND d.status IN ('sent','completed') AND r.kind IN ('mission','stage','plan','quest')`,
+    [dispatch.room_id,dispatch.provider_session_id,dispatch.user_id,dispatch.id])).rows[0];
+  if(!room||!await canAccessGameRoom(pool,dispatch.user_id,dispatch.room_id))throw Error('Room access changed');
+  const quest=room.kind==='quest'?(await pool.query('SELECT id,mission_id,plan_id,title,role FROM game_quests WHERE id=$1',[room.scope_id])).rows[0]:null;
+  const planId=room.kind==='plan'?room.scope_id:quest?.plan_id;
+  const plan=planId?(await pool.query('SELECT id,mission_id,squad FROM game_plans WHERE id=$1',[planId])).rows[0]:null;
+  const credits=kind==='back_squad'?(Number.isSafeInteger(input.credits)&&Number(input.credits)>=0&&Number(input.credits)<=100000?Number(input.credits):0):undefined;
+  if(['back_squad','join_squad'].includes(kind)&&!plan)return {ok:false,summary:'This room has no squad to act on. Point them to the squad page instead.'};
+  if(['claim_task','draft_work'].includes(kind)&&!quest)return {ok:false,summary:'This room has no task to act on.'};
+  const handIn=kind==='back_squad'&&quest?.role==='patron';
+  const label=kind==='back_squad'?`Back ${plan.squad} with ${credits} credits${handIn?' and hand in the receipt':''}`:kind==='join_squad'?`Join ${plan.squad}`:kind==='claim_task'?`Claim “${quest.title}”`:`Have your agent draft “${quest.title}”`;
+  const action={kind,forUserId:dispatch.user_id,label,missionId:quest?.mission_id??plan.mission_id,...(plan?{planId:plan.id}:{}),...(quest?{questId:quest.id}:{}),...(credits!==undefined?{credits}:{}),...(handIn?{handIn}:{})};
+  const name=(await pool.query('SELECT name FROM users WHERE id=$1',[dispatch.user_id])).rows[0]?.name??'them';
+  await transaction(pool,async db=>{
+    // One button per tool call, even if the call is processed again.
+    const eventId=`offer:${toolEventId}`;
+    if((await db.query('SELECT 1 FROM messages WHERE room_id=$1 AND provider_event_id=$2',[dispatch.room_id,eventId])).rowCount)return;
+    const seq=await db.query('UPDATE rooms SET next_sequence=next_sequence+1 WHERE id=$1 RETURNING next_sequence-1 AS sequence',[dispatch.room_id]);
+    const message=await db.query(`INSERT INTO messages(room_id,sequence,role,text,provider_event_id,action) VALUES($1,$2,'assistant',$3,$4,$5) RETURNING id`,[dispatch.room_id,seq.rows[0].sequence,`Ready for ${name} to confirm: ${label}.`,eventId,JSON.stringify(action)]);
+    await db.query(`SELECT pg_notify('joystick_messages',$1)`,[JSON.stringify({roomId:dispatch.room_id,messageId:message.rows[0].id})]);
+  });
+  return {ok:true,summary:`Shown to ${name} as a one-tap button. Nothing has happened yet; it runs only when they tap it.`};
+}
 async function toolResult(pool:Pool,config:Config,dispatch:PrivateDispatch,event:PrivateToolEvent):Promise<unknown>{
+  if(event.name==='offer_action')return offerRoomAction(pool,dispatch,event.id,object(event.input));
   if(isAppTool(event.name)){
     // Shared rooms act as whoever sent the message this turn answers.
     const turn=await pool.query(`SELECT 1 FROM agent_dispatches d JOIN messages m ON m.id=d.message_id AND m.user_id=$3
