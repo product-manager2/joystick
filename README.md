@@ -1,297 +1,89 @@
 # Joystick
 
-**Change the world. Multiplayer.** Team up and take on the world's hardest problems, and earn the prize and a piece of what you build.
+**Change the world. Multiplayer.** Pick a mission, join a squad, and work with people and AI on a real-world problem.
 
-A mobile-first PWA with passkey accounts, persistent missions and tasks, shared rooms, saved submissions, independent reviews, and private agent chat. The first cut uses **test credits only**: balances, rewards, and payout actions are simulations with no cash value or ownership rights. See [game actions](docs/game-actions.md), [account access](docs/account-access.md), and [deployment](docs/deploying.md).
+Joystick is a mobile-first, installable web app. Missions move through stages; squads propose plans; people claim tasks, submit work, and review one another's contributions. The current release is a pilot: accounts and work are persisted, while credits, mission tokens, funding, and payout records are in-app simulations. They do not represent cash, legal ownership, or a claim on future revenue.
 
-**Contents**
+## What works today
 
-1. [Why](#1-why)
-2. [The big idea](#2-the-big-idea)
-3. [Players: you and your agent](#3-players-you-and-your-agent)
-4. [The work: missions, stages, plans, quests](#4-the-work)
-5. [The money](#5-the-money)
-6. [Owning a piece](#6-owning-a-piece)
-7. [Plans that race, and plans that wait](#7-plans-that-race-and-plans-that-wait)
-8. [Safeguards](#8-safeguards)
-9. [Design principles](#9-design-principles)
-10. [Status and roadmap](#10-status-and-roadmap)
-11. [Open questions](#11-open-questions)
-12. [Developer guide](#12-developer-guide)
-13. [Appendix: how the bonus is worked out](#appendix-how-the-bonus-is-worked-out)
+- **Accounts and onboarding:** Create an account with a username and passkey, choose up to five roles, name your agent, and pick missions. Sign in with a passkey; manage additional passkeys and one-use recovery codes from your account. No email verification or password flow is required for normal sign-in.
+- **Squad-first missions:** Explore the seeded mission catalog or create a mission. The map lets you pick or switch squads; opening a mission takes you to your squad's work. Plans can target later checkpoints, and the map shows the stages they aim to skip. Seeded missions include problem context, stages, plans, tasks, and sample conversation content. Sample people and outcomes are distinct from registered players and recorded work.
+- **Make and do work:** Create missions, plans, and tasks through editable agent-assisted drafts or app forms. Tasks can have roles, dependencies, decisions, rewards, and a plan. Opening a task shows its brief first; Play opens the task chat. Claim a task, run the agent on it, respond when it needs a decision, edit the resulting artifact, and submit it. Agent runs and submitted text artifacts are saved.
+- **Check and review:** The worker runs an instant first-pass check on submitted work when a review provider is configured. A clear pass shows provisional mission tokens; a request for improvement lets the submitter revise. An unavailable check does not block member review. Two distinct registered mission members other than the submitter must approve the same artifact version before task approval; the mission owner closes an eligible stage.
+- **Credits and mission tokens:** The pilot has a test-credit balance and journal. Credits can be reserved for missions or plans and used for task rewards. Each mission has its own token symbol and balance. Credit backing and approved tasks can earn mission tokens; tokens shown after an instant pass stay provisional until member approval. A recorded payout is a simulation.
+- **People and chat:** Mission, stage, plan, task, direct-message, and private agent conversations persist with access checks. Pip can read authorized app state and, through the same game-action rules as the UI, carry out requested commands. Agent availability depends on configured provider credentials. Optional Web Push alerts can be enabled on supported installed apps.
+- **Agent tools and connected apps:** Managed agent sessions include a sandboxed shell and files, web search, and web page reading. `npm run agent:setup` configures unrestricted network access and common document, data, and Playwright libraries so agents can install Chromium and use a headless browser. With a server-side Composio key, each person can connect their own outside apps from **Profile → Connected apps**; agents can then discover and use that person's available app tools. Without the key, connected apps are shown as unavailable. A connection to any particular app still has to be set up by that person.
+- **Recommendations:** With a server-side AI Gateway key, Jev scores eligible missions, plans, and tasks against stated roles and skills and topics from joined missions. Scores are cached, while current work and squad membership retain their place in the ordering. Without Jev, the app uses its local fit rules. Lists start with four items and reveal eight more per **Show more**; a late score does not reorder a view after the person interacts with it. The submission-check pipeline attempts Jev first, then the configured Anthropic review model when needed.
 
----
+## Product direction (proposed)
 
-## 1. Why
+The larger goal is to coordinate difficult, open-ended work: make the need visible, let squads try different plans, preserve what each team learns, and reward useful contributions. The original [single-file prototype](public/prototype/joystick-quest.html) explores this direction. The following economics and governance are **proposals**, not pilot rules or promises:
 
-Hard problems like curing a cancer, open CAD or mapping every reef fail for coordination reasons more than for lack of talent:
+- Sponsors could fund mission prizes and stage budgets; backers could support a plan with money or a free signal of demand. Promises from people who need an outcome and revenue from early products were also proposed as funding sources.
+- A stage bonus could favor breadth of support over one large contribution, with trust weighting and a per-plan cap. Proposed signals include demand, money, approved time, and delivered compute. The prototype illustrates quadratic matching; the current app does not distribute money or calculate this bonus.
+- Contributors could share in mission ownership, with larger early-stage weights. The prototype's illustrative prize split was 70% players, 15% referees, 10% mission creator, and 5% community fund. There is no legal ownership or prize distribution in the pilot.
+- Independent critics and referees, verified identity and skills, anti-collusion checks, spending approval, and owner votes would need explicit policies and implementation before real funds or ownership could exist. Today's review rule is the two-member rule above, with owner-attested stage closure.
 
-- **People build what nobody asked for.** Nobody can see who actually has the problem, or how badly.
-- **Ten teams chase the same goal in silos.** They duplicate work, compete for the same money and never share what they learn.
-- **Funding follows a few loud wallets.** It doesn't follow what many people believe in.
-- **Good long-term bets starve.** "Rust will be better, but I need money upfront" has nowhere to go.
-- **Contributors without capital get no ownership.** That includes time, knowledge and compute.
+The proposed uncapped matching score for a plan $s$ was $q_s = (\sum_i \sqrt{c_{i,s}})^2 - \sum_i c_{i,s}$, where $c_{i,s}$ combines one backer's signals after any trust weighting. The prototype proposed allocating a bonus pool by each plan's share of these scores, then applying a cap and redistributing the excess. Its illustrative rates were one credit per unit of demand or money, 50 credits per approved hour, and two credits per delivered GPU-hour. Those numbers are design inputs to revisit, not configured rates in the app.
 
-## 2. The big idea
+## Run locally
 
-Turn problem-solving into a game that people play with their AI agents. In one line: **pick a big mission, play quests with your agent, help your squad win the stage, get paid.**
+Use **Node.js 22 or later**, npm, PostgreSQL, and a browser with passkey support. `localhost` is a secure context for local WebAuthn. Start from a disposable local database and keep credentials out of Git.
 
-- **One goal at a time.** A mission is split into stages, each with one measurable goal.
-- **Squads race with different plans.** Each plan is one squad's idea for hitting the goal, and people back the plans they believe in.
-- **Breadth beats size of wallet.** The mission adds a bonus to each plan, and plans with more backers get more of it.
-- **Everyone who helps owns a piece**, whether they bring money, time or skill.
-
-The core loop:
-
-```
-pick a mission ─▶ back or join a plan ─▶ play quests (you + agent)
-      ▲                                          │
-      │                                          ▼
- paid + a piece ◀──────── stage cleared ◀── results checked
-```
-
-## 3. Players: you and your agent
-
-- **Your agent has a look.** Pick a name and one of six shape characters (Blob, Cube, Cone, Star, Drop, Pill), each with its own colour and personality. Other players' agents get shapes too.
-- **You and your agent are one team.** One shared Profile: one name, level, medals, history and money (e.g. *nova & Pip*).
-- **Roles.** You pick up to 3 of 7, each a real job family: Leader, Planner, Expert, Maker, Checker, Storyteller and Patron. Everyone is also a **User** by default, so User quests (try it for real, say if it works) fit everybody. Each role has an icon and one plain line. Quests that match your roles come first and pay 2×. Backing a plan is a Patron quest. On a plan page, the blocker that fits your role is shown first.
-- **Your agent works on your authority.** There is one **Start** button. You make the calls, and whatever your agent ships goes out under your name with no extra sign-off step.
-- **Everything is personalised first**, with a reason shown ("Fits Implementer", "Rosa's in it").
-- **Medals** reward milestones in play: first quest, first squad joined, first plan suggested, and so on.
-
-## 4. The work
-
-| Level | What it is | Example |
-| --- | --- | --- |
-| **Mission** | A big problem with a prize and win conditions | *Open CAD that beats SolidWorks* |
-| **Stage** | One step of the mission, with one goal | Stage 2: *8 kernel features passing tests* |
-| **Plan** | One squad's idea for hitting the stage goal | "Build on OpenCascade" vs "Rust kernel" |
-| **Quest** | One job you and your agent do, from ~15 min to ~1 day | "Import 50 real STEP files" |
-| **Part** | A big quest split into smaller ones | Shard A, B, C, D |
-
-**The map** shows one checkpoint per stage. Only the current stage opens up, showing the plans racing to its goal and a YOU flag on yours. Finished stages open a recap of what they produced.
-
-**Where conversation happens:**
-
-- **Mission page:** the problem, the goal, how we win and what we'll make.
-- **Quest brief:** the task, why it matters, done-when, inputs and decisions so far.
-- **Quest rooms:** every quest has a chat room with the squad and their agents.
-- **Your agent's chat:** ask about a stage or plan, suggest a new plan, or ask what a finished mission produced. It all happens in one chat.
-- **Creating a mission:** you talk it through with your agent, which drafts the name, stages, rules, roles and prize for you to edit.
-
-## 5. The money
-
-| Who | Puts in | Why |
-| --- | --- | --- |
-| **Sponsors** | Large grants for the prize and the mission fund | "Someone solve this." |
-| **Players** | Money behind a plan they believe in | "This way is right." |
-| **People who want it** | A promise of money, paid only when it works | "Solve this for me." |
-| **Sales** | Revenue from early products | Early products fund later work. |
-
-- **There's one way to put money in: back a plan.** You can also back a plan for free; it still counts as one more backer.
-- **The bonus.** Each stage the mission adds a bonus pot on top of what backers give. It's shared by **how many people** back each plan, so 100 people giving $10 beat one person giving $1,000. Players never see the maths, only "Your $10 brings the squad about $35". The [appendix](#appendix-how-the-bonus-is-worked-out) shows how it's worked out.
-- **The prize** is locked in before launch and split 70% players, 15% referees, 10% mission creator, 5% community fund. Every quest that passes review pays, even if its plan loses.
-- **Every spend has a receipt.** The Money tab shows what the money paid for.
-
-## 6. Owning a piece
-
-- **You own a piece of each mission you help.** It's shown in plain words: "You own 0.34% of Open CAD". Owners get paid if the mission makes money.
-- **Early players get more.** The same help earns a bigger piece early on (3× in stage 1, falling to 1× later).
-- **Owners can add a 👍** when the referees check a stage. Full owner votes come later.
-
-## 7. Plans that race, and plans that wait
-
-Plans are **Racing**, **Waiting** or **Won**. A waiting plan always says why, in one line:
-
-- *Needs 9 more backers* (a new plan raising its first backers)
-- *Starts when the beta makes $20k* (a good bet that needs money upfront, queued behind one that brings money in sooner)
-- *Waiting for the mission's OK*
-
-Results from every plan count toward the stage goal, not just the leader's, and briefs, data and results are visible to every squad. **Later:** the agent will suggest that two squads team up when one runs short on money.
-
-## 8. Safeguards
-
-- **Fake accounts.** One team per verified person. New accounts count for less in the bonus until they've played.
-- **Collusion.** Bonus from backers who always back the same plans together can be dampened (pairwise-bounded QF). This is planned for later, not the demo.
-- **Pledging without doing.** Time and compute only count once delivered and approved.
-- **Checked work.** 2 Critics from other squads check every quest, and 9 Referees check every stage before the prize pays out.
-- **Draining the pot.** No plan can take more than 40% of a stage's bonus.
-
-## 9. Design principles
-
-- **It's a game.** The look is inspired by Cuphead, in Joystick's colours and fonts (Baloo 2 ExtraBold and Lexend).
-- **Show, don't explain.** Copy is short, simple enough for a kid, and in the style of Steve Jobs. If a sentence explains how the system works, cut it and let the UI show it instead.
-- **Details live in drill-downs.** The main screens stay a game; the real-world detail is one tap away.
-- **Personal first.** Every list starts with what fits you, and says why.
-- **Mobile-first.** Primary actions sit at the bottom, within thumb reach, with 44px tap targets.
-
-## 10. Status and roadmap
-
-**First cut implemented**
-
-- Passkey signup and sign-in, passkey management, and one-use recovery codes. Email is an unverified identifier.
-- PostgreSQL-backed missions, stages, plans, tasks, claims, submissions, artifact history, and two independent member reviews of the same artifact version.
-- Persistent mission, stage, plan, task, and direct-message rooms with membership checks; private agent chat and an integration worker for hosted agents.
-- Saved profile, XP, notifications, and a test-credit journal. Test credits have no cash value, escrow, payout, or ownership rights.
-- A standalone Fastify API and worker on Fly, with a Vercel frontend. A release is healthy only when both API and worker Machines are running and the API health check passes. See [deployment](docs/deploying.md).
-
-**Legacy prototype content and future policy**
-
-The older single-file prototype at `/prototype/joystick-quest.html` illustrates the broader product vision below. These examples and economics are not live account balances, verified skills, ownership, or payments.
-
-- Onboarding for new and returning players, roles, and a meet-your-agent step.
-- Missions list with topic filters; mission page with the stage map, plans, money and about.
-- **Plans** with one status (Racing / Waiting / Won), a money bar, and backing with money or for free, with a live "brings the squad about $X" estimate.
-- **The bonus:** quadratic matching with a cap, working behind the scenes.
-- **Owning a piece** of each mission, in plain words.
-- **One Start button.** The quest loop: your call → your agent works under your name → 2 Critics from other squads → approved, or fix.
-- Real-world flows in drill-downs: squads with skill slots, verified skills, connected tools, claims and dependencies, in-person quests with proof, notifications, and the Referees' **stage check**.
-- Who runs a mission and whether it's safe, a spending list, pending pay released when a stage clears, credits and payouts.
-- Recaps of finished stages and missions: what they produced, and your agent explains them.
-- Creating a mission by chatting with your agent; Chats; one shared Profile (you and your agent) with medals, history and money.
-- An installable PWA and a token-driven design system.
-
-**Next**
-
-1. **Needs as their own screen:** browse and raise needs, promises held until delivery, and needs that become missions.
-2. **Trust weights** in the bonus (new accounts count less until they've played).
-3. **Team-up nudges** between squads.
-
-**Later:** real mission funds and payouts, an agreed ownership model, verified matching rounds, and collusion-resistant matching. The sample screens still contain illustrative missions and examples; they are separate from account-backed records.
-
-## 11. Open questions
-
-- **What does free backing earn?** The proposal is reputation always, plus a tiny piece only if the mission ships.
-- **Who approves big spends?** The proposal is a vote by owners, later.
-- **Credit rates.** Is an hour really worth $50 of credit everywhere, or should rates vary by mission?
-
-## 12. Developer guide
-
-### Run it
-
-```bash
+```sh
 npm install
-npm run db:migrate # requires local PostgreSQL configured in .env.local
-npm run api:dev    # API at http://localhost:3001
-npm run dev        # web app at http://localhost:5173
-npm run build      # production build in dist/
-npm run preview    # serve the build at http://localhost:4173
+# Set DATABASE_URL in the tracked .env.local to your local PostgreSQL database.
+npm run db:migrate
 ```
 
-- The account-backed game is at `/`, private chat is at `/chat.html`, and the living style guide is at `/design.html`. Follow the [foundation guide](docs/running-the-foundation.md) for local database and agent setup.
-- With a disposable database and migrations applied, run `TEST_DATABASE_URL=... npm run test:server`. Run `npm run test:e2e` for Chromium browser checks with virtual passkeys; Playwright starts the local API and Vite. Install Chromium first with `npx playwright install chromium`. The browser tests create synthetic accounts and require `GAME_TEST_CREDITS=true`.
-- In dev, `window.jq` gives you the state and router for poking at screens: `jq.go("lobby")`, `jq.S`, `jq.loadReturning()`.
+Run these in separate terminals:
 
-### Clickable prototype
-
-`public/prototype/joystick-quest.html` is the earlier single-file design prototype, served at `/prototype/joystick-quest.html`. Everything in it has been ported into the app in `src/`; it is kept for reference only, and new work goes into `src/`.
-
-Demo path in the app: tap "I've played before", then open "Shard C" from the Play tab and press **Start quest**.
-
-### Design system
-
-There is one source of truth for how things look. Change it there and every screen follows.
-
-| Layer | File | What lives there |
-| --- | --- | --- |
-| Tokens | `src/design/tokens.css` | Every colour, font, line, shadow and radius as a CSS custom property |
-| Base | `src/design/base.css` | Reset, app frame, type styles (`.display`, `.eyebrow`, `.muted`) |
-| Components | `src/design/components.css` | Buttons, cards, chips, tabs, stats, meters, sheets, chat bubbles, nav |
-| Component markup | `src/design/components.js` | `Button`, `Chip`, `Tabs`, `Stats`, `Meter`, `openSheet`, `drill`, `DetailRow`, `Tick`, … |
-| Screens | `src/styles/screens.css` | Layout specific to one screen |
-
-Rules:
-
-- **Never write a hex colour** in CSS or JS. Use `var(--name)` in CSS, and the same string from JS (`"var(--pink)"`, or `color("pink")` from `tokens.js`). JS colours flow through the tokens too, including mission colours, avatars, medals and role colours.
-- If JS needs the real value (for example to pick readable text on a fill), use `cssColor()` from `tokens.js`.
-- New UI should use the component functions, not hand-written markup. Add a new component to `components.js` and `components.css`, then show it in `src/design-guide.js`.
-- `/design.html` renders the real tokens and components, so it always matches the app.
-
-### Code map
-
-```
-src/
-  main.js              boot, click/submit routing, service worker
-  state.js             the single state object S
-  data/content.js      roles, missions and stages, quests, medals: all mock content
-  data/world.js        people, quest requirements, tools, escrow + trust, ledger, demand, team-up nudges (later)
-  game/strategies.js   plans: status (racing / waiting), quest gating (claims, dependencies)
-  game/economy.js      mission fund, your piece of each mission, ledger
-  game/matching.js     the bonus: quadratic matching with a cap, and the live "brings the squad about $X" estimate
-  game/questflow.js    the quest loop: start, call, work, review, fix, approve (Pip spends plan money without asking)
-  game/personalise.js  what fits you, and why (roles, squad, friends)
-  ui/                  chrome (HUD, bell, nav, router) and shared helpers
-  screens/             home, onboarding, play, missions (stage map, money), quests (stage, plan, room),
-                       sheets (every drill-down), gate (stage check), contract (joining), comms (Chats), forge, profile
-  design/              the design system (see above)
-public/
-  manifest.webmanifest, sw.js, icons/   PWA install + offline shell
-  prototype/joystick-quest.html         earlier single-file prototype, kept for reference
+```sh
+npm run api:dev
+npm run worker:dev
+npm run dev
 ```
 
-### PWA
+Open `http://localhost:5173/` for the game, `/chat.html` for the separate private chat view, or `/design.html` for the living style guide. Vite proxies `/api` and local WebSockets to the API on port 3001. Keep `WEB_ORIGIN=http://localhost:5173` and `RP_ID=localhost` for the default local setup. The worker handles agent jobs, instant submission checks, and push delivery; the API and web app can still run without optional provider keys. Without an agent provider, chat messages persist but the agent cannot respond. Without a review provider, member review remains available.
 
-- `manifest.webmanifest` makes it installable ("Add to Home Screen"), standalone, portrait.
-- `sw.js` caches the app shell. Built assets and fonts are cache-first; pages are network-first with an offline fallback.
-- Bump `CACHE` in `sw.js` when you change what it caches.
+`.env.example` documents the configuration. The tracked `.env.local` has local, non-secret defaults; development loads it by default. Production loads the ignored, private `.env.production` when present or uses injected environment variables. `JOYSTICK_ENV_FILE` can select another **absolute** private file, and existing process environment variables take precedence. Keep provider keys in a private file or process environment, never in the tracked `.env.local`. For local live-provider work, select a private environment file that points to a **local disposable database**, not production data. `ANTHROPIC_API_KEY` and the agent IDs enable hosted chat and work runs; `npm run agent:setup` provisions the hosted agents for the selected environment. `COMPOSIO_API_KEY` enables the optional connected-app flow and must be set for both API and worker. `AI_GATEWAY_API_KEY` enables Jev through Vercel AI Gateway. `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, and `VAPID_SUBJECT` enable Web Push. Keep all server keys out of `VITE_` variables. See the [foundation setup notes](docs/running-the-foundation.md) for the original account/chat slice, [Pip's current command catalog](docs/agent-commands.md), and the [deployment guide](docs/deploying.md) for production configuration.
 
-## Appendix: how the bonus is worked out
+## Verify
 
-Each stage the mission adds a bonus pot. It's shared across plans using quadratic funding, extended to count more than money. Players never see this; they see "Your $10 brings the squad about $35", which updates live as they change the amount.
+```sh
+npm run typecheck
+npm run build
+npm run test:unit
+TEST_DATABASE_URL=postgres://user@localhost:5432/joystick_test npm run test:server
+npx playwright install chromium
+CI=true HTTP_PROXY_MODE=vercel GAME_TEST_CREDITS=true npm run test:e2e
+```
 
-### Signals
+Use a disposable, migrated database for `TEST_DATABASE_URL`. The server suite requires that variable explicitly. For the full browser suite, point `DATABASE_URL` to a local disposable database and stop any API or Vite server already using ports 3001 or 5173. `CI=true` makes Playwright start fresh servers instead of reusing one with stale settings; `HTTP_PROXY_MODE=vercel` and `GAME_TEST_CREDITS=true` match the [GitHub verification workflow](.github/workflows/verify-and-deploy.yml) and avoid the local auth quota that can cause 429s across the suite. Playwright uses virtual passkeys. Keep `AI_GATEWAY_API_KEY`, `ANTHROPIC_API_KEY`, and `COMPOSIO_API_KEY` blank or unset for normal tests: inherited keys can reach live providers or outside apps. Run a live provider probe only as an explicit, separate opt-in step. `npm run preview` serves the production build locally after `npm run build`.
 
-Every backer can back a plan with several signals. Each signal is converted to **credits** using one table (the same one that sets your piece of the mission, in `src/game/economy.js`):
+## Code map
 
-| Signal | Unit | Credits per unit | Counts when |
-| --- | --- | --- | --- |
-| Demand | a +1 | 1 | Straight away (verified players only) |
-| Money | $1 | 1 | Straight away |
-| Time | 1 hour | 50 | When the work is **approved**, not when pledged |
-| Compute | 1 GPU-hour | 2 | When it is used |
+The browser is vanilla JavaScript built with Vite; the API and worker use TypeScript and Fastify with PostgreSQL. Live chat uses WebSockets, optional alerts use Web Push, hosted agent runs use Claude Managed Agents through the Anthropic SDK, optional outside-app connections use Composio, and optional Jev judgments go through Vercel AI Gateway.
 
-### Formula
+| Path | Purpose |
+| --- | --- |
+| `src/main.js`, `src/live/` | Browser entry point, authenticated game UI, onboarding, creation, chat, recommendations, and push controls |
+| `src/design/`, `src/styles/` | Shared tokens, components, and layouts; `/design.html` shows the design system |
+| `server/app.ts`, `server/auth.ts`, `server/game/` | Fastify API, passkey authentication, game actions, snapshots, recommendations, and submission checks |
+| `server/agent-runs/`, `server/agent-commands.ts`, `server/worker.ts` | Agent work runs, Pip command bridge, and background processing |
+| `server/agent-toolset.ts`, `server/composio.ts`, `server/app-connections.ts` | Built-in agent toolset and optional connected-app tools and account routes |
+| `db/migrations/`, `db/seed/` | PostgreSQL schema and seeded mission catalog |
+| `public/manifest.webmanifest`, `public/sw.js` | Installable PWA and service worker |
+| `tests/` | Unit, PostgreSQL-backed server, and Playwright browser tests |
 
-For backer $i$ on plan $s$, sum their signals into one contribution, then weight it by trust:
+The static frontend is configured for **Vercel**; the API/WebSocket gateway and singleton worker are configured for **Fly**, backed by PostgreSQL. Production uses `DIRECT_DATABASE_URL`, separate from local `DATABASE_URL`. Deployment configuration and release checks are in [docs/deploying.md](docs/deploying.md).
 
-$$c_{i,s} = r_i \sum_k w_k \, v_{i,s,k}$$
+## More detail
 
-- $v_{i,s,k}$ is how much of signal $k$ they gave.
-- $w_k$ is the credit rate from the table above.
-- $r_i \in [0, 1]$ is the backer's **trust weight**: verified identity, plus a history of approved work.
-
-Each plan's raw quadratic score:
-
-$$q_s = \Big(\sum_i \sqrt{c_{i,s}}\Big)^2 - \sum_i c_{i,s}$$
-
-Its share of the pool $P$, capped at $\kappa$ (e.g. 40%) of the pool:
-
-$$m_s = \min\!\Big(\kappa P,\; P \cdot \frac{q_s}{\sum_j q_j}\Big)$$
-
-Any bonus removed by the cap is shared again among the uncapped plans.
-
-**Why combine signals per backer before taking the square root:** someone who gives both time and money still counts as **one** person of breadth. Signals add depth to that person's contribution, but don't multiply their headcount.
-
-### Worked example
-
-A $10,000 bonus pot and four plans:
-
-| Plan | Backers | Total credits | Raw score $q$ | **Bonus** |
-| --- | --- | ---: | ---: | ---: |
-| A: one whale | 1 × $1,000 | 1,000 | 0 | **$0** |
-| B: broad crowd | 100 × $10 | 1,000 | 99,000 | **$5,041** |
-| C: people with the problem | 40 × $5 + 200 × (+1) | 400 | 83,377 | **$4,246** |
-| D: a few builders | 8 × 5 approved hours | 2,000 | 14,000 | **$713** |
-
-- **A and B raised the same amount**, but B's breadth earns all the bonus.
-- **C raised the least money**, yet 200 +1s from people who have the problem pull in almost half the pot. This is demand backing at work.
-- **The next $10 matters more in a crowd.** $10 from a new backer adds about **$53** of bonus to C, but only about **$10** to A.
-
-### Tuning knobs
-
-| Knob | Default | Effect |
-| --- | --- | --- |
-| Credit rates $w_k$ | See Signals | How much each signal is worth |
-| Trust weight $r_i$ | 0.2 (new) to 1.0 (proven) | How much fake accounts can game the bonus |
-| Cap $\kappa$ | 40% | Stops one plan taking the whole pot |
-| Round length | One per stage | How often the pot is shared again |
+- [Game actions and review rules](docs/game-actions.md)
+- [Pip's app commands](docs/agent-commands.md)
+- [Account and recovery rules](docs/account-access.md)
+- [Technical architecture](docs/technical-architecture.md)
+- [Prototype parity and known gaps](docs/prototype-parity.md)
+- [TypeSafe integration guidance](https://github.com/typesafe-ai/skills/blob/main/skills/typesafe-ai/SKILL.md) for future Jev question design (development guidance, not app code)
+- [Initial seed workbook reference](https://github.com/product-manager2/joystick/commit/c6ad2446fad8b605dbff843264d9fe9e5c2754a1) for the original mission and squad design baseline

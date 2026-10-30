@@ -1,8 +1,10 @@
 import { randomUUID } from "node:crypto";
+import { mkdir } from "node:fs/promises";
 import { test, expect } from "@playwright/test";
 import { enterSignup, finishSetup, stubAgentDraft, failAfterCommitOnce, delayAndFailAfterCommitOnce } from "./helpers/onboarding.mjs";
 
 const baseURL = process.env.JOYSTICK_E2E_URL || "http://localhost:5173";
+const screenshots = process.env.JOYSTICK_E2E_OUTPUT || "/private/tmp/joystick-e2e-output";
 
 async function passkey(context, page) {
   const cdp = await context.newCDPSession(page);
@@ -36,6 +38,7 @@ async function stubQuestExecution(page) {
 
 test("mission, plan, task, submission, and account state survive reload", async ({ browser }) => {
   test.setTimeout(120_000);
+  await mkdir(screenshots, { recursive: true });
   const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
   await passkey(context, page);
@@ -185,7 +188,40 @@ test("mission, plan, task, submission, and account state survive reload", async 
     await expect(page.getByRole("button", { name: /Map the growing season/ })).toBeVisible();
     await expect(page.getByRole("button", { name: /Unplanned grower outreach/ })).toBeVisible();
     await page.getByRole("button", { name: /Map the growing season/ }).click();
+    const runPosts=[];
+    page.on("request", request => { if(request.method()==="POST"&&new URL(request.url()).pathname==="/api/v1/agent/runs") runPosts.push(request); });
     await page.getByRole("button", { name: /List local planting dates/ }).click();
+    await expect(page.getByRole("tab", { name: "Brief" })).toHaveAttribute("aria-selected", "true");
+    await expect(page.locator(".task-chat .doc-title")).toHaveText("List local planting dates");
+    await expect(page.locator(".task-chat .task-play-cta [data-live='quest-play']")).toBeVisible();
+    await expect(page.locator("#live-composer")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Claim task" })).toHaveCount(0);
+    await page.setViewportSize({ width: 390, height: 844 });
+    const briefBounds=await page.locator(".task-stream").boundingBox();
+    const playBounds=await page.locator(".task-play-cta").boundingBox();
+    expect(briefBounds.y+briefBounds.height).toBeLessThanOrEqual(playBounds.y);
+    await page.screenshot({ path: `${screenshots}/quest-brief-mobile.png` });
+    const briefScroll=await page.evaluate(async () => {
+      const { rooms }=await (await fetch("/api/v1/rooms",{credentials:"include"})).json();
+      const room=rooms.find(r=>["quest","plan","stage","mission"].includes(r.kind));
+      if(!room)throw new Error("No authorized group room for Brief scroll regression");
+      const { loadRoom, sendRoom }=await import("/src/live/room-chat.js");
+      await loadRoom(room.id);
+      const stream=document.querySelector(".task-stream");
+      stream.scrollTop=stream.scrollHeight;
+      const before=stream.scrollTop;
+      sendRoom(room.id,"Brief scroll regression message");
+      return { before, after:document.querySelector(".task-stream").scrollTop, sameNode:stream===document.querySelector(".task-stream") };
+    });
+    expect(briefScroll.before).toBeGreaterThan(0);
+    expect(briefScroll.after).toBe(briefScroll.before);
+    expect(briefScroll.sameNode).toBe(true);
+    await page.locator(".task-play-cta [data-live='quest-play']").click();
+    await expect(page.getByRole("tab", { name: "Chat" })).toHaveAttribute("aria-selected", "true");
+    await expect(page.locator("#live-composer")).toBeVisible();
+    expect(runPosts).toHaveLength(0);
+    await page.screenshot({ path: `${screenshots}/quest-chat-mobile.png` });
+    await page.setViewportSize({ width: 1280, height: 900 });
     await page.getByRole("button", { name: "Claim task" }).click();
     await expect(page.locator('[data-live="agent-execute"]')).toBeVisible();
     const execution=await stubQuestExecution(page);
@@ -205,6 +241,8 @@ test("mission, plan, task, submission, and account state survive reload", async 
     await page.locator('.task-chat .chat-head [data-a="back"]').click();
     await expect(page.locator('.chat-head')).toContainText("Map the growing season");
     await page.getByRole("button", { name: /List local planting dates/ }).click();
+    await expect(page.getByRole("tab", { name: "Brief" })).toHaveAttribute("aria-selected", "true");
+    await page.locator(".task-play-cta [data-live='quest-play']").click();
     await expect(page.getByText("Draft work is ready to edit.")).toBeVisible();
     await expect(page.locator("#msgs")).toHaveCount(1);
     await page.getByRole("button", { name: "Edit and submit" }).click();
@@ -225,7 +263,8 @@ test("mission, plan, task, submission, and account state survive reload", async 
     await expect(page.getByLabel("Work title")).toHaveValue("Edited research");
     await expect(page.getByLabel("Work and evidence")).toHaveValue("Unsaved task evidence");
     await page.getByRole("tab", { name: "Brief" }).click();
-    await page.getByRole("button", { name: "Submit work" }).click();
+    await expect(page.getByRole("button", { name: "Submit work" })).toHaveCount(0);
+    await page.locator(".task-play-cta [data-live='quest-play']").click();
     await expect(page.getByRole("tab", { name: "Chat" })).toHaveAttribute("aria-selected", "true");
     await expect(page.getByLabel("Work title")).toHaveValue("Edited research");
     await expect(page.getByLabel("Work and evidence")).toHaveValue("Unsaved task evidence");
@@ -272,6 +311,8 @@ test("mission, plan, task, submission, and account state survive reload", async 
     await page.reload();
     await page.getByRole("button", { name: new RegExp(title) }).click();
     await page.getByRole("button", { name: /List local planting dates/ }).click();
+    await expect(page.getByRole("tab", { name: "Brief" })).toHaveAttribute("aria-selected", "true");
+    await page.locator(".task-play-cta [data-live='quest-play']").click();
     await expect(page.getByText("Waiting for two independent reviews")).toBeVisible();
     await expect(page.getByText("Saved work", { exact: true })).toBeVisible();
   } finally { await context.close(); }
