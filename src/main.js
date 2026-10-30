@@ -5,7 +5,7 @@ import "./design/components.css";
 import "./styles/screens.css";
 import "./styles/desktop.css";
 import "./live/style.css";
-import { bootAccount, loadGame, live } from "./live/game-client.js";
+import { bootAccount, loadGame } from "./live/game-client.js";
 import { applySnapshot, handleLiveClick, handleLiveSubmit, handleLiveInput, handleLiveFile, openPushRoom, openConnectedApps } from "./live/game-ui.js";
 import { refreshPush } from "./live/push.js";
 import { installViewportSizing } from "./ui/viewport.js";
@@ -171,25 +171,65 @@ document.addEventListener("click", async e => {
 });
 
 // The prototype's seeded state is never shown to an authenticated account.
-document.querySelector("#main").innerHTML = '<div class="live-loading" role="status">Opening Joystick…</div>';
+const main = document.querySelector("#main");
+let startupGeneration = 0;
 installViewportSizing();
-bootAccount(async () => {
-  const snapshot = await loadGame();
-  applySnapshot(snapshot);
-  render();
-  void refreshPush();
-  const roomId=new URL(location.href).searchParams.get('room');
-  if(roomId){
-    await openPushRoom(roomId);
-    const clean=new URL(location.href);clean.searchParams.delete('room');
-    history.replaceState(null,'',clean.pathname+clean.search+clean.hash);
-  }
-  if(new URL(location.href).searchParams.get('apps')==='connected'){
-    const clean=new URL(location.href);clean.searchParams.delete('apps');
-    history.replaceState(null,'',clean.pathname+clean.search+clean.hash);
-    openConnectedApps();
-  }
-}).catch(error => { document.querySelector("#main").textContent = error.message; });
+
+function startupTimeout() {
+  const controller = new AbortController();
+  const timer = setTimeout(() => {
+    const error = new Error("The connection took too long.");
+    error.name = "TimeoutError";
+    controller.abort(error);
+  }, 15_000);
+  return { signal: controller.signal, clear: () => clearTimeout(timer) };
+}
+
+function showStartupRecovery(error, generation) {
+  if (generation !== startupGeneration) return;
+  document.querySelector("#hud").hidden = true;
+  document.querySelector("#nav").hidden = true;
+  const message = error?.name === "TimeoutError" || error?.name === "AbortError"
+    ? "The connection took too long. Check your connection and try again."
+    : error?.message || "Joystick couldn't open. Please try again.";
+  main.innerHTML = '<div class="live-auth-wrap"><div class="live-logo">Joystick<span class="live-logo-dot">.</span></div><main class="live-auth card"><div class="live-kicker">Your space</div><h1 class="display">Can’t open Joystick.</h1><p class="live-intro" id="startup-error" role="alert"></p><button class="btn red block" id="retry-startup" type="button">Try again</button></main></div>';
+  main.querySelector("#startup-error").textContent = message;
+  main.querySelector("#retry-startup").addEventListener("click", start);
+}
+
+async function openGame(generation, initialSignal) {
+  const timeout = initialSignal ? null : startupTimeout();
+  try {
+    const snapshot = await loadGame(initialSignal || timeout.signal);
+    if (generation !== startupGeneration) return;
+    applySnapshot(snapshot);
+    render();
+    void refreshPush();
+    const roomId=new URL(location.href).searchParams.get('room');
+    if(roomId){
+      await openPushRoom(roomId);
+      const clean=new URL(location.href);clean.searchParams.delete('room');
+      history.replaceState(null,'',clean.pathname+clean.search+clean.hash);
+    }
+    if(new URL(location.href).searchParams.get('apps')==='connected'){
+      const clean=new URL(location.href);clean.searchParams.delete('apps');
+      history.replaceState(null,'',clean.pathname+clean.search+clean.hash);
+      openConnectedApps();
+    }
+  } catch (error) { showStartupRecovery(error, generation); }
+  finally { timeout?.clear(); }
+}
+
+function start() {
+  const generation = ++startupGeneration;
+  const timeout = startupTimeout();
+  main.innerHTML = '<div class="live-loading" role="status">Opening Joystick…</div>';
+  bootAccount(signal => openGame(generation, signal), timeout.signal)
+    .catch(error => showStartupRecovery(error, generation))
+    .finally(timeout.clear);
+}
+
+start();
 
 // Offline support for the installed app (production builds only, so dev reloads stay fresh)
 if ("serviceWorker" in navigator && import.meta.env.PROD) {

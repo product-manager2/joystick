@@ -26,8 +26,9 @@ export async function api(path, options = {}) {
   return body;
 }
 
-export async function loadGame() {
-  const data = await api("/game");
+export async function loadGame(signal) {
+  const data = await api("/game", { signal });
+  if (signal?.aborted) throw signal.reason;
   live.snapshot = data;
   live.revision = data.revision;
   live.ready = true;
@@ -113,17 +114,14 @@ export function showAuth(onReady, mode = "signup", message = "") {
   });
 }
 
-export async function bootAccount(onReady) {
+export async function bootAccount(onReady, signal) {
   // Keep the original public mission carousel before live snapshots replace the catalog.
   landingView();
-  try {
-    const { user } = await api("/me");
-    if (!user) return showLanding(onReady);
-    live.user = user;
-    await onReady();
-  } catch (error) {
-    showAuth(onReady, "login", error.message);
-  }
+  const { user } = await api("/me", { signal });
+  if (signal?.aborted) throw signal.reason;
+  if (!user) return showLanding(onReady);
+  live.user = user;
+  await onReady(signal);
 }
 
 export async function signOut(onReady, onReset) {
