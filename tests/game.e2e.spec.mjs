@@ -151,6 +151,8 @@ test("mission, plan, task, submission, and account state survive reload", async 
     await page.getByLabel("Decision choices, one per line").fill("Local extension guide\nOpen source calendar");
     await page.getByRole("button", { name: "Review task" }).click();
     await page.getByRole("button", { name: "Create task" }).click();
+    // Navigating while the save finishes returns to the plan, so wait for it to land.
+    await expect(page.getByText("Task created")).toBeVisible();
     for (let backCount = 0; backCount < 3 && !(await page.locator("#nav").isVisible()); backCount++) {
       await page.getByRole("button", { name: "Back", exact: true }).first().click();
     }
