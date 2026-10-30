@@ -78,8 +78,7 @@ function authView(mode = "signup", message = "") {
       <p class="live-intro">${mode === "signup" ? "Create your account to keep a private conversation with your agent." : "Use your passkey to open your private chat."}</p>
       <div class="live-switch" role="group" aria-label="Account action"><button type="button" data-mode="signup" aria-pressed="${mode === "signup"}">Create account</button><button type="button" data-mode="login" aria-pressed="${mode === "login"}">Sign in</button></div>
       <form id="auth-form" data-mode="${mode}">
-        ${mode === "signup" ? `<label for="account-name">Your name</label><input id="account-name" class="inp" name="name" autocomplete="name" required maxlength="80">` : ""}
-        <label for="account-email">Email</label><input id="account-email" class="inp" name="email" type="email" autocomplete="email webauthn" required>
+        ${mode === "signup" ? `<label for="account-username">Pick a username</label><input id="account-username" class="inp" name="username" autocomplete="username webauthn" autocapitalize="none" spellcheck="false" required minlength="3" maxlength="20" pattern="[A-Za-z0-9_]{3,20}" title="3 to 20 letters, numbers or _">` : `<label for="account-username">Username <span class="muted">(optional)</span></label><input id="account-username" class="inp" name="username" autocomplete="username webauthn" autocapitalize="none" spellcheck="false" maxlength="254" placeholder="Or just tap sign in">`}
         <button class="btn red block" type="submit">${mode === "signup" ? "Create account with passkey" : "Sign in with passkey"}</button>
       </form>
       <p class="live-form-error" id="auth-error" role="alert">${escapeHtml(message)}</p>
@@ -102,16 +101,15 @@ async function authenticate(event) {
   const epoch = ++state.epoch;
   const button = form.querySelector("button[type=submit]");
   const error = root.querySelector("#auth-error");
-  const email = form.elements.email.value.trim();
-  const name = mode === "signup" ? form.elements.name.value.trim() : undefined;
-  if (mode === "signup" && !name) return;
+  const username = form.elements.username.value.trim();
+  if (mode === "signup" && !username) return;
   button.disabled = true;
   button.textContent = "Waiting for your passkey…";
   error.textContent = "";
   try {
     if (!window.PublicKeyCredential || !window.isSecureContext) throw Object.assign(new Error(), { name: "NotSupportedError" });
     const base = mode === "signup" ? "/auth/register" : "/auth/login";
-    const { options } = await request(`${base}/options`, { method: "POST", body: JSON.stringify(mode === "signup" ? { email, name } : { email }) });
+    const { options } = await request(`${base}/options`, { method: "POST", body: JSON.stringify({ username }) });
     if (epoch !== state.epoch) return;
     const response = mode === "signup" ? await startRegistration({ optionsJSON: options }) : await startAuthentication({ optionsJSON: options });
     if (epoch !== state.epoch) return;
@@ -164,7 +162,7 @@ function chatView() {
       <form class="live-composer card" id="composer"><label class="sr-only" for="message-input">Message your agent</label><textarea id="message-input" rows="1" maxlength="4000" placeholder="What’s on your mind?" required></textarea><button class="btn red" type="submit" aria-label="Send message">Send <span aria-hidden="true">↗</span></button></form>
     </main><div class="live-footer">Your messages are saved to your account.</div>
   </div>`;
-  root.querySelector("#user-name").textContent = state.user.name || state.user.email;
+  root.querySelector("#user-name").textContent = state.user.name || state.user.username;
   root.querySelector("#room-title").textContent = state.room.title || "Your agent";
   root.querySelector("#signout").addEventListener("click", signOut);
   root.querySelector("#composer").addEventListener("submit", sendMessage);

@@ -30,7 +30,8 @@ export async function syncGameSeedCatalog(pool:Pool,catalog:Item[],history:Catal
         changed=true;
       }else{
         // sample and notice have no owner edit action; primary mission copy does.
-        const r=await c.query(`UPDATE game_missions SET sample=$2,seed_notice=$3 WHERE id=$1 AND (sample IS DISTINCT FROM $2 OR seed_notice IS DISTINCT FROM $3)`,[mr.rows[0].id,JSON.stringify(m.sample??{}),m.seedNotice]);
+        // Owners cannot edit the glyph or colour, so the catalog keeps them current.
+        const r=await c.query(`UPDATE game_missions SET sample=$2,seed_notice=$3,glyph=$4,color=$5 WHERE id=$1 AND (sample IS DISTINCT FROM $2 OR seed_notice IS DISTINCT FROM $3 OR glyph IS DISTINCT FROM $4 OR color IS DISTINCT FROM $5)`,[mr.rows[0].id,JSON.stringify(m.sample??{}),m.seedNotice,m.glyph,m.color]);
         changed ||= !!r.rowCount;
         for(const field of ['title','pitch','rules'] as const){
           const value=field==='rules'?JSON.stringify(m.rules??[]):m[field];

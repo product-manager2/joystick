@@ -49,8 +49,9 @@ export async function buildApp(pool: Pool, config: Config) {
   });
   app.addHook('preHandler',async request => {
     if (request.method !== 'POST' || !request.url.startsWith('/api/v1/auth/')) return;
-    const email=(request.body as {email?:unknown}|null)?.email;
-    if (typeof email==='string' && email.length<=254) consumeLimit(emailLimits,email.trim().toLowerCase(),20);
+    const body=request.body as {email?:unknown;username?:unknown}|null;
+    const account=body?.username??body?.email;
+    if (typeof account==='string' && account.length<=254) consumeLimit(emailLimits,account.trim().toLowerCase(),20);
   });
   app.setErrorHandler((error,request,reply) => {
     const issue = error instanceof ApiError ? error : null;

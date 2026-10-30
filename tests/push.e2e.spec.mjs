@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { test, expect } from '@playwright/test';
-import { createAccountFromHero, enterSignup, finishSetup } from './helpers/onboarding.mjs';
+import { createAccountFromHero, enterSignup, finishSetup, handleFor } from './helpers/onboarding.mjs';
 
 async function passkey(context,page){
   const cdp=await context.newCDPSession(page);
@@ -88,8 +88,7 @@ test('notification choice resets across accounts and requires a fresh user tap t
     await expect.poll(()=>page.evaluate(()=>typeof window.__releasePushPermission)).toBe('function');
     await page.getByRole('button',{name:'Sign out'}).click();
     await page.getByRole('button',{name:'Start playing'}).click();
-    await page.getByLabel('Your name').fill('Push C');
-    await page.getByLabel('Email').fill(`push-c-${randomUUID()}@example.test`);
+    await page.getByLabel("Username").fill(handleFor(`push-c-${randomUUID()}@example.test`));
     await page.getByRole('button',{name:'Create account with passkey'}).click();
     await finishSetup(page);
     await page.evaluate(()=>{window.__holdPushPermission=false;window.__releasePushPermission();});

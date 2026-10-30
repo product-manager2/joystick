@@ -42,7 +42,7 @@ test('passkey management requires recent session-bound reauth and recovery codes
     assert.equal(first.statusCode,200);assert.ok(first.json().options.challenge);
     const firstToken=first.cookies.find(c=>c.name==='joystick_challenge')?.value;assert.ok(firstToken);
     const state=await pool.query('SELECT generation FROM auth_recovery_state WHERE user_id=$1',[userId]);
-    const race=await Promise.allSettled([1,2].map(()=>transaction(pool,c=>consumeRecoveryChallengeLocked(c,userId!,email,firstToken!,String(state.rows[0].generation)))));
+    const race=await Promise.allSettled([1,2].map(()=>transaction(pool,c=>consumeRecoveryChallengeLocked(c,userId!,firstToken!,String(state.rows[0].generation)))));
     assert.equal(race.filter(x=>x.status==='fulfilled').length,1);
     assert.equal(race.filter(x=>x.status==='rejected').length,1);
     const replay=await app.inject({method:'POST',url:'/api/v1/auth/recovery/options',headers:origin,payload:{email,code:codes[0]}});
@@ -52,7 +52,7 @@ test('passkey management requires recent session-bound reauth and recovery codes
     const nextToken=next.cookies.find(c=>c.name==='joystick_challenge')?.value;assert.ok(nextToken);
     const again=await app.inject({method:'POST',url:'/api/v1/auth/recovery-codes',headers});
     assert.equal(again.statusCode,200);
-    await assert.rejects(()=>transaction(pool,c=>consumeRecoveryChallengeLocked(c,userId!,email,nextToken!,String(state.rows[0].generation))),/Recovery request expired/);
+    await assert.rejects(()=>transaction(pool,c=>consumeRecoveryChallengeLocked(c,userId!,nextToken!,String(state.rows[0].generation))),/Recovery request expired/);
     const stale=await app.inject({method:'POST',url:'/api/v1/auth/recovery/options',headers:origin,payload:{email,code:codes[1]}});
     assert.equal(stale.statusCode,400);assert.equal(stale.json().error.code,'invalid_recovery');
     const unauth=await app.inject({method:'GET',url:'/api/v1/auth/passkeys'});
@@ -77,7 +77,7 @@ test('a login waiting on account recovery cannot issue a session with the replac
     await blocker.query('SELECT id FROM users WHERE id=$1 FOR UPDATE',[userId]);
     let verificationCalled=false;
     const raw=randomBytes(32).toString('base64url');
-    const pending=finalizePasskeyLogin(pool,email,oldKey,raw,async()=>{verificationCalled=true;return 1;});
+    const pending=finalizePasskeyLogin(pool,userId!,oldKey,raw,async()=>{verificationCalled=true;return 1;});
     await blocker.query('DELETE FROM passkeys WHERE user_id=$1',[userId]);
     await blocker.query('UPDATE sessions SET revoked_at=now() WHERE user_id=$1',[userId]);
     await blocker.query('COMMIT');
