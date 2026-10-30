@@ -25,7 +25,14 @@ export async function finishSetup(page, { selectMission = true } = {}) {
     await missions.first().click();
     await page.getByRole("button", { name: "Let's play" }).click();
   } else {
-    await page.getByRole("button", { name: "Skip setup" }).click();
+    // Empty-mission tests save setup through the same authenticated action the
+    // final onboarding step uses; the player-facing flow requires a choice.
+    const response = await page.request.post(new URL("/api/v1/game/actions", page.url()).toString(), {
+      headers: { Origin: new URL(page.url()).origin },
+      data: { requestId: randomUUID(), action: "profile.update", payload: { agentName: "Pip", roles: ["maker"], preferences: { onboarded: true, botShape: "cube" } } },
+    });
+    expect(response.ok()).toBeTruthy();
+    await page.reload();
   }
   await expect(page.getByRole("heading", { name: "Missions" })).toBeVisible();
 }

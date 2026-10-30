@@ -1,0 +1,42 @@
+.live-person .stage-list{gap:13px}
+.live-person .person-head-copy{min-width:0;flex:1}
+.live-person .duo-card .sunbox{padding:16px}
+.live-person .duo-pair .av,.live-profile .duo-pair .av{width:92px;height:92px}
+.live-person .duo-pair .av+.av,.live-profile .duo-pair .av+.av{margin-left:-12px}
+.live-person .duo-card .cup{font-size:26px;text-align:center}
+.live-profile .duo-card .cup{font-size:28px}
+.live-person .person-bio{text-align:center}
+.live-person .person-role{display:flex;align-items:center;gap:8px}
+.live-person .person-role .small{line-height:1.4}
+.live-person .person-actions{display:grid;grid-template-columns:1.3fr 1fr;gap:8px}
+.live-person .person-actions .btn{min-width:0;white-space:normal}
+.live-person .skill-mark{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--cream);font-weight:800}
+.person-detail-row{cursor:pointer}
+.person-detail-row .person-detail-copy{min-width:0}
+.person-detail-row .person-detail-copy b,.person-detail-row .person-detail-copy small{display:block;overflow:hidden;text-overflow:ellipsis}
+.person-detail-row .glyph,.person-detail-row .sbadge{width:28px!important;height:28px!important}
+.task-chat .task-crew{display:flex;align-items:center;gap:5px;padding:4px;border:0;background:transparent;cursor:pointer;color:var(--ink)}
+.task-chat .task-crew .av{width:22px;height:22px}
+.task-chat .task-crew .av+.av{margin-left:-7px}
+.task-chat .task-inline-editor{display:flex;flex-direction:column;gap:10px;padding:14px}
+.task-chat .task-inline-editor textarea{min-height:150px}
+.task-chat .task-inline-editor .field{margin:0}
+.task-chat .task-history-item{padding:6px 0;border-bottom:var(--line-1);font-size:13px}
+.task-chat .task-history-item:last-child{border-bottom:0}
+.pair-sheet .dgroup,.crew-sheet .dgroup{margin:12px 0}
+.pair-sheet .person-detail-row,.crew-sheet .person-detail-row{width:100%;text-align:left}
+.profile-sheet .sheet-agent-avatar{justify-content:center}
+.profile-sheet .sheet-agent-avatar .av{width:92px;height:92px}
+.profile-sheet .sheet-center{text-align:center;margin:5px 0 15px}
+.profile-sheet .role-grid{margin:12px 0}
+.profile-sheet .role{cursor:pointer}
+.profile-sheet .role input,.profile-sheet .shape-pick input{position:absolute;width:1px;height:1px;opacity:0}
+.profile-sheet .role:has(input:checked){background:var(--navy);color:var(--white)}
+.profile-sheet .role:has(input:checked) .muted{color:var(--mist)}
+.profile-sheet .role:has(input:focus-visible),.profile-sheet .shape-pick:has(input:focus-visible){outline:3px solid var(--blue);outline-offset:2px}
+.profile-sheet .shapes{margin:10px 0 15px}
+.profile-sheet .shape-pick:has(input:checked){border-color:var(--blue);background:color-mix(in srgb,var(--blue),var(--white) 88%)}
+.profile-sheet .profile-name-picks{margin-top:10px}
+.profile-sheet .profile-name-picks .selected{background:var(--blue);color:var(--white)}
+.profile-sheet form>.btn.block{margin-top:15px}
+@media(max-width:310px){.live-person .person-actions{grid-template-columns:1fr}}

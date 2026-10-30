@@ -54,13 +54,9 @@ test("private agent activity updates in place and opens an existing screen", asy
     await expect(page.locator('#msgs .msg').filter({hasText:"Your plan is ready"})).toHaveCount(1);
     await expect(composer).toHaveValue("A draft I am still writing");
     await expect(composer).toBeFocused();
-    const pendingAtEnd = await page.evaluate(async () => {
-      const roomId = document.querySelector('#live-composer').dataset.scope.slice(3);
-      const {sendRoom} = await import('/src/live/room-chat.js');
-      sendRoom(roomId,"Pending order check");
-      return [...document.querySelectorAll('#msgs .msg')].at(-1)?.textContent;
-    });
-    expect(pendingAtEnd).toContain("Pending order check");
+    await composer.fill("Pending order check");
+    await page.locator('#live-composer button[type="submit"]').click();
+    await expect(page.locator('#msgs .msg').last()).toContainText("Pending order check");
     await page.locator(`[data-activity-id="${activityId}"] button`).click();
     await expect(page.locator('.live-profile')).toBeVisible();
   } finally { await context.close(); }

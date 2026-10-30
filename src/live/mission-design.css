@@ -1,0 +1,45 @@
+/* Authenticated mission screens use the prototype's compact card rhythm. */
+.mission-money-overview .mgoal { margin: 9px 0 6px; }
+.mission-money-overview .meter { margin: 9px 0; }
+.mission-money-overview .btn { margin-top: 12px; }
+.mission-funding .statline { display: grid; grid-template-columns: minmax(0, 1fr) 90px auto; gap: 8px; align-items: center; padding: 8px 0; font-size: 12px; }
+.mission-funding .statline .meter { margin: 0; min-width: 0; }
+.mission-funding .statline b { font-family: var(--display); font-size: 14px; }
+.mission-funding .row.wrap { margin-top: 10px; }
+.mission-personal-money .kvrow, .mission-ledger-preview .kvrow { padding: 9px 0; }
+.mission-personal-money .btn { margin-top: 10px; }
+.mission-detail-sheet .dgroup { margin: 12px 0; }
+.mission-detail-sheet .drow { gap: 10px; }
+.mission-detail-sheet .drow > span:nth-child(2) { flex: 1; min-width: 0; }
+.mission-detail-sheet .drow b, .mission-detail-sheet .drow small { display: block; }
+.mission-detail-sheet .drow small { color: var(--ink-2); font-size: 11px; }
+.mission-detail-sheet .wins { margin-top: 7px; }
+.stage-sheet-progress { margin: 15px 0 18px; padding: 12px; background: var(--cream); border: var(--line-2); border-radius: 12px; }
+.stage-sheet-progress .eyebrow { margin: 0 0 5px; }
+.stage-sheet-progress > b, .stage-sheet-progress > span { display: block; }
+.stage-sheet-progress .meter { margin: 9px 0 5px; }
+.stage-criteria { margin-top: 6px; border: var(--line-1); border-radius: 12px; overflow: hidden; }
+.stage-criterion { display: flex; width: 100%; gap: 9px; align-items: flex-start; padding: 9px 11px; background: var(--card); border: 0; text-align: left; color: var(--ink); cursor: pointer; }
+.stage-criterion + .stage-criterion { border-top: var(--line-1); }
+.stage-criterion > span:nth-child(2) { flex: 1; }
+.criterion-arrow { color: var(--ink-2); font-size: 18px; }
+.stage-criterion b, .stage-criterion small { display: block; }
+.stage-criterion b { font-size: 12px; }
+.stage-criterion small { color: var(--ink-2); font-size: 11px; }
+.criterion-mark { display: grid; place-items: center; flex: none; width: 22px; height: 22px; border: var(--line-1); border-radius: 50%; font-size: 13px; font-weight: 800; }
+.criterion-mark.approved { background: var(--mint); color: var(--green-d); }
+.criterion-mark.pending { background: var(--paper); color: var(--ink-2); }
+.stage-list .strat .sbet { font-size: 13px; line-height: 1.35; }
+.stage-list .strat .sbadge { width: 38px; height: 38px; }
+.stage-list .stage-goal { margin-bottom: 10px; }
+.stage-list .squadcard { margin-top: 12px; }
+.mission-recap .mhead .in { padding: 14px; }
+.mission-recap .recap-output-list .drow { padding: 10px; }
+.mission-recap .recap-output-list .drow > span:first-child { flex: 1; min-width: 0; }
+.mission-recap .recap-output-list small { display: block; color: var(--ink-2); font-size: 11px; }
+.mission-recap .mstones { margin: 0; }
+.mission-recap .mstones li .btn { grid-column: 2; justify-self: start; margin-top: 4px; }
+@media(max-width: 550px) {
+  .mission-funding .statline { grid-template-columns: minmax(0, 1fr) 70px auto; }
+  .stage-detail-sheet, .mission-detail-sheet { padding: 17px 18px 22px; }
+}

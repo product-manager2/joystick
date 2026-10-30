@@ -81,7 +81,8 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await ownerPage.getByRole("button", { name: "Reserve credits" }).click();
     await ownerPage.getByLabel("Credits").fill("50");
     await ownerPage.getByRole("button", { name: "Reserve", exact: true }).click();
-    await expect(ownerPage.getByText("50 credits reserved", { exact: true })).toBeVisible();
+    await expect(ownerPage.locator(".mission-money-overview")).toContainText("50 available funding");
+    await expect(ownerPage.locator(".mission-personal-money .kvrow").filter({ hasText: "Reserved by you" })).toContainText("50");
 
     for (const page of [makerPage, reviewerPage]) {
       await clickTab(page, "Explore");
@@ -211,8 +212,9 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await ownerPage.getByRole("button", { name: /Open stage 1/ }).click();
     await ownerPage.locator(".stage-goal").click();
     const goalDialog = ownerPage.getByRole("dialog", { name: "Stage goal" });
-    await expect(goalDialog.getByText("1000 users is the mission's outcome target.")).toBeVisible();
-    await expect(goalDialog.getByText(/At least 1 approved tasks are needed/)).toBeVisible();
+    await expect(goalDialog.getByText("1000 users planned.")).toBeVisible();
+    await expect(goalDialog.getByText("1 of 1 tasks approved · 1 required")).toBeVisible();
+    await expect(goalDialog.getByRole("button", { name: /Review funding flow/ })).toBeVisible();
     await goalDialog.getByRole("button", { name: "×" }).click();
     await ownerPage.getByRole("button", { name: "Approve completed stage" }).click();
     await expect(ownerPage.getByText("Stage approved")).toBeVisible();
