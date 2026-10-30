@@ -1,5 +1,5 @@
 // Joystick service worker: app shell offline, fonts cached, everything else network-first.
-const CACHE = "joystick-v22";
+const CACHE = "joystick-v23";
 const SHELL = ["/", "/manifest.webmanifest", "/icons/icon.svg", "/icons/icon-192.png"];
 
 self.addEventListener("install", e => {
@@ -28,4 +28,27 @@ self.addEventListener("fetch", e => {
   e.respondWith(fetch(req).then(res => {
     const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); return res;
   }).catch(() => caches.match(req).then(hit => hit || caches.match("/"))));
+});
+
+const roomId = value => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+self.addEventListener('push', event => {
+  let data={};
+  try { data=event.data?.json() || {}; } catch { /* A visible generic alert still appears. */ }
+  const target=roomId(data.roomId) ? `/?room=${encodeURIComponent(data.roomId)}` : '/';
+  event.waitUntil(self.registration.showNotification('New Joystick message',{
+    body:'Open Joystick to read it.',icon:'/icons/icon-192.png',badge:'/icons/icon-192.png',
+    tag:roomId(data.messageId)?`message-${data.messageId}`:'joystick-message',data:{target}
+  }));
+});
+self.addEventListener('notificationclick',event=>{
+  event.notification.close();
+  const target=event.notification.data?.target;
+  const url=new URL(typeof target==='string'?target:'/',self.location.origin);
+  if(url.origin!==self.location.origin || (url.pathname!=='/' && url.pathname!=='/index.html'))return;
+  event.waitUntil((async()=>{
+    const windows=await self.clients.matchAll({type:'window',includeUncontrolled:true});
+    const existing=windows.find(client=>new URL(client.url).origin===url.origin);
+    if(existing){await existing.navigate(url.href);await existing.focus();}
+    else await self.clients.openWindow(url.href);
+  })());
 });

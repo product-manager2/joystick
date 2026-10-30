@@ -11,8 +11,12 @@ import { connectRooms, loadRoom, markRoomRead, onRoomsChanged, roomState, resetR
 import { acceptCreationDraft, beginCreation, creationClick, creationInput, creationSubmit, creationView } from "./creation.js";
 import { onboardingView } from "./onboarding.js";
 import { MISSION_WHY } from "../screens/quests.js";
+import { pushState, onPushChange, enablePush, disablePush, refreshPush, resetPush } from './push.js';
 
 const ui = { busy: false, error: "", draft: null, editor: null, questDraft: null, questSubmitAttempt: null, creation: null, savedCreation: null, context: null, room: null, message: "", agentBusy: false, run: null, runData: null, preview: null, sheet: null, security: null, codes: null, onboard: null };
+// Update only the notification card so a late status response never rebuilds an
+// open profile sheet or erases text someone is editing.
+onPushChange(()=>{if(S.live)document.querySelectorAll('.push-controls').forEach(node=>{node.outerHTML=pushControls();});});
 let accountGeneration = 0;
 let navigationGeneration = 0;
 let questOpenSequence = 0;
@@ -64,6 +68,7 @@ function resetAccountUI() {
   ui.busy = false; ui.error = ""; ui.message = "";
   missions.splice(0); threads.splice(0);
   S.live = false; S.hist = []; S.screen = "lobby"; S.missionId = null; S.stageId = null; S.stratId = null; S.questId = null; S.thread = null;
+  resetPush();
 }
 
 export function applySnapshot(snapshot) {
@@ -143,6 +148,14 @@ async function act(action, id, payload = {}, success = "Saved", requestId) {
   finally { ui.busy = false; render(); }
 }
 const nav = (screen, extra = {}) => { ui.error = ""; ui.message = ""; go(screen, extra); };
+export async function openPushRoom(roomId){
+  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(roomId||''))return false;
+  if(!live.snapshot?.threads?.some(room=>room.id===roomId))return false;
+  try{await loadRoom(roomId);}catch{return false;}
+  nav('thread',{thread:roomId});
+  await markRoomRead(roomId).catch(()=>{});
+  return true;
+}
 export function prepareLiveNavigation() {
   if (!S.live) return true;
   // An in-flight publish uses a stable request ID and must finish before leaving its view.
@@ -361,6 +374,11 @@ function playView() {
 }
 const walletEarned = w => Number(w?.earnedLifetime ?? (w?.ledger||[]).filter(l=>l.kind==="earning").reduce((n,l)=>n+Math.max(0,Number(l.amount)||0),0));
 const profileRow = (icon,title,detail,action,id) => `<button class="drow" data-live="${action}" data-id="${esc(id||"")}"><span>${icon}</span><b>${esc(title)}</b><span class="small muted">${esc(detail||"")} ›</span></button>`;
+function pushControls(){
+  const detail=!pushState.installed&&/iPhone|iPad|iPod/.test(navigator.userAgent)?'Add Joystick to your Home Screen first, then open it there.':!pushState.supported?'This browser does not support push notifications.':!pushState.enabled?'Notifications are not configured yet.':pushState.permission==='denied'?'Notifications are blocked in your device settings.':pushState.subscribed?'Notifications are on for this device.':'Get an alert when someone messages you.';
+  const canEnable=pushState.supported&&pushState.enabled&&!( !pushState.installed&&/iPhone|iPad|iPod/.test(navigator.userAgent))&&pushState.permission!=='denied';
+  return `<div class="card push-controls"><h3>Chat notifications</h3><p class="small muted">${esc(detail)}</p>${pushState.error?`<p class="live-form-error" role="alert">${esc(pushState.error)}</p>`:''}${pushState.subscribed?button(pushState.busy?'Working…':'Turn off','push-disable','','btn sm'):canEnable?button(pushState.busy?'Working…':'Turn on','push-enable','','btn sm blue'):''}</div>`;
+}
 const personDetailRow = (icon,title,detail,action,id) => `<button class="drow person-detail-row" data-live="${action}" data-id="${esc(id||"")}"><span>${icon}</span><span class="person-detail-copy"><b>${esc(title)}</b><small class="muted">${esc(detail||"")}</small></span><span class="muted">›</span></button>`;
 function profileView() {
   const p=live.snapshot.profile||{}, w=live.snapshot.wallet||{};
@@ -368,10 +386,10 @@ function profileView() {
   const completed=missions.filter(m=>m.joined&&m.stages.length&&m.stages.every(s=>s.status==="approved"));
   const medals=Object.keys(BADGES).sort((a,b)=>Number(S.badges.includes(b))-Number(S.badges.includes(a)));
   const work=[...completed.map(m=>profileRow(glyph(m),m.title,"Mission finished","recap",m.id)),...approved.map(({m,q})=>profileRow("✓",q.title,m.title,"quest",q.id))];
-  return `<div class="screen live-profile"><div class="card duo-card"><div class="sunbox"><div class="duo-pair">${youAv("av bounce")}${botAv("av bounce",true)}</div><h1 class="cup">${esc(S.name)} & ${esc(S.agentName)}</h1><div class="small duo-tagline">One team. Everything we win, we win together.</div></div><div class="profile-level"><div class="row"><span class="eyebrow">Level ${S.level}</span><span class="spacer"></span><span class="small muted">${1200-((p.xp||0)%1200)} XP to level ${S.level+1}</span></div>${meter((p.xp||0)%1200,1200,"var(--red)")}</div><div class="kv"><div class="stat"><b>${approved.length}</b><span>quests done</span></div><div class="stat"><b>${Object.keys(p.joined||{}).length}</b><span>missions</span></div><div class="stat"><b>${fmt(walletEarned(w))}</b><span>earned</span></div></div></div><div class="row"><h2 class="sec-title">Our medals</h2><span class="spacer"></span><span class="eyebrow">${S.badges.length} of ${medals.length}</span></div><div class="medals">${medals.map(id=>`<div class="medal ${S.badges.includes(id)?"":"off"}">${medal(id,64)}<b>${esc(BADGES[id].name)}</b><span>${esc(S.badges.includes(id)?BADGES[id].desc:"Still up for grabs")}</span></div>`).join("")}</div><h2 class="sec-title">What we've done</h2>${work.length?`<div class="dgroup">${work.join("")}</div>`:'<p class="muted small">Nothing yet. Finish a task together and it shows up here.</p>'}<h2 class="sec-title">Our stuff</h2><div class="dgroup">${profileRow('<span class="coin"></span>',"Money",`${fmt(w.available||0)} credits`,"wallet-sheet")}${profileRow("✎",`${S.agentName}'s name and look`,"","profile-detail","look")}${profileRow("★","What we're good at",`${(p.roles||[]).length}`,"profile-detail","style")}${profileRow("✓",`What ${S.agentName} knows about you`,"","profile-detail","learned")}${profileRow("✓","Skills",`${(p.skills||[]).length} self declared`,"profile-detail","skills")}${profileRow("⇄","Apps we use",`${Object.values(S.preferences.tools||{}).filter(Boolean).length}`,"profile-detail","tools")}${profileRow("◷","Agent work history","","run-history")}${profileRow("⚙","Account security","","security")}${profileRow("↪","Sign out","","signout")}</div>${message()}</div>`;
+  return `<div class="screen live-profile"><div class="card duo-card"><div class="sunbox"><div class="duo-pair">${youAv("av bounce")}${botAv("av bounce",true)}</div><h1 class="cup">${esc(S.name)} & ${esc(S.agentName)}</h1><div class="small duo-tagline">One team. Everything we win, we win together.</div></div><div class="profile-level"><div class="row"><span class="eyebrow">Level ${S.level}</span><span class="spacer"></span><span class="small muted">${1200-((p.xp||0)%1200)} XP to level ${S.level+1}</span></div>${meter((p.xp||0)%1200,1200,"var(--red)")}</div><div class="kv"><div class="stat"><b>${approved.length}</b><span>quests done</span></div><div class="stat"><b>${Object.keys(p.joined||{}).length}</b><span>missions</span></div><div class="stat"><b>${fmt(walletEarned(w))}</b><span>earned</span></div></div></div><div class="row"><h2 class="sec-title">Our medals</h2><span class="spacer"></span><span class="eyebrow">${S.badges.length} of ${medals.length}</span></div><div class="medals">${medals.map(id=>`<div class="medal ${S.badges.includes(id)?"":"off"}">${medal(id,64)}<b>${esc(BADGES[id].name)}</b><span>${esc(S.badges.includes(id)?BADGES[id].desc:"Still up for grabs")}</span></div>`).join("")}</div><h2 class="sec-title">What we've done</h2>${work.length?`<div class="dgroup">${work.join("")}</div>`:'<p class="muted small">Nothing yet. Finish a task together and it shows up here.</p>'}<h2 class="sec-title">Our stuff</h2><div class="dgroup">${profileRow('<span class="coin"></span>',"Money",`${fmt(w.available||0)} credits`,"wallet-sheet")}${profileRow("✎",`${S.agentName}'s name and look`,"","profile-detail","look")}${profileRow("★","What we're good at",`${(p.roles||[]).length}`,"profile-detail","style")}${profileRow("✓",`What ${S.agentName} knows about you`,"","profile-detail","learned")}${profileRow("✓","Skills",`${(p.skills||[]).length} self declared`,"profile-detail","skills")}${profileRow("⇄","Apps we use",`${Object.values(S.preferences.tools||{}).filter(Boolean).length}`,"profile-detail","tools")}${profileRow("◷","Agent work history","","run-history")}${profileRow("⚙","Account security","","security")}${profileRow("↪","Sign out","","signout")}</div>${pushControls()}${message()}</div>`;
 }
 
-function notificationsView() { return `<div class="screen"><h2 class="sec-title">Updates and invites</h2><div class="list">${(live.snapshot.notifications || []).map(n=>row("🔔",n.text,n.createdAt,"notification",n.id,n.read?"Read":"Open")).join("") || '<p class="small muted">No updates yet.</p>'}</div><h2 class="sec-title">Mission invites</h2><div class="list">${(live.snapshot.invites || []).map(i=>`<div class="card milestone"><b>${esc(i.inviter)} invited you</b><p class="small">${esc(missions.find(m=>m.id===i.missionId)?.title || "Mission")} · ${esc(i.status)}</p>${i.status==="pending"?`${button("Accept","invite-accept",i.id)}${button("Decline","invite-decline",i.id)}`:""}</div>`).join("") || '<p class="small muted">No invites yet.</p>'}</div></div>`; }
+function notificationsView() { return `<div class="screen">${pushControls()}<h2 class="sec-title">Updates and invites</h2><div class="list">${(live.snapshot.notifications || []).map(n=>row("🔔",n.text,n.createdAt,"notification",n.id,n.read?"Read":"Open")).join("") || '<p class="small muted">No updates yet.</p>'}</div><h2 class="sec-title">Mission invites</h2><div class="list">${(live.snapshot.invites || []).map(i=>`<div class="card milestone"><b>${esc(i.inviter)} invited you</b><p class="small">${esc(missions.find(m=>m.id===i.missionId)?.title || "Mission")} · ${esc(i.status)}</p>${i.status==="pending"?`${button("Accept","invite-accept",i.id)}${button("Decline","invite-decline",i.id)}`:""}</div>`).join("") || '<p class="small muted">No invites yet.</p>'}</div></div>`; }
 function personView() {
   const p=(live.snapshot.people||[]).find(x=>x.id===S.personId);
   if(!p)return `<div class="screen">${backBtn("back","comms")}<p class="small muted">This member is unavailable.</p></div>`;
@@ -600,6 +618,8 @@ export async function handleLiveClick(event) {
   const b = event.target.closest("[data-live]"); if (!b) return false;
   event.preventDefault();
   const a = b.dataset.live, id = b.dataset.id;
+  if(a==='push-enable'){await enablePush();return true;}
+  if(a==='push-disable'){await disablePush();return true;}
   if (a === "agent-handoff") {
     const room = live.snapshot?.threads?.find(t => t.id === S.thread && t.kind === "agent");
     const activity = room && roomState(room.id).activities.find(item => item.id === id && item.status === "completed");
@@ -712,7 +732,7 @@ export async function handleLiveClick(event) {
   if (a === "export" || a === "export-csv") { try { let blob,name; if(a==="export-csv"){ const response=await fetch(new URL("/api/v1/game/credits.csv",apiOrigin),{credentials:"include",cache:"no-store"}); if(!response.ok) throw new Error("Export unavailable"); blob=await response.blob(); name="joystick-test-credits.csv"; } else { blob=new Blob([JSON.stringify({kind:"test-credits",exportedAt:new Date().toISOString(),userId:live.user.id,wallet:live.snapshot.wallet},null,2)],{type:"application/json"}); name="joystick-test-credits.json"; } const url=URL.createObjectURL(blob), link=document.createElement("a"); link.href=url; link.download=name; link.click(); setTimeout(()=>URL.revokeObjectURL(url),1000); ui.message="Credits exported"; render(); } catch(error){ui.error=error.message;render();} return true; }
   if (a === "payout") { await act("payout.simulate",id,{},"Payout recorded"); return true; }
   if (a === "tool-toggle") { await act("tool.preference",null,{key:id,enabled:!S.preferences.tools?.[id]},"Tool preference saved"); return true; }
-  if (a === "signout") { await signOut(async () => { applySnapshot(await loadGame()); render(); }, resetAccountUI); return true; }
+  if (a === "signout") { await signOut(async () => { applySnapshot(await loadGame()); render(); void refreshPush(); }, resetAccountUI); return true; }
   if (a === "fund") {const pending=ui.fundAttempt?.uncertain?ui.fundAttempt:null;ui.fundAttempt=pending||{missionId:id,amount:null,requestId:null,uncertain:false};ui.editor="fund";ui.draft={};S.editId=ui.fundAttempt.missionId;ui.error=pending&&pending.missionId!==id?"Confirm the previous reservation before starting another.":"";render();return true;}
   if (["forge", "mission-edit", "plan-new", "plan-edit", "quest-new", "quest-edit", "quest-submit", "quest-review", "profile-edit", "pledge", "invite", "need", "stage-new", "merge", "nudge", "flag", "skill", "tools"].includes(a)) { ui.sheet=null; ui.editor=a; ui.draft={}; S.editId=id; render(); return true; }
   return true;

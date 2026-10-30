@@ -6,7 +6,9 @@ import "./styles/screens.css";
 import "./styles/desktop.css";
 import "./live/style.css";
 import { bootAccount, loadGame, live } from "./live/game-client.js";
-import { applySnapshot, handleLiveClick, handleLiveSubmit, handleLiveInput, handleLiveFile } from "./live/game-ui.js";
+import { applySnapshot, handleLiveClick, handleLiveSubmit, handleLiveInput, handleLiveFile, openPushRoom } from "./live/game-ui.js";
+import { refreshPush } from "./live/push.js";
+import { installViewportSizing } from "./ui/viewport.js";
 import { missions } from "./data/content.js";
 import { reopenDrill } from "./design/components.js";
 import { learnedSheet, lookSheet, styleSheet, walletSheet } from "./screens/profile.js";
@@ -170,10 +172,18 @@ document.addEventListener("click", async e => {
 
 // The prototype's seeded state is never shown to an authenticated account.
 document.querySelector("#main").innerHTML = '<div class="live-loading" role="status">Opening Joystick…</div>';
+installViewportSizing();
 bootAccount(async () => {
   const snapshot = await loadGame();
   applySnapshot(snapshot);
   render();
+  void refreshPush();
+  const roomId=new URL(location.href).searchParams.get('room');
+  if(roomId){
+    await openPushRoom(roomId);
+    const clean=new URL(location.href);clean.searchParams.delete('room');
+    history.replaceState(null,'',clean.pathname+clean.search+clean.hash);
+  }
 }).catch(error => { document.querySelector("#main").textContent = error.message; });
 
 // Offline support for the installed app (production builds only, so dev reloads stay fresh)
