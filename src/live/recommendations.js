@@ -27,9 +27,12 @@ export function taskMatch(mission, task, profile = {}) {
   const reason = role ? `Fits your ${role[0].toUpperCase()+role.slice(1)} role` : skill ? `Matches your ${skill} skill` : ownSquad ? "From your squad" : similar ? "Similar to missions you joined" : ownMission ? "In a mission you joined" : "";
   return { score: (role ? 40 : 0) + (skill ? 24 : 0) + (ownSquad ? 16 : 0) + (similar ? 12 : 0) + (ownMission ? 6 : 0), reason };
 }
-export function rankTasks(items, profile = {}, capPerMission = 3) {
+const modelScore = (scores, id) => Object.hasOwn(scores || {}, id) && Number.isFinite(scores[id]) && scores[id] >= 0 && scores[id] <= 1 ? scores[id] : null;
+export function rankTasks(items, profile = {}, capPerMission = 3, scores = null) {
   const ranked = items.map((item, index) => ({ ...item, index, match: taskMatch(item.m, item.q, profile) }))
-    .sort((a, b) => b.match.score - a.match.score || a.index - b.index);
+    .sort((a, b) => Number(!!b.m.strategies?.some(p=>p.id===b.q.strat&&p.joined))-Number(!!a.m.strategies?.some(p=>p.id===a.q.strat&&p.joined))
+      || (modelScore(scores,b.q.id) ?? -1) - (modelScore(scores,a.q.id) ?? -1)
+      || b.match.score - a.match.score || a.index - b.index);
   const result = [], deferred = [], counts = new Map();
   for (const item of ranked) {
     const count = counts.get(item.m.id) || 0;
@@ -54,6 +57,12 @@ export function planMatch(mission, plan, profile = {}) {
 export function rankByMatch(items, match) {
   return items.map((item, index) => ({ item, index, match: match(item) }))
     .sort((a, b) => b.match.score - a.match.score || a.index - b.index).map(entry => entry.item);
+}
+export function rankByRecommendation(items, match, scores = null, priority = () => 0) {
+  return items.map((item,index)=>({item,index,match:match(item)}))
+    .sort((a,b)=>priority(b.item)-priority(a.item)
+      || (modelScore(scores,b.item.id) ?? -1)-(modelScore(scores,a.item.id) ?? -1)
+      || b.match.score-a.match.score || a.index-b.index).map(entry=>entry.item);
 }
 export const disclosureKey = (accountId, scope) => `${accountId || "guest"}:${scope}`;
 export function visibleItems(items, expanded = 0, initial = 4, batch = 8) {
