@@ -21,6 +21,8 @@
 .task-chat .task-inline-editor{display:flex;flex-direction:column;gap:10px;padding:14px}
 .task-chat .task-inline-editor textarea{min-height:150px}
 .task-chat .task-inline-editor .field{margin:0}
+.task-chat .task-inline-editor .row{padding-top:4px}
+.task-chat .task-inline-editor .row .btn{flex:1 1 130px}
 .task-chat .task-history-item{padding:6px 0;border-bottom:var(--line-1);font-size:13px}
 .task-chat .task-history-item:last-child{border-bottom:0}
 .pair-sheet .dgroup,.crew-sheet .dgroup{margin:12px 0}

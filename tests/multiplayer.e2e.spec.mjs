@@ -42,6 +42,20 @@ async function clickTab(page, name) {
   await page.getByRole("tab", { name, exact: true }).click();
 }
 
+async function openMissionFromExplore(page, title) {
+  await clickTab(page, "Explore");
+  await page.locator('.chips [data-live="filter"][data-id="All"]').click();
+  const list = page.locator(".poster-list");
+  const target = list.locator('[data-live="mission"]').filter({ hasText: title });
+  for (let batch = 0; batch < 25 && await target.count() === 0; batch++) {
+    const more = list.locator('[data-live="list-more"]');
+    if (await more.count() === 0) throw new Error(`Mission ${title} was absent after revealing every Explore batch`);
+    await more.click();
+  }
+  await expect(target).toBeVisible();
+  await target.click();
+}
+
 async function holdActionAfterCommit(page, actionName) {
   let startedResolve, releaseResolve;
   const started = new Promise(resolve => { startedResolve = resolve; });
@@ -81,29 +95,30 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await ownerPage.getByRole("button", { name: "+ New" }).click();
     await ownerPage.getByRole("button", { name: "A tool people badly need" }).click();
     await ownerPage.getByLabel("Mission name").fill(missionTitle);
-    await ownerPage.getByLabel("What changes if you win?").fill("Complete one reviewed task and open the next stage.");
-    await ownerPage.getByRole("button", { name: "Looks good" }).click();
+    await ownerPage.getByLabel("Problem, people affected, and successful outcome").fill("Complete one reviewed task and open the next stage.");
+    await ownerPage.getByRole("button", { name: "Review stages" }).click();
     await ownerPage.locator('[name="stage-name-0"]').fill("Research");
     await ownerPage.locator('[name="stage-goal-0"]').fill("Review the artifact");
     await ownerPage.locator('[name="stage-name-1"]').fill("Delivery");
     await ownerPage.locator('[name="stage-goal-1"]').fill("Continue the work");
-    await ownerPage.getByRole("button", { name: "These are the stages" }).click();
+    await ownerPage.getByRole("button", { name: "Review success criteria" }).click();
     await ownerPage.getByRole("button", { name: "Two members approve the latest artifact" }).click();
-    await ownerPage.getByRole("button", { name: "These are the rules" }).click();
+    await ownerPage.getByRole("button", { name: "Review team" }).click();
     await ownerPage.getByRole("button", { name: "Review mission" }).click();
     await ownerPage.getByRole("button", { name: "Publish mission" }).click();
     await expect(ownerPage.getByRole("heading", { name: missionTitle })).toBeVisible();
 
-    await clickTab(ownerPage, "Money");
+    await clickTab(ownerPage, "Funding");
     await ownerPage.getByRole("button", { name: "Reserve credits" }).click();
     await ownerPage.getByLabel("Credits").fill("50");
-    await ownerPage.getByRole("button", { name: "Reserve", exact: true }).click();
+    await ownerPage.getByRole("button", { name: "Reserve 50 credits", exact: true }).click();
     await expect(ownerPage.locator(".mission-money-overview")).toContainText("50 available funding");
     await expect(ownerPage.locator(".mission-personal-money .kvrow").filter({ hasText: "Reserved by you" })).toContainText("50");
 
     for (const page of [makerPage, reviewerPage]) {
-      await clickTab(page, "Explore");
-      await page.getByRole("button", { name: new RegExp(missionTitle) }).click();
+      await page.reload();
+      await expect(page.getByRole("heading", { name: "Missions" })).toBeVisible();
+      await openMissionFromExplore(page, missionTitle);
       await page.getByRole("button", { name: "Join mission", exact: true }).first().click();
       await page.getByRole("button", { name: "Join mission", exact: true }).last().click();
       await expect(page.getByText("Joined mission", { exact: true })).toBeVisible();
@@ -145,7 +160,7 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await makerPage.getByRole("button", { name: "Research first" }).click();
     await makerPage.getByLabel("Plan name").fill("Evidence plan");
     await makerPage.getByLabel("Squad name").fill("Evidence makers");
-    await makerPage.getByLabel("How will this win the stage?").fill("Collect and review clear evidence.");
+    await makerPage.getByLabel("Approach and expected result").fill("Collect and review clear evidence.");
     await makerPage.getByRole("button", { name: "Review plan" }).click();
     await makerPage.getByRole("button", { name: "Create plan" }).click();
     await expect(makerPage.getByRole("button", { name: /Evidence plan/ })).toBeVisible();
@@ -172,7 +187,7 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await ownerPage.getByRole("button", { name: "+ Task" }).click();
     await ownerPage.getByRole("button", { name: "Research" }).click();
     await ownerPage.getByLabel("Task name").fill("Review funding flow");
-    await ownerPage.getByLabel("What needs doing?").fill("Submit an artifact, respond to review feedback, and revise it.");
+    await ownerPage.getByLabel("Deliverable and review guidance").fill("Submit an artifact, respond to review feedback, and revise it.");
     await ownerPage.getByRole("button", { name: "Task options" }).click();
     await ownerPage.getByRole("button", { name: "10 credits" }).click();
     await ownerPage.getByRole("button", { name: "Review task" }).click();
@@ -184,9 +199,9 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await makerPage.getByRole("button", { name: new RegExp(missionTitle) }).click();
     await makerPage.getByRole("button", { name: /Open stage 1/ }).click();
     await makerPage.getByRole("button", { name: /Review funding flow/ }).click();
-    await makerPage.getByRole("button", { name: "Start task" }).click();
+    await makerPage.getByRole("button", { name: "Claim task" }).click();
     await makerPage.getByRole("button", { name: "Submit work" }).click();
-    await makerPage.getByLabel("Artifact title").fill("Evidence v1");
+    await makerPage.getByLabel("Work title").fill("Evidence v1");
     await makerPage.getByLabel("Work and evidence").fill("Version 1: initial evidence, awaiting reviewer feedback.");
     await makerPage.getByRole("button", { name: "Submit for review" }).click();
     await expect(makerPage.getByText("Waiting for two independent reviews")).toBeVisible();
@@ -207,11 +222,11 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await expect(makerPage.getByRole("button", { name: "Revise and resubmit" })).toBeVisible({ timeout: 12_000 });
 
     await makerPage.getByRole("button", { name: "Revise and resubmit" }).click();
-    await makerPage.getByLabel("Artifact title").fill("Evidence v2");
+    await makerPage.getByLabel("Work title").fill("Evidence v2");
     await makerPage.getByLabel("Work and evidence").fill("Version 2: revised with concrete source evidence.");
     await makerPage.getByRole("button", { name: "Submit for review" }).click();
     await expect(makerPage.getByText("Waiting for two independent reviews")).toBeVisible();
-    await expect(makerPage.getByText("Saved artifacts", { exact: true })).toBeVisible();
+    await expect(makerPage.getByText("Saved work", { exact: true })).toBeVisible();
     await expect(makerPage.getByText("Evidence v1")).toBeVisible();
     await expect(makerPage.getByText("Evidence v2")).toBeVisible();
 
@@ -249,7 +264,7 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await makerPage.getByRole("button", { name: "Back", exact: true }).click();
     await makerPage.getByRole("button", { name: "Profile" }).click();
     await makerPage.locator('[data-live="wallet-sheet"]').click();
-    const walletHistory = makerPage.getByRole("dialog", { name: "Our money" });
+    const walletHistory = makerPage.getByRole("dialog", { name: "Credits" });
     await expect(walletHistory.getByText("earning", { exact: true })).toBeVisible();
     await expect(walletHistory).toContainText(/\+10/);
     await walletHistory.getByRole("button", { name: "Record payout", exact: true }).click();
