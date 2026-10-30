@@ -134,6 +134,8 @@ export function drawTrail() {
   if (!map) return;
   const r = map.getBoundingClientRect();
   const mid = el => { const d = el.querySelector(".tdisc, .cdisc").getBoundingClientRect(); return [d.left - r.left + d.width / 2, d.top - r.top + d.height / 2]; };
+  // A squad's path starts under its label, so its progress colour sits on that one line
+  const start = el => { const lb = el.dataset.pct && el.querySelector(".tl"); if (!lb) return mid(el); const b = lb.getBoundingClientRect(); return [b.left - r.left + b.width / 2, b.bottom - r.top + 2]; };
   // A plan that skips checkpoints runs down the side of the map instead of through them.
   // Each skipping plan gets its own lane; the one aimed furthest runs on the outside.
   const curve = (x1, y1, x2, y2, lane) => { const side = r.width - 2 - lane * 14; return lane
@@ -144,7 +146,7 @@ export function drawTrail() {
     to.dataset.from.split(" ").filter(Boolean).forEach(id => {
       const from = document.getElementById(id);
       if (!from) return;
-      const [x1, y1] = mid(from), [x2, y2] = mid(to);
+      const [x1, y1] = start(from), [x2, y2] = mid(to);
       const d = curve(x1, y1, x2, y2, +from.dataset.skip || 0);
       const done = from.classList.contains("done") && to.classList.contains("done");
       const queued = from.classList.contains("queued") || to.classList.contains("queued");
@@ -161,8 +163,7 @@ export function drawTrail() {
     const to = [...map.querySelectorAll(".cp")].find(c => c.dataset.from.split(" ").includes(from.id));
     if (!to) return;
     // The race runs from under the squad's label down to the goal
-    const lb = from.querySelector(".tl").getBoundingClientRect(), x1 = lb.left - r.left + lb.width / 2, y1 = lb.bottom - r.top + 2;
-    const [x2, y2] = mid(to), d = curve(x1, y1, x2, y2, +from.dataset.skip || 0);
+    const [x1, y1] = start(from), [x2, y2] = mid(to), d = curve(x1, y1, x2, y2, +from.dataset.skip || 0);
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttribute("d", d);
     svg.appendChild(path);

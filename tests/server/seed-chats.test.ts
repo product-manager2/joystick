@@ -43,3 +43,23 @@ test('seeded plans can aim ahead, and demo chats fill rooms only until a real pe
     await pool.end();
   }
 });
+
+test('a demo mission starts at its first unfinished checkpoint, unless someone already moved it',async()=>{
+  const pool=new pg.Pool({connectionString:databaseUrl});
+  const key=`start-${randomUUID()}`;let mission:string|undefined;
+  const catalog=(status:string[])=>[{id:key,title:'Start test',pitch:'p',tag:'Community',glyph:'spark',color:'var(--tangerine)',rules:[],seedNotice:'Illustrative',
+    stages:status.map((sampleStatus,i)=>({name:`S${i}`,goal:'g',target:1,unit:'x',sampleStatus})),strategies:[],quests:[]}];
+  const state=async()=>({at:(await pool.query('SELECT stage_index FROM game_missions WHERE id=$1',[mission])).rows[0].stage_index,
+    stages:(await pool.query('SELECT status FROM game_stages WHERE mission_id=$1 ORDER BY ordinal',[mission])).rows.map(r=>r.status)});
+  try{
+    await syncGameSeedCatalog(pool,catalog(['Done','Done','Now','Locked']));
+    mission=(await pool.query('SELECT id FROM game_missions WHERE seed_key=$1',[key])).rows[0].id;
+    assert.deepEqual(await state(),{at:2,stages:['approved','approved','active','pending']});
+    // A mission someone has moved keeps its own story.
+    await syncGameSeedCatalog(pool,catalog(['Done','Done','Done','Now']));
+    assert.deepEqual(await state(),{at:2,stages:['approved','approved','active','pending']});
+  }finally{
+    if(mission)await pool.query('DELETE FROM game_missions WHERE id=$1',[mission]);
+    await pool.end();
+  }
+});

@@ -59,6 +59,16 @@ export async function syncGameSeedCatalog(pool:Pool,catalog:Item[],history:Catal
         }
         stageIds.push(sr.rows[0].id);
       }
+      // Demo missions start where the story is: checkpoints already done are approved. Only a mission nobody has moved yet.
+      const done=m.stages.findIndex((s:Item)=>s.sampleStatus!=='Done'),reached=done<0?m.stages.length:done;
+      if(reached>0){
+        const at=Math.min(reached,m.stages.length-1);
+        const u=await c.query(`UPDATE game_missions g SET stage_index=$2 WHERE id=$1 AND stage_index=0 AND version=1 AND NOT EXISTS (SELECT 1 FROM game_stages WHERE mission_id=g.id AND (version>1 OR status NOT IN ('active','pending')))`,[mid,at]);
+        if(u.rowCount){
+          await c.query(`UPDATE game_stages SET status=CASE WHEN ordinal<$2 THEN 'approved' ELSE 'active' END WHERE mission_id=$1 AND ordinal<=$3`,[mid,reached,at]);
+          changed=true;
+        }
+      }
       const planIds=new Map<string,{id:string;stageId:string}>();
       for(const p of m.strategies as Item[]){
         // A plan belongs to one stage. Other-stage catalog quests remain standalone.

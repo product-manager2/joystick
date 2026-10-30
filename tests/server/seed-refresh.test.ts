@@ -16,7 +16,7 @@ test('catalog refresh adds descriptive work without rewriting real progress or o
   const catalog=(extra=false)=>[{
     id:key,title:'Catalog title',pitch:'Catalog pitch',tag:'Community',glyph:'spark',color:'var(--blue)',rules:['Open work'],seedNotice:'Illustrative only',sample:{detail:{facts:['New fact']},budget:'Example only'},
     stages:[
-      {name:'First',goal:'First goal',target:1,unit:'results',tracks:[],plainWords:'Plain first',why:'Why first',howItFits:'First fits',doneWhen:'First done',approves:'Owner',roles:{Maker:'Builds'},sampleStatus:'Done'},
+      {name:'First',goal:'First goal',target:1,unit:'results',tracks:[],plainWords:'Plain first',why:'Why first',howItFits:'First fits',doneWhen:'First done',approves:'Owner',roles:{Maker:'Builds'},sampleStatus:'Now'},
       {name:'Second',goal:'Second goal',target:1,unit:'results',tracks:[],plainWords:extra?'Updated plain second':'Plain second',why:'Why second',howItFits:'Second fits',doneWhen:'Second done',approves:'Owner',roles:{Checker:'Checks'},sampleStatus:'Locked'},
     ],
     strategies:[{id:'plan',name:'Catalog plan',squad:'A squad',bet:'An approach',color:'var(--blue)',howItWorks:['Step one'],rolesNeeded:'Maker',relations:'Works together',sampleStatus:'Running',sampleBlocker:'Example blocker'}],
