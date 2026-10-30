@@ -41,9 +41,10 @@ test('a plan can aim past the next checkpoint and skip the ones it jumps over',a
     snap=await action(owner,'plan.update',patrol,{stageId:map});
 
     await action(maker,'quest.claim',worst);
-    await action(maker,'quest.submit',worst,{title:'Repairs',content:'100 fixed, photos attached'});
-    await action(a,'quest.review',worst,{verdict:'approve',note:'Checked 10'});
-    await action(b,'quest.review',worst,{verdict:'approve',note:'Checked 10 more'});
+    const submission=await action(maker,'quest.submit',worst,{title:'Repairs',content:'100 fixed, photos attached'});
+    const artifactId=((submission.missions.find(m=>m.id===mission.id)!.quests as any[]).find(q=>q.id===worst).artifacts as any[]).at(-1).id;
+    await action(a,'quest.review',worst,{artifactId,verdict:'approve',note:'Checked 10'});
+    await action(b,'quest.review',worst,{artifactId,verdict:'approve',note:'Checked 10 more'});
     snap=await action(owner,'stage.approve',fixed);
     const done=snap.missions.find(m=>m.id===mission.id)!;
     assert.deepEqual((done.stages as any[]).map(s=>s.status),['skipped','skipped','approved']);

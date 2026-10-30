@@ -29,7 +29,7 @@ const docs:Record<GameAction,[string,string,string?]>={
   'quest.update':['Edit an open quest in a mission you own','quest ID','title?, description?, planId?, parentId?, dependencies?, rewardCredits?'],
   'quest.claim':['Claim an available quest','quest ID'], 'quest.release':['Release your claimed quest','quest ID'], 'quest.watch':['Watch a quest','quest ID'],
   'quest.assign':['Assign an open quest as mission owner','quest ID','userId'], 'quest.decide':['Record a choice for your claimed quest','quest ID','choice, reason?'],
-  'quest.submit':['Submit a text artifact for your claimed quest','quest ID','title, content'], 'quest.review':['Review another member’s submitted artifact','quest ID',"verdict:'approve'|'changes_requested', note?"],
+  'quest.submit':['Submit a text artifact for your claimed quest','quest ID','title, content'], 'quest.review':['Open the task to review its current artifact yourself','quest ID','artifactId, verdict, note?'],
   'quest.nudge':['Nudge the claimant of a quest','quest ID','message'], 'pair.request':['Ask a mission member to collaborate','quest ID','userId'],
   'need.create':['Post a mission need','mission ID','title, detail?'], 'need.support':['Support a posted need','need ID'],
   'pledge.create':['Pledge time, compute, or credits','mission ID',"kind:'time'|'compute'|'test_credits', amount, note?"],
@@ -52,7 +52,7 @@ const extra:AgentCommandInfo[]=[
   {name:'passkeys.manage',description:'Open device-bound passkey management',kind:'handoff'},
 ];
 export function listAgentCommands():{commands:AgentCommandInfo[]}{
-  return {commands:[...GAME_ACTIONS.map(name=>({name,description:docs[name][0],entityId:docs[name][1],payload:docs[name][2],kind:'write' as const})),...extra]};
+  return {commands:[...GAME_ACTIONS.map(name=>({name,description:docs[name][0],entityId:docs[name][1],payload:docs[name][2],kind:(name==='quest.review'?'handoff':'write') as 'handoff'|'write'})),...extra]};
 }
 
 const page=<T>(items:T[],limit:number,after=0)=>({items:items.slice(after,after+limit),next:after+limit<items.length?after+limit:null,total:items.length});
@@ -112,6 +112,12 @@ export async function executeAgentCommand(pool:Pool,config:Config,userId:string,
   if(!validId(userId)||!validId(requestId)||!input||typeof input.command!=='string')fail('Invalid command');
   const command=input.command,p=input.payload??{};
   if(!p||typeof p!=='object'||Array.isArray(p))fail('Invalid payload');
+  if(command==='quest.review'){
+    if(!validId(input.entityId))fail('Choose a task to review');
+    const snapshot=await getGameSnapshot(pool,userId);
+    if(!snapshot.missions.some(m=>(m.quests as Array<{id:string}>).some(q=>q.id===input.entityId)))throw new ApiError(404,'not_found','Task not found');
+    return {ok:true,command,summary:'Open the task and review the current submission yourself',handoff:{type:'navigate',screen:'quest',entityId:input.entityId}};
+  }
   if((GAME_ACTIONS as readonly string[]).includes(command)){
     const gameInput={action:command as GameAction,entityId:input.entityId,payload:p,requestId};
     const result=await applyGameCommand(pool,userId,gameInput,'agent');

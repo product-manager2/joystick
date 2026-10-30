@@ -26,7 +26,7 @@ All POSTs require the configured `Origin`. The client must escape snapshot text 
 | `quest.assign` | quest | `userId` (owner) |
 | `quest.decide` | quest | `choice`, `reason?` (claimant) |
 | `quest.submit` | quest | `title`, `content` (claimant; bounded text artifact) |
-| `quest.review` | quest | `verdict:'approve'|'changes_requested'`, `note?` (mission member other than claimant) |
+| `quest.review` | quest | `artifactId`, `verdict:'approve'|'changes_requested'`, `note?` (mission member other than claimant; `artifactId` must match the current submission) |
 | `quest.nudge` | quest | `message` |
 | `pair.request` | quest | `userId` |
 | `need.create` | mission | `title`, `detail?` |
