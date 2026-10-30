@@ -73,6 +73,16 @@ async function holdActionAfterCommit(page, actionName) {
   return { started, release: releaseResolve, unroute: () => page.unroute(pattern, handler) };
 }
 
+// A mission opens inside your squad once you have one; checkpoints live on the mission map.
+async function openCheckpoint(page, n) {
+  await page.locator(".plan-chat, #map, .live-segment-tabs").first().waitFor();
+  const back = page.getByRole("button", { name: "Mission map" });
+  if (await back.isVisible()) await back.click();
+  const tab = page.getByRole("tab", { name: "Map" });
+  if (await tab.getAttribute("aria-selected") !== "true") await tab.click();
+  await page.locator(`#c-${n - 1}`).click();
+}
+
 test("multiplayer artifact reviews, simulated funding, and stage history", async ({ browser }) => {
   test.setTimeout(150_000);
   const suffix = randomUUID().slice(0, 8);
@@ -153,7 +163,7 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await makerPage.getByRole("button", { name: "Back", exact: true }).click();
     await ownerPage.getByRole("button", { name: "Back", exact: true }).click();
 
-    await makerPage.getByRole("button", { name: /Open stage 1/ }).click();
+    await openCheckpoint(makerPage, 1);
     await expect(makerPage.locator(".chat-head")).toContainText("Research");
     await stubAgentDraft(makerPage, "plan", { name: "Evidence plan", squad: "Evidence makers", bet: "Collect and review clear evidence." });
     await makerPage.getByRole("button", { name: "+ Suggest one" }).click();
@@ -163,25 +173,26 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await makerPage.getByLabel("Approach and expected result").fill("Collect and review clear evidence.");
     await makerPage.getByRole("button", { name: "Review plan" }).click();
     await makerPage.getByRole("button", { name: "Create plan" }).click();
-    await expect(makerPage.getByRole("button", { name: /Evidence plan/ })).toBeVisible();
+    // Starting a squad opens it: it is the maker's squad now.
+    await expect(makerPage.locator(".plan-chat .room-title")).toHaveText("Evidence plan");
 
     await ownerPage.reload();
     await ownerPage.getByRole("button", { name: new RegExp(missionTitle) }).click();
-    await ownerPage.getByRole("button", { name: /Open stage 1/ }).click();
+    await openCheckpoint(ownerPage, 1);
     await ownerPage.getByRole("button", { name: /Evidence plan/ }).click();
     await expect(ownerPage.getByRole("button", { name: "Approve plan" })).toBeVisible();
     const approval = await holdActionAfterCommit(ownerPage, "plan.approve");
     await ownerPage.getByRole("button", { name: "Approve plan" }).click();
     await approval.started;
-    await ownerPage.getByRole("button", { name: "Back", exact: true }).click();
+    await ownerPage.getByRole("button", { name: "Mission map" }).click();
     await expect(ownerPage.locator(".chat-head")).toContainText("Evidence plan");
     await ownerPage.locator('#nav button[data-x="lobby"]').click();
     await expect(ownerPage.locator(".chat-head")).toContainText("Evidence plan");
     approval.release();
     await expect(ownerPage.getByRole("button", { name: "Approve plan" })).toHaveCount(0);
     await approval.unroute();
-
-    await ownerPage.getByRole("button", { name: "Back", exact: true }).click();
+    await ownerPage.getByRole("button", { name: "Mission map" }).click();
+    await openCheckpoint(ownerPage, 1);
     await expect(ownerPage.locator(".chat-head")).toContainText("Research");
     await stubAgentDraft(ownerPage, "quest", { title: "Review funding flow", description: "Submit an artifact, respond to review feedback, and revise it.", size: "S" });
     await ownerPage.getByRole("button", { name: "+ Task" }).click();
@@ -197,7 +208,7 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
 
     await makerPage.reload();
     await makerPage.getByRole("button", { name: new RegExp(missionTitle) }).click();
-    await makerPage.getByRole("button", { name: /Open stage 1/ }).click();
+    await openCheckpoint(makerPage, 1);
     await makerPage.getByRole("button", { name: /Review funding flow/ }).click();
     await makerPage.getByRole("button", { name: "Claim task" }).click();
     await makerPage.getByRole("button", { name: "Submit work" }).click();
@@ -208,7 +219,7 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
 
     await reviewerPage.reload();
     await reviewerPage.getByRole("button", { name: new RegExp(missionTitle) }).click();
-    await reviewerPage.getByRole("button", { name: /Open stage 1/ }).click();
+    await openCheckpoint(reviewerPage, 1);
     await reviewerPage.getByRole("button", { name: /Review funding flow/ }).click();
     await reviewerPage.getByRole("button", { name: "Review this work" }).click();
     await reviewerPage.getByLabel("Verdict").selectOption("changes_requested");
@@ -217,7 +228,7 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await makerPage.reload();
     await expect(makerPage.getByRole("heading", { name: "Missions" })).toBeVisible();
     await makerPage.getByRole("button", { name: new RegExp(missionTitle) }).click();
-    await makerPage.getByRole("button", { name: /Open stage 1/ }).click();
+    await openCheckpoint(makerPage, 1);
     await makerPage.getByRole("button", { name: /Review funding flow/ }).click();
     await expect(makerPage.getByRole("button", { name: "Revise and resubmit" })).toBeVisible({ timeout: 12_000 });
 
@@ -232,7 +243,7 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
 
     await ownerPage.reload();
     await ownerPage.getByRole("button", { name: new RegExp(missionTitle) }).click();
-    await ownerPage.getByRole("button", { name: /Open stage 1/ }).click();
+    await openCheckpoint(ownerPage, 1);
     await ownerPage.getByRole("button", { name: /Review funding flow/ }).click();
     await ownerPage.getByRole("button", { name: "Review this work" }).click();
     await ownerPage.getByLabel("Verdict").selectOption("approve");
@@ -241,7 +252,7 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
 
     await reviewerPage.reload();
     await reviewerPage.getByRole("button", { name: new RegExp(missionTitle) }).click();
-    await reviewerPage.getByRole("button", { name: /Open stage 1/ }).click();
+    await openCheckpoint(reviewerPage, 1);
     await reviewerPage.getByRole("button", { name: /Review funding flow/ }).click();
     await reviewerPage.getByRole("button", { name: "Review this work" }).click();
     await reviewerPage.getByLabel("Verdict").selectOption("approve");
@@ -251,7 +262,7 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
 
     await ownerPage.reload();
     await ownerPage.getByRole("button", { name: new RegExp(missionTitle) }).click();
-    await ownerPage.getByRole("button", { name: /Open stage 1/ }).click();
+    await openCheckpoint(ownerPage, 1);
     await ownerPage.locator(".stage-goal").click();
     const goalDialog = ownerPage.getByRole("dialog", { name: "Stage goal" });
     await expect(goalDialog.getByText("1000 users planned.")).toBeVisible();
@@ -279,11 +290,9 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
 
     await ownerPage.reload();
     await ownerPage.getByRole("button", { name: new RegExp(missionTitle) }).click();
-    await ownerPage.getByRole("button", { name: /Open stage 1/ }).click();
+    await openCheckpoint(ownerPage, 1);
     await expect(ownerPage.getByRole("button", { name: "Advance to next stage" })).toBeVisible({ timeout: 12_000 });
     await ownerPage.getByRole("button", { name: "Advance to next stage" }).click();
-    await ownerPage.getByRole("button", { name: "Back", exact: true }).click();
-    await ownerPage.getByRole("button", { name: /Open stage 2/ }).click();
     await expect(ownerPage.locator(".chat-head")).toContainText("Delivery");
 
     await ownerPage.getByRole("button", { name: "Back", exact: true }).click();
