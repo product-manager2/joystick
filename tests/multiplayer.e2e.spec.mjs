@@ -42,6 +42,23 @@ async function clickTab(page, name) {
   await page.getByRole("tab", { name, exact: true }).click();
 }
 
+async function holdActionAfterCommit(page, actionName) {
+  let startedResolve, releaseResolve;
+  const started = new Promise(resolve => { startedResolve = resolve; });
+  const released = new Promise(resolve => { releaseResolve = resolve; });
+  const pattern = "**/api/v1/game/actions";
+  const handler = async route => {
+    if (route.request().postDataJSON().action !== actionName) return route.fallback();
+    const response = await route.fetch();
+    expect(response.ok()).toBe(true);
+    startedResolve();
+    await released;
+    await route.fulfill({ response });
+  };
+  await page.route(pattern, handler);
+  return { started, release: releaseResolve, unroute: () => page.unroute(pattern, handler) };
+}
+
 test("multiplayer artifact reviews, simulated funding, and stage history", async ({ browser }) => {
   test.setTimeout(150_000);
   const suffix = randomUUID().slice(0, 8);
@@ -138,9 +155,19 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await ownerPage.getByRole("button", { name: /Open stage 1/ }).click();
     await ownerPage.getByRole("button", { name: /Evidence plan/ }).click();
     await expect(ownerPage.getByRole("button", { name: "Approve plan" })).toBeVisible();
+    const approval = await holdActionAfterCommit(ownerPage, "plan.approve");
     await ownerPage.getByRole("button", { name: "Approve plan" }).click();
+    await approval.started;
+    await ownerPage.getByRole("button", { name: "Back", exact: true }).click();
+    await expect(ownerPage.locator(".chat-head")).toContainText("Evidence plan");
+    await ownerPage.locator('#nav button[data-x="lobby"]').click();
+    await expect(ownerPage.locator(".chat-head")).toContainText("Evidence plan");
+    approval.release();
+    await expect(ownerPage.getByRole("button", { name: "Approve plan" })).toHaveCount(0);
+    await approval.unroute();
 
     await ownerPage.getByRole("button", { name: "Back", exact: true }).click();
+    await expect(ownerPage.locator(".chat-head")).toContainText("Research");
     await stubAgentDraft(ownerPage, "quest", { title: "Review funding flow", description: "Submit an artifact, respond to review feedback, and revise it.", size: "S" });
     await ownerPage.getByRole("button", { name: "+ Task" }).click();
     await ownerPage.getByRole("button", { name: "Research" }).click();
