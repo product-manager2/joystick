@@ -4,12 +4,12 @@ import { evaluateSubmission } from '../../server/game/submission-checks.js';
 import type { Config } from '../../server/config.js';
 
 const input={requirements:{title:'Publish a result',description:'Document the completed survey',expectedOutput:'Survey report',doneWhen:'Report includes ten responses',handIn:'Report',requestedChanges:''},artifact:{title:'Report',content:'Survey report with ten responses and methodology.'}};
-const config={aiGatewayApiKey:'fake',anthropicApiKey:'fake',jevModel:'typesafe-ai/jev',submissionReviewModel:'claude-haiku-5-5'} as Config;
-const answer=(scores:number[])=>new Response(JSON.stringify({model:'resolved/jev-version',answers:Object.fromEntries(['deliverable','task','output'].map((id,index)=>[id,{type:'noul',noul:scores[index]}]))}),{status:200,headers:{'content-type':'application/json'}});
+const config={aiGatewayApiKey:'fake',anthropicApiKey:'fake',anthropicWorkspaceId:'workspace-test',jevModel:'typesafe-ai/jev',submissionReviewModel:'claude-haiku-5-5'} as Config;
+const answer=(scores:number[])=>new Response(JSON.stringify({model:'resolved/jev-version',answers:Object.fromEntries(['deliverable','task','output'].map((id,index)=>[id,{type:'boolean',probability:scores[index]}]))}),{status:200,headers:{'content-type':'application/json'}});
 
 test('Jev pass is provisional and skips the paid fallback',async()=>{
   const calls:string[]=[];
-  const result=await evaluateSubmission(config,input,{fetch:async url=>{calls.push(String(url));return answer([.9,.8,.7]);}});
+  const result=await evaluateSubmission(config,input,{fetch:async (url,init)=>{calls.push(String(url));const body=JSON.parse(String(init?.body));assert.deepEqual(Object.keys(body.questions).sort(),['deliverable','output','task']);for(const question of Object.values(body.questions) as Array<{type:string;criteria:Record<string,string>}>) {assert.equal(question.type,'boolean');assert.deepEqual(Object.keys(question.criteria).sort(),['false','true']);}return answer([.9,.8,.7]);}});
   assert.equal(result.status,'passed');assert.equal(result.source,'jev');assert.equal(calls.length,1);
 });
 test('a clear Jev failure returns specific guidance without a fallback',async()=>{
@@ -18,7 +18,7 @@ test('a clear Jev failure returns specific guidance without a fallback',async()=
 });
 test('ambiguous Jev evidence uses a bounded, forced-tool Haiku result',async()=>{
   let calls=0;
-  const result=await evaluateSubmission(config,input,{fetch:async (_url,init)=>{calls++;if(calls===1)return answer([.5,.9,.9]);const body=JSON.parse(String(init?.body));assert.equal(body.tool_choice.name,'report_check');assert.equal(body.model,'claude-haiku-5-5');for(const field of ['temperature','top_p','top_k'])assert.equal(Object.hasOwn(body,field),false);return new Response(JSON.stringify({stop_reason:'tool_use',content:[{type:'text',text:'Unrelated preface'},{type:'tool_use',name:'report_check',input:{status:'needs_attention',feedback:'Include the survey evidence.'}}]}),{status:200});}});
+  const result=await evaluateSubmission(config,input,{fetch:async (_url,init)=>{calls++;if(calls===1)return answer([.5,.9,.9]);const headers=init?.headers as Record<string,string>;assert.equal(headers['anthropic-workspace-id'],'workspace-test');const body=JSON.parse(String(init?.body));assert.equal(body.tool_choice.name,'report_check');assert.equal(body.model,'claude-haiku-5-5');for(const field of ['temperature','top_p','top_k'])assert.equal(Object.hasOwn(body,field),false);return new Response(JSON.stringify({stop_reason:'tool_use',content:[{type:'text',text:'Unrelated preface'},{type:'tool_use',name:'report_check',input:{status:'needs_attention',feedback:'Include the survey evidence.'}}]}),{status:200});}});
   assert.equal(calls,2);assert.equal(result.source,'llm');assert.equal(result.status,'needs_attention');
 });
 test('oversized evidence is unavailable and never sent to a provider',async()=>{
@@ -27,6 +27,10 @@ test('oversized evidence is unavailable and never sent to a provider',async()=>{
 });
 test('provider failures are not classified as a failed submission',async()=>{
   await assert.rejects(()=>evaluateSubmission(config,input,{fetch:async()=>new Response('error',{status:503})}),/submission_review_unavailable/);
+});
+test('Haiku omits the optional workspace header when no workspace is configured',async()=>{
+  const result=await evaluateSubmission({...config,aiGatewayApiKey:undefined,anthropicWorkspaceId:undefined},input,{fetch:async (_url,init)=>{assert.equal(Object.hasOwn(init?.headers as object,'anthropic-workspace-id'),false);return new Response(JSON.stringify({stop_reason:'tool_use',content:[{type:'tool_use',name:'report_check',input:{status:'passed',feedback:'Completed.'}}]}),{status:200});}});
+  assert.equal(result.status,'passed');assert.equal(result.source,'llm');
 });
 for(const stopReason of ['refusal','max_tokens'])test(`${stopReason} cannot pass through a tool block`,async()=>{
   let calls=0;
