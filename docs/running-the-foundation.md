@@ -42,6 +42,8 @@ The command creates an Anthropic-hosted environment and conversational agent, re
 
 The initial agent has no Joystick business tools. It can discuss plans and draft text; it cannot claim quests, approve evidence, or spend mission funds. After the backend database, origin, and credentials are configured for the selected environment, run the API and `npm run worker:start` against that same environment file. The worker handles managed session dispatch and imports assistant messages. This pilot supports one worker process with bounded concurrent rooms.
 
+Every agent session (private chat, shared rooms, and task drafting) gets the full built-in toolset: a sandboxed shell and files, web search, and web page reading. Outside apps go through Composio: set the server-only `COMPOSIO_API_KEY` (a Composio project key) for the API and worker, and each person connects their own Gmail, Drive, GitHub and other accounts from Profile, Connected apps. Connections are stored in Composio under the Joystick user ID, and in shared rooms the agent acts as whoever sent the message. Without the key, the Connected apps sheet says it isn't set up and the agents' app tools report the same.
+
 ## Verification
 
 Run the backend tests against a disposable database with migrations applied:

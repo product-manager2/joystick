@@ -9,6 +9,7 @@ import { registerChatRoutes } from './chat.js';
 import { registerGameRoutes } from './game/routes.js';
 import { registerRecommendationRoutes } from './game/recommendations.js';
 import { registerAgentRunRoutes } from './agent-runs/routes.js';
+import { registerAppConnectionRoutes } from './app-connections.js';
 import { registerPushRoutes } from './push.js';
 
 export async function buildApp(pool: Pool, config: Config) {
@@ -64,6 +65,7 @@ export async function buildApp(pool: Pool, config: Config) {
   registerGameRoutes(app,pool);
   registerRecommendationRoutes(app,pool,config);
   registerAgentRunRoutes(app,pool,config);
+  registerAppConnectionRoutes(app,pool,config);
   registerPushRoutes(app,pool,config);
   const chat = registerChatRoutes(app,pool,config);
   return {app,chat};

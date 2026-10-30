@@ -7,6 +7,7 @@ import { createPool } from '../../server/db.js';
 import { saveUserMessage, history } from '../../server/chat.js';
 import { persistAgentEvent, dispatchNext, refreshDispatchStatus, recoverInterruptedDispatches, type ManagedAgentClient } from '../../server/agent.js';
 import { privateAgentContext } from '../../server/agent-context.js';
+import { processPrivateTool } from '../../server/private-agent-tools.js';
 import { PRIVATE_AGENT_PROMPT_REVISION } from '../../server/private-agent-prompt.js';
 import { ROOM_AGENT_PROMPT_REVISION } from '../../server/room-agent-prompt.js';
 import type { Config } from '../../server/config.js';
@@ -428,7 +429,9 @@ test('task rooms give the shared agent the task brief and move old sessions to t
       create:async input=>{
         assert.ok(typeof input.agent!=='string');
         assert.match(input.agent.system,/shared room for a mission, stage, plan, or task/);
-        assert.deepEqual(input.agent.tools,[]);
+        assert.ok(input.agent.tools.some(tool=>tool.type==='agent_toolset_20260401'&&tool.default_config?.enabled===true));
+        assert.ok(input.agent.tools.some(tool=>tool.type==='custom'&&tool.name==='app_execute'));
+        assert.ok(!input.agent.tools.some(tool=>tool.type==='custom'&&tool.name==='execute_command'));
         created=input.initial_events[0].content[0].text;
         return {id:`sesn_${randomUUID()}`};
       },
@@ -441,4 +444,43 @@ test('task rooms give the shared agent the task brief and move old sessions to t
     for (const expected of ['what is the context?','Map the maths curriculum','A spreadsheet of skills by grade','Every Grade 3-5 outcome is mapped','Find the official curriculum','Many Grade 5 pupils cannot divide','Map the curriculum','"senderIsClaimant":true','Test person']) assert.ok(created.includes(expected),expected);
     assert.equal((await pool.query('SELECT agent_prompt_revision FROM rooms WHERE id=$1',[room.id])).rows[0].agent_prompt_revision,ROOM_AGENT_PROMPT_REVISION);
   } finally {await pool.end();}
+});
+
+test('app tools in a shared task room act as the sender and stop when the sender loses access', async () => {
+  const pool=createPool(config);
+  const saved=process.env.COMPOSIO_API_KEY;
+  delete process.env.COMPOSIO_API_KEY;
+  try {
+    const a=await fixture(pool),b=await fixture(pool);
+    const mission=(await pool.query(`INSERT INTO game_missions(title) VALUES('Shared apps mission') RETURNING id`)).rows[0];
+    await pool.query(`INSERT INTO game_memberships(mission_id,user_id) VALUES($1,$2),($1,$3)`,[mission.id,a.user.id,b.user.id]);
+    const stage=(await pool.query(`INSERT INTO game_stages(mission_id,ordinal,name,status) VALUES($1,0,'Start','active') RETURNING id`,[mission.id])).rows[0];
+    const quest=(await pool.query(`INSERT INTO game_quests(mission_id,stage_id,title) VALUES($1,$2,'Shared task') RETURNING id`,[mission.id,stage.id])).rows[0];
+    const sessionId=`sesn_${randomUUID()}`;
+    const room=(await pool.query(`INSERT INTO rooms(title,kind,scope_id,provider_session_id) VALUES('quest room','quest',$1,$2) RETURNING id`,[quest.id,sessionId])).rows[0];
+    const sent:Array<{result:any;isError:boolean}>=[];
+    const provider={sendTool:async(_s:string,_t:string,result:unknown,isError:boolean)=>{sent.push({result,isError});}};
+    const turn=async(userId:string,text:string)=>{
+      const message=await saveUserMessage(pool,userId,room.id,randomUUID(),text,true);
+      const dispatch=(await pool.query(`UPDATE agent_dispatches SET status='sent',provider_session_id=$2 WHERE message_id=$1 RETURNING id,room_id,provider_session_id,status`,[message.message.id,sessionId])).rows[0];
+      return {...dispatch,user_id:userId};
+    };
+    const first=await turn(b.user.id,'Which apps do I have?');
+    await processPrivateTool(pool,config,provider,first,{type:'agent.custom_tool_use',id:'sevt_apps',name:'app_connections',input:{}});
+    assert.equal(sent[0].isError,false);
+    assert.match(sent[0].result.summary,/not set up/);
+    assert.equal((await pool.query('SELECT actor_id FROM private_agent_tool_receipts WHERE session_id=$1 AND event_id=$2',[sessionId,'sevt_apps'])).rows[0].actor_id,b.user.id);
+    await pool.query(`UPDATE agent_dispatches SET status='completed' WHERE id=$1`,[first.id]);
+    const second=await turn(a.user.id,'List my apps');
+    await pool.query('DELETE FROM game_memberships WHERE mission_id=$1 AND user_id=$2',[mission.id,a.user.id]);
+    await processPrivateTool(pool,config,provider,second,{type:'agent.custom_tool_use',id:'sevt_revoked',name:'app_connections',input:{}});
+    assert.equal(sent[1].isError,true);
+    assert.match(sent[1].result.summary,/Room access changed/);
+    await processPrivateTool(pool,config,provider,second,{type:'agent.custom_tool_use',id:'sevt_private',name:'execute_command',input:{command:'profile.update'}});
+    assert.equal(sent[2].isError,true);
+    assert.match(sent[2].result.summary,/Private room access changed/);
+  } finally {
+    if(saved!==undefined)process.env.COMPOSIO_API_KEY=saved;
+    await pool.end();
+  }
 });
