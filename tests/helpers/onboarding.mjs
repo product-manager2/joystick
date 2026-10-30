@@ -1,12 +1,14 @@
 import { expect } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 
+// Accounts are a username now; tests still pass a unique email-like id and get a stable username from it.
+export const handleFor = id => { const clean = String(id).split("@")[0].toLowerCase().replace(/[^a-z0-9]/g, ""); return `${clean.slice(0, 6)}_${clean.slice(-10)}`; };
+
 export async function enterSignup(page, name, email) {
   await page.goto(process.env.JOYSTICK_E2E_URL || "http://localhost:5173");
   await page.getByRole("button", { name: "Start playing" }).click();
   await expect(page.getByRole("heading", { name: "Start with a passkey." })).toBeVisible();
-  await page.getByLabel("Your name").fill(name);
-  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Pick a username").fill(handleFor(email));
   await page.getByRole("button", { name: "Create account with passkey" }).click();
   await expect(page.getByRole("heading", { name: "What are you great at?" })).toBeVisible();
 }

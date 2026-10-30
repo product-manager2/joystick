@@ -1,6 +1,6 @@
 import { ROLES, missions } from "../data/content.js";
 import { homeDeck } from "../screens/home.js";
-import { SHAPES, bot, esc, fmt, glyph, mono } from "../ui/helpers.js";
+import { SHAPES, bot, esc, glyph, mono } from "../ui/helpers.js";
 import "./onboarding.css";
 
 let originalLanding;
@@ -19,9 +19,9 @@ const footer = (step, label, name, disabled = false) => `<div class="sticky-cta"
 function roleStep(o) {
   const roles = Object.entries(ROLES).filter(([, r]) => !r.auto);
   return `<div class="onboard live-onboard">
-    <div><h1 class="display">What are you great at?</h1><div class="eyebrow">Pick up to three</div></div>
-    <div class="role-grid ${o.roles.length >= 3 ? "full" : ""}">${roles.map(([id, role]) => `<button type="button" class="role" data-live="onboard-role" data-id="${id}" aria-pressed="${o.roles.includes(id)}">${mono(id, 44)}<span><b>${esc(role.name)}</b><span class="muted">${esc(role.does)}</span></span></button>`).join("")}</div>
-    ${footer(2, o.roles.length ? `That's me · ${o.roles.length}/3` : "Tap 1 to 3", "onboard-next", !o.roles.length)}
+    <div><h1 class="display">What are you great at?</h1><div class="eyebrow">Pick up to five</div></div>
+    <div class="role-grid ${o.roles.length >= 5 ? "full" : ""}">${roles.map(([id, role]) => `<button type="button" class="role" data-live="onboard-role" data-id="${id}" aria-pressed="${o.roles.includes(id)}">${mono(id, 44)}<span><b>${esc(role.name)}</b><span class="muted">${esc(role.does)}</span></span></button>`).join("")}</div>
+    ${footer(2, o.roles.length ? `That's me · ${o.roles.length}/5` : "Tap 1 to 5", "onboard-next", !o.roles.length)}
   </div>`;
 }
 
@@ -48,7 +48,7 @@ function missionStep(o, catalog) {
   return `<div class="onboard live-onboard">
     <div><h1 class="display">What do you care about?</h1><div class="eyebrow">Pick as many as you like</div></div>
     <div class="chips ob-topics">${topics.map(t => `<button type="button" class="chip" data-live="onboard-topic" data-id="${esc(t)}" aria-pressed="${topic === t}">${esc(t)}</button>`).join("")}</div>
-    <div class="list">${shown.map(m => `<button type="button" class="card pickm" data-live="onboard-pick" data-id="${esc(m.id)}" aria-pressed="${o.picks.includes(m.id)}"><span class="band" style="background:${esc(m.color)}">${glyph(m)}<b>${esc(m.title)}</b></span><span class="pick-body"><span class="small"><b>$${fmt(m.bounty || 0)}</b> bounty · ${Number(m.players || 0).toLocaleString()} playing</span>${fit(m) ? `<span class="fit">${fit(m)} task${fit(m) === 1 ? "" : "s"} fit your style</span>` : ""}<span class="pick-tick">${o.picks.includes(m.id) ? "✓ Joined" : "+ Join"}</span></span></button>`).join("")}</div>
+    <div class="list">${shown.map(m => `<button type="button" class="card pickm" data-live="onboard-pick" data-id="${esc(m.id)}" aria-pressed="${o.picks.includes(m.id)}"><span class="band" style="background:${esc(m.color)}">${glyph(m)}<b>${esc(m.title)}</b></span><span class="pick-body"><span class="small">${esc(m.pitch)}</span>${fit(m) ? `<span class="fit">${fit(m)} task${fit(m) === 1 ? "" : "s"} fit your style</span>` : ""}<span class="pick-tick">${o.picks.includes(m.id) ? "✓ Joined" : "+ Join"}</span></span></button>`).join("")}</div>
     ${footer(4, o.picks.length ? "Let's play" : "Pick one", "onboard-finish", !o.picks.length)}
   </div>`;
 }

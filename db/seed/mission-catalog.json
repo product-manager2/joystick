@@ -7543,7 +7543,7 @@
     "pitch": "Help poor families in UP claim the pensions, scholarships and ration they already have a right to.",
     "tag": "Community",
     "glyph": "spark",
-    "color": "var(--blue)",
+    "color": "var(--tangerine)",
     "rules": [
       "Never collect, photograph or store Aadhaar numbers, OTPs, bank PINs or document copies. Families keep their own papers (Aadhaar Act 2016 Sec. 29, DPDP Act 2023).",
       "Help is always free. Families pay only the official fee at a Common Service Centre (CSC), against a printed receipt.",
@@ -7663,7 +7663,7 @@
         "name": "WhatsApp helper",
         "squad": "Haq Helpers",
         "bet": "A WhatsApp helper that answers in 6 languages.",
-        "color": "var(--blue)",
+        "color": "var(--tangerine)",
         "sampleStatus": "Running",
         "sampleBlocker": "",
         "howItWorks": [
@@ -7680,7 +7680,7 @@
         "name": "One volunteer per village",
         "squad": "Village Volunteers",
         "bet": "Train one trusted person in each village to help neighbours.",
-        "color": "var(--blue)",
+        "color": "var(--tangerine)",
         "sampleStatus": "Running",
         "sampleBlocker": "",
         "howItWorks": [
@@ -7697,7 +7697,7 @@
         "name": "Work through local NGOs",
         "squad": "NGO Bridge",
         "bet": "Partner with NGOs that already help families with forms.",
-        "color": "var(--blue)",
+        "color": "var(--tangerine)",
         "sampleStatus": "Running",
         "sampleBlocker": "Waiting on 3 NGOs to reply",
         "howItWorks": [
@@ -8642,7 +8642,7 @@
     "pitch": "Candidates' sworn facts are public but buried in long PDFs. Put them in front of voters in Pune district before they vote.",
     "tag": "Community",
     "glyph": "spark",
-    "color": "var(--blue)",
+    "color": "var(--tangerine)",
     "rules": [
       "Public records only: Form 26 affidavits and the Returning Officer's list of contesting candidates (Form 7A). No social media, news reports or rumours.",
       "Strictly non-partisan: no party logos or colours, no adjectives, no ranking, no 'best' or 'worst'. A pending case is written as 'case pending, not convicted'.",
@@ -8761,7 +8761,7 @@
         "name": "Plain one-pagers",
         "squad": "Vote Clear",
         "bet": "Turn every affidavit into the same plain one-page profile.",
-        "color": "var(--blue)",
+        "color": "var(--tangerine)",
         "sampleStatus": "Running",
         "sampleBlocker": "12 days to voting day",
         "howItWorks": [
@@ -8778,7 +8778,7 @@
         "name": "Read it out where people meet",
         "squad": "Chai Charcha",
         "bet": "Read the one-pagers aloud at chai stalls and housing societies. People trust a face more than a link.",
-        "color": "var(--blue)",
+        "color": "var(--tangerine)",
         "sampleStatus": "Proposed",
         "sampleBlocker": "Needs Vote Clear's checked profiles",
         "howItWorks": [
@@ -9782,7 +9782,7 @@
     "pitch": "Potholes throw Bengaluru's riders off their bikes every week. Get the worst ones fixed fast, and keep them fixed.",
     "tag": "Community",
     "glyph": "spark",
-    "color": "var(--blue)",
+    "color": "var(--tangerine)",
     "rules": [
       "Never photograph from a moving vehicle or while standing in traffic. Pull over first or skip it.",
       "No faces or number plates in photos. Blur them before uploading.",
@@ -9914,7 +9914,7 @@
         "name": "Riders pin as they ride",
         "squad": "Pothole Patrol",
         "bet": "Delivery riders and commuters pin potholes on routes they already take.",
-        "color": "var(--blue)",
+        "color": "var(--tangerine)",
         "sampleStatus": "Running",
         "sampleBlocker": "",
         "howItWorks": [
@@ -9931,7 +9931,7 @@
         "name": "Worst first",
         "squad": "Crash Map",
         "bet": "Start where riders actually crash, not where potholes are. Fix those first.",
-        "color": "var(--blue)",
+        "color": "var(--tangerine)",
         "sampleStatus": "Proposed",
         "sampleBlocker": "Needs crash records by road",
         "howItWorks": [
@@ -10900,7 +10900,7 @@
     "pitch": "Money for toilets, books and teachers is sent, but often never arrives. Follow it to 100 schools and get the gaps fixed.",
     "tag": "Community",
     "glyph": "spark",
-    "color": "var(--blue)",
+    "color": "var(--tangerine)",
     "rules": [
       "Strictly non-partisan. No party names, no politicians, no blame language. Report what the papers say and what we saw.",
       "Public records only. No children's faces or names in photos. No staff personal data beyond name and post as given in the RTI reply.",
@@ -11060,7 +11060,7 @@
         "name": "File and follow up in person",
         "squad": "School Watch",
         "bet": "File every request, and appeal in person when replies are late.",
-        "color": "var(--blue)",
+        "color": "var(--tangerine)",
         "sampleStatus": "Stuck",
         "sampleBlocker": "59 late replies need appeals filed in person",
         "howItWorks": [
@@ -11078,7 +11078,7 @@
         "name": "Parents ask at the school",
         "squad": "Parent Panel",
         "bet": "Help parents on School Management Committees read the school's own accounts at their meetings.",
-        "color": "var(--blue)",
+        "color": "var(--tangerine)",
         "sampleStatus": "Proposed",
         "sampleBlocker": "Needs committee members willing to try",
         "howItWorks": [
@@ -12046,7 +12046,7 @@
     "pitch": "Floods hit Lagos streets with no warning. Give families two hours to move people and things to safety.",
     "tag": "Community",
     "glyph": "spark",
-    "color": "var(--blue)",
+    "color": "var(--tangerine)",
     "rules": [
       "Never install or check sensors when water is rising or after dark. Two people at every river visit.",
       "Opt-in only. Phone numbers are stored encrypted, used only for flood alerts, and deleted on 'STOP'.",
@@ -12165,7 +12165,7 @@
         "name": "Sensors + text alerts",
         "squad": "Flood Watch",
         "bet": "Cheap river sensors that text families when water rises fast.",
-        "color": "var(--blue)",
+        "color": "var(--tangerine)",
         "sampleStatus": "Waiting for OK",
         "sampleBlocker": "Plan waits for the creator's OK",
         "howItWorks": [
@@ -12183,7 +12183,7 @@
         "name": "Street captains",
         "squad": "Street Watch",
         "bet": "One trained captain per street who warns neighbours by phone and loudspeaker.",
-        "color": "var(--blue)",
+        "color": "var(--tangerine)",
         "sampleStatus": "Proposed",
         "sampleBlocker": "Needs captains on 20 streets",
         "howItWorks": [
@@ -13093,7 +13093,7 @@
     "pitch": "Atlanta renters live with broken heat and lose deposits, because a lawyer costs too much. Help them get what the law already gives them.",
     "tag": "Community",
     "glyph": "spark",
-    "color": "var(--blue)",
+    "color": "var(--tangerine)",
     "rules": [
       "Legal information, not legal advice. Every letter and the tool say so, and anything involving a court date is sent to legal aid.",
       "No letter goes live without a written sign-off from a Georgia-licensed lawyer, and it is re-checked whenever the law changes.",
@@ -13224,7 +13224,7 @@
         "name": "Templates checked by lawyers",
         "squad": "Rent Right",
         "bet": "10 letters that cover most problems, each checked by a lawyer.",
-        "color": "var(--blue)",
+        "color": "var(--tangerine)",
         "sampleStatus": "Raising money",
         "sampleBlocker": "$3,200 of $8,000 raised",
         "howItWorks": [
@@ -13242,7 +13242,7 @@
         "name": "Renters act together",
         "squad": "Block by Block",
         "bet": "All the renters in one building ask together. Landlords answer a group faster.",
-        "color": "var(--blue)",
+        "color": "var(--tangerine)",
         "sampleStatus": "Proposed",
         "sampleBlocker": "Needs one building to start",
         "howItWorks": [
@@ -14161,7 +14161,7 @@
     "pitch": "In a heatwave, people need free water nearby. Map every public fountain and pump, and get the broken ones running.",
     "tag": "Community",
     "glyph": "spark",
-    "color": "var(--blue)",
+    "color": "var(--tangerine)",
     "rules": [
       "Only public water points. No private wells or gardens.",
       "Photos without faces. Don't photograph people using the pumps.",
@@ -14252,7 +14252,7 @@
         "name": "Grid squares + one report format",
         "squad": "Small Crew",
         "bet": "Split Berlin into small squares anyone can finish in an hour, and send every office the same clean report.",
-        "color": "var(--blue)",
+        "color": "var(--tangerine)",
         "sampleStatus": "Won",
         "sampleBlocker": "",
         "howItWorks": [
@@ -15238,7 +15238,7 @@
     "pitch": "When the village hand pump breaks, women in Barmer walk far for water. Find every broken pump in four blocks and get it pumping again.",
     "tag": "Community",
     "glyph": "spark",
-    "color": "var(--blue)",
+    "color": "var(--tangerine)",
     "rules": [
       "Never open borewell caps or climb on pump platforms, and never repair a pump yourself. Report it and leave it to trained mechanics.",
       "No surveying between noon and 4 pm in summer. Carry water and work in pairs.",
@@ -15352,7 +15352,7 @@
         "name": "One volunteer per gram panchayat",
         "squad": "Pump Watch",
         "bet": "Local women who already walk to the pumps can report them better than any outside survey team.",
-        "color": "var(--blue)",
+        "color": "var(--tangerine)",
         "sampleStatus": "Won",
         "sampleBlocker": "",
         "howItWorks": [

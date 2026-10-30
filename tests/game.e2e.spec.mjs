@@ -129,8 +129,9 @@ test("mission, plan, task, submission, and account state survive reload", async 
     expect(reservation).toEqual({ reserved: 50, reserveRows: 1 });
     await page.getByRole("button", { name: "Missions" }).click();
     const mineCard = page.locator(".card.mine").filter({ hasText: title });
-    await expect(mineCard.getByRole("button", { name: /Continue stage 1/ })).toBeVisible();
-    await mineCard.getByRole("button", { name: /Continue stage 1/ }).click();
+    await mineCard.getByRole("button", { name: "Open mission →" }).click();
+    await expect(page.getByRole("tab", { name: "Map" })).toHaveAttribute("aria-selected", "true");
+    await page.getByRole("button", { name: /Open stage 1/ }).click();
     await expect(page.locator(".chat-head")).toContainText(title);
     await stubAgentDraft(page, "plan", { name: "Map the growing season", squad: "Garden crew", bet: "Collect reliable planting dates." });
     await page.getByRole("button", { name: "+ Suggest one" }).click();
@@ -158,7 +159,8 @@ test("mission, plan, task, submission, and account state survive reload", async 
     }
     await page.locator('#nav button[data-x="lobby"]').click();
     const mineWithPlan = page.locator(".card.mine").filter({ hasText: title });
-    await mineWithPlan.getByRole("button", { name: /Continue stage 1/ }).click();
+    await mineWithPlan.getByRole("button", { name: "Open mission →" }).click();
+    await page.getByRole("button", { name: /Open stage 1/ }).click();
     await stubAgentDraft(page, "quest", { title: "Unplanned grower outreach", description: "Ask local gardeners which planting needs matter most.", size: "S" });
     await page.getByRole("button", { name: "+ Task" }).click();
     await page.getByRole("button", { name: "Research" }).click();

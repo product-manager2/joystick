@@ -50,7 +50,7 @@ test('foundation authorization, challenge replay, idempotency, provider dedup, a
     await assert.rejects(()=>history(pool,b.user.id,a.room.id,0),/Room not found/);
     await assert.rejects(()=>saveUserMessage(pool,b.user.id,a.room.id,randomUUID(),'intrusion',false),/Room not found/);
 
-    const options=await app.inject({method:'POST',url:'/api/v1/auth/register/options',headers:origin,payload:{email:`${randomUUID()}@example.test`,name:'New person'}});
+    const options=await app.inject({method:'POST',url:'/api/v1/auth/register/options',headers:origin,payload:{username:`new_${randomUUID().slice(0,8)}`}});
     assert.equal(options.statusCode,200);
     const challengeCookie=options.cookies.find(c=>c.name==='joystick_challenge')?.value;
     assert.ok(challengeCookie);

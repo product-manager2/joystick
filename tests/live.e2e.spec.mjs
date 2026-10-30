@@ -1,3 +1,4 @@
+import { handleFor } from "./helpers/onboarding.mjs";
 import { mkdir } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { test, expect } from "@playwright/test";
@@ -36,8 +37,7 @@ async function enablePasskeys(context, page) {
 async function signup(page, name, email) {
   await page.goto(`${baseURL}/chat.html`);
   await page.getByRole("button", { name: "Create account", exact: true }).click();
-  await page.getByLabel("Your name").fill(name);
-  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Username").fill(handleFor(email));
   await page.getByRole("button", { name: "Create account with passkey" }).click();
   await expect(page.getByRole("heading", { name: "My agent" })).toBeVisible();
 }
@@ -109,10 +109,10 @@ test("passkey account, durable chat, sign-in, account isolation, and responsive 
     await pageA.getByRole("button", { name: "Sign in", exact: true }).click();
     await expect(pageA.getByRole("heading", { name: "Welcome back." })).toBeVisible();
 
-    await pageA.getByLabel("Email").fill(`unknown-${randomUUID()}@example.test`);
+    await pageA.getByLabel("Username").fill(handleFor(`unknown-${randomUUID()}@example.test`));
     await pageA.getByRole("button", { name: "Sign in with passkey" }).click();
-    await expect(pageA.getByRole("alert")).toContainText("No passkey account found");
-    await pageA.getByLabel("Email").fill(emailA);
+    await expect(pageA.getByRole("alert")).toContainText("No account found");
+    await pageA.getByLabel("Username").fill(handleFor(emailA));
     await pageA.getByRole("button", { name: "Sign in with passkey" }).click();
     await expect(pageA.getByRole("heading", { name: "My agent" })).toBeVisible();
     await expect(pageA.locator(".live-message.mine", { hasText: message })).toHaveCount(1);

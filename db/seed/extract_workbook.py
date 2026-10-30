@@ -99,13 +99,13 @@ def remember(history: dict, catalog: list[dict]) -> dict:
 def main():
     data = sheets(SOURCE)
     older = {m['id']: m for m in json.loads(DEST.read_text())} if DEST.exists() else {}
-    categories = {'Health': ('Science', 'helix', 'var(--pink)'), 'AI': ('Product', 'cube', 'var(--gold)'), 'Planet': ('Planet', 'wave', 'var(--sky)'), 'Learning': ('Education', 'book', 'var(--leaf)'), 'Society': ('Community', 'spark', 'var(--blue)')}
+    categories = {'Health': ('Science', 'helix', 'var(--pink)'), 'AI': ('Product', 'cube', 'var(--gold)'), 'Planet': ('Planet', 'wave', 'var(--sky)'), 'Learning': ('Education', 'book', 'var(--leaf)'), 'Society': ('Community', 'spark', 'var(--tangerine)')}
     finished = {r['Mission ID']: r for r in data['Finished']}
     role_map = {(r['Mission ID'], r['#']): {k: v for k, v in r.items() if k not in ('Mission ID', '#', 'Stage', 'Status') and v} for r in data.get('Role map', [])}
     missions = []
     for row in data['Missions']:
         key = row['Mission ID']
-        tag, glyph, color = categories.get(row['Section'], ('Community', 'spark', 'var(--blue)'))
+        tag, glyph, color = categories.get(row['Section'], ('Community', 'spark', 'var(--tangerine)'))
         old = older.get(key, {})
         stages = sorted((s for s in data['Stages'] if s['Mission ID'] == key), key=lambda s: number(s['#']))
         plans = [s for s in data['Squads'] if s['Mission ID'] == key]
