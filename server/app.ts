@@ -7,6 +7,7 @@ import type { Config } from './config.js';
 import { ApiError, registerAuthRoutes } from './auth.js';
 import { registerChatRoutes } from './chat.js';
 import { registerGameRoutes } from './game/routes.js';
+import { registerRecommendationRoutes } from './game/recommendations.js';
 import { registerAgentRunRoutes } from './agent-runs/routes.js';
 import { registerPushRoutes } from './push.js';
 
@@ -61,6 +62,7 @@ export async function buildApp(pool: Pool, config: Config) {
   app.get('/health',async () => { await pool.query('SELECT 1'); return {ok:true}; });
   registerAuthRoutes(app,pool,config);
   registerGameRoutes(app,pool);
+  registerRecommendationRoutes(app,pool,config);
   registerAgentRunRoutes(app,pool,config);
   registerPushRoutes(app,pool,config);
   const chat = registerChatRoutes(app,pool,config);
