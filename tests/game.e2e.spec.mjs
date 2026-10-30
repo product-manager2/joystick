@@ -66,7 +66,7 @@ test("mission, plan, task, submission, and account state survive reload", async 
     await page.getByRole("button", { name: "Missions" }).click();
     const missionDraft = await stubAgentDraft(page, "mission", { title: "Agent's first cut", pitch: "A working open source garden planner.", tag: "Community", stages: [{ name: "Research", goal: "Collect planting facts", target: 1000, gateTarget: 1, unit: "users" }, { name: "Build", goal: "Make the planner", target: 1, unit: "approved tasks" }], rules: ["Gardeners can plan a season"] });
     await page.getByRole("button", { name: "+ New" }).click();
-    await page.getByRole("button", { name: "Build a product" }).click();
+    await page.getByRole("button", { name: "A tool people badly need" }).click();
     await page.getByLabel("Mission name").fill(title);
     await page.getByLabel("What changes if you win?").fill("A working open source garden planner.");
     await page.setViewportSize({ width: 1280, height: 900 });

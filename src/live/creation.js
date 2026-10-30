@@ -4,8 +4,9 @@ import { backBtn, botAv, esc } from "../ui/helpers.js";
 import { live } from "./game-client.js";
 import { stage, refinedStages } from "./stage-refinement.js";
 
-const categories = ["Build a product", "Solve a science problem", "Help a community", "Fix something for the planet"];
-const topics = {"Build a product":"Product","Solve a science problem":"Science","Help a community":"Community","Fix something for the planet":"Planet"};
+// Starting points are problem areas, not things to build: the mission is the problem, plans are the how.
+const categories = ["A health problem", "A problem in my community", "A problem for the planet", "Something people can't learn", "A tool people badly need"];
+const topics = {"A health problem":"Science","A problem in my community":"Community","A problem for the planet":"Planet","Something people can't learn":"Education","A tool people badly need":"Product"};
 const steps = { mission: ["idea", "name", "stages", "rules", "team", "preview"], plan: ["idea", "details", "preview"], quest: ["idea", "details", "preview"] };
 const chip = (label, action, id = "", selected = false) => `<button type="button" class="chip" data-live="${action}" data-id="${esc(id)}" aria-pressed="${selected}">${esc(label)}</button>`;
 const input = (name, value, label, max = 160) => `<label class="field"><span>${esc(label)}</span><input class="inp" name="${name}" value="${esc(value || "")}" maxlength="${max}"></label>`;
@@ -56,7 +57,7 @@ function questCard(c) {
 export function creationView(c) {
   const title={mission:"New mission",plan:"New plan",quest:"New task"}[c.kind];
   const back=backBtn("creation-close","","Leave creation").replace('data-a="creation-close"','data-live="creation-close"').replace('<button ',`<button type="button" ${c.busy?"disabled ":""}`);
-  const question={mission:"What do you want to change?",plan:"How should your squad tackle this stage?",quest:"What needs doing?"}[c.kind];
+  const question={mission:"What problem do you want to fix?",plan:"How should your squad tackle this stage?",quest:"What needs doing?"}[c.kind];
   const idea=say("agent",question);
   const ideaChoices=c.step===0?`<div class="creation-idea-dock quick wrap">${(c.kind==="mission"?categories:c.kind==="plan"?["Research first","Build a prototype","Test with people","Launch together"]:["Research","Build","Test","Reach people"]).map(x=>chip(x,"creation-idea",x)).join("")}</div>`:"";
   const stepQuestion=c.kind==="mission"?["","First cut. What should we call it, and what changes if we win?","These are the stages. What should change?","How will people know you won?","Who do you need, and what funding goal fits?","Ready to publish? Review every part first."][c.step]:c.kind==="plan"?["","How will this squad win the stage?","Ready to create this plan?"][c.step]:["","What should this task deliver?","Ready to create this task?"][c.step];

@@ -450,7 +450,10 @@ async function startCreationDraft(kind, idea, ids) {
   if (creation.publishUncertain) {creation.error="Retry the previous publish first so its outcome can be confirmed.";render();return;}
   creation.busy = true; creation.error = ""; render();
   const scope=ids.stageId?` Selected stage ID: ${ids.stageId}. The saved draft must use exactly this stageId and stay within that stage.`:"";
-  await startRun(`${kind}-draft`, `Create a specific ${kind} proposal for: ${idea}.${scope} If this is only a broad category, first request a bounded decision to learn the actual goal; do not invent one. Save an editable draft after the person's choice.`, {...(ids.missionId?{missionId:ids.missionId}:{}),...(ids.planId?{planId:ids.planId}:{})});
+  const ask=kind==="mission"
+    ?`Create a mission proposal for this problem: ${idea}. A mission is the problem and a measurable win, not a solution. If this names only a broad area, first ask one bounded decision offering concrete problems in that area; never ask what to build or which technology. Save an editable draft once the problem is clear.`
+    :`Create a specific ${kind} proposal for: ${idea}.${scope} If this is only a broad category, first request a bounded decision to learn the actual goal; do not invent one. Save an editable draft after the person's choice.`;
+  await startRun(`${kind}-draft`, ask, {...(ids.missionId?{missionId:ids.missionId}:{}),...(ids.planId?{planId:ids.planId}:{})});
   creation.busy=false;
   if (!creation.runId) creation.error=ui.error || "Could not start the agent. Try again.";
   if (ui.creation===creation) render();

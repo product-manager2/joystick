@@ -62,7 +62,7 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
 
     await stubAgentDraft(ownerPage, "mission", { title: missionTitle, pitch: "Complete one reviewed task and open the next stage.", tag: "Community", stages: [{ name: "Research", goal: "Review the artifact", target: 1000, gateTarget: 1, unit: "users" }, { name: "Delivery", goal: "Continue the work", target: 1, unit: "approved tasks" }], rules: ["Two members approve the latest artifact"] });
     await ownerPage.getByRole("button", { name: "+ New" }).click();
-    await ownerPage.getByRole("button", { name: "Build a product" }).click();
+    await ownerPage.getByRole("button", { name: "A tool people badly need" }).click();
     await ownerPage.getByLabel("Mission name").fill(missionTitle);
     await ownerPage.getByLabel("What changes if you win?").fill("Complete one reviewed task and open the next stage.");
     await ownerPage.getByRole("button", { name: "Looks good" }).click();
