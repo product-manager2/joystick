@@ -277,6 +277,13 @@
 .qstat.call { background: var(--red); color: var(--white); }
 .qitem .stack .av { width: 26px; height: 26px; }
 .room-title { font-weight: 800; font-size: 15px; line-height: 1.2; color: var(--navy); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.chat-head :is(.plan-head-copy, .stage-head-copy, .task-head-copy) { flex: 1; min-width: 0; }
+.chat-head .header-path { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 600; color: var(--ink-2); }
+.chat-head .header-stage { flex: none; font-size: 12px; font-weight: 600; color: var(--ink-2); white-space: nowrap; }
+.stage-head-copy .chan-name { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; white-space: normal; overflow: hidden; }
+.task-head-context { display: flex; gap: 4px; min-width: 0; }
+.task-head-context .header-path { flex: 1; }
+.task-head-context .rewardline { flex: none; }
 .chat-head .stack .av { width: 22px; height: 22px; }
 .room-bar { display: grid; grid-template-columns: 1.3fr 1fr; gap: 8px; border-top: var(--line); background: var(--card); padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .room-bar .btn { padding: 11px 8px; font-size: 14px; }
