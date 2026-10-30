@@ -1,5 +1,12 @@
 # Deploying Joystick on Fly and Vercel
 
+## Chat Web Push
+
+Installed iPhone Home Screen apps on iOS 16.4 or later can receive chat alerts after the user turns them on in Profile or Updates and grants the device prompt. Generate one VAPID key pair using the `web-push` library, then set `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, and `VAPID_SUBJECT` on the Fly API and worker Machines. Use a public HTTPS application URL or a monitored `mailto:` contact for the subject. Keep the private key out of Vercel and Git. Without a complete pair the API reports notifications unavailable and the app keeps chat usable.
+
+Migration `017_web_push.sql` creates session-bound subscriptions and a durable message outbox. Run migrations before starting the new API and worker image. The existing singleton worker sends notifications; it can run with Web Push configuration even if the agent provider is unavailable. A successful push contains only room and message identifiers, and the device shows a generic lock-screen alert. Tapping opens the conversation only after the normal account and room authorization checks. A signed-out, expired, or revoked session cannot receive a newly sent push. Delivery is retried on transient provider failures; a provider's 404 or 410 removes the subscription. Push acceptance can outlive a later account revocation, so alerts already accepted by Apple or another provider cannot be withdrawn.
+
+
 The first cut uses a static frontend on Vercel and two backend processes on Fly: the API/WebSocket gateway and the Managed Agents integration worker. Missions, tasks, rooms, submissions, reviews, profiles, and test-credit entries are PostgreSQL-backed. Test credits and payout simulations have no cash value. See [game actions](game-actions.md) and [account access](account-access.md).
 
 On 29 October 2026, the frontend was deployed to `https://joystick-indol.vercel.app` and the backend app `joystick-api` to `https://joystick-api.fly.dev`. The database is `joystick-db`, Fly Managed Postgres Basic with 10 GB storage in Singapore (`sin`). One API Machine and one worker Machine run in the same region; migrations and health checks passed. The Vercel production deployment is `dpl_FQDwQypSN8hxnbeVUR1Ew6tCvQpQ`, published through the authenticated CLI using a prebuilt artifact.

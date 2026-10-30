@@ -8,6 +8,7 @@ import { ApiError, registerAuthRoutes } from './auth.js';
 import { registerChatRoutes } from './chat.js';
 import { registerGameRoutes } from './game/routes.js';
 import { registerAgentRunRoutes } from './agent-runs/routes.js';
+import { registerPushRoutes } from './push.js';
 
 export async function buildApp(pool: Pool, config: Config) {
   const app = Fastify({logger:true,bodyLimit:16_384});
@@ -60,6 +61,7 @@ export async function buildApp(pool: Pool, config: Config) {
   registerAuthRoutes(app,pool,config);
   registerGameRoutes(app,pool);
   registerAgentRunRoutes(app,pool,config);
+  registerPushRoutes(app,pool,config);
   const chat = registerChatRoutes(app,pool,config);
   return {app,chat};
 }

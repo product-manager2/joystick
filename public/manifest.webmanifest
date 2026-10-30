@@ -3,6 +3,7 @@
   "short_name": "Joystick",
   "description": "Change the world. Multiplayer. Team up and take on the world's hardest problems.",
   "start_url": "/",
+  "id": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
