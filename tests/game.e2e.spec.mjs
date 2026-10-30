@@ -139,9 +139,10 @@ test("mission, plan, task, submission, and account state survive reload", async 
     expect(reservation).toEqual({ reserved: 50, reserveRows: 1 });
     await page.getByRole("button", { name: "Missions" }).click();
     const mineCard = page.locator(".card.mine").filter({ hasText: title });
-    await mineCard.getByRole("button", { name: "Open mission →" }).click();
+    // No squad yet: the mission opens on its map, where checkpoints and squads live.
+    await mineCard.getByRole("button", { name: "Pick a squad →" }).click();
     await expect(page.getByRole("tab", { name: "Map" })).toHaveAttribute("aria-selected", "true");
-    await page.getByRole("button", { name: /Open stage 1/ }).click();
+    await page.locator(".cp.now").click();
     await expect(page.locator(".chat-head")).toContainText(title);
     await stubAgentDraft(page, "plan", { name: "Map the growing season", squad: "Garden crew", bet: "Collect reliable planting dates." });
     await page.getByRole("button", { name: "+ Suggest one" }).click();
@@ -169,8 +170,11 @@ test("mission, plan, task, submission, and account state survive reload", async 
     }
     await page.locator('#nav button[data-x="lobby"]').click();
     const mineWithPlan = page.locator(".card.mine").filter({ hasText: title });
-    await mineWithPlan.getByRole("button", { name: "Open mission →" }).click();
-    await page.getByRole("button", { name: /Open stage 1/ }).click();
+    // Starting a squad made it yours, so the mission now opens inside it.
+    await mineWithPlan.getByRole("button", { name: "Play →" }).click();
+    await expect(page.locator(".plan-chat .room-title")).toHaveText("Map the growing season");
+    await page.getByRole("button", { name: "Mission map" }).click();
+    await page.locator(".cp.now").click();
     await stubAgentDraft(page, "quest", { title: "Unplanned grower outreach", description: "Ask local gardeners which planting needs matter most.", size: "S" });
     await page.getByRole("button", { name: "+ Task" }).click();
     await page.getByRole("button", { name: "Research" }).click();
@@ -267,8 +271,6 @@ test("mission, plan, task, submission, and account state survive reload", async 
     await expect(page.getByRole("tab", { name: "Brief" })).toHaveAttribute("aria-selected", "true");
     await page.reload();
     await page.getByRole("button", { name: new RegExp(title) }).click();
-    await page.getByRole("button", { name: "Open stage 1" }).click();
-    await page.getByRole("button", { name: /Map the growing season/ }).click();
     await page.getByRole("button", { name: /List local planting dates/ }).click();
     await expect(page.getByText("Waiting for two independent reviews")).toBeVisible();
     await expect(page.getByText("Saved work", { exact: true })).toBeVisible();

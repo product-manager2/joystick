@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 import pg from 'pg';
 import { applyGameAction, getGameSnapshot } from '../../server/game/service.js';
@@ -8,6 +9,31 @@ import type { GameActionInput } from '../../contracts/game.js';
 
 const databaseUrl=process.env.TEST_DATABASE_URL;
 if(!databaseUrl) throw new Error('TEST_DATABASE_URL is required for server integration tests');
+
+test('token migration restores existing approved work and paid backing once',async()=>{
+  const pool=new pg.Pool({connectionString:databaseUrl});
+  const user=(await pool.query('INSERT INTO users(email,name) VALUES($1,$2) RETURNING id',[`${randomUUID()}@example.test`,'Token history'])).rows[0].id as string;
+  let missionId:string|undefined;
+  try{
+    missionId=(await pool.query(`INSERT INTO game_missions(title) VALUES('Historical work') RETURNING id`)).rows[0].id;
+    const stageId=(await pool.query(`INSERT INTO game_stages(mission_id,ordinal,name,status) VALUES($1,1,'Historical stage','active') RETURNING id`,[missionId])).rows[0].id;
+    const questId=(await pool.query(`INSERT INTO game_quests(mission_id,stage_id,title,role,size,xp,state,claimed_by) VALUES($1,$2,'Dock design','expert','M',280,'approved',$3) RETURNING id`,[missionId,stageId,user])).rows[0].id;
+    const fundId=(await pool.query('INSERT INTO game_funding(mission_id,user_id,amount,remaining) VALUES($1,$2,50,50) RETURNING id',[missionId,user])).rows[0].id;
+    const migration=await readFile(new URL('../../db/migrations/022_mission_tokens.sql',import.meta.url),'utf8');
+    const restores=[...migration.matchAll(/INSERT INTO game_token_ledger\([\s\S]*?ON CONFLICT \(source_type,source_id\) DO NOTHING;/g)].map(x=>x[0]
+      .replace("WHERE q.state='approved' AND q.claimed_by IS NOT NULL",`WHERE q.state='approved' AND q.claimed_by IS NOT NULL AND q.mission_id='${missionId}'`)
+      .replace('FROM game_funding f WHERE f.amount >= 5',`FROM game_funding f WHERE f.amount >= 5 AND f.mission_id='${missionId}'`));
+    assert.equal(restores.length,2);
+    for(let run=0;run<2;run++)for(const sql of restores)await pool.query(sql);
+    const entries=await pool.query('SELECT source_type,source_id,amount,multiplier,metadata FROM game_token_ledger WHERE mission_id=$1 ORDER BY source_type',[missionId]);
+    assert.equal(entries.rowCount,2);
+    assert.deepEqual(entries.rows.map(r=>[r.source_type,r.source_id,Number(r.amount),Number(r.multiplier),r.metadata.restored]),[['funding',fundId,5,1,true],['quest',questId,160,2,true]]);
+  }finally{
+    if(missionId)await pool.query('DELETE FROM game_missions WHERE id=$1',[missionId]);
+    await pool.query('DELETE FROM users WHERE id=$1',[user]);
+    await pool.end();
+  }
+});
 
 test('wallet lifetime earnings include older ledger entries and only the current user',async()=>{
   const pool=new pg.Pool({connectionString:databaseUrl});
@@ -42,6 +68,12 @@ test('mission claims, artifact reviews, dependencies and command replay use real
     const m=snap.missions.find(x=>x.title==='A real test mission')!;const mid=m.id as string;missions.push(mid);const stage=(m.stages as any[])[0].id as string;
     await action(maker,'mission.join',mid);await action(reviewerA,'mission.join',mid);await action(reviewerB,'mission.join',mid);
     await action(owner,'funding.reserve',mid,{amount:50});
+    const backingTokens=(await getGameSnapshot(pool,owner)).missions.find(x=>x.id===mid)!.token as any;
+    assert.equal(backingTokens.balance,15);
+    assert.equal(backingTokens.totalIssued,15);
+    assert.equal(backingTokens.multiplier,3);
+    await assert.rejects(()=>action(maker,'funding.reserve',mid,{amount:2000}),/Action is not allowed/);
+    assert.equal(((await getGameSnapshot(pool,maker)).missions.find(x=>x.id===mid)!.token as any).balance,0);
     assert.deepEqual(snap.missions.find(x=>x.id===mid)?.funding,{reserved:0,spent:0});
     assert.deepEqual((await getGameSnapshot(pool,owner)).missions.find(x=>x.id===mid)?.funding,{reserved:50,spent:0});
     await assert.rejects(()=>action(maker,'quest.create',stage,{title:'Unauthorized reward',rewardCredits:20}),/Mission owner action/);
@@ -49,6 +81,7 @@ test('mission claims, artifact reviews, dependencies and command replay use real
     snap=await action(owner,'quest.create',stage,{title:'First result',size:'S',rewardCredits:20});
     const q=(snap.missions.find(x=>x.id===mid)!.quests as any[]).find(x=>x.title==='First result')!.id as string;
     assert.equal((snap.missions.find(x=>x.id===mid)!.quests as any[]).find(x=>x.id===q).xp,120);
+    assert.equal((snap.missions.find(x=>x.id===mid)!.quests as any[]).find(x=>x.id===q).tokenReward,15);
     snap=await action(owner,'quest.create',stage,{title:'Dependent result',dependencies:[q]});
     const child=(snap.missions.find(x=>x.id===mid)!.quests as any[]).find(x=>x.title==='Dependent result')!.id as string;
     await action(reviewerA,'quest.watch',q);
@@ -64,6 +97,12 @@ test('mission claims, artifact reviews, dependencies and command replay use real
     await assert.rejects(()=>action(reviewerA,'quest.review',q,{verdict:'approve'}),/Action is not allowed/);
     snap=await action(reviewerB,'quest.review',q,{verdict:'approve'});
     assert.equal((snap.missions.find(x=>x.id===mid)!.quests as any[]).find(x=>x.id===q).done,true);
+    assert.equal((snap.missions.find(x=>x.id===mid)!.quests as any[]).find(x=>x.id===q).tokenReward,15);
+    const makerTokens=await getGameSnapshot(pool,maker);
+    assert.deepEqual((makerTokens.wallet.missionTokens as any[]).find(t=>t.missionId===mid),{missionId:mid,symbol:(snap.missions.find(x=>x.id===mid)!.token as any).symbol,balance:15});
+    assert.equal((makerTokens.wallet.tokenLedger as any[]).filter(t=>t.sourceType==='quest'&&t.sourceId===q).length,1);
+    await assert.rejects(()=>action(reviewerB,'quest.review',q,{verdict:'approve'}),/Action is not allowed/);
+    assert.equal((await pool.query(`SELECT COUNT(*)::int AS n FROM game_token_ledger WHERE source_type='quest' AND source_id=$1`,[q])).rows[0].n,1);
     const journal=await pool.query(`SELECT user_id,kind,amount FROM game_ledger WHERE quest_id=$1 AND kind IN ('award','earning')`,[q]);
     assert.deepEqual(journal.rows.map(r=>Number(r.amount)).sort((a,b)=>a-b),[-20,20]);
     assert.equal((await getGameSnapshot(pool,maker)).wallet.balance,1020);
@@ -89,6 +128,33 @@ test('mission claims, artifact reviews, dependencies and command replay use real
     const outsider=await getGameSnapshot(pool,stranger);
     assert.ok(!outsider.threads.some(t=>t.kind==='mission'&&t.scopeId===mid));
     assert.ok(!outsider.people.some(p=>p.id===maker));
+    assert.equal((outsider.wallet.tokenLedger as any[]).filter(t=>t.missionId===mid).length,0);
+    const freePlan=await action(owner,'plan.create',stage,{name:'Unpaid support',squad:'Test squad'});
+    const freePlanId=(freePlan.missions.find(x=>x.id===mid)!.strategies as any[]).find(x=>x.name==='Unpaid support').id as string;
+    await action(maker,'plan.back',freePlanId,{testCredits:0});
+    assert.equal((await pool.query(`SELECT COUNT(*)::int AS n FROM game_token_ledger WHERE user_id=$1 AND mission_id=$2 AND source_type='funding'`,[maker,mid])).rows[0].n,0);
+    const backingRequest=randomUUID();
+    await action(reviewerA,'plan.back',freePlanId,{testCredits:10},backingRequest);
+    await action(reviewerA,'plan.back',freePlanId,{testCredits:10},backingRequest);
+    assert.equal(((await getGameSnapshot(pool,reviewerA)).missions.find(x=>x.id===mid)!.token as any).balance,3);
+    assert.equal((await pool.query(`SELECT COUNT(*)::int AS n FROM game_token_ledger WHERE user_id=$1 AND mission_id=$2 AND source_type='funding'`,[reviewerA,mid])).rows[0].n,1);
+    await action(reviewerB,'funding.reserve',mid,{amount:1});
+    assert.equal(((await getGameSnapshot(pool,reviewerB)).missions.find(x=>x.id===mid)!.token as any).balance,0);
+    assert.equal((await pool.query(`SELECT remaining FROM game_funding WHERE mission_id=$1 AND user_id=$2`,[mid,reviewerB])).rows[0].remaining,1);
+    const failedSnap=await action(owner,'quest.create',stage,{title:'Unfunded approval',rewardCredits:30});
+    const failedQuest=(failedSnap.missions.find(x=>x.id===mid)!.quests as any[]).find(x=>x.title==='Unfunded approval').id as string;
+    await pool.query('UPDATE game_funding SET remaining=0 WHERE mission_id=$1 AND user_id=$2 AND plan_id IS NULL',[mid,owner]);
+    await action(maker,'quest.claim',failedQuest);
+    await action(maker,'quest.submit',failedQuest,{title:'Evidence',content:'Complete'});
+    await action(reviewerA,'quest.review',failedQuest,{verdict:'approve'});
+    await assert.rejects(()=>action(reviewerB,'quest.review',failedQuest,{verdict:'approve'}),/Reserved test credits/);
+    assert.equal((await pool.query('SELECT state FROM game_quests WHERE id=$1',[failedQuest])).rows[0].state,'submitted');
+    assert.equal((await pool.query(`SELECT COUNT(*)::int AS n FROM game_token_ledger WHERE source_type='quest' AND source_id=$1`,[failedQuest])).rows[0].n,0);
+    for(let i=0;i<201;i++)await pool.query(`INSERT INTO game_token_ledger(mission_id,user_id,amount,source_type,source_id,multiplier) VALUES($1,$2,1,'funding',$3,1)`,[mid,maker,randomUUID()]);
+    const longHistory=await getGameSnapshot(pool,maker);
+    assert.equal((longHistory.missions.find(x=>x.id===mid)!.token as any).balance,216);
+    assert.equal((longHistory.wallet.tokenLedger as any[]).length,200);
+    assert.equal(((await getGameSnapshot(pool,owner)).missions.find(x=>x.id===mid)!.token as any).balance,15);
   } finally {
     for(const id of missions){await pool.query(`DELETE FROM rooms WHERE kind='mission' AND scope_id=$1`,[id]);await pool.query('DELETE FROM game_ledger WHERE mission_id=$1',[id]);await pool.query('DELETE FROM game_missions WHERE id=$1',[id]);}
     for(const id of users)await pool.query('DELETE FROM users WHERE id=$1',[id]);
@@ -115,6 +181,7 @@ test('owner approves a completed stage, notifies watchers, and advances while re
     await action(worker,'quest.submit',quest,{title:'Evidence',content:'Completed and checked'});
     await action(first,'quest.review',quest,{verdict:'approve',note:'Looks good'});
     await action(second,'quest.review',quest,{verdict:'approve',note:'Verified independently'});
+    await assert.rejects(()=>action(worker,'stage.approve',firstStage),/Mission owner action/);
     snap=await action(owner,'stage.approve',firstStage);
     const approved=snap.missions.find(m=>m.id===mission.id)!;
     assert.equal((approved.stages as any[])[0].status,'approved');
@@ -126,6 +193,9 @@ test('owner approves a completed stage, notifies watchers, and advances while re
     assert.equal((advanced.stages as any[])[0].status,'approved');
     assert.equal((advanced.stages as any[])[1].status,'active');
     assert.equal((advanced.quests as any[]).find(q=>q.id===quest)?.done,true);
+    assert.equal((advanced.quests as any[]).find(q=>q.id===quest)?.tokenReward,15);
+    assert.equal((advanced.token as any).multiplier,2);
+    assert.equal(((await getGameSnapshot(pool,worker)).missions.find(m=>m.id===mission.id)!.token as any).balance,15);
     const history=await pool.query('SELECT approved_by,approved_at FROM game_stages WHERE id=$1',[firstStage]);
     assert.equal(history.rows[0].approved_by,owner);
     assert.ok(history.rows[0].approved_at);
