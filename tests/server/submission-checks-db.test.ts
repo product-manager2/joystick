@@ -12,7 +12,7 @@ import type { GameActionInput } from '../../contracts/game.js';
 const databaseUrl=process.env.TEST_DATABASE_URL;
 if(!databaseUrl)throw new Error('TEST_DATABASE_URL is required for server integration tests');
 const fakeConfig={aiGatewayApiKey:'fake',jevModel:'typesafe-ai/jev'} as Config;
-const answer=(scores:number[])=>new Response(JSON.stringify({answers:Object.fromEntries(['deliverable','task','output'].map((key,i)=>[key,{type:'noul',noul:scores[i]}]))}),{status:200});
+const answer=(scores:number[])=>new Response(JSON.stringify({answers:Object.fromEntries(['deliverable','task','output'].map((key,i)=>[key,{type:'boolean',probability:scores[i]}]))}),{status:200});
 const fakeFetch=(scores:number[])=>async()=>answer(scores);
 async function isolatedDatabase(){
   const admin=new pg.Pool({connectionString:databaseUrl});

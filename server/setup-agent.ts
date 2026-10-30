@@ -17,6 +17,9 @@ const workspaceId=process.env.ANTHROPIC_WORKSPACE_ID;
 const model=process.env.ANTHROPIC_MODEL || 'claude-haiku-5-5';
 const client=new Anthropic({apiKey:key,maxRetries:0});
 const agentTools=[...AGENT_RUN_TOOLS,...APP_TOOLS,BUILT_IN_TOOLS];
+// Agents may reach any host and install what they need, including a headless browser.
+// Common document, data and browser libraries come preinstalled so sessions start ready.
+const AGENT_ENVIRONMENT={type:'cloud' as const,networking:{type:'unrestricted' as const},packages:{type:'packages' as const,pip:['playwright','requests','beautifulsoup4','pandas','openpyxl','python-docx','python-pptx','pypdf','matplotlib'],npm:['playwright']}};
 async function setEnv(name:string,value:string) {
   if (!/^[A-Z_]+$/.test(name) || /[\r\n]/.test(value)) throw new Error('Invalid environment field');
   const source=await readFile(selectedEnvPath,'utf8');
@@ -44,7 +47,7 @@ async function main() {
   if (!environmentId) {
     await setEnv('ANTHROPIC_SETUP_ENV_STATE','creating');
     try {
-      const environment=await client.beta.environments.create({name:'Joystick private agent',config:{type:'cloud',networking:{type:'limited',allowed_hosts:[],allow_package_managers:false}},workspace_id:workspaceId},{maxRetries:0});
+      const environment=await client.beta.environments.create({name:'Joystick private agent',config:AGENT_ENVIRONMENT,workspace_id:workspaceId},{maxRetries:0});
       environmentId=environment.id;
       await setEnv('ANTHROPIC_ENVIRONMENT_ID',environmentId);
       await setEnv('ANTHROPIC_SETUP_ENV_STATE','ready');
@@ -52,6 +55,14 @@ async function main() {
     } catch (error) {
       if (definitivelyRejected(error)) { await setEnv('ANTHROPIC_SETUP_ENV_STATE','rejected'); throw new Error(`Anthropic rejected environment creation (${safeApiDetail(error)}). Check workspace scope and configuration, then rerun.`); }
       throw new Error(`Environment creation outcome is unknown (${safeApiDetail(error)}). Check Anthropic Console before rerunning.`);
+    }
+  }
+  else {
+    const existing=await client.beta.environments.retrieve(environmentId,{workspace_id:workspaceId});
+    const current=existing.config.type==='cloud'?existing.config:null;
+    if(current?.networking?.type!=='unrestricted'||JSON.stringify(current.packages?.pip??[])!==JSON.stringify(AGENT_ENVIRONMENT.packages.pip)||JSON.stringify(current.packages?.npm??[])!==JSON.stringify(AGENT_ENVIRONMENT.packages.npm)){
+      await client.beta.environments.update(environmentId,{config:AGENT_ENVIRONMENT,workspace_id:workspaceId},{maxRetries:0});
+      console.log(`Updated managed environment ${environmentId}`);
     }
   }
   let agentId=process.env.ANTHROPIC_AGENT_ID;
