@@ -44,10 +44,18 @@ function missionCard(c) {
   return `<div class="form-card"><p class="small muted">Review this editable draft before publishing. Publishing adds the mission to the list so people can find and join it.</p><div class="card poster"><div class="band" style="background:var(--pink)"><h3>${esc(c.title)}</h3></div><div class="body"><p>${esc(c.pitch)}</p><p class="small">${c.stages.length} stages · ${c.rules.length} success ${c.rules.length===1?"criterion":"criteria"} · ${c.roles.length} roles</p>${c.stages.map((s,i)=>`<p class="small">${i+1}. ${esc(s.name)} — ${esc(s.goal)} · ${s.target} ${esc(s.unit)} · ${s.gateTarget} approved task${s.gateTarget===1?"":"s"} to close</p>`).join("")}${c.rules.length?`<div class="creation-criteria-review"><b>Success criteria</b><div>${c.rules.map(r=>`<span class="chip">${esc(r)}</span>`).join("")}</div></div>`:""}</div></div>${c.publishedMissionId?'<p class="small ok">Mission published. You can edit mission details from its page.</p>':`<div class="row wrap">${chip("Edit name","creation-jump","1")}${chip("Edit stages","creation-jump","2")}${chip("Edit success criteria","creation-jump","3")}${chip("Edit team","creation-jump","4")}</div>`}${live.snapshot?.wallet?.enabled && c.bounty > 0 ? `<p class="small muted">Available: ${Number(live.snapshot.wallet.available)||0} credits. Reserving sets them aside for the mission.</p><div class="amounts">${c.reserveUncertain?`<span class="chip">Confirm ${c.reserve} credit reservation before changing it</span>`:`${chip(c.publishedMissionId?"Finish without reserving":"Publish without reserving","creation-reserve","0",c.reserve===0)}${chip(`Reserve ${c.bounty} credits`,"creation-reserve",String(c.bounty),c.reserve===c.bounty)}`}</div>` : ""}<button type="button" class="btn red block" data-live="creation-publish" ${c.busy?"disabled":""}>${c.reserveUncertain?"Retry reservation":c.publishedMissionId?"Finish mission setup":"Publish mission"}</button></div>`;
 }
 
+// A plan aims at the next checkpoint, or races straight to a later one and skips the rest.
+const aimable = c => { const m=live.snapshot?.missions?.find(x=>x.id===c.ids.missionId); return (m?.stages||[]).map((st,i)=>({...st,i,last:i===m.stages.length-1})).filter(st=>st.i>=m.current&&!["approved","skipped"].includes(st.status)); };
+const aimLabel = (st, first) => `${st.last?"★ Finish: ":first?"Next: ":""}${st.name}`;
+function aimChoice(c) {
+  const stages=aimable(c);
+  if (stages.length<2) return "";
+  return `<div class="eyebrow">Aim for</div><div class="chips wrap">${stages.map((st,j)=>chip(aimLabel(st,!j),"creation-aim",st.id,c.ids.stageId===st.id)).join("")}</div>${stages[0].id!==c.ids.stageId?'<p class="small muted">Your squad skips the checkpoints before it.</p>':""}`;
+}
 function planCard(c) {
   const {mission}=context(c), owner=mission?.ownerId===live.user?.id;
-  if (c.step === 1) return `<div class="form-card">${stageContext(c)}<p class="small muted">A plan is your squad’s approach to reaching this stage. What will you try, and how should it move the goal forward?</p>${input("name",c.name,"Plan name")}${input("squad",c.squad,"Squad name",120)}${area("bet",c.bet,"Approach and expected result",3000)}${next("Review plan")}</div>`;
-  return `<div class="form-card">${stageContext(c)}<h3>${esc(c.name)}</h3><p>${esc(c.bet)}</p><p class="small muted">Squad: ${esc(c.squad)}</p><p class="small muted">${owner?"Creating this plan makes it active in the stage. You join its squad.":"Creating this plan sends it to the mission owner for approval. You join its squad."}</p><div class="row wrap">${chip("Edit plan","creation-jump","1")}</div><button type="button" class="btn red block" data-live="creation-publish">Create plan</button></div>`;
+  if (c.step === 1) return `<div class="form-card">${stageContext(c)}<p class="small muted">A plan is your squad’s approach to reaching this stage. What will you try, and how should it move the goal forward?</p>${input("name",c.name,"Plan name")}${input("squad",c.squad,"Squad name",120)}${area("bet",c.bet,"Approach and expected result",3000)}${aimChoice(c)}${next("Review plan")}</div>`;
+  return `<div class="form-card">${stageContext(c)}<h3>${esc(c.name)}</h3><p>${esc(c.bet)}</p><p class="small muted">Squad: ${esc(c.squad)}${(()=>{const st=aimable(c),k=st.findIndex(x=>x.id===c.ids.stageId);return k>=0?` · Aims for ${esc(aimLabel(st[k],!k))}`:""})()}</p><p class="small muted">${owner?"Creating this plan makes it active in the stage. You join its squad.":"Creating this plan sends it to the mission owner for approval. You join its squad."}</p><div class="row wrap">${chip("Edit plan","creation-jump","1")}</div><button type="button" class="btn red block" data-live="creation-publish">Create plan</button></div>`;
 }
 
 function questCard(c) {
@@ -107,6 +115,7 @@ export async function creationClick(c, action, id, callbacks) {
   if(action==="creation-size")c.size=id;
   if(action==="creation-task-role")c.role=id;
   if(action==="creation-plan")c.planId=id;
+  if(action==="creation-aim")c.ids={...c.ids,stageId:id};
   if(action==="creation-parent")c.parentId=id;
   if(action==="creation-dependency")c.dependencies=c.dependencies.includes(id)?c.dependencies.filter(x=>x!==id):[...c.dependencies,id];
   if(action==="creation-reward")c.rewardCredits=Number(id);

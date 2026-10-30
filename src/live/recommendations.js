@@ -7,12 +7,11 @@ const topic = mission => [mission.tag, mission.title, mission.pitch].filter(Bool
 const taskText = task => [task.title, task.brief?.description, task.detail?.skills, task.fit, task.role].filter(Boolean).join(" ");
 export function taskReady(mission, task) {
   if (task.state !== "open" || task.claimedBy || task.done) return false;
-  const stage = mission.stages?.[mission.current];
-  if (!stage || stage.id !== task.stageId || stage.status !== "active") return false;
-  if (task.strat) {
-    const plan = mission.strategies?.find(item => item.id === task.strat);
-    if (!plan || plan.stageId !== stage.id || (plan.status && plan.status !== "active")) return false;
-  }
+  // The current stage is open to everyone; a later one only to the plan aimed straight at it.
+  const stage = mission.stages?.find(item => item.id === task.stageId);
+  const plan = task.strat ? mission.strategies?.find(item => item.id === task.strat) : null;
+  if (task.strat && (!plan || plan.stageId !== task.stageId || (plan.status && plan.status !== "active"))) return false;
+  if (!stage || !(stage.status === "active" || (stage.status === "pending" && plan))) return false;
   if ((mission.quests || []).some(child => child.parent === task.id && !child.done)) return false;
   return (task.dependencies || []).every(id => mission.quests?.some(dep => dep.id === id && dep.done));
 }

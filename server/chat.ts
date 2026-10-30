@@ -9,14 +9,14 @@ import { canAccessGameRoom } from './game/service.js';
 
 const sha = (value: string) => createHash('sha256').update(value).digest('hex');
 const uuid = (value: unknown): value is string => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
-function publicMessage(row: Record<string,unknown>): Message { return { id:String(row.id),roomId:String(row.room_id),sequence:Number(row.sequence),role:row.role as 'user'|'assistant',text:String(row.text),...(row.user_id ? {senderId:String(row.user_id),senderName:String(row.sender_name??'Member')} : {}),...(row.client_id ? {clientId:String(row.client_id)} : {}),...(row.provider_event_id ? {providerEventId:String(row.provider_event_id)} : {}),createdAt:new Date(row.created_at as string).toISOString() }; }
+function publicMessage(row: Record<string,unknown>): Message { return { id:String(row.id),roomId:String(row.room_id),sequence:Number(row.sequence),role:row.role as 'user'|'assistant',text:String(row.text),...(row.user_id ? {senderId:String(row.user_id),senderName:String(row.sender_name??'Member')} : row.sender_name ? {senderName:String(row.sender_name)} : {}),...(row.client_id ? {clientId:String(row.client_id)} : {}),...(row.provider_event_id ? {providerEventId:String(row.provider_event_id)} : {}),createdAt:new Date(row.created_at as string).toISOString() }; }
 export async function roomAllowed(pool: Pool, userId: string, roomId: string): Promise<boolean> {
   return canAccessGameRoom(pool,userId,roomId);
 }
 export async function history(pool: Pool, userId: string, roomId: string, after: number, limit = 100) {
   if (!uuid(roomId) || !Number.isSafeInteger(after) || after < 0) throw new ApiError(400,'invalid_input','Invalid room or cursor');
   if (!await roomAllowed(pool,userId,roomId)) throw new ApiError(404,'room_not_found','Room not found');
-  const result = await pool.query(`SELECT m.id,m.room_id,m.sequence,m.role,m.text,m.user_id,u.name AS sender_name,m.client_id,m.provider_event_id,m.created_at FROM messages m LEFT JOIN users u ON u.id=m.user_id WHERE m.room_id=$1 AND m.sequence>$2 ORDER BY m.sequence LIMIT $3`, [roomId,after,limit+1]);
+  const result = await pool.query(`SELECT m.id,m.room_id,m.sequence,m.role,m.text,m.user_id,COALESCE(u.name,m.sender_label) AS sender_name,m.client_id,m.provider_event_id,m.created_at FROM messages m LEFT JOIN users u ON u.id=m.user_id WHERE m.room_id=$1 AND m.sequence>$2 ORDER BY m.sequence LIMIT $3`, [roomId,after,limit+1]);
   return { messages: result.rows.slice(0,limit).map(publicMessage),hasMore:result.rows.length>limit };
 }
 export async function markRoomRead(pool: Pool, userId: string, roomId: string, suppliedSequence: unknown) {
@@ -39,7 +39,7 @@ export async function saveUserMessage(pool: Pool, userId: string, roomId: string
     const room = await client.query(`SELECT r.id FROM rooms r WHERE r.id=$1 FOR UPDATE OF r`, [roomId]);
     if (!room.rowCount) throw new ApiError(404,'room_not_found','Room not found');
     if (!await canAccessGameRoom(client,userId,roomId)) throw new ApiError(404,'room_not_found','Room not found');
-    const old = await client.query(`SELECT m.id,m.room_id,m.sequence,m.role,m.text,m.user_id,u.name AS sender_name,m.client_id,m.provider_event_id,m.created_at,m.request_hash FROM messages m LEFT JOIN users u ON u.id=m.user_id WHERE m.room_id=$1 AND m.user_id=$2 AND m.client_id=$3`, [roomId,userId,clientId]);
+    const old = await client.query(`SELECT m.id,m.room_id,m.sequence,m.role,m.text,m.user_id,COALESCE(u.name,m.sender_label) AS sender_name,m.client_id,m.provider_event_id,m.created_at,m.request_hash FROM messages m LEFT JOIN users u ON u.id=m.user_id WHERE m.room_id=$1 AND m.user_id=$2 AND m.client_id=$3`, [roomId,userId,clientId]);
     if (old.rowCount) {
       if (old.rows[0].request_hash !== hash) throw new ApiError(409,'idempotency_conflict','Client ID was already used for different text');
       return {message:publicMessage(old.rows[0]),created:false};
@@ -197,7 +197,7 @@ export function registerChatRoutes(app: FastifyInstance, pool: Pool, config: Con
     socket.on('message',authHandler);
   });
   async function broadcastSavedById(messageId:string) {
-    const result = await pool.query(`SELECT m.id,m.room_id,m.sequence,m.role,m.text,m.user_id,u.name AS sender_name,m.client_id,m.provider_event_id,m.created_at FROM messages m LEFT JOIN users u ON u.id=m.user_id WHERE m.id=$1`,[messageId]);
+    const result = await pool.query(`SELECT m.id,m.room_id,m.sequence,m.role,m.text,m.user_id,COALESCE(u.name,m.sender_label) AS sender_name,m.client_id,m.provider_event_id,m.created_at FROM messages m LEFT JOIN users u ON u.id=m.user_id WHERE m.id=$1`,[messageId]);
     if (result.rowCount) await broadcast(publicMessage(result.rows[0]));
   }
   async function broadcastPreview(roomId:string,messageId:string,text:string) {

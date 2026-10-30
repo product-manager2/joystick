@@ -801,7 +801,8 @@
    ],
    "pitch": [
     "A free AI model that understands 22 Indian languages and runs on one laptop.",
-    "Most AI barely works in Odia, Bodo or Santali. Build a free model that does, and runs on one laptop."
+    "Most AI barely works in Odia, Bodo or Santali. Build a free model that does, and runs on one laptop.",
+    "Most AI barely works in Odia, Bodo or Santali. Build an open model with thousands of speakers, coders and checkers, free for anyone to run."
    ],
    "rules": [
     [],
@@ -911,7 +912,8 @@
      "Fine-Tune Force"
     ],
     "bet": [
-     "Start from a good open model and teach it Indian languages."
+     "Start from a good open model and teach it Indian languages.",
+     "Skip pre-training. Take the best open model, tune it on open Indian text, and reach the test in weeks, not months."
     ]
    },
    "llm-data": {
@@ -923,6 +925,17 @@
     ],
     "bet": [
      "Spend all effort on clean, checked text. Hand it to whoever trains."
+    ]
+   },
+   "llm-voice": {
+    "name": [
+     "Voice helper on WhatsApp now"
+    ],
+    "squad": [
+     "Voice Bridge"
+    ],
+    "bet": [
+     "People need help in their language today. Wrap the best open speech and language models in a free WhatsApp voice helper, and grow weekly users while the big model trains."
     ]
    }
   },
@@ -1000,16 +1013,19 @@
    },
    "m5": {
     "title": [
-     "Plan how Fine-Tune Force joins Bharat Base"
+     "Plan how Fine-Tune Force joins Bharat Base",
+     "Agree what Fine-Tune Force shares with Bharat Base"
     ],
     "role": [
      "planner"
     ],
     "size": [
-     "M"
+     "M",
+     "S"
     ],
     "stage": [
-     1
+     1,
+     3
     ]
    },
    "m6": {
@@ -1151,6 +1167,132 @@
     "stage": [
      1
     ]
+   },
+   "m17": {
+    "title": [
+     "Compare 3 open base models on 300 Indian prompts"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "m18": {
+    "title": [
+     "List 6 open Indian datasets we may tune on"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "m19": {
+    "title": [
+     "Tune the chosen model on 6 languages with LoRA"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "m20": {
+    "title": [
+     "Score the tuned model in 6 languages, losses included"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "m21": {
+    "title": [
+     "Build the WhatsApp voice helper on open models"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "m22": {
+    "title": [
+     "Ask the voice helper 5 questions in your language"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "m23": {
+    "title": [
+     "Get 3 village libraries to try the helper"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "m24": {
+    "title": [
+     "Check 50 voice answers for wrong or unsafe advice"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "llm-voice-back": {
+    "title": [
+     "Back Voice Bridge's phone bill"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     5
+    ]
    }
   }
  },
@@ -1163,7 +1305,8 @@
    ],
    "pitch": [
     "The open-source engine that lets every player's agent plan, do and check quests safely.",
-    "Nobody lets an agent touch real money or code unwatched. Build the open engine that makes Joystick's agents safe to trust."
+    "Nobody lets an agent touch real money or code unwatched. Build the open engine that makes Joystick's agents safe to trust.",
+    "Nobody lets an agent touch real money or code unwatched. Build the open-source engine, attacked by thousands of players, that makes agents safe to trust."
    ],
    "rules": [
     [],
@@ -1260,6 +1403,17 @@
     ],
     "bet": [
      "Lots of small agents that each do one job and check each other."
+    ]
+   },
+   "har-borrow": {
+    "name": [
+     "Adopt an open runtime, then attack it"
+    ],
+    "squad": [
+     "Borrow & Break"
+    ],
+    "bet": [
+     "Don't build another agent loop. Adopt a proven open-source runtime, wrap it in our 10 safety rules, and spend everything on breaking it at scale."
     ]
    }
   },
@@ -1489,6 +1643,90 @@
     ],
     "size": [
      "L"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "h16": {
+    "title": [
+     "Score 3 open-source agent runtimes against our 10 safety rules"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "h17": {
+    "title": [
+     "Run 200 agents on the chosen runtime for 24 hours"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "h18": {
+    "title": [
+     "Reconcile the 24-hour run's ledger to the cent"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "h19": {
+    "title": [
+     "Decide: adopt the runtime or keep building our own"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "h20": {
+    "title": [
+     "Hide a fake instruction in a test issue and see if the agent obeys"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "har-borrow-back": {
+    "title": [
+     "Back Borrow & Break's test budget"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
     ],
     "stage": [
      4

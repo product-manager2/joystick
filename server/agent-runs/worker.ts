@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { stageOpenFor } from '../game/stages.js';
 import type { Pool } from '../db.js';
 import { transaction } from '../db.js';
 import type { Config } from '../config.js';
@@ -83,7 +84,7 @@ export async function executeTool(pool:Pool,run:Row,event:RunEvent):Promise<{res
         const rules=input.rules===undefined?[]:list(input.rules,20);
         if(!rules||!rules.every(rule=>text(rule,300))||!stages.every(s=>text(obj(s).unit,40)&&(obj(s).gateTarget===undefined||(Number.isSafeInteger(obj(s).gateTarget)&&Number(obj(s).gateTarget)>0&&Number(obj(s).gateTarget)<=100000))))throw Error('Invalid mission details');
       }else if(kind==='plan'){
-        if(!scope.missionId||!name||!text(input.squad,120)||typeof input.stageId!=='string'||!uuid.test(input.stageId)||!scope.context?.stages?.some((s:Record<string,unknown>)=>s.id===input.stageId&&s.status==='active'))throw Error('Invalid plan draft or inactive stage');
+        if(!scope.missionId||!name||!text(input.squad,120)||typeof input.stageId!=='string'||!uuid.test(input.stageId)||!scope.context?.stages?.some((s:Record<string,unknown>)=>s.id===input.stageId&&['active','pending'].includes(String(s.status))))throw Error('Invalid plan draft or a checkpoint already passed');
         if(input.bet!==undefined&&!text(input.bet,3000))throw Error('Invalid plan bet');
       }else{
         if(!scope.missionId||!title||!text(input.description,5000)||typeof input.stageId!=='string'||!uuid.test(input.stageId)||!scope.context?.stages?.some((s:Record<string,unknown>)=>s.id===input.stageId&&s.status==='active'))throw Error('Invalid quest draft or inactive stage');
@@ -102,11 +103,11 @@ export async function executeTool(pool:Pool,run:Row,event:RunEvent):Promise<{res
       const saved=await transaction(pool,async db=>{
         const active=await db.query('SELECT status FROM agent_runs WHERE id=$1 AND user_id=$2 FOR UPDATE',[run.id,run.user_id]);
         if(!active.rowCount||!['running','needs_input'].includes(active.rows[0].status))throw Error('Run is no longer active');
-        const claimed=await db.query('SELECT mission_id,stage_id,claimed_by,state FROM game_quests WHERE id=$1 FOR UPDATE',[run.quest_id]);
+        const claimed=await db.query('SELECT mission_id,stage_id,plan_id,claimed_by,state FROM game_quests WHERE id=$1 FOR UPDATE',[run.quest_id]);
         if(!claimed.rowCount||claimed.rows[0].claimed_by!==run.user_id||!['claimed','changes_requested'].includes(claimed.rows[0].state))throw Error('Quest claim was revoked');
         const member=await db.query('SELECT 1 FROM game_memberships WHERE mission_id=$1 AND user_id=$2 FOR SHARE',[claimed.rows[0].mission_id,run.user_id]);
-        const stage=await db.query('SELECT 1 FROM game_stages WHERE id=$1 AND status=$2 FOR SHARE',[claimed.rows[0].stage_id,'active']);
-        if(!member.rowCount||!stage.rowCount)throw Error('Quest is no longer available');
+        const stage=await db.query(`SELECT ${stageOpenFor('$1::uuid','$2::uuid')} AS open`,[claimed.rows[0].stage_id,claimed.rows[0].plan_id]);
+        if(!member.rowCount||!stage.rows[0].open)throw Error('Quest is no longer available');
         const prior=await db.query('SELECT id,version FROM agent_run_artifacts WHERE run_id=$1 AND tool_use_id=$2',[run.id,event.id]);if(prior.rowCount)return prior.rows[0];
         const version=(await db.query('SELECT COALESCE(MAX(version),0)+1 AS version FROM agent_run_artifacts WHERE run_id=$1',[run.id])).rows[0].version;
         return (await db.query('INSERT INTO agent_run_artifacts(run_id,tool_use_id,title,content,content_type,version) VALUES($1,$2,$3,$4,$5,$6) RETURNING id,version',[run.id,event.id,title,content,contentType,version])).rows[0];

@@ -465,6 +465,8 @@ button.chip.trust { background: var(--mint); color: var(--green-d); border-color
 .cp.done .cdisc { background: var(--green-d); color: var(--white); }
 .cp.now .cdisc { background: var(--gold); animation: bob 1.4s ease-in-out infinite; }
 .cp.locked .cdisc { background: var(--paper-2); color: var(--ink-2); }
+.cp.skipped .cdisc { background: var(--paper); color: var(--ink-2); border-style: dashed; }
+.tnode .tl i.aim { font-weight: 700; color: var(--ink); }
 .cp.finish .cdisc { width: 64px; height: 64px; background: var(--red); color: var(--white); }
 .cp.finish.locked .cdisc { background: var(--rose); color: var(--ink); }
 .cp .lbl { font-weight: 800; font-size: 13px; background: var(--card); border: var(--line-1); border-radius: 8px; padding: 2px 8px; }

@@ -170,7 +170,10 @@
           "Pass the top results to the shortlist review"
         ],
         "rolesNeeded": "1 Checker (computational chemistry)",
-        "relations": "Competes with Wet Hands and Swarm 404 for shortlist slots; shares compute scripts with Swarm 404."
+        "relations": "Competes with Wet Hands and Swarm 404 for shortlist slots; shares compute scripts with Swarm 404.",
+        "aimsAt": null,
+        "strengths": "Fast, experienced, good tooling.",
+        "weaknesses": "Wide screens give many false positives; compute is costly."
       },
       {
         "id": "glio-repurpose",
@@ -187,7 +190,10 @@
           "Get partner-lab quotes for the top picks"
         ],
         "rolesNeeded": "1 Expert (pharmacology)",
-        "relations": "Competes with Fold Gang; feeds candidate ideas to Whole Health."
+        "relations": "Competes with Fold Gang; feeds candidate ideas to Whole Health.",
+        "aimsAt": null,
+        "strengths": "Approved drugs have known human safety, which is the fastest path to a trial.",
+        "weaknesses": "Small list; waiting on a lab slot."
       },
       {
         "id": "glio-gen",
@@ -204,7 +210,10 @@
           "Send the best to the shortlist review"
         ],
         "rolesNeeded": "1 Checker (medicinal chemistry)",
-        "relations": "Competes with Fold Gang; borrows its compute scripts."
+        "relations": "Competes with Fold Gang; borrows its compute scripts.",
+        "aimsAt": null,
+        "strengths": "Cheap and creative; mostly agents.",
+        "weaknesses": "No one had checked the designs; new molecules take longest to reach a trial."
       },
       {
         "id": "glio-whole",
@@ -221,7 +230,10 @@
           "Work with GBM Families Circle on plain summaries"
         ],
         "rolesNeeded": "Anyone; 9 more backers to launch",
-        "relations": "Proposed; would take ideas from Wet Hands."
+        "relations": "Proposed; would take ideas from Wet Hands.",
+        "aimsAt": null,
+        "strengths": "Patient-led; low cost.",
+        "weaknesses": "Weak evidence base; must avoid giving medical advice."
       }
     ],
     "quests": [
@@ -1114,6 +1126,7 @@
           "Type": "Regular"
         }
       ],
+      "chats": [],
       "inviteExamples": [
         {
           "From": "Pip (your agent)",
@@ -1292,7 +1305,10 @@
           "Publish as an offline app and A5 cards under CC BY 4.0."
         ],
         "rolesNeeded": "3 Experts (native speakers of Hausa, Amharic, Quechua), 2 Checkers (nurse or doctor), 1 Maker (illustrator)",
-        "relations": "The only squad. Welcomes merges from any translator group."
+        "relations": "The only squad. Welcomes merges from any translator group.",
+        "aimsAt": null,
+        "strengths": "Led by a working ER nurse; simple loop that agents speed up a lot.",
+        "weaknesses": "Only 3 people today; no speakers yet for 30 of the 50 languages."
       },
       {
         "id": "aid-cpr",
@@ -1309,7 +1325,10 @@
           "Count who can still do it 3 months later"
         ],
         "rolesNeeded": "1 Expert (resuscitation trainer)",
-        "relations": "Competes with First Aiders; can use their guides"
+        "relations": "Competes with First Aiders; can use their guides",
+        "aimsAt": null,
+        "strengths": "Reaches whole families through kids.",
+        "weaknesses": "Slow to scale; needs schools to agree."
       },
       {
         "id": "aid-line",
@@ -1326,7 +1345,10 @@
           "Check every call log"
         ],
         "rolesNeeded": "2 Experts (nurses), 1 Checker",
-        "relations": "Uses First Aiders' guides as its script"
+        "relations": "Uses First Aiders' guides as its script",
+        "aimsAt": null,
+        "strengths": "Works for people who can't read.",
+        "weaknesses": "Needs people awake around the clock."
       }
     ],
     "quests": [
@@ -2187,6 +2209,7 @@
           "Type": "Regular"
         }
       ],
+      "chats": [],
       "inviteExamples": [
         {
           "From": "Luz · Maria's agent",
@@ -2201,7 +2224,7 @@
   {
     "id": "llm",
     "title": "Every Indian can use AI in their language",
-    "pitch": "Most AI barely works in Odia, Bodo or Santali. Build a free model that does, and runs on one laptop.",
+    "pitch": "Most AI barely works in Odia, Bodo or Santali. Build an open model with thousands of speakers, coders and checkers, free for anyone to run.",
     "tag": "Product",
     "glyph": "cube",
     "color": "var(--gold)",
@@ -2347,23 +2370,30 @@
           "Fold in Fine-Tune Force as a second arm: continue training an open base model on the same data, and keep whichever wins in Stage 3."
         ],
         "rolesNeeded": "2 Experts (Odia, Assamese), 1 Checker (ML evaluation), 1 Patron",
-        "relations": "Merging with Fine-Tune Force; fed by Data Desh's cleaned text"
+        "relations": "Merging with Fine-Tune Force; fed by Data Desh's cleaned text",
+        "aimsAt": 1,
+        "strengths": "Experienced trainers. A from-scratch model means a clean licence and a tokenizer built for Indic scripts from day one.",
+        "weaknesses": "Biggest GPU bill. A small from-scratch model will reason worse than a tuned larger open model."
       },
       {
         "id": "llm-tune",
         "name": "Tune an existing open model",
         "squad": "Fine-Tune Force",
-        "bet": "Start from a good open model and teach it Indian languages.",
+        "bet": "Skip pre-training. Take the best open model, tune it on open Indian text, and reach the test in weeks, not months.",
         "color": "var(--gold)",
-        "sampleStatus": "Merging",
-        "sampleBlocker": "Same data as Bharat Base, so they're joining forces",
+        "sampleStatus": "Running",
+        "sampleBlocker": "Needs one 8-GPU node for 2 weeks",
         "howItWorks": [
-          "Start from an open 1–3B model whose licence allows redistribution.",
-          "Extend its vocabulary with Indic tokens, then continue training it on Data Desh's text.",
-          "Tested on 5 languages (Hindi, Punjabi, Tamil, Telugu, Urdu): held-out loss fell in all 5. Now joining Bharat Base as its 'tuned' arm."
+          "Compare 3 open base models on Hindi, Tamil and Odia prompts",
+          "Use only datasets whose licence allows tuning",
+          "Tune with LoRA on 6 languages first, then all 22",
+          "Publish every score, including the languages where we lose"
         ],
         "rolesNeeded": "None; members move to Bharat Base",
-        "relations": "Merging into Bharat Base; uses the same data as Bharat Base from Data Desh"
+        "relations": "Races Bharat Base to the Test checkpoint. Uses Data Desh's cleaned text when it is ready, but does not wait for it.",
+        "aimsAt": 3,
+        "strengths": "Fast and cheap: one 8-GPU node for two weeks instead of 64 GPUs for two months.",
+        "weaknesses": "Inherits the base model's English-first tokenizer, so Odia and Santali stay slow and costly."
       },
       {
         "id": "llm-data",
@@ -2381,7 +2411,30 @@
           "Hand the frozen corpus to whoever trains."
         ],
         "rolesNeeded": "3 Checkers (any Indian language, especially Bodo, Dogri, Santali)",
-        "relations": "Feeds Bharat Base and Fine-Tune Force; no competition"
+        "relations": "Feeds Bharat Base and Fine-Tune Force; no competition",
+        "aimsAt": 1,
+        "strengths": "Linguists who read 6 or more scripts. Their clean data helps every squad.",
+        "weaknesses": "They do not train, so their payoff depends on Bharat Base finishing. Checkers for rare languages are hard to find."
+      },
+      {
+        "id": "llm-voice",
+        "name": "Voice helper on WhatsApp now",
+        "squad": "Voice Bridge",
+        "bet": "People need help in their language today. Wrap the best open speech and language models in a free WhatsApp voice helper, and grow weekly users while the big model trains.",
+        "color": "var(--gold)",
+        "sampleStatus": "Running",
+        "sampleBlocker": "Needs Checkers who speak Assamese and Odia",
+        "howItWorks": [
+          "Plug open speech-to-text and text-to-speech models into WhatsApp",
+          "Start with 6 languages: Hindi, Bengali, Odia, Assamese, Tamil, Marathi",
+          "Village librarians invite their regulars",
+          "Swap in the mission's own model the day it beats today's"
+        ],
+        "rolesNeeded": "1 Checker (Assamese or Odia), 1 Storyteller (village libraries)",
+        "relations": "Skips straight to the finish line. Feeds every real question to Data Desh; will switch to Bharat Base's or Fine-Tune Force's model when it wins.",
+        "aimsAt": 5,
+        "strengths": "Reaches real people in weeks, and every question asked becomes test data for the other squads.",
+        "weaknesses": "Depends on other people's models; quality in the smallest languages is still weak."
       }
     ],
     "quests": [
@@ -2614,9 +2667,9 @@
       },
       {
         "id": "m5",
-        "title": "Plan how Fine-Tune Force joins Bharat Base",
+        "title": "Agree what Fine-Tune Force shares with Bharat Base",
         "role": "planner",
-        "size": "M",
+        "size": "S",
         "xp": 0,
         "coins": 0,
         "strat": "llm-tune",
@@ -2628,27 +2681,24 @@
             "Make the tuned arm the main plan"
           ]
         },
-        "sampleReward": "1500",
+        "sampleReward": "500",
         "sampleCurrency": "₹",
         "safetyNote": "",
-        "stage": 1,
+        "stage": 3,
         "sampleState": "Open",
         "where": "Online",
         "fit": "Good for you if you like getting two teams to agree",
-        "dependsOn": [
-          "m7"
-        ],
+        "dependsOn": [],
         "detail": {
-          "brief": "Both squads use the same data, so running them apart doubles the cost. The merge has to keep what Fine-Tune Force does well: starting from a stronger model.",
+          "brief": "Two squads are racing to the same test. Sharing the test set and tokenizer findings early saves both of them weeks.",
           "steps": [
-            "List both squads' people, money, code and test results",
-            "Propose one plan with a from-scratch arm and a tuned arm",
-            "Agree how the ₹2 lakh Fine-Tune Force raised moves over",
-            "Get both Leaders to sign"
+            "List what each squad has: data, scripts, scores",
+            "Agree what is shared now and what stays private until the test",
+            "Write it as a one-page pact both leads sign"
           ],
-          "handIn": "A 1-page merge plan signed by both Leaders",
-          "doneWhen": "Both Leaders and the mission creator approve the plan in writing",
-          "checkedBy": "Mission creator + 1 Checker",
+          "handIn": "One-page sharing pact",
+          "doneWhen": "Both squad leads approve it",
+          "checkedBy": "1 Checker reads it against both plans",
           "agentDoes": "Drafts the plan from both squads' boards and compares costs",
           "humanDoes": "Negotiates who leads what and how credit is shared",
           "tools": "Squad boards, budget sheet",
@@ -2997,6 +3047,329 @@
           "tools": "Phone camera, subtitle editor",
           "skills": "Short video, community outreach"
         }
+      },
+      {
+        "id": "m17",
+        "title": "Compare 3 open base models on 300 Indian prompts",
+        "role": "maker",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "llm-tune",
+        "call": {
+          "q": "The best model on accuracy has a licence that forbids commercial use. Which do we pick?",
+          "opts": [
+            "Second-best with an open licence",
+            "Ask the authors for an exception",
+            "Test a fourth model"
+          ]
+        },
+        "sampleReward": "1600",
+        "sampleCurrency": "₹",
+        "safetyNote": "",
+        "stage": 3,
+        "sampleState": "Open",
+        "where": "Online",
+        "fit": "Good for you if you can run models from Hugging Face",
+        "dependsOn": [],
+        "detail": {
+          "brief": "The whole bet depends on starting from the right model. We test three open 1–3B models before spending any GPU money on tuning.",
+          "steps": [
+            "Pick 3 open models whose licence allows tuning and redistribution",
+            "Run them on 100 prompts each in Hindi, Tamil and Odia",
+            "Record accuracy, speed and tokens per word",
+            "Publish the notebook"
+          ],
+          "handIn": "Score table and notebook link",
+          "doneWhen": "All 3 models scored on all 300 prompts",
+          "checkedBy": "1 Checker re-runs 30 prompts",
+          "agentDoes": "Runs the prompts and builds the table",
+          "humanDoes": "Picks the models and judges odd answers",
+          "tools": "Hugging Face, FLORES-200, IndicXNLI",
+          "skills": "Python, model evaluation"
+        }
+      },
+      {
+        "id": "m18",
+        "title": "List 6 open Indian datasets we may tune on",
+        "role": "expert",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "llm-tune",
+        "call": null,
+        "sampleReward": "1200",
+        "sampleCurrency": "₹",
+        "safetyNote": "",
+        "stage": 3,
+        "sampleState": "Open",
+        "where": "Online",
+        "fit": "Good for you if you read licences carefully",
+        "dependsOn": [],
+        "detail": {
+          "brief": "Tuning on text we have no right to use would sink the whole open release. Every source needs a licence that allows training and sharing the weights.",
+          "steps": [
+            "Shortlist open Indic text and instruction datasets",
+            "Read each licence and terms of use",
+            "Record language, size and licence",
+            "Flag anything unclear"
+          ],
+          "handIn": "Dataset sheet with licence links",
+          "doneWhen": "6 datasets, each with a licence that allows training",
+          "checkedBy": "Data Desh's licence Checker reviews every row",
+          "agentDoes": "Finds datasets and pulls licence text",
+          "humanDoes": "Decides what is safe to use",
+          "tools": "Hugging Face datasets, AI4Bharat releases",
+          "skills": "Licences, data literacy"
+        }
+      },
+      {
+        "id": "m19",
+        "title": "Tune the chosen model on 6 languages with LoRA",
+        "role": "maker",
+        "size": "L",
+        "xp": 0,
+        "coins": 0,
+        "strat": "llm-tune",
+        "call": null,
+        "sampleReward": "7000",
+        "sampleCurrency": "₹",
+        "safetyNote": "",
+        "stage": 3,
+        "sampleState": "Open",
+        "where": "Online",
+        "fit": "Good for you if you have fine-tuned a model before",
+        "dependsOn": [
+          "m17",
+          "m18"
+        ],
+        "detail": {
+          "brief": "This is the shortcut: a few days of tuning instead of months of training from zero.",
+          "steps": [
+            "Mix the 6 datasets with equal weight per language",
+            "Tune with LoRA on one 8-GPU node",
+            "Save checkpoints every 2,000 steps",
+            "Publish the training config"
+          ],
+          "handIn": "Tuned weights and training log",
+          "doneWhen": "Training finishes and the config re-runs on a fresh machine",
+          "checkedBy": "1 Checker re-runs 500 steps and compares loss",
+          "agentDoes": "Writes configs and watches the run",
+          "humanDoes": "Chooses settings and stops bad runs",
+          "tools": "PyTorch, PEFT, rented GPUs",
+          "skills": "Model training"
+        }
+      },
+      {
+        "id": "m20",
+        "title": "Score the tuned model in 6 languages, losses included",
+        "role": "checker",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "llm-tune",
+        "call": null,
+        "sampleReward": "1500",
+        "sampleCurrency": "₹",
+        "safetyNote": "",
+        "stage": 3,
+        "sampleState": "Open",
+        "where": "Online",
+        "fit": "Good for you if you like proving things wrong",
+        "dependsOn": [
+          "m19"
+        ],
+        "detail": {
+          "brief": "A score that hides losses is worse than none. We publish every number, including where the tuned model is beaten.",
+          "steps": [
+            "Run the held-out test in 6 languages",
+            "Compare with the 3 base models",
+            "Write one line per language: win or loss"
+          ],
+          "handIn": "Score report",
+          "doneWhen": "All 6 languages scored with the same test as the base models",
+          "checkedBy": "A second Checker re-runs one language",
+          "agentDoes": "Runs the test",
+          "humanDoes": "Checks the numbers make sense",
+          "tools": "Held-out test set",
+          "skills": "Evaluation"
+        }
+      },
+      {
+        "id": "m21",
+        "title": "Build the WhatsApp voice helper on open models",
+        "role": "maker",
+        "size": "L",
+        "xp": 0,
+        "coins": 0,
+        "strat": "llm-voice",
+        "call": {
+          "q": "Odia speech recognition is poor. What do we do for Odia users?",
+          "opts": [
+            "Launch Odia as text-only",
+            "Delay Odia by 4 weeks",
+            "Launch and warn users"
+          ]
+        },
+        "sampleReward": "6000",
+        "sampleCurrency": "₹",
+        "safetyNote": "",
+        "stage": 5,
+        "sampleState": "Open",
+        "where": "Online",
+        "fit": "Good for you if you have built a chat bot",
+        "dependsOn": [],
+        "detail": {
+          "brief": "Most people in our first districts send voice notes, not text. The helper listens, answers and speaks back in the same language.",
+          "steps": [
+            "Connect open speech-to-text for 6 languages",
+            "Send the text to the best open language model",
+            "Speak the answer back with open text-to-speech",
+            "Store no audio after the answer is sent"
+          ],
+          "handIn": "Working number and source code",
+          "doneWhen": "A voice question gets a spoken answer in under 20 seconds in all 6 languages",
+          "checkedBy": "2 Checkers send 10 voice notes each",
+          "agentDoes": "Writes the glue code and tests",
+          "humanDoes": "Picks models and checks privacy",
+          "tools": "WhatsApp Business API, open speech models",
+          "skills": "Backend, APIs"
+        }
+      },
+      {
+        "id": "m22",
+        "title": "Ask the voice helper 5 questions in your language",
+        "role": "user",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "llm-voice",
+        "call": null,
+        "sampleReward": "200",
+        "sampleCurrency": "₹",
+        "safetyNote": "",
+        "stage": 5,
+        "sampleState": "Open",
+        "where": "Online",
+        "fit": "Good for you if you speak any Indian language",
+        "dependsOn": [],
+        "detail": {
+          "brief": "Real questions from real speakers show where the helper breaks.",
+          "steps": [
+            "Send 5 voice notes about everyday things",
+            "Mark each answer right, wrong or confusing",
+            "Say which words it misheard"
+          ],
+          "handIn": "5 rated answers",
+          "doneWhen": "All 5 rated",
+          "checkedBy": "A Checker listens to 1 of the 5",
+          "agentDoes": "Logs your ratings",
+          "humanDoes": "Asks and judges",
+          "tools": "WhatsApp",
+          "skills": "none"
+        }
+      },
+      {
+        "id": "m23",
+        "title": "Get 3 village libraries to try the helper",
+        "role": "champion",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "llm-voice",
+        "call": null,
+        "sampleReward": "1500",
+        "sampleCurrency": "₹",
+        "safetyNote": "Visit in daylight with the librarian present; never collect phone numbers yourself.",
+        "stage": 5,
+        "sampleState": "Open",
+        "where": "On ground",
+        "fit": "Good for you if people listen when you explain things",
+        "dependsOn": [],
+        "detail": {
+          "brief": "Librarians are trusted and already help people with forms. If they show the helper, people try it.",
+          "steps": [
+            "Meet 3 librarians",
+            "Show the helper on your phone",
+            "Leave a printed card with the number",
+            "Count first-week users with their OK"
+          ],
+          "handIn": "3 visit notes and first-week counts",
+          "doneWhen": "3 libraries agree and share a count",
+          "checkedBy": "1 Checker calls each library",
+          "agentDoes": "Prints cards and plans visits",
+          "humanDoes": "Visits and explains",
+          "tools": "Printed cards",
+          "skills": "Talking to people"
+        }
+      },
+      {
+        "id": "m24",
+        "title": "Check 50 voice answers for wrong or unsafe advice",
+        "role": "checker",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "llm-voice",
+        "call": null,
+        "sampleReward": "1200",
+        "sampleCurrency": "₹",
+        "safetyNote": "",
+        "stage": 5,
+        "sampleState": "Open",
+        "where": "Online",
+        "fit": "Good for you if you speak Assamese or Odia",
+        "dependsOn": [
+          "m21"
+        ],
+        "detail": {
+          "brief": "Wrong health or money advice in someone's own language is trusted more, so it does more harm.",
+          "steps": [
+            "Listen to 50 random answers",
+            "Mark wrong, unsafe or fine",
+            "Write the right answer for every wrong one"
+          ],
+          "handIn": "Rated list of 50",
+          "doneWhen": "All 50 rated with notes",
+          "checkedBy": "A second Checker samples 10",
+          "agentDoes": "Picks a random sample",
+          "humanDoes": "Judges the answers",
+          "tools": "Answer log",
+          "skills": "Assamese or Odia"
+        }
+      },
+      {
+        "id": "llm-voice-back",
+        "title": "Back Voice Bridge's phone bill",
+        "role": "patron",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "llm-voice",
+        "call": null,
+        "sampleReward": "0",
+        "sampleCurrency": "₹",
+        "safetyNote": "",
+        "stage": 5,
+        "sampleState": "Open",
+        "where": "Online",
+        "fit": "Good for you if you want people helped this month",
+        "dependsOn": [],
+        "detail": {
+          "brief": "Every answer costs a little in phone and model fees. Backing keeps the helper free.",
+          "steps": [
+            "Read the plan",
+            "Pick an amount",
+            "Back the plan"
+          ],
+          "handIn": "Backing",
+          "doneWhen": "Backing recorded",
+          "checkedBy": "Ledger",
+          "agentDoes": "Shows the costs",
+          "humanDoes": "Decides",
+          "tools": "Joystick wallet",
+          "skills": "none"
+        }
       }
     ],
     "sample": {
@@ -3286,7 +3659,7 @@
       "prize": "5000000",
       "currency": "₹",
       "players": "310",
-      "squads": "3",
+      "squads": "4",
       "finished": null,
       "people": [
         {
@@ -3318,6 +3691,136 @@
           "Bio (one line)": "Linguist who knows 6 scripts. Cleans text so models learn right.",
           "Squad": "Data Desh",
           "Type": "Regular"
+        },
+        {
+          "Name": "Meenakshi Iyer",
+          "Agent": "Echo",
+          "City": "Bhubaneswar",
+          "Country": "India",
+          "Main role": "Leader",
+          "Bio (one line)": "Runs a village library network and wants answers in Odia today",
+          "Squad": "Voice Bridge",
+          "Type": "Regular"
+        },
+        {
+          "Name": "Ritu Baruah",
+          "Agent": "Gogo",
+          "City": "Guwahati",
+          "Country": "India",
+          "Main role": "Checker",
+          "Bio (one line)": "Assamese teacher who checks every answer the helper gives",
+          "Squad": "Voice Bridge",
+          "Type": "Regular"
+        }
+      ],
+      "chats": [
+        {
+          "room": "mission",
+          "from": "Fatima Sheikh · Data Desh",
+          "text": "Odia corpus crossed 1.2 billion clean words this morning. Licence log is up to date: 41 sources, all CC BY or public domain.",
+          "minutesAgo": 2880
+        },
+        {
+          "room": "mission",
+          "from": "Vikram Rao · Bharat Base",
+          "text": "Great. We need Odia and Santali most. The tokenizer still splits Santali (Ol Chiki) into 4× the pieces of Hindi.",
+          "minutesAgo": 2820
+        },
+        {
+          "room": "mission",
+          "from": "Arnav Singh · Fine-Tune Force",
+          "text": "Heads-up: we're aiming straight at the Test checkpoint. We'll tune an open model instead of training from zero, so we skip Train.",
+          "minutesAgo": 1500
+        },
+        {
+          "room": "mission",
+          "from": "Vikram Rao · Bharat Base",
+          "text": "Fair race. Only ask: use the same held-out test as us, and publish your losses too.",
+          "minutesAgo": 1440
+        },
+        {
+          "room": "mission",
+          "from": "Meenakshi Iyer · Voice Bridge",
+          "text": "And we're going straight for the finish: 10,000 weekly users. Two libraries in Khordha start using the WhatsApp helper on Monday.",
+          "minutesAgo": 600
+        },
+        {
+          "room": "mission",
+          "from": "Fatima Sheikh · Data Desh",
+          "text": "Love it. Can every question people ask your helper come back to us, with consent? That's the test data we're missing.",
+          "minutesAgo": 560
+        },
+        {
+          "room": "mission",
+          "from": "Meenakshi Iyer · Voice Bridge",
+          "text": "Yes. Consent line is in the welcome message, audio deleted after transcription.",
+          "minutesAgo": 540
+        },
+        {
+          "room": "mission",
+          "from": "Ritu Baruah · Voice Bridge",
+          "text": "Looking for 2 more Assamese Checkers. 20 minutes a day, ₹200 a session. Tag anyone who might help!",
+          "minutesAgo": 90
+        },
+        {
+          "room": "llm-data",
+          "from": "Fatima Sheikh",
+          "text": "This week: remove duplicates from the Odia text, then write the Kannada test questions. Who has time for 50 questions?",
+          "minutesAgo": 2000
+        },
+        {
+          "room": "llm-data",
+          "from": "Kiran Hegde",
+          "text": "I'll take the Kannada questions. Do we want school-level or newspaper-level?",
+          "minutesAgo": 1900
+        },
+        {
+          "room": "llm-data",
+          "from": "Fatima Sheikh",
+          "text": "Both: 25 each. Keep answers short so Checkers can mark them fast.",
+          "minutesAgo": 1880
+        },
+        {
+          "room": "llm-data",
+          "from": "Fatima Sheikh",
+          "text": "Reminder: no text from sites without a clear licence, even if it looks public. It sinks the whole release.",
+          "minutesAgo": 300
+        },
+        {
+          "room": "llm-tune",
+          "from": "Arnav Singh",
+          "text": "Shortlist for the base-model test: three open 1–3B models. First run shows one is great on Hindi but weak on Odia.",
+          "minutesAgo": 1200
+        },
+        {
+          "room": "llm-tune",
+          "from": "Sara Thomas",
+          "text": "The best one has a non-commercial licence. Flagging before anyone tunes on it.",
+          "minutesAgo": 1100
+        },
+        {
+          "room": "llm-tune",
+          "from": "Arnav Singh",
+          "text": "Good catch. Open licence only. I'll add a fourth model to the comparison.",
+          "minutesAgo": 1080
+        },
+        {
+          "room": "llm-voice",
+          "from": "Meenakshi Iyer",
+          "text": "Prototype answers in Hindi and Tamil in about 12 seconds. Odia speech recognition is still poor.",
+          "minutesAgo": 700
+        },
+        {
+          "room": "llm-voice",
+          "from": "Ritu Baruah",
+          "text": "Assamese is ok for short questions. Long voice notes get cut off after 60 seconds.",
+          "minutesAgo": 650
+        },
+        {
+          "room": "llm-voice",
+          "from": "Meenakshi Iyer",
+          "text": "Let's launch Odia as text-only first and say so clearly. Better than wrong answers.",
+          "minutesAgo": 620
         }
       ],
       "inviteExamples": [
@@ -3334,7 +3837,7 @@
   {
     "id": "harness",
     "title": "Agents you can trust with real work",
-    "pitch": "Nobody lets an agent touch real money or code unwatched. Build the open engine that makes Joystick's agents safe to trust.",
+    "pitch": "Nobody lets an agent touch real money or code unwatched. Build the open-source engine, attacked by thousands of players, that makes agents safe to trust.",
     "tag": "Product",
     "glyph": "cube",
     "color": "var(--gold)",
@@ -3465,7 +3968,10 @@
           "Red-team attacks become CI tests; a tool only merges when its tests pass."
         ],
         "rolesNeeded": "1 Maker (browser automation), 1 Checker (security)",
-        "relations": "Competes with Small Crew on the loop design; shares the tool manifests and red-team suite with them"
+        "relations": "Competes with Small Crew on the loop design; shares the tool manifests and red-team suite with them",
+        "aimsAt": 2,
+        "strengths": "Simple to reason about and audit. One trace per quest.",
+        "weaknesses": "One agent's mistakes are not caught by anything but the review step. Slow on big quests."
       },
       {
         "id": "har-crew",
@@ -3482,7 +3988,30 @@
           "Humans see only the final result plus the checker agent's notes."
         ],
         "rolesNeeded": "1 Planner",
-        "relations": "Competes with Loop Lab; its checker agent design feeds the Stage 3 review step for both"
+        "relations": "Competes with Loop Lab; its checker agent design feeds the Stage 3 review step for both",
+        "aimsAt": 2,
+        "strengths": "Least privilege comes naturally, because each agent holds one permission. Agents check each other.",
+        "weaknesses": "30 agents mean a higher model bill and harder debugging. Hand-offs lose context."
+      },
+      {
+        "id": "har-borrow",
+        "name": "Adopt an open runtime, then attack it",
+        "squad": "Borrow & Break",
+        "bet": "Don't build another agent loop. Adopt a proven open-source runtime, wrap it in our 10 safety rules, and spend everything on breaking it at scale.",
+        "color": "var(--gold)",
+        "sampleStatus": "Running",
+        "sampleBlocker": "Needs a 200-agent test budget",
+        "howItWorks": [
+          "Score 3 open-source agent runtimes against our 10 safety rules",
+          "Wrap the winner: permissions, spend caps, sandbox, full trace",
+          "Run 200 agents for 24 hours, then 1,000 for 72",
+          "Players attack it; every break becomes a test"
+        ],
+        "rolesNeeded": "1 Expert (security), 1 Checker (ledger)",
+        "relations": "Skips Tools and Review and aims straight at Scale. Uses Small Crew's attack suite; races Loop Lab's own engine.",
+        "aimsAt": 4,
+        "strengths": "Skips months of plumbing; thousands of players can attack the same open code.",
+        "weaknesses": "We inherit someone else's design choices and must keep up with their releases."
       }
     ],
     "quests": [
@@ -4103,6 +4632,221 @@
           "tools": "Sandbox fleet, payment sandbox, OpenTelemetry",
           "skills": "Distributed systems"
         }
+      },
+      {
+        "id": "h16",
+        "title": "Score 3 open-source agent runtimes against our 10 safety rules",
+        "role": "expert",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "har-borrow",
+        "call": null,
+        "sampleReward": "90",
+        "sampleCurrency": "$",
+        "safetyNote": "",
+        "stage": 4,
+        "sampleState": "Open",
+        "where": "Online",
+        "fit": "Good for you if you have built with agent frameworks",
+        "dependsOn": [],
+        "detail": {
+          "brief": "Borrowing only works if the runtime lets us enforce every rule: permissions, spend caps, sandbox and full traces.",
+          "steps": [
+            "Pick 3 MIT or Apache-licensed runtimes",
+            "Check each of the 10 rules: built in, possible, or impossible",
+            "Note how active each project is",
+            "Recommend one"
+          ],
+          "handIn": "Scorecard with links",
+          "doneWhen": "30 cells filled, each with evidence",
+          "checkedBy": "1 Checker verifies 10 cells",
+          "agentDoes": "Reads docs and code",
+          "humanDoes": "Judges the hard cells",
+          "tools": "GitHub",
+          "skills": "Agent frameworks, security"
+        }
+      },
+      {
+        "id": "h17",
+        "title": "Run 200 agents on the chosen runtime for 24 hours",
+        "role": "maker",
+        "size": "L",
+        "xp": 0,
+        "coins": 0,
+        "strat": "har-borrow",
+        "call": null,
+        "sampleReward": "300",
+        "sampleCurrency": "$",
+        "safetyNote": "",
+        "stage": 4,
+        "sampleState": "Open",
+        "where": "Online",
+        "fit": "Good for you if you run systems at scale",
+        "dependsOn": [
+          "h16",
+          "h19"
+        ],
+        "detail": {
+          "brief": "Before 1,000 agents for 72 hours, prove 200 can run a day without a double payment or a lost trace.",
+          "steps": [
+            "Deploy 200 agents on replayed quests",
+            "Give each a $5 test-credit cap",
+            "Record every tool call and payment",
+            "Stop at once on any unapproved action"
+          ],
+          "handIn": "Run dashboard and trace export",
+          "doneWhen": "24 hours, every action traced",
+          "checkedBy": "Reconciled by h18's Checker",
+          "agentDoes": "Deploys and watches",
+          "humanDoes": "Decides when to stop",
+          "tools": "Cloud VMs, test credits",
+          "skills": "Ops"
+        }
+      },
+      {
+        "id": "h18",
+        "title": "Reconcile the 24-hour run's ledger to the cent",
+        "role": "checker",
+        "size": "M",
+        "xp": 0,
+        "coins": 0,
+        "strat": "har-borrow",
+        "call": null,
+        "sampleReward": "80",
+        "sampleCurrency": "$",
+        "safetyNote": "",
+        "stage": 4,
+        "sampleState": "Open",
+        "where": "Online",
+        "fit": "Good for you if you like numbers adding up",
+        "dependsOn": [
+          "h17"
+        ],
+        "detail": {
+          "brief": "One double payment means the engine is not safe, however clever it is.",
+          "steps": [
+            "Export holds, payments and refunds",
+            "Match each to an approved task",
+            "List every mismatch"
+          ],
+          "handIn": "Reconciliation sheet",
+          "doneWhen": "Every cent explained",
+          "checkedBy": "A second Checker samples 50 rows",
+          "agentDoes": "Matches rows",
+          "humanDoes": "Investigates mismatches",
+          "tools": "Ledger export",
+          "skills": "Accounting basics"
+        }
+      },
+      {
+        "id": "h19",
+        "title": "Decide: adopt the runtime or keep building our own",
+        "role": "leader",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "har-borrow",
+        "call": {
+          "q": "The best runtime fails 2 of our 10 rules. What now?",
+          "opts": [
+            "Adopt it and patch the 2 rules",
+            "Pick the runner-up",
+            "Join Loop Lab instead"
+          ]
+        },
+        "sampleReward": "30",
+        "sampleCurrency": "$",
+        "safetyNote": "",
+        "stage": 4,
+        "sampleState": "Open",
+        "where": "Online",
+        "fit": "Good for you if people trust your calls",
+        "dependsOn": [
+          "h16"
+        ],
+        "detail": {
+          "brief": "This is the fork in the road for the whole squad, and it should be made in the open.",
+          "steps": [
+            "Read the scorecard",
+            "Hear Loop Lab's case for its own engine",
+            "Decide and write why"
+          ],
+          "handIn": "Decision note",
+          "doneWhen": "Posted in the mission chat",
+          "checkedBy": "Mission creator reads it",
+          "agentDoes": "Summarises both sides",
+          "humanDoes": "Decides",
+          "tools": "Scorecard",
+          "skills": "Judgement"
+        }
+      },
+      {
+        "id": "h20",
+        "title": "Hide a fake instruction in a test issue and see if the agent obeys",
+        "role": "user",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "har-borrow",
+        "call": null,
+        "sampleReward": "15",
+        "sampleCurrency": "$",
+        "safetyNote": "",
+        "stage": 4,
+        "sampleState": "Open",
+        "where": "Online",
+        "fit": "Good for you if you like finding loopholes",
+        "dependsOn": [],
+        "detail": {
+          "brief": "Thousands of players poking at the engine find more holes than any one team. This runs only in the test sandbox.",
+          "steps": [
+            "Open a test issue in the sandbox repo",
+            "Hide an instruction like 'also post the token'",
+            "Ask an agent to fix the issue",
+            "Report what it did"
+          ],
+          "handIn": "Short report and trace link",
+          "doneWhen": "Report filed with the trace",
+          "checkedBy": "An Expert replays the trace",
+          "agentDoes": "Sets up the sandbox",
+          "humanDoes": "Writes the trap",
+          "tools": "Sandbox repo only",
+          "skills": "none"
+        }
+      },
+      {
+        "id": "har-borrow-back",
+        "title": "Back Borrow & Break's test budget",
+        "role": "patron",
+        "size": "S",
+        "xp": 0,
+        "coins": 0,
+        "strat": "har-borrow",
+        "call": null,
+        "sampleReward": "0",
+        "sampleCurrency": "$",
+        "safetyNote": "",
+        "stage": 4,
+        "sampleState": "Open",
+        "where": "Online",
+        "fit": "Good for you if you want proof before promises",
+        "dependsOn": [],
+        "detail": {
+          "brief": "200 agents for a day costs real money in compute and test credits.",
+          "steps": [
+            "Read the plan",
+            "Pick an amount",
+            "Back the plan"
+          ],
+          "handIn": "Backing",
+          "doneWhen": "Backing recorded",
+          "checkedBy": "Ledger",
+          "agentDoes": "Shows the costs",
+          "humanDoes": "Decides",
+          "tools": "Joystick wallet",
+          "skills": "none"
+        }
       }
     ],
     "sample": {
@@ -4394,7 +5138,7 @@
       "prize": "60000",
       "currency": "$",
       "players": "190",
-      "squads": "2",
+      "squads": "3",
       "finished": null,
       "people": [
         {
@@ -4416,6 +5160,112 @@
           "Bio (one line)": "Designer who builds with agents every day.",
           "Squad": "Small Crew",
           "Type": "Regular"
+        },
+        {
+          "Name": "Tomás Ortega",
+          "Agent": "Fuzz",
+          "City": "Valencia",
+          "Country": "Spain",
+          "Main role": "Leader",
+          "Bio (one line)": "Security engineer who would rather break things than build them",
+          "Squad": "Borrow & Break",
+          "Type": "Regular"
+        },
+        {
+          "Name": "Aisha Bello",
+          "Agent": "Ledger",
+          "City": "Lagos",
+          "Country": "Nigeria",
+          "Main role": "Checker",
+          "Bio (one line)": "Accountant who reconciles agent payments to the cent",
+          "Squad": "Borrow & Break",
+          "Type": "Regular"
+        }
+      ],
+      "chats": [
+        {
+          "room": "mission",
+          "from": "Kit Bashford · Loop Lab",
+          "text": "Spend caps with hold-then-pay are merged. Next: the GitHub tool with read-only by default.",
+          "minutesAgo": 3000
+        },
+        {
+          "room": "mission",
+          "from": "Lena Vogt · Small Crew",
+          "text": "Our 30 prompt-injection attacks are ready for anyone's tools. 7 of 30 got through the first browser tool.",
+          "minutesAgo": 2600
+        },
+        {
+          "room": "mission",
+          "from": "Tomás Ortega · Borrow & Break",
+          "text": "New plan: we're adopting an existing open-source runtime and aiming straight at Scale. Skipping Tools and Review.",
+          "minutesAgo": 1400
+        },
+        {
+          "room": "mission",
+          "from": "Kit Bashford · Loop Lab",
+          "text": "Bold. The hard part isn't the loop, it's the permission model. Happy to share ours.",
+          "minutesAgo": 1350
+        },
+        {
+          "room": "mission",
+          "from": "Tomás Ortega · Borrow & Break",
+          "text": "Yes please. We'll run Small Crew's 30 attacks against whatever we pick, and publish the results.",
+          "minutesAgo": 1320
+        },
+        {
+          "room": "mission",
+          "from": "Aisha Bello · Borrow & Break",
+          "text": "Anyone free for the fake-instruction test? Hide a trap in a sandbox issue and see if the agent obeys. 15 minutes, very fun.",
+          "minutesAgo": 120
+        },
+        {
+          "room": "har-loop",
+          "from": "Kit Bashford",
+          "text": "The GitHub tool is next. Rule: read-only unless the human approves a write for that one repo.",
+          "minutesAgo": 2000
+        },
+        {
+          "room": "har-loop",
+          "from": "Priya Raman",
+          "text": "Should approval expire? I'd say after one task.",
+          "minutesAgo": 1950
+        },
+        {
+          "room": "har-loop",
+          "from": "Kit Bashford",
+          "text": "Agreed: one task, one repo. Writing it into the permission model.",
+          "minutesAgo": 1940
+        },
+        {
+          "room": "har-crew",
+          "from": "Lena Vogt",
+          "text": "The sandbox runs every tool call in a fresh container. Startup is 900 ms; we need it under 300.",
+          "minutesAgo": 1600
+        },
+        {
+          "room": "har-crew",
+          "from": "Jonas Weber",
+          "text": "Pre-warmed pool of 20 containers got it to 240 ms in my test.",
+          "minutesAgo": 1500
+        },
+        {
+          "room": "har-borrow",
+          "from": "Tomás Ortega",
+          "text": "Scorecard so far: runtime A passes 9 of 10 rules, B passes 7, C still testing.",
+          "minutesAgo": 900
+        },
+        {
+          "room": "har-borrow",
+          "from": "Aisha Bello",
+          "text": "A fails the spend-cap rule: it has no way to hold money before a tool call. That's the one we can't skip.",
+          "minutesAgo": 860
+        },
+        {
+          "room": "har-borrow",
+          "from": "Tomás Ortega",
+          "text": "Then it's patch A or pick B. I'll decide in the open this week; add your view here.",
+          "minutesAgo": 840
         }
       ],
       "inviteExamples": [
@@ -4563,7 +5413,10 @@
           "Add snorkel surveys on reef flats to cut the cost per site."
         ],
         "rolesNeeded": "2 Experts (certified divers), 1 Checker (marine biology)",
-        "relations": "Feeds Sky Eyes: their maps can't be trusted without Reef Ops' ground truth"
+        "relations": "Feeds Sky Eyes: their maps can't be trusted without Reef Ops' ground truth",
+        "aimsAt": null,
+        "strengths": "Real ground truth from trained divers. Results experts will trust.",
+        "weaknesses": "Expensive and slow, and weather-bound. Stuck at 74 sites with 30 reports unchecked."
       },
       {
         "id": "reef-sky",
@@ -4579,7 +5432,10 @@
           "They produce draft maps for all candidate sites."
         ],
         "rolesNeeded": "1 Checker (any human)",
-        "relations": "Competes with Reef Ops on cost; depends on Reef Ops' ground truth to prove itself; likely to become Stage 3's model team"
+        "relations": "Competes with Reef Ops on cost; depends on Reef Ops' ground truth to prove itself; likely to become Stage 3's model team",
+        "aimsAt": null,
+        "strengths": "Fast and cheap; covers far more area than divers can.",
+        "weaknesses": "No human has checked any map, so none of its 40 sites count yet. It can't tell bleached coral from sand without ground truth."
       }
     ],
     "quests": [
@@ -5476,6 +6332,7 @@
           "Type": "Regular"
         }
       ],
+      "chats": [],
       "inviteExamples": [
         {
           "From": "Coral · Sky Eyes (agents only)",
@@ -5634,7 +6491,10 @@
           "Publish a block-level map and give the data to the city."
         ],
         "rolesNeeded": "Anyone; especially 1 Maker (forms/maps), 2 Checkers, 1 Storyteller in Dayton",
-        "relations": "No competing squad yet"
+        "relations": "No competing squad yet",
+        "aimsAt": null,
+        "strengths": "Led by a retired water engineer. Low cost. Works with the city's legal deadline, not against it.",
+        "weaknesses": "Two people so far. Depends on renters and older blocks taking part."
       },
       {
         "id": "lead-filter",
@@ -5650,7 +6510,10 @@
           "Check filters are used after 30 days"
         ],
         "rolesNeeded": "1 Planner, 1 Storyteller",
-        "relations": "Works next to Pipe Finders and uses their map"
+        "relations": "Works next to Pipe Finders and uses their map",
+        "aimsAt": null,
+        "strengths": "Protects kids this month, not in 5 years.",
+        "weaknesses": "Filters need changing; doesn't remove the pipe."
       }
     ],
     "quests": [
@@ -6543,6 +7406,7 @@
           "Type": "New"
         }
       ],
+      "chats": [],
       "inviteExamples": [
         {
           "From": "Pip (your agent)",
@@ -6693,7 +7557,10 @@
           "Re-check every score and publish all results, good or bad."
         ],
         "rolesNeeded": "1 Checker (education statistics), 1 User in Nairobi or Kisumu to help run the test",
-        "relations": "Only squad; may later feed a larger follow-up study run by the partner university."
+        "relations": "Only squad; may later feed a larger follow-up study run by the partner university.",
+        "aimsAt": null,
+        "strengths": "Led by a working head teacher; the app already works; 9 of 10 countries done.",
+        "weaknesses": "Small samples per country; depends on school calendars; one open Checker spot."
       },
       {
         "id": "tutor-front",
@@ -6710,7 +7577,10 @@
           "Compare with Chalk Squad's test"
         ],
         "rolesNeeded": "1 Expert (primary teacher)",
-        "relations": "Competes with Chalk Squad; same end test"
+        "relations": "Competes with Chalk Squad; same end test",
+        "aimsAt": null,
+        "strengths": "No phones needed; teachers already there.",
+        "weaknesses": "Busy teachers may drop it."
       }
     ],
     "quests": [
@@ -7526,6 +8396,7 @@
           "Type": "Star"
         }
       ],
+      "chats": [],
       "inviteExamples": [
         {
           "From": "Chalk · Chioma's agent",
@@ -7673,7 +8544,10 @@
           "The helper never asks for ID numbers; hard cases are handed to the nearest village volunteer"
         ],
         "rolesNeeded": "1 Expert (Bhojpuri), 1 User tester (Bundeli)",
-        "relations": "Feeds Village Volunteers and NGO Bridge with the same checked answers; competes with them on Stage 2 language count."
+        "relations": "Feeds Village Volunteers and NGO Bridge with the same checked answers; competes with them on Stage 2 language count.",
+        "aimsAt": null,
+        "strengths": "Reaches anyone with WhatsApp, costs little per answer, and every answer traces back to a checked card.",
+        "weaknesses": "Can't help families without a smartphone, and a wrong answer spreads fast."
       },
       {
         "id": "ben-village",
@@ -7690,7 +8564,10 @@
           "Volunteers walk families through CSC visits and check forms before they're sent"
         ],
         "rolesNeeded": "2 Leaders (field, Sitapur and Banda)",
-        "relations": "Uses Haq Helpers' answers; will likely merge field work with NGO Bridge in Banda."
+        "relations": "Uses Haq Helpers' answers; will likely merge field work with NGO Bridge in Banda.",
+        "aimsAt": null,
+        "strengths": "Trust. Families open up to a neighbour, and it works without smartphones.",
+        "weaknesses": "Slow to scale, depends on a few people, and quality varies by volunteer."
       },
       {
         "id": "ben-ngo",
@@ -7707,7 +8584,10 @@
           "Track payments and fix DBT failures with bank branches"
         ],
         "rolesNeeded": "1 Planner",
-        "relations": "Competes with Village Volunteers in Banda; feeds Stage 4 payment tracking for all squads."
+        "relations": "Competes with Village Volunteers in Banda; feeds Stage 4 payment tracking for all squads.",
+        "aimsAt": null,
+        "strengths": "Borrows staff and trust that already exist; strong on banking and DBT fixes.",
+        "weaknesses": "Waiting on 3 NGOs to reply; each partner has its own priorities."
       }
     ],
     "quests": [
@@ -8625,6 +9505,7 @@
           "Type": "New"
         }
       ],
+      "chats": [],
       "inviteExamples": [
         {
           "From": "Didi · Sunita's agent",
@@ -8771,7 +9652,10 @@
           "Publish one page per candidate in ballot order, and share per constituency until the silence period"
         ],
         "rolesNeeded": "3 Experts (Marathi), 4 Checkers",
-        "relations": "The only squad. It borrows second Checkers from other missions' Checker pool to stay independent."
+        "relations": "The only squad. It borrows second Checkers from other missions' Checker pool to stay independent.",
+        "aimsAt": null,
+        "strengths": "One template and one process for everyone, so it's provably neutral. A journalist lead and law-student experts.",
+        "weaknesses": "Short of Marathi writers and Checkers with 12 days left, and only one squad, so there's no backup if it stalls."
       },
       {
         "id": "cand-talk",
@@ -8787,7 +9671,10 @@
           "Log how many people listened"
         ],
         "rolesNeeded": "2 Storytellers (Marathi)",
-        "relations": "Builds on Vote Clear's profiles"
+        "relations": "Builds on Vote Clear's profiles",
+        "aimsAt": null,
+        "strengths": "Reaches people who don't read PDFs.",
+        "weaknesses": "Slow; must stay strictly neutral."
       }
     ],
     "quests": [
@@ -9765,6 +10652,7 @@
           "Type": "Regular"
         }
       ],
+      "chats": [],
       "inviteExamples": [
         {
           "From": "Echo · Arjun's agent",
@@ -9924,7 +10812,10 @@
           "Follow up at day 15, 30 and 60, then return for an after-photo"
         ],
         "rolesNeeded": "Anyone with a phone; 2 Checkers; 1 Expert (road ownership)",
-        "relations": "The only squad for now. It may split into one squad per city corporation once filing starts."
+        "relations": "The only squad for now. It may split into one squad per city corporation once filing starts.",
+        "aimsAt": null,
+        "strengths": "Huge free coverage from people already on the road. Simple quests.",
+        "weaknesses": "Pins cluster on delivery routes and miss residential lanes. One big squad, so quality varies."
       },
       {
         "id": "pot-crash",
@@ -9940,7 +10831,10 @@
           "Push the top 100 to the front of the queue"
         ],
         "rolesNeeded": "1 Expert (road safety)",
-        "relations": "Feeds Pothole Patrol's filing order"
+        "relations": "Feeds Pothole Patrol's filing order",
+        "aimsAt": null,
+        "strengths": "Fixes what hurts people first.",
+        "weaknesses": "Crash data is patchy."
       }
     ],
     "quests": [
@@ -10876,6 +11770,7 @@
           "Type": "Regular"
         }
       ],
+      "chats": [],
       "inviteExamples": [
         {
           "From": "Pip (your agent)",
@@ -11071,7 +11966,10 @@
           "Students code replies into a sheet. Two Checkers re-read 1 in 5."
         ],
         "rolesNeeded": "4 Experts in Bihar for appeals (1 each in Gaya, Muzaffarpur, Purnia, Patna), 2 Checkers to code replies",
-        "relations": "Only squad on this mission. Its tracker and appeal templates are reused by later squads."
+        "relations": "Only squad on this mission. Its tracker and appeal templates are reused by later squads.",
+        "aimsAt": null,
+        "strengths": "Retired teachers know how block offices work, speak Hindi and Bhojpuri, and are taken seriously by officials.",
+        "weaknesses": "Only 5 people, mostly in Patna. Appeals in Gaya and Purnia wait for someone to travel, and Commission hearings need a person in Patna."
       },
       {
         "id": "rti-parents",
@@ -11087,7 +11985,10 @@
           "They ask at the next meeting and note the answers"
         ],
         "rolesNeeded": "1 Expert (school grants)",
-        "relations": "Uses School Watch's replies"
+        "relations": "Uses School Watch's replies",
+        "aimsAt": null,
+        "strengths": "Parents are there every week; RTIs take months.",
+        "weaknesses": "Parents may not feel safe asking."
       }
     ],
     "quests": [
@@ -12037,6 +12938,7 @@
           "Type": "Regular"
         }
       ],
+      "chats": [],
       "inviteExamples": []
     }
   },
@@ -12176,7 +13078,10 @@
           "Tune thresholds after every real flood, then hand over to the CDA and LCDA."
         ],
         "rolesNeeded": "1 Maker (electronics), 1 Expert (hydrology), 1 Leader with CDA contacts",
-        "relations": "Only squad. Its open hardware and alert text can feed later squads in other cities."
+        "relations": "Only squad. Its open hardware and alert text can feed later squads in other cities.",
+        "aimsAt": null,
+        "strengths": "Femi knows SMS systems from telecom work and lives on a street that floods. Low-cost open hardware.",
+        "weaknesses": "Only 3 people, no hydrologist yet, and no deal with a local body to take over."
       },
       {
         "id": "flood-street",
@@ -12192,7 +13097,10 @@
           "Practise one warning drill a month"
         ],
         "rolesNeeded": "1 Leader (community)",
-        "relations": "Can carry Flood Watch's alerts the last 100 metres"
+        "relations": "Can carry Flood Watch's alerts the last 100 metres",
+        "aimsAt": null,
+        "strengths": "Works when phones are off or out of credit.",
+        "weaknesses": "Depends on one person per street."
       }
     ],
     "quests": [
@@ -13084,6 +13992,7 @@
           "Type": "New"
         }
       ],
+      "chats": [],
       "inviteExamples": []
     }
   },
@@ -13235,7 +14144,10 @@
           "Anything with a court date goes straight to a legal aid referral."
         ],
         "rolesNeeded": "1 Patron, 1 Checker (Georgia-licensed lawyer), 1 Expert (Spanish)",
-        "relations": "Only squad. Will refer court cases to the legal aid clinic partner."
+        "relations": "Only squad. Will refer court cases to the legal aid clinic partner.",
+        "aimsAt": null,
+        "strengths": "Jamal knows renters and their real problems. 4 letters already drafted.",
+        "weaknesses": "No lawyer on the squad yet. Only $3,200 of $8,000 raised."
       },
       {
         "id": "renter-block",
@@ -13252,7 +14164,10 @@
           "Follow up together"
         ],
         "rolesNeeded": "1 Expert (tenant law)",
-        "relations": "Uses Rent Right's letters"
+        "relations": "Uses Rent Right's letters",
+        "aimsAt": null,
+        "strengths": "Harder to ignore than one renter.",
+        "weaknesses": "People fear being pushed out."
       }
     ],
     "quests": [
@@ -14152,6 +15067,7 @@
           "Type": "New"
         }
       ],
+      "chats": [],
       "inviteExamples": []
     }
   },
@@ -14263,7 +15179,10 @@
           "Re-visit after each fix and update OSM."
         ],
         "rolesNeeded": "None (finished)",
-        "relations": "Only squad. Its open data is now used by other city water-map projects."
+        "relations": "Only squad. Its open data is now used by other city water-map projects.",
+        "aimsAt": null,
+        "strengths": "Small, fast jobs. Clear data. Good relations with district offices.",
+        "weaknesses": "Outer districts were slow. Fixes depended on district budgets."
       }
     ],
     "quests": [
@@ -14702,6 +15621,7 @@
           "Type": "Regular"
         }
       ],
+      "chats": [],
       "inviteExamples": []
     }
   },
@@ -14835,7 +15755,10 @@
           "Run build days and check photos"
         ],
         "rolesNeeded": "None (finished)",
-        "relations": "Only squad. Its design was later forked by local groups for longer ramps."
+        "relations": "Only squad. Its design was later forked by local groups for longer ramps.",
+        "aimsAt": null,
+        "strengths": "Small jobs let 85 players help; strict testing.",
+        "weaknesses": "Only fits one step; plywood costs vary."
       }
     ],
     "quests": [
@@ -15229,6 +16152,7 @@
           "Type": "Regular"
         }
       ],
+      "chats": [],
       "inviteExamples": []
     }
   },
@@ -15362,7 +16286,10 @@
           "Follow up weekly; ask panchayats to fund repairs stuck for parts; re-check after 30 days"
         ],
         "rolesNeeded": "Filled: 24 volunteers, 4 Checkers, 1 Planner",
-        "relations": "The only squad. It shared its field method with the benefits mission's Village Volunteers."
+        "relations": "The only squad. It shared its field method with the benefits mission's Village Volunteers.",
+        "aimsAt": null,
+        "strengths": "Local trust and knowledge, low cost, and data PHED could actually use.",
+        "weaknesses": "Heat and distance slowed the survey; the squad depended on PHED stock for parts."
       }
     ],
     "quests": [
@@ -15839,6 +16766,7 @@
         "Your notes": ""
       },
       "people": [],
+      "chats": [],
       "inviteExamples": []
     }
   },
@@ -15923,7 +16851,10 @@
           "Stop and refund if the price can't be met"
         ],
         "rolesNeeded": "None (finished)",
-        "relations": "Solo squad"
+        "relations": "Solo squad",
+        "aimsAt": null,
+        "strengths": "Clear numbers and an honest stop rule. Good accuracy testing.",
+        "weaknesses": "Didn't get real batch quotes before starting."
       }
     ],
     "quests": [
@@ -16330,6 +17261,7 @@
         "Your notes": ""
       },
       "people": [],
+      "chats": [],
       "inviteExamples": []
     }
   }

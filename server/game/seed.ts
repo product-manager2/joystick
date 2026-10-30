@@ -12,7 +12,7 @@ const shipped=(h:Item|undefined,field:string)=>JSON.stringify(h?.[field]??[]);
 const WAS_SHIPPED=(col:string,param:number)=>`EXISTS (SELECT 1 FROM jsonb_array_elements($${param}::jsonb) e WHERE e=to_jsonb(${col}))`;
 const questXp=(size:string)=>({S:120,M:280,L:800} as Record<string,number>)[size]??120;
 const stageCatalog=(s:Item)=>({catalogTracks:s.tracks??[],plainWords:s.plainWords??'',why:s.why??'',howItFits:s.howItFits??'',doneWhen:s.doneWhen??'',approves:s.approves??'',roles:s.roles??{},sampleStatus:s.sampleStatus??''});
-const planCatalog=(p:Item)=>({howItWorks:p.howItWorks??[],rolesNeeded:p.rolesNeeded??'',relations:p.relations??'',sampleStatus:p.sampleStatus??'',sampleBlocker:p.sampleBlocker??''});
+const planCatalog=(p:Item)=>({howItWorks:p.howItWorks??[],rolesNeeded:p.rolesNeeded??'',relations:p.relations??'',strengths:p.strengths??'',weaknesses:p.weaknesses??'',sampleStatus:p.sampleStatus??'',sampleBlocker:p.sampleBlocker??''});
 const questCatalog=(q:Item)=>({where:q.where??'',fit:q.fit??'',safetyNote:q.safetyNote??'',sampleReward:q.sampleReward??'',sampleCurrency:q.sampleCurrency??'',sampleState:q.sampleState??'',detail:q.detail??{}});
 const brief=(q:Item)=>({log:[],call:q.call??null,out:'',needs:q.needs??0,gain:0,back:q.back??null,catalog:questCatalog(q)});
 
@@ -53,7 +53,7 @@ export async function syncGameSeedCatalog(pool:Pool,catalog:Item[],history:Catal
           // Never-edited, unfinished stages take the new wording and target.
           for(const field of ['name','goal','target','unit'] as const){
             const value=s[field]??(field==='target'?1:field==='unit'?'results':'');
-            const u=await c.query(`UPDATE game_stages SET ${field}=$2 WHERE id=$1 AND version=1 AND status<>'approved' AND ${field} IS DISTINCT FROM $2 AND ${WAS_SHIPPED(field,3)}`,[sr.rows[0].id,value,shipped(h.stages?.[String(i)],field)]);
+            const u=await c.query(`UPDATE game_stages SET ${field}=$2 WHERE id=$1 AND version=1 AND status NOT IN ('approved','skipped') AND ${field} IS DISTINCT FROM $2 AND ${WAS_SHIPPED(field,3)}`,[sr.rows[0].id,value,shipped(h.stages?.[String(i)],field)]);
             changed ||= !!u.rowCount;
           }
         }
@@ -63,7 +63,8 @@ export async function syncGameSeedCatalog(pool:Pool,catalog:Item[],history:Catal
       for(const p of m.strategies as Item[]){
         // A plan belongs to one stage. Other-stage catalog quests remain standalone.
         const firstQuest=(m.quests as Item[]).find(q=>q.strat===p.id&&Number.isInteger(q.stage)&&q.stage>=1&&q.stage<=stageIds.length);
-        const planStage=stageIds[(firstQuest?.stage??1)-1];
+        // A plan aims at one checkpoint: the next one, or one further ahead that it races to directly.
+        const planStage=stageIds[(Number.isInteger(p.aimsAt)&&p.aimsAt>=1&&p.aimsAt<=stageIds.length?p.aimsAt:firstQuest?.stage??1)-1];
         const catalogMetadata=planCatalog(p);
         let pr:{rows:Item[];rowCount:number|null}=await c.query('SELECT id,stage_id FROM game_plans WHERE mission_id=$1 AND seed_key=$2',[mid,p.id]);
         if(!pr.rowCount){
@@ -88,6 +89,7 @@ export async function syncGameSeedCatalog(pool:Pool,catalog:Item[],history:Catal
         }
         planIds.set(String(p.id),{id:pr.rows[0].id,stageId:pr.rows[0].stage_id});
       }
+      if(await seedChats(c,m,mid,planIds))changed=true;
       const questIds=new Map<string,string>(),newQuests=new Set<string>();
       for(const q of m.quests as Item[]){
         const key=String(q.id),stage=stageIds[Number(q.stage)-1];
@@ -96,7 +98,7 @@ export async function syncGameSeedCatalog(pool:Pool,catalog:Item[],history:Catal
         if(!qr.rowCount){
           const stageStatus=await c.query('SELECT status FROM game_stages WHERE id=$1',[stage]);
           // Completed history must not gain new open requirements.
-          if(stageStatus.rows[0].status==='approved')continue;
+          if(['approved','skipped'].includes(stageStatus.rows[0].status))continue;
           const plan=planIds.get(String(q.strat));
           qr=await c.query(`INSERT INTO game_quests(mission_id,stage_id,plan_id,seed_key,title,role,size,xp,reward_credits,brief) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id`,[mid,stage,plan?.stageId===stage?plan.id:null,key,q.title,q.role??'user',q.size??'S',questXp(String(q.size??'S')),q.coins??0,JSON.stringify(brief(q))]);
           newQuests.add(key);changed=true;
@@ -126,6 +128,28 @@ export async function syncGameSeedCatalog(pool:Pool,catalog:Item[],history:Catal
   });
 }
 
+// Demo conversations fill a mission or squad room only until a real person posts there.
+async function seedChats(c:Client,m:Item,missionId:string,planIds:Map<string,{id:string}>){
+  const chats=(m.sample?.chats??[]) as Array<{room:string;from:string;text:string;minutesAgo:number}>;
+  let added=false;
+  for(const room of [...new Set(chats.map(x=>x.room))]){
+    const kind=room==='mission'?'mission':'plan', scope=room==='mission'?missionId:planIds.get(room)?.id;
+    if(!scope)continue;
+    await c.query('INSERT INTO rooms(title,kind,scope_id) VALUES($1,$2,$3) ON CONFLICT DO NOTHING',[`${kind} room`,kind,scope]);
+    const roomId=(await c.query('SELECT id FROM rooms WHERE kind=$1 AND scope_id=$2',[kind,scope])).rows[0].id;
+    if((await c.query('SELECT 1 FROM messages WHERE room_id=$1 AND user_id IS NOT NULL LIMIT 1',[roomId])).rowCount)continue;
+    const lines=chats.map((x,i)=>({...x,key:`seed:${m.id}:${room}:${i}`})).filter(x=>x.room===room).sort((a,b)=>b.minutesAgo-a.minutesAgo);
+    await c.query('SELECT id FROM rooms WHERE id=$1 FOR UPDATE',[roomId]);
+    for(const x of lines){
+      if((await c.query('SELECT 1 FROM messages WHERE room_id=$1 AND provider_event_id=$2',[roomId,x.key])).rowCount)continue;
+      const seq=(await c.query('UPDATE rooms SET next_sequence=next_sequence+1 WHERE id=$1 RETURNING next_sequence-1 AS sequence',[roomId])).rows[0].sequence;
+      await c.query(`INSERT INTO messages(room_id,sequence,role,text,sender_label,provider_event_id,created_at) VALUES($1,$2,'user',$3,$4,$5,now()-make_interval(mins=>$6::int))`,[roomId,seq,x.text,x.from.slice(0,120),x.key,x.minutesAgo]);
+      added=true;
+    }
+  }
+  return added;
+}
+
 const UNTOUCHED=`q.version=1 AND q.state='open' AND q.claimed_by IS NULL AND NOT EXISTS (SELECT 1 FROM game_artifacts WHERE quest_id=q.id)`;
 async function untouchedQuest(c:Client,id:string|undefined){
   if(!id)return false;
@@ -147,7 +171,7 @@ async function upgradeQuest(c:Client,id:string,q:Item,stage:string,planIds:Map<s
   let target=row.stage_id as string;
   const shippedStages=(h?.stage??[]) as number[];
   if(row.stage_id!==stage&&shippedStages.includes(row.ordinal+1)){
-    const st=await c.query(`SELECT 1 FROM game_stages WHERE id=$1 AND status<>'approved'`,[stage]);
+    const st=await c.query(`SELECT 1 FROM game_stages WHERE id=$1 AND status NOT IN ('approved','skipped')`,[stage]);
     if(st.rowCount)target=stage;
   }
   const plan=planIds.get(String(q.strat));

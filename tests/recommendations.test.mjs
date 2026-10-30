@@ -9,7 +9,8 @@ const task = (m,id,more={}) => ({id,title:'Design water filter',role:'maker',sta
 test('readiness fails closed on inactive stage, plan, dependencies, children, and ownership', () => {
   const cases = [
     (m,q) => {m.stages[0].status='approved'},
-    (m,q) => {m.current=1},
+    (m,q) => {m.stages[0].status='skipped'},
+    (m,q) => {m.stages[0].status='pending';delete q.strat},
     (m,q) => {m.strategies[0].status='proposed'},
     (m,q) => {m.strategies=[]},
     (m,q) => {q.dependencies=['missing']},
@@ -21,6 +22,8 @@ test('readiness fails closed on inactive stage, plan, dependencies, children, an
     const m=mission(), q=task(m,'q');m.quests=[q];assert.equal(taskReady(m,q),true);
     change(m,q);assert.equal(taskReady(m,q),false);
   }
+  // A later stage opens early for the plan aimed straight at it.
+  const ahead=mission();ahead.stages[0].status='pending';const leap=task(ahead,'leap');ahead.quests=[leap];assert.equal(taskReady(ahead,leap),true);
   const x=mission();const dep=task(x,'dep',{state:'approved',done:true});const ready=task(x,'ready',{dependencies:['dep']});x.quests=[dep,ready];assert.equal(taskReady(x,ready),true);
 });
 

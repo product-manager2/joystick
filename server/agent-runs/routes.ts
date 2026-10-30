@@ -55,7 +55,8 @@ export async function runContext(pool:Pool,userId:string,kind:string,missionId:s
   const stages=await db.query('SELECT id,name,goal,status,ordinal,metadata FROM game_stages WHERE mission_id=$1 ORDER BY ordinal',[mission]);
   const plans=await db.query('SELECT id,stage_id,name,squad,bet,status,metadata FROM game_plans WHERE mission_id=$1 ORDER BY name LIMIT 30',[mission]);
   const quests=await db.query('SELECT id,title,brief,state,stage_id,plan_id,claimed_by FROM game_quests WHERE mission_id=$1 ORDER BY created_at LIMIT 50',[mission]);
-  if(kind==='quest-execute'&&!stages.rows.some(s=>s.id===quest?.stage_id&&s.status==='active'))throw new ApiError(409,'quest_unavailable','This quest stage is no longer active');
+  const opensEarly=(s:Record<string,unknown>)=>s.status==='pending'&&plans.rows.some(pl=>pl.id===quest?.plan_id&&pl.stage_id===s.id&&pl.status==='active');
+  if(kind==='quest-execute'&&!stages.rows.some(s=>s.id===quest?.stage_id&&(s.status==='active'||opensEarly(s))))throw new ApiError(409,'quest_unavailable','This quest stage is no longer active');
   let latestSubmission:null|{id:string;version:number;title:string;content:string;createdAt:string;reviews:Array<{verdict:string;note:string;reviewerName:string;createdAt:string}>}=null;
   if(questId){
     const artifact=await db.query('SELECT id,version,title,content,created_at FROM game_artifacts WHERE quest_id=$1 ORDER BY version DESC LIMIT 1',[questId]);
