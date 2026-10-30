@@ -213,7 +213,7 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await openCheckpoint(makerPage, 1);
     await makerPage.getByRole("button", { name: /Review funding flow/ }).click();
     await makerPage.locator(".task-play-cta [data-live='quest-play']").click();
-    await expect(makerPage.locator(".task-token-reward").first()).toHaveText(/Expected 15 J[A-F0-9]{8}/);
+    await expect(makerPage.locator(".task-token-reward").first()).toHaveText(/\+15 J[A-F0-9]{8}/);
     await makerPage.getByRole("button", { name: "Claim task" }).click();
     await makerPage.getByRole("button", { name: "Submit work" }).click();
     await makerPage.getByLabel("Work title").fill("Evidence v1");
@@ -278,10 +278,10 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await expect(makerPage.getByText("Looks ready!")).toBeVisible();
     await expect(makerPage.locator(".instant-check")).toContainText(/\+15 J[A-F0-9]{8} provisional/);
     await makerPage.getByRole("button", { name: "Profile" }).click();
-    await makerPage.locator('[data-live="wallet-sheet"]').click();
+    await makerPage.locator('.live-profile [data-live="wallet-sheet"]').click();
     const pendingWallet = makerPage.getByRole("dialog", { name: "Wallet" });
     await expect(pendingWallet.locator(".wallet-pending-tokens")).toContainText(/\+15 J[A-F0-9]{8}/);
-    await expect(pendingWallet.locator(".wallet-token-row").filter({ hasText: missionTitle })).toHaveCount(0);
+    await expect(pendingWallet.locator(".wallet-token-row").filter({ hasText: missionTitle }).locator("strong")).toHaveText(/^0 J[A-F0-9]{8}$/);
     await expect(pendingWallet.locator(".mission-token-history")).toHaveCount(0);
     await pendingWallet.getByRole("button", { name: "×" }).focus();
     checkStatus = "unavailable";
@@ -351,7 +351,7 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
 
     await makerPage.reload();
     await makerPage.getByRole("button", { name: "Profile" }).click();
-    await makerPage.locator('[data-live="wallet-sheet"]').click();
+    await makerPage.locator('.live-profile [data-live="wallet-sheet"]').click();
     const walletHistory = makerPage.getByRole("dialog", { name: "Wallet" });
     const missionHolding = walletHistory.locator(".wallet-token-row").filter({ hasText: missionTitle });
     await expect(missionHolding.locator("strong")).toHaveText(/15 J[A-F0-9]{8}/);

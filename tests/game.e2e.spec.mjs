@@ -201,6 +201,8 @@ test("mission, plan, task, submission, and account state survive reload", async 
     const playBounds=await page.locator(".task-play-cta").boundingBox();
     expect(briefBounds.y+briefBounds.height).toBeLessThanOrEqual(playBounds.y);
     await page.screenshot({ path: `${screenshots}/quest-brief-mobile.png` });
+    // A short screen keeps the Brief scrollable now that it shows less.
+    await page.setViewportSize({ width: 390, height: 480 });
     const briefScroll=await page.evaluate(async () => {
       const { rooms }=await (await fetch("/api/v1/rooms",{credentials:"include"})).json();
       const room=rooms.find(r=>["quest","plan","stage","mission"].includes(r.kind));
@@ -216,6 +218,7 @@ test("mission, plan, task, submission, and account state survive reload", async 
     expect(briefScroll.before).toBeGreaterThan(0);
     expect(briefScroll.after).toBe(briefScroll.before);
     expect(briefScroll.sameNode).toBe(true);
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.locator(".task-play-cta [data-live='quest-play']").click();
     await expect(page.getByRole("tab", { name: "Chat" })).toHaveAttribute("aria-selected", "true");
     await expect(page.locator("#live-composer")).toBeVisible();

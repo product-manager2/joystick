@@ -23,7 +23,7 @@ export function renderHud() {
       <div class="meter"><i style="width:${S.xp / S.xpMax * 100}%"></i></div>
       <div class="sub">Level ${S.level}</div>
     </div>
-    <div class="coins" title="Credits"><span class="coin"></span>${S.coins.toLocaleString()}</div>
+    <button class="coins" data-live="wallet-sheet" title="Open wallet"><span class="coin"></span>${S.coins.toLocaleString()}</button>
     <button class="bell" data-a="notifs" aria-label="Updates"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>${S.notifs.filter(n => !n.read).length ? `<span class="unread">${S.notifs.filter(n => !n.read).length}</span>` : ""}</button>`;
   h.dataset.a = "go"; h.dataset.x = "profile";
   const unread = threads.reduce((a, t) => a + t.unread, 0) + missions.reduce((a, m) => a + m.quests.reduce((b, q) => b + (q.feed ? q.unread || 0 : 0), 0), 0);

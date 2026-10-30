@@ -46,3 +46,13 @@
 @media(max-width:550px){.medals{gap:4px}.medal{padding:10px 4px}.squad{grid-template-columns:25px minmax(0,1fr) auto}.map-stage{padding-left:13px}.map-tracks{margin-left:8px}}
 .task-intro .quick{padding-inline:0}
 .app-logo{width:20px;height:20px;border-radius:4px;object-fit:contain}
+
+/* Money stays in view: tokens on the mission card, raised credits on the plan */
+.mine-tokens { display: flex; align-items: center; gap: 6px; margin: 4px 0 8px; }
+.mine-tokens .coin, .plan-money .coin { width: 16px; height: 16px; vertical-align: -3px; }
+.plan-money { margin: 6px 0 10px; }
+
+/* Status lines in full-screen rooms float above the composer instead of falling below it */
+.chat > .live-success-message, .chat > .live-form-error { position: fixed; left: 50%; bottom: 88px; transform: translateX(-50%); z-index: 40; margin: 0; max-width: calc(100% - 32px); padding: 6px 14px; background: var(--card); border: var(--line-2); border-radius: var(--r-pill); box-shadow: var(--pop-sm); }
+.chat > .live-success-message { animation: live-toast-out .4s 4s forwards; }
+@keyframes live-toast-out { to { opacity: 0; visibility: hidden; } }

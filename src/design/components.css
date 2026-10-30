@@ -11,7 +11,7 @@
 .hud .meter { margin-top: 3px; }
 .hud .meter i { background: var(--blue); }
 .hud .sub { font-family: var(--type); font-size: 11px; color: var(--ink-2); margin-top: 2px; white-space: nowrap; }
-.coins { display: flex; align-items: center; gap: 5px; font-family: var(--display); font-size: 14px; border: var(--line-2); border-radius: var(--r-pill); padding: 4px 9px 4px 4px; background: var(--card); box-shadow: var(--pop-sm); }
+.coins { color: inherit; cursor: pointer; display: flex; align-items: center; gap: 5px; font-family: var(--display); font-size: 14px; border: var(--line-2); border-radius: var(--r-pill); padding: 4px 9px 4px 4px; background: var(--card); box-shadow: var(--pop-sm); }
 .coin { width: 18px; height: 18px; border-radius: 50%; background: var(--gold); border: var(--line-2); display: inline-grid; place-items: center; flex: none; box-shadow: inset -2px -2px 0 rgba(0,0,0,.18); }
 .coin::after { content: "$"; font-family: var(--display); font-size: 10px; line-height: 1; color: var(--ink); }
 .hud { cursor: pointer; }
