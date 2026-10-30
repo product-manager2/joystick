@@ -121,9 +121,11 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await clickTab(ownerPage, "Funding");
     await ownerPage.getByRole("button", { name: "Reserve credits" }).click();
     await ownerPage.getByLabel("Credits").fill("50");
+    await expect(ownerPage.locator(".token-preview")).toContainText(/Expected: 15 J[A-F0-9]{8}/);
     await ownerPage.getByRole("button", { name: "Reserve 50 credits", exact: true }).click();
     await expect(ownerPage.locator(".mission-money-overview")).toContainText("50 available funding");
     await expect(ownerPage.locator(".mission-personal-money .kvrow").filter({ hasText: "Reserved by you" })).toContainText("50");
+    await expect(ownerPage.locator(".mission-token-card")).toContainText(/15.*J[A-F0-9]{8}|J[A-F0-9]{8}.*15/);
 
     for (const page of [makerPage, reviewerPage]) {
       await page.reload();
@@ -210,6 +212,7 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await makerPage.getByRole("button", { name: new RegExp(missionTitle) }).click();
     await openCheckpoint(makerPage, 1);
     await makerPage.getByRole("button", { name: /Review funding flow/ }).click();
+    await expect(makerPage.locator(".task-token-reward").first()).toHaveText(/Expected 15 J[A-F0-9]{8}/);
     await makerPage.getByRole("button", { name: "Claim task" }).click();
     await makerPage.getByRole("button", { name: "Submit work" }).click();
     await makerPage.getByLabel("Work title").fill("Evidence v1");
@@ -259,6 +262,7 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await reviewerPage.getByLabel("Review notes").fill("Latest revision approved by a second member.");
     await reviewerPage.getByRole("button", { name: "Save review" }).click();
     await expect(makerPage.getByText("✓ Approved by two members")).toBeVisible({ timeout: 12_000 });
+    await expect(makerPage.locator(".task-token-reward").first()).toHaveText(/Earned 15 J[A-F0-9]{8}/);
 
     await ownerPage.reload();
     await ownerPage.getByRole("button", { name: new RegExp(missionTitle) }).click();
@@ -272,10 +276,13 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await ownerPage.getByRole("button", { name: "Approve completed stage" }).click();
     await expect(ownerPage.getByText("Stage approved")).toBeVisible();
 
-    await makerPage.getByRole("button", { name: "Back", exact: true }).click();
+    await makerPage.reload();
     await makerPage.getByRole("button", { name: "Profile" }).click();
     await makerPage.locator('[data-live="wallet-sheet"]').click();
-    const walletHistory = makerPage.getByRole("dialog", { name: "Credits" });
+    const walletHistory = makerPage.getByRole("dialog", { name: "Wallet" });
+    const missionHolding = walletHistory.locator(".wallet-token-row").filter({ hasText: missionTitle });
+    await expect(missionHolding.locator("strong")).toHaveText(/15 J[A-F0-9]{8}/);
+    await expect(walletHistory.locator(".wallet-token-entry").filter({ hasText: "Approved task" })).toContainText(/\+15 J[A-F0-9]{8}/);
     await expect(walletHistory.getByText("earning", { exact: true })).toBeVisible();
     await expect(walletHistory).toContainText(/\+10/);
     await walletHistory.getByRole("button", { name: "Record payout", exact: true }).click();
@@ -287,6 +294,10 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     const csv = await readFile(await download.path(), "utf8");
     expect(csv).toContain("earning");
     expect(csv).toContain("payout_simulation");
+    await missionHolding.click();
+    await expect(makerPage.getByRole("dialog", { name: "Wallet" })).toHaveCount(0);
+    await expect(makerPage.locator(".mission-token-card")).toContainText("15");
+    await expect(makerPage.getByRole("heading", { name: missionTitle })).toBeVisible();
 
     await ownerPage.reload();
     await ownerPage.getByRole("button", { name: new RegExp(missionTitle) }).click();

@@ -43,3 +43,35 @@
   .mission-funding .statline { grid-template-columns: minmax(0, 1fr) 70px auto; }
   .stage-detail-sheet, .mission-detail-sheet { padding: 17px 18px 22px; }
 }
+
+.mission-token-card { background: var(--cream); }
+.mission-token-card .row { align-items: center; gap: 10px; }
+.mission-token-card .eyebrow { margin: 0 0 3px; }
+.mission-token-mark { display: grid; place-items: center; flex: none; width: 42px; height: 42px; border: var(--line-1); border-radius: 50%; background: var(--gold); color: var(--navy); font: 25px var(--display); box-shadow: var(--pop-sm); }
+.mission-token-copy { flex: 1; min-width: 0; }
+.mission-token-copy b { display: block; overflow-wrap: anywhere; }
+.mission-token-balance { font: 26px var(--display); color: var(--navy); overflow-wrap: anywhere; }
+.mission-token-card p { margin: 10px 0; }
+.mission-token-card .row.wrap { margin-top: 10px; }
+.wallet-sheet .mission-token-holdings { margin-top: 8px; }
+.wallet-sheet .wallet-token-row, .wallet-sheet .wallet-token-entry { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%; padding: 10px; border: var(--line-1); background: var(--card); color: var(--ink); text-align: left; }
+.wallet-sheet .wallet-token-row { cursor: pointer; }
+.wallet-sheet .wallet-token-row + .wallet-token-row, .wallet-sheet .wallet-token-entry + .wallet-token-entry { border-top: 0; }
+.wallet-sheet .wallet-token-row > span:nth-child(2), .wallet-sheet .wallet-token-entry > span { min-width: 0; }
+.wallet-sheet .wallet-token-row b, .wallet-sheet .wallet-token-row small, .wallet-sheet .wallet-token-entry b, .wallet-sheet .wallet-token-entry small { display: block; overflow-wrap: anywhere; }
+.wallet-sheet .wallet-token-row strong, .wallet-sheet .wallet-token-entry strong { color: var(--navy); text-align: right; overflow-wrap: anywhere; }
+.wallet-sheet .wallet-token-row strong span { font-size: 11px; }
+.wallet-sheet .wallet-token-entry { grid-template-columns: minmax(0, 1fr) auto; }
+@media(max-width: 410px) {
+  .mission-token-card > .row:first-child { flex-wrap: wrap; }
+  .mission-token-balance { margin-left: 52px; }
+  .wallet-sheet .wallet-token-row { grid-template-columns: 36px minmax(0, 1fr); }
+  .wallet-sheet .wallet-token-row .mission-token-mark { width: 36px; height: 36px; }
+  .wallet-sheet .wallet-token-row strong { grid-column: 2; text-align: left; }
+}
+
+.task-token-reward { display: inline-block; max-width: 100%; padding: 2px 6px; border: 1px solid var(--gold); border-radius: 999px; background: var(--cream); color: var(--navy); font-weight: 800; white-space: normal; overflow-wrap: anywhere; }
+.task-head-context { flex-wrap: wrap; }
+.task-head-context .rewardline { white-space: normal; overflow-wrap: anywhere; }
+
+.wallet-sheet .list-more { margin-top: 8px; }
