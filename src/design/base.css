@@ -14,7 +14,7 @@ body {
 button { font: inherit; color: inherit; cursor: pointer; }
 :focus-visible { outline: 3px dashed var(--red); outline-offset: 3px; }
 
-.app { position: relative; width: 100%; min-width: 0; height: var(--app-visible-height, 100%); border-top: env(safe-area-inset-top, 0px) solid var(--card); background: var(--paper); display: flex; flex-direction: column; overflow: hidden; isolation: isolate; }
+.app { position: relative; width: 100%; min-width: 0; height: var(--app-visible-height, 100%); transform: translateY(var(--app-viewport-shift, 0px)); border-top: env(safe-area-inset-top, 0px) solid var(--card); background: var(--paper); display: flex; flex-direction: column; overflow: hidden; isolation: isolate; }
 
 /* Keep the document still; each screen and sheet owns its own scrolling. */
 .app > main { min-width: 0; min-height: 0; overscroll-behavior: contain; }
