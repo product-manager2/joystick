@@ -63,7 +63,7 @@ document.addEventListener("click", async e => {
   const dd = b.closest(".dd");
   if (dd && !b.dataset.keep) dd.remove();
   const a = b.dataset.a, x = b.dataset.x, f = S.forge;
-  if (b.closest("#nav")) S.hist = [];
+  const fromNav = Boolean(b.closest("#nav"));
   switch (a) {
     case "ob-next": if (S.ob === 2 && !S.name) S.name = "nova"; S.ob++; return render();
     case "ob-role": S.roles = toggle(S.roles, x, 3); return render();
@@ -85,7 +85,7 @@ document.addEventListener("click", async e => {
     case "shape": S.botShape = x; render(); return dd && reopenDrill();
     case "back": return goBack(x || "lobby");
     case "duo-role": { const n = toggle(S.roles, x, 3); if (n.length) S.roles = n; render(); return reopenDrill(); }
-    case "go": return go(x);
+    case "go": { const navigated = go(x); if (fromNav && navigated) S.hist = []; return navigated; }
     case "filter": S.filter = x; return render();
     case "ob-topic": S.obTopic = x; return render();
     case "mission": return go("mission", { missionId: x, tab: "map" });

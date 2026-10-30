@@ -34,19 +34,20 @@ export const FULL = ["stage", "strategy", "quest", "session", "thread", "forge",
 // remembered, so Back returns to exactly where you came from, tab included. The bottom nav starts fresh.
 const PLACE = ["personId", "recapId", "missionId", "stageId", "tab", "stratId", "questId", "thread", "sessionId", "roomTab", "lobbyTab"];
 export function go(screen, extra = {}, remember = true) {
-  if (S.live && !prepareLiveNavigation()) return;
+  if (S.live && !prepareLiveNavigation()) return false;
   const moved = screen !== S.screen || ["personId", "recapId", "missionId", "stageId", "stratId", "questId", "thread", "sessionId"].some(k => k in extra && extra[k] !== S[k]);
   if (remember && moved && S.screen !== "onboard") S.hist = [...(S.hist || []), Object.fromEntries([["screen", S.screen], ...PLACE.map(k => [k, S[k]])])].slice(-30);
   Object.assign(S, extra, { screen });
   closeDrill();
   render();
   $("#main").scrollTop = 0;
+  return true;
 }
 export function goBack(fallback = "lobby") {
-  const h = (S.hist || []).pop();
+  const h = (S.hist || []).at(-1);
   if (!h) return go(fallback, {}, false);
   const { screen, ...place } = h;
-  go(screen, place, false);
+  if (go(screen, place, false)) S.hist.pop();
 }
 export function render() {
   const inGame = S.screen !== "onboard";

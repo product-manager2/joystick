@@ -76,7 +76,7 @@ test("mission, plan, task, submission, and account state survive reload", async 
     await page.getByRole("button", { name: "Resume draft" }).click();
     await expect(page.getByLabel("Mission name")).toHaveValue(title);
     await expect(page.getByLabel("What changes if you win?")).toHaveValue("A working open source garden planner.");
-    await page.waitForTimeout(2_000);
+    await page.waitForResponse(response => new URL(response.url()).pathname === "/api/v1/game" && response.request().method() === "GET");
     await expect(page.getByLabel("Mission name")).toHaveValue(title);
     expect(missionDraft.detailReads()).toBe(1);
     await page.getByRole("button", { name: "Looks good" }).click();
@@ -108,11 +108,16 @@ test("mission, plan, task, submission, and account state survive reload", async 
     await page.getByRole("tab", { name: "Money", exact: true }).click();
     await page.getByRole("button", { name: "Reserve credits" }).click();
     await page.getByLabel("Credits").fill("50");
-    const fundingRetry = await failAfterCommitOnce(page, "funding.reserve");
+    const fundingRetry = await delayAndFailAfterCommitOnce(page, "funding.reserve");
     await page.getByRole("button", { name: "Reserve", exact: true }).click();
+    await fundingRetry.ready;
+    await page.getByRole("button", { name: "Missions", exact: true }).click();
+    await expect(page.locator("#fund-form")).toBeVisible();
+    fundingRetry.release();
     await expect(page.getByRole("alert")).toContainText("Simulated lost response after commit");
     await expect(page.getByLabel("Credits")).toBeDisabled();
     await page.getByRole("button", { name: "Retry reservation" }).click();
+    await expect(page.locator("#fund-form")).toHaveCount(0);
     expect(fundingRetry.requests).toHaveLength(2);
     expect(fundingRetry.requests[1]).toBe(fundingRetry.requests[0]);
     await fundingRetry.unroute();
