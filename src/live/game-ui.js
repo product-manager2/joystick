@@ -304,7 +304,7 @@ function questView() {
   const artifacts=q.artifacts?.length?`<div class="card milestone"><div class="eyebrow">Saved artifacts</div>${q.artifacts.map(v=>`<div class="drow"><span><b>${esc(v.title)}</b><span class="small muted" style="display:block">Version ${v.version}</span></span><span class="row">${button("Preview","artifact",v.id)}${button("Download","artifact-download",v.id)}</span></div>`).join("")}</div>`:"";
   const decision=q.call?.q?`<div class="card task-decision"><div class="eyebrow">Decision needed</div><b>${esc(q.call.q)}</b>${mine&&["claimed","changes_requested"].includes(q.state)&&!q.decision?`<div class="quick wrap">${(q.call.opts||[]).map(o=>button(o,"quest-decision",q.id,"chip")).join("")}</div>`:q.decision?`<p class="small">You chose: ${esc(q.decision.choice)}</p>`:""}</div>`:"";
   const taskRunPending=startingQuestRun||(ui.runData?.run?.kind==="quest-execute"&&ui.runData.run.questId===q.id&&!['completed','failed','cancelled','uncertain'].includes(ui.runData.run.status));
-  const agentAction=taskRunPending?'<span class="chip">Agent working</span>':button("Work with agent","agent-execute",q.id);
+  const agentAction=taskRunPending?'<span class="chip">Agent working</span>':button("Have agent draft it","agent-execute",q.id);
   const actions=!m.joined?button("Join mission","join",m.id,"btn red"):q.done?'<span class="chip">✓ Approved by two members</span>':q.state==="open"?claimable?button("Start task","quest-claim",q.id,"btn blue"):`<span class="chip">${esc(waits.length?`Waiting for ${waits.map(x=>x.title).join(", ")}`:parts.length?`${parts.length} parts still open`:qPlan?.status?"Plan awaits approval":"Stage is closed")}</span>`:mine&&q.state==="claimed"?`${button("Submit work","quest-inline-edit",q.id,"btn red")}${agentAction}`:mine&&q.state==="changes_requested"?`${button("Revise and resubmit","quest-inline-edit",q.id,"btn red")}${taskRunPending?'<span class="chip">Agent working</span>':button("Ask agent to revise","agent-execute",q.id)}`:canReview?button("Review this work","quest-review",q.id,"btn red"):`<span class="chip">${esc(q.state==="submitted"?"Waiting for two independent reviews":q.state)}</span>`;
   const pairing=q.claimedBy&&!mine?button("Ask to pair","pair",q.id):"";
   const secondary=`${mine&&q.state==="claimed"?button("Release","quest-release",q.id):""}${m.ownerId===live.user?.id&&q.state==="open"?button("Edit task","quest-edit",q.id):""}${q.state==="open"?button(q.watched?"✓ Watching":"Watch task","quest-watch",q.id):""}${q.claimedBy&&!mine?button("Nudge for update","nudge",q.id):""}`;
@@ -317,7 +317,7 @@ function questView() {
   const chat=`<div class="msgs task-timeline" id="msgs"><div id="room-messages">${roomMessages("quest",q.id)}</div>${activeRun?`<div id="task-run-panel">${taskRunContent()}</div>`:""}${decision}${inlineEdit}${review}${artifacts}${history}</div><div class="room-bar task-room-bar">${actionRow}</div>`;
   const deps=(q.dependencies||[]).map(id=>m.quests.find(x=>x.id===id)?.title).filter(Boolean);
   const brief=`<div class="stage-list task-stream"><article class="card doc"><h1 class="doc-title">${esc(q.title)}</h1><h3>What needs doing</h3><p>${esc(q.brief?.description||q.title)}</p>${catalogText("Why this task matters",q.detail?.brief)}${catalogText("Hand in",q.detail?.handIn)}${catalogText("Target criteria",q.detail?.doneWhen)}${catalogDisclosure("Steps and support",catalogList("Suggested steps",q.detail?.steps,true)+catalogText("Agent can help with",q.detail?.agentDoes)+catalogText("You would do",q.detail?.humanDoes)+catalogText("Tools",q.detail?.tools)+catalogText("Skills",q.detail?.skills)+catalogText("Catalogue review notes",q.detail?.checkedBy)+catalogText("Where",q.where)+catalogText("Good fit if",q.fit)+catalogText("Safety note",q.safetyNote))}${q.out?`<h3>Expected output</h3><p>${esc(q.out)}</p>`:""}<h3>Where it fits</h3><p>${esc(m.title)} · ${esc(qStage?.name||"Stage")}${qPlan?` · ${esc(qPlan.name)}`:""}</p>${q.parent?`<p class="small">Part of ${esc(m.quests.find(x=>x.id===q.parent)?.title||"another task")}</p>`:""}${deps.length?`<h3>Before this starts</h3><ul class="checks">${deps.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}<h3>Requirements</h3><p>${esc(ROLES[q.role]?.name||q.role)} · ${esc(q.size)} · ${q.xp} XP</p>${button("More requirements","task-requirements",q.id)}<h3>How review works</h3><p>${esc(live.snapshot.policy?.reviewerRule||"Two distinct mission members review the submitted artifact.")}</p>${button("Review policy","review-policy",q.id)}${button("Task history","quest-history",q.id)}</article>${decision}${artifacts}${review}${briefActionRow}</div>`;
-  return `<div class="chat task-chat"><div class="chat-head">${backBtn("back",q.strat?"strategy":"stage")}<div class="task-head-copy"><div class="room-title">${esc(q.title)}</div><div class="small muted task-head-context"><span class="header-path" title="${esc(m.title)}">${esc(m.title)}</span><b class="rewardline">· ${q.coins||0} credits</b></div></div>${crew}</div>${tabs([["chat","Chat"],["brief","Brief"]],tab,"quest-tab")}${tab==="brief"?brief:chat}${tab==="chat"&&m.joined?composer(`quest:${q.id}`):""}${message()}</div>`;
+  return `<div class="chat task-chat"><div class="chat-head">${backBtn("back",q.strat?"strategy":"stage")}<div class="task-head-copy"><div class="room-title">${esc(q.title)}</div><div class="small muted task-head-context"><span class="header-path" title="${esc(m.title)}">${esc(m.title)}</span><b class="rewardline">· ${q.coins||0} credits</b></div></div>${crew}</div>${tabs([["chat","Chat"],["brief","Brief"]],tab,"quest-tab")}${tab==="brief"?brief:chat}${tab==="chat"&&m.joined?composer(`quest:${q.id}`,`Ask ${S.agentName} or the team about this task…`):""}${message()}</div>`;
 }
 
 function agentSuggestion() {
@@ -328,8 +328,18 @@ function agentSuggestion() {
   const {m,q} = pick;
   return `<div class="agent-recommendation"><div class="eyebrow">Open work for you</div><div class="card qrow">${mono(ROLES[q.role] ? q.role : "user",30)}<span class="suggestion-copy"><b>${esc(q.title)}</b><span class="small muted">${esc(m.title)} · ${esc(ROLES[q.role]?.name || q.role)} · ${q.xp} XP</span></span>${button("Start", "quest", q.id, "btn sm blue")}</div></div>`;
 }
+const TASK_PROMPTS = ["Explain this task simply", "How should we approach it?", "What do I do first?", "What does good look like?"];
+function taskIntro(q, empty) {
+  const d = q.detail || {}, what = q.brief?.description || d.brief || q.title;
+  const lines = [`**What needs doing:** ${what}`, d.handIn && `**Hand in:** ${d.handIn}`, d.doneWhen && `**Done when:** ${d.doneWhen}`].filter(Boolean).join("\n\n");
+  const next = q.state === "open" ? "Ask me anything about it, or press Start task when you're ready to take it on." : q.claimedBy === live.user?.id && ["claimed","changes_requested"].includes(q.state) ? "Let's work out how to solve it. Ask me anything, or tell me what you're thinking." : "Ask me anything about this task.";
+  return `<div class="msg task-intro">${botAv()}<div class="bubble"><div class="from">${esc(S.agentName)}</div><div>${agentText(`${lines}\n\n${next}`)}</div>${empty ? `<div class="quick wrap">${TASK_PROMPTS.map(x => button(x,"task-ask",x,"chip")).join("")}</div>` : ""}</div></div>`;
+}
 function roomMessages(k, scopeId, roomId) {
-  const room = roomId ? live.snapshot.threads.find(t => t.id === roomId) : roomFor(k, scopeId); if (!room) return `<p class="small muted">Open this room to start a conversation.</p>`;
+  const room = roomId ? live.snapshot.threads.find(t => t.id === roomId) : roomFor(k, scopeId);
+  const task = k === "quest" ? current()?.quests.find(q => q.id === scopeId) : null;
+  if (task && !room) return taskIntro(task, true);
+  if (!room) return `<p class="small muted">Open this room to start a conversation.</p>`;
   const state = roomState(room.id);
   const messages = state.messages;
   const events = messages.map(m => ({at:m.createdAt||m.created_at||"",order:Number(m.sequence)||0,pending:!!m.pending,html:(()=>{const me=m.role==="user"&&(m.senderId===live.user?.id||m.pending);return `<div class="msg ${me ? "me" : ""}">${me ? "" : botAv()}<div class="bubble"><div class="from">${esc(me ? "You" : m.role === "assistant" ? S.agentName : m.senderName || "Member")}</div><div>${agentText(m.text)}</div>${m.pending ? '<span class="small muted">Sending…</span>' : ""}${m.error ? `<span class="small no">${esc(m.error)}</span>` : ""}</div></div>`;})()}));
@@ -343,6 +353,7 @@ function roomMessages(k, scopeId, roomId) {
   }
   const history = events.sort((a,b)=>Number(!!a.pending)-Number(!!b.pending)||String(a.at).localeCompare(String(b.at))||a.order-b.order).map(e=>e.html).join("");
   if (k === "agent") return history + agentSuggestion() || '<p class="small muted">No messages yet. Start the conversation.</p>';
+  if (task) return taskIntro(task, !messages.length) + history;
   return history || '<p class="small muted">No messages yet. Start the conversation.</p>';
 }
 function composer(scope, placeholder = "Message this room…") { return `<form class="composer" id="live-composer" data-scope="${esc(scope)}"><input name="text" placeholder="${esc(placeholder)}" maxlength="4000" autocomplete="off" required><button class="btn sm red" type="submit">Send</button></form>`; }
@@ -714,6 +725,7 @@ export async function handleLiveClick(event) {
   if (a === "plan-back") { ui.editor="back"; S.editId=id; render(); return true; }
   if (a === "plan-approve") { await act("plan.approve",id,{},"Plan approved"); return true; }
   if (a === "merge-approve" || a === "merge-dismiss") { await act(a==="merge-approve"?"merge.decide":"merge.dismiss",id,{},"Merge decision saved"); return true; }
+  if (a === "task-ask") { await sendToScope(`quest:${S.questId}`,id); return true; }
   if (a === "quest-claim") { await act("quest.claim", id, {}, "Task claimed"); return true; }
   if (a === "quest-watch") { await act("quest.watch", id, {}, "You will get updates"); return true; }
   if (a === "notification") { await act("notification.read",id,{},"Marked read"); const n=live.snapshot.notifications.find(x=>x.id===id); if (n?.entityId) { const m=missions.find(x=>x.quests.some(q=>q.id===n.entityId)); if(m){S.roomTab="chat";nav("quest",{missionId:m.id,questId:n.entityId});} } return true; }
@@ -738,6 +750,11 @@ export async function handleLiveClick(event) {
   return true;
 }
 
+async function sendToScope(scope, text) {
+  const [k, id] = scope.split(":"); let room = k === "id" ? live.snapshot.threads.find(t => t.id === id) : roomFor(k,id);
+  if (!room && k !== "id") { await act("room.create", null, {kind:k,scopeId:id}, ""); room=roomFor(k,id); }
+  if (room) { await loadRoom(room.id).catch(() => {}); sendRoom(room.id,text); if(k!=="id"&&k!=="quest") nav("thread",{thread:room.id}); } else { ui.error="Room unavailable"; render(); }
+}
 export async function handleLiveSubmit(event) {
   const formEl = event.target;
   if(formEl.id==="profile-look-form") {const values=Object.fromEntries(new FormData(formEl).entries());await act("profile.update",null,{agentName:values.agentName,preferences:{...S.preferences,botShape:values.botShape}},"Name and look saved");return;}
@@ -746,7 +763,7 @@ export async function handleLiveSubmit(event) {
   if(formEl.id==="context-composer") {const text=formEl.elements.text.value.trim();if(!text)return;const scope=formEl.dataset.scope;if(scope){const [kind,scopeId]=scope.split(":"),m=current();ui.context={missionId:m.id,stageId:kind==="stage"?scopeId:m.strategies.find(x=>x.id===scopeId)?.stageId,planId:kind==="plan"?scopeId:null};}await askContext(text);return;}
   if(formEl.classList.contains("decision-own")) { const answer=formEl.elements.answer.value.trim(); if(!answer||!ui.run)return; try { await api(`/agent/runs/${ui.run}/decisions`,{method:"POST",body:JSON.stringify({decisionId:formEl.dataset.decision,optionId:"own_words",answer,requestId:crypto.randomUUID()})}); formEl.elements.answer.value=""; pollRun(ui.run); } catch(error) { ui.error=error.message; render(); } return; }
   if(formEl.id==="creation-composer") { const text=formEl.elements.text.value.trim();formEl.elements.text.value="";await creationSubmit(ui.creation,text,{render,start:startCreationDraft});return; }
-  if (formEl.id === "live-composer") { const text = formEl.elements.text.value.trim(); if (!text) return; formEl.elements.text.value=""; const [k, id] = formEl.dataset.scope.split(":"); let room = k === "id" ? live.snapshot.threads.find(t => t.id === id) : roomFor(k,id); if (!room && k !== "id") { await act("room.create", null, {kind:k,scopeId:id}); room=roomFor(k,id); } if (room) { await loadRoom(room.id).catch(() => {}); sendRoom(room.id,text); if(k!=="id"&&k!=="quest") nav("thread",{thread:room.id}); } else { ui.error="Room unavailable"; render(); } return; }
+  if (formEl.id === "live-composer") { const text = formEl.elements.text.value.trim(); if (!text) return; formEl.elements.text.value=""; await sendToScope(formEl.dataset.scope,text); return; }
   const values = Object.fromEntries(new FormData(formEl).entries()), lines = x => String(x || "").split("\n").map(y => y.trim()).filter(Boolean);
   ui.draft = {...values};
   if (formEl.id === "forge-form") ui.draft = {...values, stages:lines(values.stages), rules:lines(values.rules), roles:lines(values.roles)};

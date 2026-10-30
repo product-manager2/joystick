@@ -42,3 +42,4 @@
 .task-chat .task-timeline{flex:1;min-height:0;gap:12px}.task-timeline #room-messages,.task-timeline #task-run-panel{display:flex;flex-direction:column;gap:12px}.task-timeline .task-context{padding:12px}.task-run-status,.task-run-decision,.task-run-artifact{padding:12px}.task-run-status p,.task-run-artifact p{margin:6px 0}.task-run-decision .quick{margin-top:8px}.task-run-artifact .live-artifact{max-height:none;overflow:visible;white-space:pre-wrap;overflow-wrap:anywhere}.task-run-artifact .btn{margin-top:8px}
 .task-chat .room-bar.task-room-bar{display:block;flex:none;box-sizing:border-box;width:100%}.task-chat .room-bar.task-room-bar .task-actions{display:flex;box-sizing:border-box;width:100%;min-width:0}.task-chat .composer{flex:none}
 @media(max-width:550px){.medals{gap:4px}.medal{padding:10px 4px}.squad{grid-template-columns:25px minmax(0,1fr) auto}.map-stage{padding-left:13px}.map-tracks{margin-left:8px}}
+.task-intro .quick{padding-inline:0}
