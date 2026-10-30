@@ -6,7 +6,7 @@ import "./styles/screens.css";
 import "./styles/desktop.css";
 import "./live/style.css";
 import { bootAccount, loadGame, live } from "./live/game-client.js";
-import { applySnapshot, handleLiveClick, handleLiveSubmit, handleLiveInput, handleLiveFile, openPushRoom } from "./live/game-ui.js";
+import { applySnapshot, handleLiveClick, handleLiveSubmit, handleLiveInput, handleLiveFile, openPushRoom, openConnectedApps } from "./live/game-ui.js";
 import { refreshPush } from "./live/push.js";
 import { installViewportSizing } from "./ui/viewport.js";
 import { missions } from "./data/content.js";
@@ -183,6 +183,11 @@ bootAccount(async () => {
     await openPushRoom(roomId);
     const clean=new URL(location.href);clean.searchParams.delete('room');
     history.replaceState(null,'',clean.pathname+clean.search+clean.hash);
+  }
+  if(new URL(location.href).searchParams.get('apps')==='connected'){
+    const clean=new URL(location.href);clean.searchParams.delete('apps');
+    history.replaceState(null,'',clean.pathname+clean.search+clean.hash);
+    openConnectedApps();
   }
 }).catch(error => { document.querySelector("#main").textContent = error.message; });
 

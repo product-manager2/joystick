@@ -3,6 +3,8 @@ import type { Pool, Client } from './db.js';
 import type { Config } from './config.js';
 import { privateAgentContext } from './agent-context.js';
 import { listAgentCommands, queryAgentApp, executeAgentCommand } from './agent-commands.js';
+import { isAppTool, runAppTool } from './composio.js';
+import { canAccessGameRoom } from './game/service.js';
 
 export const PRIVATE_AGENT_TOOLS = [
   {type:'custom' as const,name:'list_commands',description:'List the Joystick actions you can perform for this person. Use this before choosing a command.',input_schema:{type:'object' as const,properties:{},additionalProperties:false}},
@@ -21,6 +23,15 @@ export function toolRequestId(sessionId:string,eventId:string):string {
   return `${hex.slice(0,8)}-${hex.slice(8,12)}-5${hex.slice(13,16)}-a${hex.slice(17,20)}-${hex.slice(20,32)}`;
 }
 async function toolResult(pool:Pool,config:Config,dispatch:PrivateDispatch,event:PrivateToolEvent):Promise<unknown>{
+  if(isAppTool(event.name)){
+    // Shared rooms act as whoever sent the message this turn answers.
+    const turn=await pool.query(`SELECT 1 FROM agent_dispatches d JOIN messages m ON m.id=d.message_id AND m.user_id=$3
+      JOIN rooms r ON r.id=d.room_id AND r.provider_session_id=$2
+      WHERE d.id=$4 AND d.room_id=$1 AND d.provider_session_id=$2 AND d.status IN ('sent','completed')`,
+      [dispatch.room_id,dispatch.provider_session_id,dispatch.user_id,dispatch.id]);
+    if(!turn.rowCount || !await canAccessGameRoom(pool,dispatch.user_id,dispatch.room_id)) throw Error('Room access changed');
+    return runAppTool(dispatch.user_id,event.name!,object(event.input));
+  }
   const access=await pool.query(`SELECT r.id FROM rooms r JOIN agent_dispatches d ON d.room_id=r.id
     JOIN messages m ON m.id=d.message_id AND m.user_id=$3
     WHERE r.id=$1 AND r.kind='agent' AND r.provider_session_id=$2 AND d.id=$4
