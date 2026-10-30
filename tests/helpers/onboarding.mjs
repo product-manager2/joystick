@@ -10,22 +10,22 @@ export async function enterSignup(page, name, email) {
   await expect(page.getByRole("heading", { name: "Start with a passkey." })).toBeVisible();
   await page.getByLabel("Pick a username").fill(handleFor(email));
   await page.getByRole("button", { name: "Create account with passkey" }).click();
-  await expect(page.getByRole("heading", { name: "What are you great at?" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "How would you like to help?" })).toBeVisible();
 }
 
 export async function finishSetup(page, { selectMission = true } = {}) {
   await page.locator('[data-live="onboard-role"][data-id="maker"]').click();
-  await page.getByRole("button", { name: /That's me/ }).click();
+  await page.getByRole("button", { name: /Continue with 1 role/ }).click();
   await expect(page.getByRole("heading", { name: "Meet your agent." })).toBeVisible();
-  await page.getByLabel("Name it").fill("Pip");
+  await page.getByLabel("Agent name").fill("Pip");
   await page.locator('[data-live="onboard-shape"][data-id="cube"]').click();
   await page.getByRole("button", { name: /Team up with Pip/ }).click();
-  await expect(page.getByRole("heading", { name: "What do you care about?" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Pick a mission." })).toBeVisible();
   if (selectMission) {
     const missions = page.locator('[data-live="onboard-pick"]');
     await expect(missions.first()).toBeVisible();
     await missions.first().click();
-    await page.getByRole("button", { name: "Let's play" }).click();
+    await page.getByRole("button", { name: "Join 1 mission" }).click();
   } else {
     // Empty-mission tests save setup through the same authenticated action the
     // final onboarding step uses; the player-facing flow requires a choice.

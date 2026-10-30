@@ -37,7 +37,7 @@ test("Pip's question can be answered in your own words", async ({ browser }) => 
       await route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
     });
     await page.getByRole("button", { name: "+ New" }).click();
-    await expect(page.getByText("What problem do you want to fix?")).toBeVisible();
+    await expect(page.getByText("What problem needs solving, who does it affect, and what would success look like?")).toBeVisible();
     await page.getByRole("button", { name: "A health problem" }).click();
     await expect(page.getByText("Which health problem?")).toBeVisible();
     expect(prompt).toMatch(/problem/);
