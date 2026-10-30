@@ -7,7 +7,8 @@
    ],
    "pitch": [
     "Find a drug that kills this brain tumour and get it to a first human trial, fully open.",
-    "Most people with this brain tumour die within 15 months, and that has barely changed in 20 years. Find a treatment that gives them years, fully open."
+    "Most people with this brain tumour die within 15 months, and that has barely changed in 20 years. Find a treatment that gives them years, fully open.",
+    "Most people with this brain tumour die within 15 months, and that has barely changed in 20 years. Pool every open dataset, score and lab result, re-checked by hundreds of players, to find a treatment that gives them years."
    ],
    "rules": [
     [
@@ -120,7 +121,8 @@
      "Fold Gang"
     ],
     "bet": [
-     "Test all 1 million molecules on rented computers. Wide net, fast."
+     "Test all 1 million molecules on rented computers. Wide net, fast.",
+     "Test all 1 million molecules in an open public library on rented computers, and publish every score so nobody ever has to run them again."
     ]
    },
    "glio-repurpose": {
@@ -131,7 +133,8 @@
      "Wet Hands"
     ],
     "bet": [
-     "Screen 2,800 drugs that are already safe in people."
+     "Screen 2,800 drugs that are already safe in people.",
+     "Screen the 2,800 drugs already approved for people, using only open data, so a winner can reach a trial years sooner."
     ]
    },
    "glio-gen": {
@@ -142,7 +145,8 @@
      "Swarm 404"
     ],
     "bet": [
-     "200 small agents design brand-new molecules and vote on the best."
+     "200 small agents design brand-new molecules and vote on the best.",
+     "200 small agents design brand-new molecules in the open and vote on the best. Every design is published, good or bad."
     ]
    },
    "glio-whole": {
@@ -153,7 +157,19 @@
      "Whole Health"
     ],
     "bet": [
-     "Pair approved drugs with diets that slow tumours."
+     "Pair approved drugs with diets that slow tumours.",
+     "Pair approved drugs with diets that may slow tumours, and turn the studies into open, plain summaries any family can read."
+    ]
+   },
+   "glio-leap": {
+    "name": [
+     "Open trial for an old drug, now"
+    ],
+    "squad": [
+     "Bedside Sprint"
+    ],
+    "bet": [
+     "A few approved drugs already have published signs of reaching these tumours. Skip our own screens and lab tests, write an open trial plan with a hospital sponsor, and aim straight at the first 20 patients."
     ]
    }
   },
@@ -395,6 +411,90 @@
     "stage": [
      5
     ]
+   },
+   "g21": {
+    "title": [
+     "Find 3 approved drugs with human data in glioblastoma"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     6
+    ]
+   },
+   "g22": {
+    "title": [
+     "Re-check the evidence behind the 3 drugs"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     6
+    ]
+   },
+   "g23": {
+    "title": [
+     "Write an open trial plan for 20 patients"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     6
+    ]
+   },
+   "g24": {
+    "title": [
+     "Ask 3 hospital units to sponsor the trial"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     6
+    ]
+   },
+   "g25": {
+    "title": [
+     "Write a plain page for families about the trial"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     6
+    ]
+   },
+   "glio-leap-back": {
+    "title": [
+     "Back Bedside Sprint's trial plan"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     6
+    ]
    }
   }
  },
@@ -407,7 +507,8 @@
    "pitch": [
     "Turn the 20 first-aid guides that save the most lives into 50 languages, free.",
     "20 life-saving first-aid guides, checked by nurses and native speakers, free in 50 languages.",
-    "In the minutes before an ambulance comes, the person next to you decides if you live. Help every bystander know what to do, in their own language."
+    "In the minutes before an ambulance comes, the person next to you decides if you live. Help every bystander know what to do, in their own language.",
+    "In the minutes before an ambulance comes, the person next to you decides if you live. Write 20 open first-aid guides once, then let speakers of 50 languages translate, check and print them for free."
    ],
    "rules": [
     [],
@@ -508,7 +609,8 @@
      "First Aiders"
     ],
     "bet": [
-     "Nurses pick and write the guides, agents draft translations, native speakers fix them."
+     "Nurses pick and write the guides, agents draft translations, native speakers fix them.",
+     "Nurses write 20 open guides once; agents draft translations; native speakers fix them on an open translation site anyone can join."
     ]
    },
    "aid-cpr": {
@@ -519,7 +621,8 @@
      "Pulse Club"
     ],
     "bet": [
-     "Teach every 12-year-old CPR. Kids teach their families."
+     "Teach every 12-year-old CPR. Kids teach their families.",
+     "Teach every 12-year-old CPR with an open lesson any teacher can run in any language. Kids teach their families."
     ]
    },
    "aid-line": {
@@ -530,7 +633,19 @@
      "Line Lift"
     ],
     "bet": [
-     "A free number where a trained volunteer talks you through it until help comes."
+     "A free number where a trained volunteer talks you through it until help comes.",
+     "A free number where a trained volunteer talks you through it in your language until help comes. Call notes, with no names, are shared openly."
+    ]
+   },
+   "aid-cards": {
+    "name": [
+     "Wordless cards anyone can print"
+    ],
+    "squad": [
+     "Picture First"
+    ],
+    "bet": [
+     "Pictures need no translation. Draw the 20 guides as wordless open picture cards, with only the emergency number written, and get them onto 10,000 walls."
     ]
    }
   },
@@ -773,7 +888,8 @@
      "M"
     ],
     "stage": [
-     1
+     1,
+     4
     ]
    },
    "a19": {
@@ -787,7 +903,92 @@
      "S"
     ],
     "stage": [
-     1
+     1,
+     5
+    ]
+   },
+   "a20": {
+    "title": [
+     "Draw the choking guide as a 4-panel wordless card"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "a21": {
+    "title": [
+     "Nurse check: does each panel show the right step?"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "a22": {
+    "title": [
+     "Show 3 cards to 10 people and ask what they mean"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "a23": {
+    "title": [
+     "Find a print shop to print 2,000 cards at cost"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "a24": {
+    "title": [
+     "Get 5 schools or clinics to put the cards on their walls"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "aid-cards-back": {
+    "title": [
+     "Back Picture First's printing"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     4
     ]
    }
   }
@@ -1742,7 +1943,8 @@
    ],
    "pitch": [
     "A free weekly map that shows where coral is dying.",
-    "Reefs bleach in weeks, and most are never checked. Warn the people who look after them early enough to act."
+    "Reefs bleach in weeks, and most are never checked. Warn the people who look after them early enough to act.",
+    "Reefs bleach in weeks, and most are never checked. Build an open reef-health map from free satellite photos and thousands of divers' and snorkellers' checks, free for every reef keeper."
    ],
    "rules": [
     [
@@ -1847,6 +2049,17 @@
     "bet": [
      "Agents read satellite photos, no divers needed."
     ]
+   },
+   "reef-watch": {
+    "name": [
+     "Warn keepers now from free heat data"
+    ],
+    "squad": [
+     "Heat Watch"
+    ],
+    "bet": [
+     "Reef keepers need a warning this season, not after the model is done. Send a weekly heat-stress alert from free public sea-temperature data, and let snorkellers confirm bleaching with phone photos."
+    ]
    }
   },
   "quests": {
@@ -1907,7 +2120,8 @@
     ],
     "stage": [
      1,
-     2
+     2,
+     3
     ]
    },
    "r4": {
@@ -2006,7 +2220,8 @@
      "M"
     ],
     "stage": [
-     2
+     2,
+     3
     ]
    },
    "r9": {
@@ -2064,6 +2279,90 @@
     "stage": [
      4
     ]
+   },
+   "r15": {
+    "title": [
+     "Build a weekly heat alert for 50 reefs from free sea-temperature data"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "r16": {
+    "title": [
+     "Sign up 20 reef keepers in Fiji and Cebu for the alert"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "r17": {
+    "title": [
+     "Snorkel a reef flat within 3 days of an alert and photo what you see"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "r18": {
+    "title": [
+     "Check 4 weeks of alerts against snorkel photos"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "r19": {
+    "title": [
+     "Write 'what to do when the alert comes' on one page"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "reef-watch-back": {
+    "title": [
+     "Back Heat Watch's alerts"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     4
+    ]
    }
   }
  },
@@ -2075,7 +2374,8 @@
    ],
    "pitch": [
     "Find every lead water pipe in Dayton so the city can replace them.",
-    "Thousands of Dayton homes may still get water through lead pipes. Find them and get them replaced, homes with kids first."
+    "Thousands of Dayton homes may still get water through lead pipes. Find them and get them replaced, homes with kids first.",
+    "Thousands of Dayton homes may still get water through lead pipes. Neighbours build an open, block-by-block pipe map together and push for replacement, homes with kids first."
    ],
    "rules": [
     [],
@@ -2186,6 +2486,17 @@
     ],
     "bet": [
      "Get a certified filter into every home with kids now, while the pipes wait their turn."
+    ]
+   },
+   "lead-street": {
+    "name": [
+     "Start with the lines already known to be lead"
+    ],
+    "squad": [
+     "Street by Street"
+    ],
+    "bet": [
+     "The city's own records already list lines confirmed as lead. Skip the photo hunt for those: sign up those homes for replacement, block by block, and track every dig on an open tracker."
     ]
    }
   },
@@ -2412,7 +2723,120 @@
      "M"
     ],
     "stage": [
-     1
+     1,
+     2
+    ]
+   },
+   "l16": {
+    "title": [
+     "Count confirmed lead lines by block from the public inventory"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "l17": {
+    "title": [
+     "Write the city's replacement sign-up steps on one page"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "l18": {
+    "title": [
+     "Knock doors on 2 blocks with many kids and help families sign up"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "l19": {
+    "title": [
+     "Build an open tracker that shows sign-ups and digs by block"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "l20": {
+    "title": [
+     "Check 50 tracker rows against the city's replacement records"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "lead-street-back": {
+    "title": [
+     "Back Street by Street"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "l21": {
+    "title": [
+     "Hand out 20 filters and photo the pipe if the family agrees"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "l22": {
+    "title": [
+     "Call 30 families after 30 days to check the filter is used"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     2
     ]
    }
   }
@@ -2425,7 +2849,8 @@
    ],
    "pitch": [
     "A maths tutor that works on a $50 phone with no internet, in 10 languages.",
-    "Many children finish primary school without basic maths. Get them there, even where there's no internet."
+    "Many children finish primary school without basic maths. Get them there, even where there's no internet.",
+    "Many children leave primary school unable to do basic maths. Build an open, offline tutor and an open test any school can copy, even with no internet."
    ],
    "rules": [
     [
@@ -2510,7 +2935,8 @@
      "Chalk Squad"
     ],
     "bet": [
-     "One small app that works without internet, tested in real classes."
+     "One small app that works without internet, tested in real classes.",
+     "One small offline app, tested in real classes, with code, content and test items open so any school can copy it."
     ]
    },
    "tutor-front": {
@@ -2521,7 +2947,8 @@
      "Front Row"
     ],
     "bet": [
-     "Give teachers a 10-minute daily routine that finds who is behind and helps them catch up."
+     "Give teachers a 10-minute daily routine that finds who is behind and helps them catch up.",
+     "Give teachers a 10-minute daily routine that finds who is behind and helps them catch up, written up as a free, open teacher guide."
     ]
    }
   },
@@ -2755,6 +3182,34 @@
     "stage": [
      4
     ]
+   },
+   "t18": {
+    "title": [
+     "Write the 10-minute daily check for Grade 3"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "t19": {
+    "title": [
+     "Score Front Row's class with the same end test"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     4
+    ]
    }
   }
  },
@@ -2765,7 +3220,8 @@
    ],
    "pitch": [
     "Help poor families claim the pensions, scholarships and ration cards they already have a right to.",
-    "Help poor families in UP claim the pensions, scholarships and ration they already have a right to."
+    "Help poor families in UP claim the pensions, scholarships and ration they already have a right to.",
+    "Poor families in UP miss pensions and ration they have a right to. Build an open, checked map of every scheme that any volunteer or helper can use."
    ],
    "rules": [
     [],
@@ -2847,7 +3303,8 @@
      "Haq Helpers"
     ],
     "bet": [
-     "A WhatsApp helper that answers in 6 languages."
+     "A WhatsApp helper that answers in 6 languages.",
+     "A WhatsApp helper that answers in 6 languages, built on open, checked scheme cards anyone can reuse."
     ]
    },
    "ben-village": {
@@ -2870,6 +3327,17 @@
     ],
     "bet": [
      "Partner with NGOs that already help families with forms."
+    ]
+   },
+   "ben-dbt": {
+    "name": [
+     "Fix failed payments for families already approved"
+    ],
+    "squad": [
+     "Payment Fixers"
+    ],
+    "bet": [
+     "Many families in Sitapur and Banda are already approved, but their money bounces. Fix the bank link first and reach Paid without waiting for new applications."
     ]
    }
   },
@@ -2932,7 +3400,8 @@
     ],
     "stage": [
      1,
-     2
+     2,
+     3
     ]
    },
    "b5": {
@@ -2947,7 +3416,8 @@
     ],
     "stage": [
      1,
-     2
+     2,
+     3
     ]
    },
    "b6": {
@@ -2978,7 +3448,8 @@
     ],
     "stage": [
      1,
-     2
+     2,
+     3
     ]
    },
    "b8": {
@@ -3034,7 +3505,8 @@
      "S"
     ],
     "stage": [
-     2
+     2,
+     3
     ]
    },
    "b15": {
@@ -3062,7 +3534,8 @@
      "S"
     ],
     "stage": [
-     2
+     2,
+     3
     ]
    },
    "b12": {
@@ -3106,6 +3579,90 @@
     "stage": [
      4
     ]
+   },
+   "b17": {
+    "title": [
+     "Write the 5 reasons a payment fails, in plain Hindi"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "b18": {
+    "title": [
+     "Help 5 approved families check their payment status"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "b19": {
+    "title": [
+     "Set up one Saturday seeding camp with a bank branch in Banda"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "b20": {
+    "title": [
+     "Build the open table of failure reasons by block"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "b21": {
+    "title": [
+     "Check 25 'fixed' families really got the money"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "ben-dbt-back": {
+    "title": [
+     "Back Payment Fixers' seeding camps"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     4
+    ]
    }
   }
  },
@@ -3118,7 +3675,8 @@
    "pitch": [
     "Plain facts on every candidate in the Pune city election, from public records only.",
     "Plain facts on every candidate in Pune district's 21 Assembly seats, straight from their sworn affidavits.",
-    "Candidates' sworn facts are public but buried in long PDFs. Put them in front of voters in Pune district before they vote."
+    "Candidates' sworn facts are public but buried in long PDFs. Put them in front of voters in Pune district before they vote.",
+    "Candidates' sworn facts are buried in long PDFs. Turn all 310 Pune affidavits into open, double-checked facts anyone can read, print or share."
    ],
    "rules": [
     [],
@@ -3198,7 +3756,8 @@
      "Vote Clear"
     ],
     "bet": [
-     "Turn every affidavit into the same plain one-page profile."
+     "Turn every affidavit into the same plain one-page profile.",
+     "Turn every affidavit into the same plain one-page profile, every fact tied to its page, all released openly."
     ]
    },
    "cand-talk": {
@@ -3209,7 +3768,19 @@
      "Chai Charcha"
     ],
     "bet": [
-     "Read the one-pagers aloud at chai stalls and housing societies. People trust a face more than a link."
+     "Read the one-pagers aloud at chai stalls and housing societies. People trust a face more than a link.",
+     "Read the checked one-pagers aloud at chai stalls and housing societies. People trust a face more than a link."
+    ]
+   },
+   "cand-data": {
+    "name": [
+     "Double-type every number into open data"
+    ],
+    "squad": [
+     "Open Affidavit Data"
+    ],
+    "bet": [
+     "Two volunteers type every number separately. Where they agree, it's done; where they don't, a Checker looks at the page. Release it all as open data before the silence period."
     ]
    }
   },
@@ -3226,7 +3797,8 @@
     ],
     "stage": [
      1,
-     2
+     2,
+     3
     ]
    },
    "k2": {
@@ -3241,7 +3813,8 @@
     ],
     "stage": [
      1,
-     2
+     2,
+     3
     ]
    },
    "k3": {
@@ -3256,7 +3829,8 @@
     ],
     "stage": [
      1,
-     2
+     2,
+     3
     ]
    },
    "k4": {
@@ -3287,7 +3861,8 @@
     ],
     "stage": [
      1,
-     2
+     2,
+     3
     ]
    },
    "k6": {
@@ -3329,7 +3904,8 @@
      "M"
     ],
     "stage": [
-     2
+     2,
+     3
     ]
    },
    "k14": {
@@ -3343,7 +3919,8 @@
      "S"
     ],
     "stage": [
-     2
+     2,
+     3
     ]
    },
    "k15": {
@@ -3357,7 +3934,8 @@
      "S"
     ],
     "stage": [
-     2
+     2,
+     3
     ]
    },
    "k8": {
@@ -3371,7 +3949,8 @@
      "M"
     ],
     "stage": [
-     2
+     2,
+     3
     ]
    },
    "k9": {
@@ -3385,7 +3964,8 @@
      "S"
     ],
     "stage": [
-     2
+     2,
+     3
     ]
    },
    "k16": {
@@ -3399,7 +3979,8 @@
      "S"
     ],
     "stage": [
-     2
+     2,
+     3
     ]
    },
    "k10": {
@@ -3413,7 +3994,8 @@
      "S"
     ],
     "stage": [
-     2
+     2,
+     3
     ]
    },
    "k11": {
@@ -3455,7 +4037,120 @@
      "S"
     ],
     "stage": [
-     2
+     2,
+     4
+    ]
+   },
+   "k18": {
+    "title": [
+     "Type the asset table from 3 affidavit pages"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "k19": {
+    "title": [
+     "Settle 30 mismatches between two typists"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "k20": {
+    "title": [
+     "Build the double-entry form and mismatch list"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "k21": {
+    "title": [
+     "Write the column guide: which number goes where"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "k22": {
+    "title": [
+     "Choose the open licence and the reuse rules"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "cand-data-back": {
+    "title": [
+     "Back Open Affidavit Data's typists"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "k23": {
+    "title": [
+     "Read one seat's profiles aloud at a housing society"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "k24": {
+    "title": [
+     "Sit in on a reading and check it was neutral"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     4
     ]
    }
   }
@@ -3468,7 +4163,8 @@
    ],
    "pitch": [
     "Pin every pothole, file it with the city, and chase it until it's fixed.",
-    "Potholes throw Bengaluru's riders off their bikes every week. Get the worst ones fixed fast, and keep them fixed."
+    "Potholes throw Bengaluru's riders off their bikes every week. Get the worst ones fixed fast, and keep them fixed.",
+    "Potholes throw Bengaluru's riders off their bikes every week. Build an open map with thousands of riders, and get the worst ones fixed for good."
    ],
    "rules": [
     [],
@@ -3562,7 +4258,8 @@
      "Pothole Patrol"
     ],
     "bet": [
-     "Delivery riders and commuters pin potholes on routes they already take."
+     "Delivery riders and commuters pin potholes on routes they already take.",
+     "Delivery riders and commuters pin potholes on routes they already take, onto one open map anyone can download."
     ]
    },
    "pot-crash": {
@@ -3573,7 +4270,19 @@
      "Crash Map"
     ],
     "bet": [
-     "Start where riders actually crash, not where potholes are. Fix those first."
+     "Start where riders actually crash, not where potholes are. Fix those first.",
+     "Start where riders actually crash, not where potholes are. Push the 100 worst spots to the front of the queue."
+    ]
+   },
+   "pot-fix": {
+    "name": [
+     "Relay the 10 worst stretches and prove crashes drop"
+    ],
+    "squad": [
+     "Fix It Right"
+    ],
+    "bet": [
+     "Patching pothole by pothole never ends. Take the 10 stretches where riders crash most, get them properly relaid through ward committees, and show crashes fall."
     ]
    }
   },
@@ -3589,7 +4298,8 @@
      "S"
     ],
     "stage": [
-     1
+     1,
+     2
     ]
    },
    "p2": {
@@ -3603,7 +4313,8 @@
      "S"
     ],
     "stage": [
-     1
+     1,
+     2
     ]
    },
    "p3": {
@@ -3617,7 +4328,8 @@
      "M"
     ],
     "stage": [
-     1
+     1,
+     2
     ]
    },
    "p4": {
@@ -3646,7 +4358,8 @@
      "S"
     ],
     "stage": [
-     1
+     1,
+     2
     ]
    },
    "p6": {
@@ -3660,7 +4373,8 @@
      "M"
     ],
     "stage": [
-     1
+     1,
+     2
     ]
    },
    "p8": {
@@ -3674,7 +4388,8 @@
      "M"
     ],
     "stage": [
-     1
+     1,
+     2
     ]
    },
    "p9": {
@@ -3688,7 +4403,8 @@
      "S"
     ],
     "stage": [
-     1
+     1,
+     2
     ]
    },
    "p10": {
@@ -3702,7 +4418,8 @@
      "M"
     ],
     "stage": [
-     1
+     1,
+     2
     ]
    },
    "p11": {
@@ -3716,7 +4433,8 @@
      "S"
     ],
     "stage": [
-     1
+     1,
+     2
     ]
    },
    "p12": {
@@ -3730,7 +4448,8 @@
      "S"
     ],
     "stage": [
-     1
+     1,
+     2
     ]
    },
    "p7": {
@@ -3744,7 +4463,8 @@
      "S"
     ],
     "stage": [
-     1
+     1,
+     2
     ]
    },
    "p13": {
@@ -3814,7 +4534,120 @@
      "M"
     ],
     "stage": [
-     1
+     1,
+     3
+    ]
+   },
+   "p18": {
+    "title": [
+     "Pick the 10 road stretches with the most crashes"
+    ],
+    "role": [
+     "planner"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "p19": {
+    "title": [
+     "Turn the road code into a 10-point repair checklist"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "p20": {
+    "title": [
+     "Count near-misses at one bad stretch for 1 hour"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "p21": {
+    "title": [
+     "Ask for crash counts on the 10 stretches under the RTI Act"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "p22": {
+    "title": [
+     "Show before photos and the checklist at a ward committee"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "pot-fix-back": {
+    "title": [
+     "Back Fix It Right's crash counts"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "p23": {
+    "title": [
+     "Chase the top 20 crash-spot complaints every 15 days"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     3
+    ]
+   },
+   "p24": {
+    "title": [
+     "Re-check 20 crash-to-pin matches"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     3
     ]
    }
   }
@@ -3828,7 +4661,8 @@
    "pitch": [
     "Use information requests to see what 100 government schools got, and check what's really there.",
     "Use RTI requests to see what 100 Bihar government schools were given, then check what is really there.",
-    "Money for toilets, books and teachers is sent, but often never arrives. Follow it to 100 schools and get the gaps fixed."
+    "Money for toilets, books and teachers is sent, but often never arrives. Follow it to 100 schools and get the gaps fixed.",
+    "School money in Bihar is sent but often never arrives. Build an open ledger of 100 schools from public data, replies and visits, and get the gaps fixed."
    ],
    "rules": [
     [],
@@ -3947,7 +4781,19 @@
      "Parent Panel"
     ],
     "bet": [
-     "Help parents on School Management Committees read the school's own accounts at their meetings."
+     "Help parents on School Management Committees read the school's own accounts at their meetings.",
+     "Parents on School Management Committees ask about the school's own accounts at their meetings, and keep asking until the missing thing arrives."
+    ]
+   },
+   "rti-open": {
+    "name": [
+     "Report cards from public data now, replies added later"
+    ],
+    "squad": [
+     "Open Ledger"
+    ],
+    "bet": [
+     "Stop waiting for 59 late replies. Much of the trail is already public: UDISE+ school data, grant rules, and the 41 replies in hand. Build an open ledger for all 100 schools now and fill gaps as replies come."
     ]
    }
   },
@@ -4192,7 +5038,120 @@
      "M"
     ],
     "stage": [
-     3
+     3,
+     6
+    ]
+   },
+   "s19": {
+    "title": [
+     "Pull UDISE+ facts for all 100 schools into one open sheet"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "s20": {
+    "title": [
+     "Work out each school's expected grant from the norms"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "s21": {
+    "title": [
+     "Code 10 RTI replies into the open ledger"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "s22": {
+    "title": [
+     "Visit one school with the 12-item checklist"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "s23": {
+    "title": [
+     "Write draft report cards for 5 schools in plain Hindi"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "rti-open-back": {
+    "title": [
+     "Back Open Ledger's school visits"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "s24": {
+    "title": [
+     "Ask 5 grant questions at your school's committee meeting"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     6
+    ]
+   },
+   "s25": {
+    "title": [
+     "Follow one missing item until it arrives"
+    ],
+    "role": [
+     "leader"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     6
     ]
    }
   }
@@ -4206,7 +5165,8 @@
    "pitch": [
     "River sensors that text families 2 hours before a flood.",
     "River and rain gauges that text families in Yoruba, Pidgin or English before the water comes.",
-    "Floods hit Lagos streets with no warning. Give families two hours to move people and things to safety."
+    "Floods hit Lagos streets with no warning. Give families two hours to move people and things to safety.",
+    "Floods hit Lagos streets with no warning. Build an open flood map and cheap open-hardware river gauges, kept alive by neighbours, so families get two hours to move."
    ],
    "rules": [
     [],
@@ -4298,7 +5258,19 @@
      "Street Watch"
     ],
     "bet": [
-     "One trained captain per street who warns neighbours by phone and loudspeaker."
+     "One trained captain per street who warns neighbours by phone and loudspeaker.",
+     "One trained captain per street signs neighbours up for alerts door to door and warns them by phone and loudspeaker. People trust a neighbour more than a text."
+    ]
+   },
+   "flood-marks": {
+    "name": [
+     "Painted depth marks + open forecasts"
+    ],
+    "squad": [
+     "River Marks"
+    ],
+    "bet": [
+     "Skip the electronics. Paint big depth marks on bridges, let residents send a photo of the water, mix it with free open river forecasts, and hand the council a warning system that costs almost nothing to run."
     ]
    }
   },
@@ -4527,7 +5499,120 @@
      "M"
     ],
     "stage": [
-     1
+     1,
+     2
+    ]
+   },
+   "f17": {
+    "title": [
+     "Paint depth marks at 10 bridges and walls"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "f18": {
+    "title": [
+     "Build the bot that reads water level from a photo"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "f19": {
+    "title": [
+     "Check 100 bot readings against a tape measure"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "f20": {
+    "title": [
+     "Test 10 years of open river forecasts against real floods"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "f21": {
+    "title": [
+     "Send a photo of the river mark when it rains"
+    ],
+    "role": [
+     "user"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "flood-marks-back": {
+    "title": [
+     "Back River Marks"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "f22": {
+    "title": [
+     "Sign up 50 neighbours for free flood alerts"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     2
+    ]
+   },
+   "f23": {
+    "title": [
+     "Time a loudspeaker warning drill on 3 streets"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     2
     ]
    }
   }
@@ -4541,7 +5626,8 @@
    "pitch": [
     "Lawyer-checked letters renters can send in one tap: repairs, deposits, eviction.",
     "Lawyer-checked letters Atlanta renters can fill in and send: repairs, deposits, notices.",
-    "Atlanta renters live with broken heat and lose deposits, because a lawyer costs too much. Help them get what the law already gives them."
+    "Atlanta renters live with broken heat and lose deposits, because a lawyer costs too much. Help them get what the law already gives them.",
+    "Atlanta renters live with broken heat and lose deposits because a lawyer costs too much. Build free, lawyer-checked open letters that any renter, tenant group or city can copy and improve."
    ],
    "rules": [
     [],
@@ -4648,6 +5734,17 @@
     "bet": [
      "All the renters in one building ask together. Landlords answer a group faster."
     ]
+   },
+   "renter-kit": {
+    "name": [
+     "Open-source letter tool, results counted"
+    ],
+    "squad": [
+     "Open Letter Kit"
+    ],
+    "bet": [
+     "Don't wait for each checkpoint in turn. Build the free, open-source letter tool now, load each letter the day a lawyer signs it, let any tenant group run its own copy, and count real repairs from day one."
+    ]
    }
   },
   "quests": {
@@ -4662,7 +5759,8 @@
      "S"
     ],
     "stage": [
-     1
+     1,
+     2
     ]
    },
    "n1": {
@@ -4676,7 +5774,8 @@
      "S"
     ],
     "stage": [
-     1
+     1,
+     2
     ]
    },
    "n2": {
@@ -4691,7 +5790,8 @@
      "M"
     ],
     "stage": [
-     1
+     1,
+     2
     ]
    },
    "n3": {
@@ -4705,7 +5805,8 @@
      "S"
     ],
     "stage": [
-     1
+     1,
+     2
     ]
    },
    "n4": {
@@ -4719,7 +5820,8 @@
      "S"
     ],
     "stage": [
-     1
+     1,
+     2
     ]
    },
    "n5": {
@@ -4733,7 +5835,8 @@
      "M"
     ],
     "stage": [
-     1
+     1,
+     2
     ]
    },
    "n6": {
@@ -4747,7 +5850,8 @@
      "S"
     ],
     "stage": [
-     1
+     1,
+     2
     ]
    },
    "n7": {
@@ -4761,7 +5865,8 @@
      "M"
     ],
     "stage": [
-     1
+     1,
+     2
     ]
    },
    "n11": {
@@ -4775,7 +5880,8 @@
      "S"
     ],
     "stage": [
-     1
+     1,
+     2
     ]
    },
    "n9": {
@@ -4789,7 +5895,8 @@
      "M"
     ],
     "stage": [
-     1
+     1,
+     2
     ]
    },
    "n8": {
@@ -4803,7 +5910,8 @@
      "M"
     ],
     "stage": [
-     1
+     1,
+     2
     ]
    },
    "n10": {
@@ -4817,7 +5925,8 @@
      "M"
     ],
     "stage": [
-     1
+     1,
+     2
     ]
    },
    "n12": {
@@ -4873,7 +5982,120 @@
      "M"
     ],
     "stage": [
-     1
+     1,
+     4
+    ]
+   },
+   "n18": {
+    "title": [
+     "Build the open-source 3-question letter tool"
+    ],
+    "role": [
+     "maker"
+    ],
+    "size": [
+     "L"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "n19": {
+    "title": [
+     "Prove the tool keeps no personal data"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "n20": {
+    "title": [
+     "Watch 10 renters use the tool on their own phones"
+    ],
+    "role": [
+     "champion"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "n21": {
+    "title": [
+     "Write the 60-day follow-up text in English and Spanish"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "n22": {
+    "title": [
+     "Check 20 \"repair done\" answers with the renters"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "renter-kit-back": {
+    "title": [
+     "Back Open Letter Kit"
+    ],
+    "role": [
+     "patron"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     5
+    ]
+   },
+   "n16": {
+    "title": [
+     "Explain the anti-retaliation rule in 5 plain lines"
+    ],
+    "role": [
+     "expert"
+    ],
+    "size": [
+     "S"
+    ],
+    "stage": [
+     4
+    ]
+   },
+   "n17": {
+    "title": [
+     "Have a volunteer lawyer read the group letter before it goes"
+    ],
+    "role": [
+     "checker"
+    ],
+    "size": [
+     "M"
+    ],
+    "stage": [
+     4
     ]
    }
   }
@@ -4887,7 +6109,8 @@
    "pitch": [
     "Find every public fountain and get the broken ones fixed.",
     "Map Berlin's public drinking fountains and street pumps, and get the broken ones fixed.",
-    "In a heatwave, people need free water nearby. Map every public fountain and pump, and get the broken ones running."
+    "In a heatwave, people need free water nearby. Map every public fountain and pump, and get the broken ones running.",
+    "In a heatwave, people need free water nearby. Put every Berlin fountain and street pump on the open map, free for any app, and get the broken ones running."
    ],
    "rules": [
     [],
@@ -5052,7 +6275,8 @@
    ],
    "pitch": [
     "A ramp anyone can build from one sheet of plywood.",
-    "One step at the door keeps wheelchair users out of many shops. Design a $40 ramp anyone can build, and get it built."
+    "One step at the door keeps wheelchair users out of many shops. Design a $40 ramp anyone can build, and get it built.",
+    "One step at the door keeps wheelchair users out of many shops. We made an open $40 ramp design, tested it in public, and people built 300 of them in 12 countries."
    ],
    "rules": [
     [],
@@ -5131,7 +6355,8 @@
      "Small Crew"
     ],
     "bet": [
-     "Split the design into 12 small jobs, test hard, then let people build it everywhere."
+     "Split the design into 12 small jobs, test hard, then let people build it everywhere.",
+     "Split one open ramp design into 12 small jobs, test it hard in public, then let people build it everywhere."
     ]
    }
   },
@@ -5218,7 +6443,8 @@
    "pitch": [
     "Report every broken village hand pump in Barmer and get it fixed.",
     "Report every broken village hand pump in four Barmer blocks, and keep at it until it pumps water again.",
-    "When the village hand pump breaks, women in Barmer walk far for water. Find every broken pump in four blocks and get it pumping again."
+    "When the village hand pump breaks, women in Barmer walk far for water. Find every broken pump in four blocks and get it pumping again.",
+    "When the village hand pump breaks, women in Barmer walk far for water. Build an open, photo-checked list of every pump in four blocks, so anyone can push for repairs and check they last."
    ],
    "rules": [
     [],
@@ -5397,7 +6623,8 @@
    ],
    "pitch": [
     "A $20 sensor that tells teachers when to open a window.",
-    "Stale air makes kids sleepy and sick. Tell teachers when to open a window, with a sensor schools can afford."
+    "Stale air makes kids sleepy and sick. Tell teachers when to open a window, with a sensor schools can afford.",
+    "Stale air makes kids sleepy and sick. An open CO2 sensor design and test data anyone can build on, so teachers know when to open a window."
    ],
    "rules": [
     [],
@@ -5449,7 +6676,8 @@
      "Fresh Air Crew"
     ],
     "bet": [
-     "A simple, open sensor with a traffic-light display can hit $20 at 50 units."
+     "A simple, open sensor with a traffic-light display can hit $20 at 50 units.",
+     "A simple open sensor with a traffic-light display can hit $20 at 50 units, and anyone can build or fix it."
     ]
    }
   },
