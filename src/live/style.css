@@ -67,6 +67,15 @@
 .creation-idea-dock .chip { font-size: 12px; }
 .creation-chat .form-card > .btn { align-self: flex-start; }
 .creation-chat .form-card > .btn.block { align-self: stretch; }
+.creation-chat .creation-context { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 10px 12px; border: var(--line-1); border-radius: 10px; background: var(--frost); overflow-wrap: anywhere; }
+.creation-chat .creation-context .eyebrow { margin: 0; }
+.creation-chat .creation-context p { margin: 0; }
+.creation-chat .creation-draft-note { margin: 8px 0 0; }
+.creation-chat .creation-criteria-options button,
+.creation-chat .creation-criteria-review .chip { max-width: 100%; height: auto; white-space: normal; overflow-wrap: anywhere; text-align: left; line-height: 1.35; }
+.creation-chat .creation-criteria-review { display: flex; flex-direction: column; gap: 7px; margin-top: 10px; }
+.creation-chat .creation-criteria-review > div { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.creation-chat .creation-criteria-review .chip { display: inline-flex; }
 .live-form .mini-roles { display: flex; flex-wrap: wrap; gap: 8px; }
 .live-form .mini-roles label { border: var(--line-1); border-radius: 9px; padding: 6px 10px; background: var(--white); }
 .live-artifact { white-space: pre-wrap; overflow-wrap: anywhere; font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; max-height: 50vh; overflow: auto; padding: 14px; background: var(--frost); border-radius: 8px; }

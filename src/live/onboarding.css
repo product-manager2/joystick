@@ -1,5 +1,6 @@
 .live-onboard .display { font-size: 30px; }
 .live-onboard .eyebrow { margin-top: 6px; }
+.live-onboard .onboard-help { margin: 7px 0 0; line-height: 1.45; }
 .live-onboard .onboard-options { display: flex; justify-content: space-between; gap: 12px; }
 .live-onboard .onboard-options .linkbtn { width: auto; }
 .live-onboard .ob-topics { flex-wrap: wrap; }
