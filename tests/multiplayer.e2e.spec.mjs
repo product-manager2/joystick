@@ -42,6 +42,20 @@ async function clickTab(page, name) {
   await page.getByRole("tab", { name, exact: true }).click();
 }
 
+async function openMissionFromExplore(page, title) {
+  await clickTab(page, "Explore");
+  await page.locator('.chips [data-live="filter"][data-id="All"]').click();
+  const list = page.locator(".poster-list");
+  const target = list.locator('[data-live="mission"]').filter({ hasText: title });
+  for (let batch = 0; batch < 25 && await target.count() === 0; batch++) {
+    const more = list.locator('[data-live="list-more"]');
+    if (await more.count() === 0) throw new Error(`Mission ${title} was absent after revealing every Explore batch`);
+    await more.click();
+  }
+  await expect(target).toBeVisible();
+  await target.click();
+}
+
 async function holdActionAfterCommit(page, actionName) {
   let startedResolve, releaseResolve;
   const started = new Promise(resolve => { startedResolve = resolve; });
@@ -102,8 +116,9 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await expect(ownerPage.locator(".mission-personal-money .kvrow").filter({ hasText: "Reserved by you" })).toContainText("50");
 
     for (const page of [makerPage, reviewerPage]) {
-      await clickTab(page, "Explore");
-      await page.getByRole("button", { name: new RegExp(missionTitle) }).click();
+      await page.reload();
+      await expect(page.getByRole("heading", { name: "Missions" })).toBeVisible();
+      await openMissionFromExplore(page, missionTitle);
       await page.getByRole("button", { name: "Join mission", exact: true }).first().click();
       await page.getByRole("button", { name: "Join mission", exact: true }).last().click();
       await expect(page.getByText("Joined mission", { exact: true })).toBeVisible();
