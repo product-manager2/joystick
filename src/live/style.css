@@ -76,6 +76,7 @@
 .creation-chat .creation-criteria-review { display: flex; flex-direction: column; gap: 7px; margin-top: 10px; }
 .creation-chat .creation-criteria-review > div { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
 .creation-chat .creation-criteria-review .chip { display: inline-flex; }
+.creation-chat .amounts button.chip[aria-pressed="true"] { color: var(--ink); }
 .live-form .mini-roles { display: flex; flex-wrap: wrap; gap: 8px; }
 .live-form .mini-roles label { border: var(--line-1); border-radius: 9px; padding: 6px 10px; background: var(--white); }
 .live-artifact { white-space: pre-wrap; overflow-wrap: anywhere; font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; max-height: 50vh; overflow: auto; padding: 14px; background: var(--frost); border-radius: 8px; }
