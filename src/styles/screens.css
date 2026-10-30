@@ -558,3 +558,26 @@ button.chip.trust { background: var(--mint); color: var(--green-d); border-color
 .squadcard { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; }
 .squadcard .stack .av { width: 30px; height: 30px; }
 .gmap .trow + .crow { margin-top: 70px; }
+
+/* Squad lanes: each squad's own milestones, side by side, meeting at the goal */
+.lanes-map { gap: 18px; }
+.map-cap { text-align: center; margin: 0 8px; font-size: 14px; }
+.lanes { display: grid; grid-template-columns: repeat(var(--lanes), minmax(0, 1fr)); gap: 10px; align-items: stretch; }
+.lane { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 6px 0; background: var(--card); border: var(--line-2); border-radius: 16px; box-shadow: var(--pop-sm); color: inherit; text-align: center; }
+.lane[data-mine="1"] { border-color: var(--blue); box-shadow: 3px 3px 0 var(--blue); }
+.lane .flag.you { position: absolute; top: -11px; left: 50%; transform: translateX(-50%); z-index: 2; white-space: nowrap; background: var(--blue); color: var(--white); border: var(--line-1); border-radius: 6px; font-family: var(--type); font-size: 11px; font-weight: 800; padding: 1px 6px; }
+.lane .tdisc { width: 40px; height: 40px; display: grid; place-items: center; border: var(--line-2); border-radius: 50%; background: var(--track); color: var(--white); font-family: var(--display); font-size: 14px; -webkit-text-stroke: 2.5px var(--ink); paint-order: stroke fill; }
+.lane-name { display: flex; flex-direction: column; min-width: 0; font-size: 12px; line-height: 1.2; }
+.lane-name b { font-size: 13px; }
+.lane-name i { font-style: normal; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.msteps { position: relative; flex: 1; display: flex; flex-direction: column; justify-content: space-between; align-items: center; gap: 14px; padding: 8px 0 4px; min-height: 190px; }
+.msteps::before { content: ""; position: absolute; top: 8px; bottom: 4px; left: 50%; width: 6px; transform: translateX(-50%); border-radius: 3px; background: linear-gradient(var(--track) 0 var(--pct), var(--paper-2) var(--pct)); border: 1.5px solid var(--ink); }
+.mstep { position: relative; z-index: 1; }
+.mdot { width: 26px; height: 26px; display: grid; place-items: center; border: var(--line-2); border-radius: 50%; background: var(--paper); font-size: 11px; font-weight: 800; color: var(--ink-2); }
+.mstep.done .mdot { background: var(--green-d); color: var(--white); }
+.mstep.here .mdot { width: 34px; height: 34px; background: var(--track); color: var(--white); -webkit-text-stroke: 2px var(--ink); paint-order: stroke fill; animation: bob 1.4s ease-in-out infinite; }
+.lane-end { display: block; width: 1px; height: 1px; }
+.map-pager { justify-content: space-between; align-items: center; }
+.map-where { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 13px; }
+.map-where li { padding-left: 12px; border-left: 5px solid var(--track); }
+.stage-link { width: 100%; text-align: left; color: inherit; }

@@ -133,6 +133,16 @@ export function drawTrail() {
   const map = $("#map"), svg = $("#trail");
   if (!map) return;
   const r = map.getBoundingClientRect();
+  // Squad lanes run side by side and only join at the goal
+  if (map.classList.contains("lanes-map")) {
+    const goal = map.querySelector(".goal .cdisc")?.getBoundingClientRect();
+    svg.innerHTML = goal ? [...map.querySelectorAll(".lane")].map(lane => {
+      const e = lane.querySelector(".lane-end").getBoundingClientRect(), x1 = e.left - r.left + e.width / 2, y1 = e.top - r.top, x2 = goal.left - r.left + goal.width / 2, y2 = goal.top - r.top + 4;
+      const d = `M${x1} ${y1} C ${x1} ${(y1 + y2) / 2}, ${x2} ${(y1 + y2) / 2}, ${x2} ${y2}`;
+      return `<path d="${d}" stroke="var(--ink)" stroke-width="4" fill="none" stroke-linecap="round" ${lane.dataset.done ? "" : 'stroke-dasharray="1 10"'}/>${lane.dataset.done ? `<path d="${d}" stroke="${getComputedStyle(lane).getPropertyValue("--track")}" stroke-width="2" fill="none"/>` : ""}`;
+    }).join("") : "";
+    return;
+  }
   const mid = el => { const d = el.querySelector(".tdisc, .cdisc").getBoundingClientRect(); return [d.left - r.left + d.width / 2, d.top - r.top + d.height / 2]; };
   // A squad's path starts under its label, so its progress colour sits on that one line
   const start = el => { const lb = el.dataset.pct && el.querySelector(".tl"); if (!lb) return mid(el); const b = lb.getBoundingClientRect(); return [b.left - r.left + b.width / 2, b.bottom - r.top + 2]; };

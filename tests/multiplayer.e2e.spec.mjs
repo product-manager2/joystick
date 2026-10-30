@@ -73,12 +73,12 @@ async function holdActionAfterCommit(page, actionName) {
   return { started, release: releaseResolve, unroute: () => page.unroute(pattern, handler) };
 }
 
-// A mission opens inside your squad once you have one; checkpoints live on the mission map.
+// A mission opens inside your squad once you have one; the stage's shared tasks open from the Plans tab.
 async function openCheckpoint(page, n) {
   await page.locator(".plan-chat, #map, .live-segment-tabs").first().waitFor();
   const back = page.getByRole("button", { name: "Mission map" });
   if (await back.isVisible()) await back.click();
-  const tab = page.getByRole("tab", { name: "Map" });
+  const tab = page.getByRole("tab", { name: "Plans" });
   if (await tab.getAttribute("aria-selected") !== "true") await tab.click();
   await page.locator(`#c-${n - 1}`).click();
 }
@@ -124,7 +124,7 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await expect(ownerPage.locator(".token-preview")).toContainText(/Expected: 15 J[A-F0-9]{8}/);
     await ownerPage.getByRole("button", { name: "Reserve 50 credits", exact: true }).click();
     await expect(ownerPage.locator(".mission-money-overview")).toContainText("50 available funding");
-    await expect(ownerPage.locator(".mission-personal-money .kvrow").filter({ hasText: "Reserved by you" })).toContainText("50");
+    await expect(ownerPage.locator(".mission-money-overview .kvrow").filter({ hasText: "Reserved by you" })).toContainText("50");
     await expect(ownerPage.locator(".mission-token-card")).toContainText(/15.*J[A-F0-9]{8}|J[A-F0-9]{8}.*15/);
 
     for (const page of [makerPage, reviewerPage]) {

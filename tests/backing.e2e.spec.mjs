@@ -21,7 +21,10 @@ test("a backing task backs the squad and hands in the receipt in one step", asyn
   await page.getByRole("button", { name: "All", exact: true }).click();
   while (!(await page.getByText(pick.mission).count())) await page.getByRole("button", { name: /Show more/ }).first().click();
   await page.getByText(pick.mission).first().click();
-  await page.locator(".tnode", { hasText: pick.squad }).click();
+  // The map shows three squads at a time
+  const lane = page.locator(".lane", { hasText: pick.squad });
+  while (!(await lane.count())) await page.getByRole("button", { name: "More squads ›" }).click();
+  await lane.click();
   await page.getByRole("button", { name: `Join ${pick.squad}` }).click();
   await expect(page.getByText("✓ Your squad")).toBeVisible();
   const task = page.getByRole("button", { name: pick.task });
