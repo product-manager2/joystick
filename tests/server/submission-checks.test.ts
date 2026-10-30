@@ -18,7 +18,7 @@ test('a clear Jev failure returns specific guidance without a fallback',async()=
 });
 test('ambiguous Jev evidence uses a bounded, forced-tool Haiku result',async()=>{
   let calls=0;
-  const result=await evaluateSubmission(config,input,{fetch:async (_url,init)=>{calls++;if(calls===1)return answer([.5,.9,.9]);const body=JSON.parse(String(init?.body));assert.equal(body.tool_choice.name,'report_check');assert.equal(body.model,'claude-haiku-5-5');return new Response(JSON.stringify({content:[{type:'tool_use',name:'report_check',input:{status:'needs_attention',feedback:'Include the survey evidence.'}}]}),{status:200});}});
+  const result=await evaluateSubmission(config,input,{fetch:async (_url,init)=>{calls++;if(calls===1)return answer([.5,.9,.9]);const body=JSON.parse(String(init?.body));assert.equal(body.tool_choice.name,'report_check');assert.equal(body.model,'claude-haiku-5-5');for(const field of ['temperature','top_p','top_k'])assert.equal(Object.hasOwn(body,field),false);return new Response(JSON.stringify({stop_reason:'tool_use',content:[{type:'text',text:'Unrelated preface'},{type:'tool_use',name:'report_check',input:{status:'needs_attention',feedback:'Include the survey evidence.'}}]}),{status:200});}});
   assert.equal(calls,2);assert.equal(result.source,'llm');assert.equal(result.status,'needs_attention');
 });
 test('oversized evidence is unavailable and never sent to a provider',async()=>{
@@ -27,4 +27,8 @@ test('oversized evidence is unavailable and never sent to a provider',async()=>{
 });
 test('provider failures are not classified as a failed submission',async()=>{
   await assert.rejects(()=>evaluateSubmission(config,input,{fetch:async()=>new Response('error',{status:503})}),/submission_review_unavailable/);
+});
+for(const stopReason of ['refusal','max_tokens'])test(`${stopReason} cannot pass through a tool block`,async()=>{
+  let calls=0;
+  await assert.rejects(()=>evaluateSubmission(config,input,{fetch:async()=>{calls++;return calls===1?answer([.5,.9,.9]):new Response(JSON.stringify({stop_reason:stopReason,content:[{type:'tool_use',name:'report_check',input:{status:'passed',feedback:'Passed'}}]}),{status:200});}}),/submission_review_unavailable/);
 });
