@@ -186,6 +186,11 @@ test("mission, plan, task, submission, and account state survive reload", async 
     await expect(page.locator("#msgs")).toHaveCount(1);
     await page.getByRole("button", { name: "Edit and submit" }).click();
     await expect(page.locator("#quest-inline-submit")).toBeVisible();
+    await expect(page.getByLabel("Artifact title")).toBeFocused();
+    const titleBox = await page.getByLabel("Artifact title").boundingBox();
+    const timelineBox = await page.locator("#msgs").boundingBox();
+    expect(titleBox.y).toBeGreaterThanOrEqual(timelineBox.y);
+    expect(titleBox.y + titleBox.height).toBeLessThanOrEqual(timelineBox.y + timelineBox.height);
     await expect(page.getByLabel("Work and evidence")).toHaveValue("Draft from local guide");
     await page.getByLabel("Artifact title").fill("Edited research");
     await page.getByLabel("Work and evidence").fill("Unsaved task evidence");

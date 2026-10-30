@@ -247,10 +247,15 @@ test("multiplayer artifact reviews, simulated funding, and stage history", async
     await ownerPage.getByRole("button", { name: "Back", exact: true }).click();
     await clickTab(ownerPage, "About");
     await ownerPage.getByRole("button", { name: "Story & outputs" }).click();
-    await expect(ownerPage.getByText("Stage history", { exact: true })).toBeVisible();
-    await expect(ownerPage.getByText("approved", { exact: true })).toBeVisible();
-    await expect(ownerPage.getByText(/version 1/i)).toBeVisible();
-    await expect(ownerPage.getByText(/version 2/i)).toBeVisible();
+    await expect(ownerPage.getByRole("heading", { name: "How it went" })).toBeVisible();
+    const stageStory = ownerPage.locator(".mission-recap .mstones");
+    await expect(stageStory.locator("li").filter({ hasText: "Research" })).toContainText("Approved · 1/1 tasks approved");
+    await expect(stageStory.locator("li").filter({ hasText: "Delivery" })).toContainText("In progress");
+    const outputs = ownerPage.locator(".mission-recap .recap-output-list");
+    await expect(outputs.getByText("Evidence v1")).toBeVisible();
+    await expect(outputs.getByText("Evidence v2")).toBeVisible();
+    await expect(outputs.getByText(/version 1/i)).toBeVisible();
+    await expect(outputs.getByText(/version 2/i)).toBeVisible();
   } finally {
     await Promise.all(accounts.map(({ context }) => context.close()));
   }
