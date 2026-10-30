@@ -10,7 +10,7 @@ test("a backing task backs the squad and hands in the receipt in one step", asyn
   // Any seeded backing task that is ready to start.
   const pick = await page.evaluate(async () => {
     const { missions } = await (await fetch("/api/v1/game", { credentials: "include" })).json();
-    for (const m of missions) for (const q of m.quests) {
+    for (const m of missions.filter(x => !x.joined)) for (const q of m.quests) {
       const p = m.strategies.find(x => x.id === q.strat), s = m.stages.find(x => x.id === q.stageId);
       const deps = (q.dependencies || []).every(id => m.quests.some(x => x.id === id && x.state === "approved"));
       if (q.role === "patron" && q.title.startsWith("Back ") && q.state === "open" && p?.status === "active" && p.stageId === q.stageId && ["active", "pending"].includes(s?.status) && deps && !m.quests.some(x => x.parent === q.id)) return { mission: m.title, squad: p.squad, task: q.title };
